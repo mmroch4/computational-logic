@@ -14,7 +14,7 @@ permitir Web Workers de `'self'`.
 **Feito quando:** `npm run build:css` funciona, `npm test` corre com pelo menos um teste e o servidor
 responde em `/`.
 
-### [ ] A2 · Camada de UI genérica
+### [x] A2 · Camada de UI genérica
 Copia e adapta de `.reference/sat/js/ui/` o que não é específico do SAT: `config`, `i18n`, `storage`
 (chaves `nd:v1:*`), `motion`, `layout`, `menu`, `message`, `analytics`, e `DESIGN.md`, retirando tudo
 o que for SAT. Copia os respetivos testes.
