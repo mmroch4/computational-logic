@@ -108,6 +108,7 @@ const citationKindOf = ({ kind }) => (kind === "formula" ? "line" : "range");
  */
 function applyRule(rule, formula, citations, lines) {
   const used = citations.map(() => false);
+  const chosen = [];
   let applicable = false;
 
   function assign(index, substitution) {
@@ -121,6 +122,7 @@ function applyRule(rule, formula, citations, lines) {
       const bound = bindPremise(premise, citation, lines, substitution);
       if (!bound) return false;
       used[position] = true;
+      chosen[index] = citation;
       const derived = assign(index + 1, bound);
       used[position] = false;
       return derived;
@@ -128,7 +130,22 @@ function applyRule(rule, formula, citations, lines) {
   }
 
   const derives = assign(0, {});
-  return { applicable, derives };
+  return { applicable, derives, order: chosen };
+}
+
+/**
+ * As citações da linha n pela ordem das premissas da regra, ou null se nenhuma forma a justificar.
+ * Só faz sentido numa linha que passou em `verifyLine`, que é quem vê se as citações são acessíveis.
+ */
+export function citationsInRuleOrder({ lines }, n, rules) {
+  const line = lines[n - 1];
+  for (const form of rules.filter(({ id }) => id === line.rule)) {
+    if (form.premises.length === line.citations.length) {
+      const { derives, order } = applyRule(form, line.formula, line.citations, lines);
+      if (derives) return order;
+    }
+  }
+  return null;
 }
 
 const countKind = (items, kind, kindOf) => items.filter((item) => kindOf(item) === kind).length;

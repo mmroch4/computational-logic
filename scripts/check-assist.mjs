@@ -76,9 +76,18 @@ async function connect(wsUrl) {
     return result.value;
   };
   const tap = async (selector) => {
-    const box = await evaluate(`(() => {
+    // Dar foco a um campo desloca a página depois de um frame: mede-se só com a posição estável.
+    const box = await evaluate(`(async () => {
       const target = document.querySelector(${JSON.stringify(selector)});
-      target.scrollIntoView({ block: "center", behavior: "instant" });
+      const frame = () => new Promise(requestAnimationFrame);
+      let top = null;
+      for (let stable = 0; stable < 3;) {
+        target.scrollIntoView({ block: "center", behavior: "instant" });
+        await frame();
+        const now = target.getBoundingClientRect().top;
+        stable = now === top ? stable + 1 : 0;
+        top = now;
+      }
       const box = target.getBoundingClientRect();
       return { x: box.left + box.width / 2, y: box.top + box.height / 2, height: box.height };
     })()`);

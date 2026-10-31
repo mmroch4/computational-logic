@@ -1801,6 +1801,125 @@
     width: 100%;
   }
 
+  /* Árvore de Gentzen. O scroll horizontal é só deste bloco. Cada nó é uma grelha: à esquerda, o que está
+     por cima, o traço e a fórmula; à direita, a regra, à altura do traço. */
+  .tree-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .tree-panel:empty {
+    display: none;
+  }
+
+  .tree-panel__title {
+    color: var(--color-text);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .tree-panel__note,
+  .tree-panel__caption {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .tree-panel__caption {
+    min-height: 1.5em;
+    font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+
+  .gentzen {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+  }
+
+  .gentzen__inner {
+    width: max-content;
+    margin-inline: auto;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.25;
+  }
+
+  .gt {
+    display: inline-grid;
+    grid-template-columns: minmax(max-content, 1fr) auto;
+    justify-items: center;
+  }
+
+  .gt__premises {
+    display: flex;
+    grid-column: 1;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 16px;
+    min-width: 100%;
+  }
+
+  .gt__bar {
+    grid-row: 2;
+    grid-column: 1;
+    width: 100%;
+    height: 1.5px;
+    background: var(--color-text-muted);
+  }
+
+  .gt__rule {
+    display: flex;
+    grid-row: 2;
+    grid-column: 2;
+    align-items: center;
+    height: 1.5px;
+    padding-inline-start: 4px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    white-space: pre;
+  }
+
+  .gt__formula {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: 4px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    white-space: pre;
+    cursor: pointer;
+  }
+
+  .gt__formula[data-selected] {
+    background: var(--color-surface-2);
+    box-shadow: inset 0 0 0 1.5px var(--color-ink);
+  }
+
+  .gt__formula sub,
+  .gt__formula sup,
+  .gt__rule sup {
+    font-size: 0.75em;
+    line-height: 0;
+  }
+
+  .fitch__line[data-highlight] {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
+  }
+
   .examples-menu > button {
     flex-direction: column;
     align-items: flex-start;

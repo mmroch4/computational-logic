@@ -346,6 +346,14 @@ export default {
       unsound: "The rule is not sound: there is a valuation where the premises are true and the conclusion is false.",
     },
   },
+  tree: {
+    title: "Gentzen tree",
+    label: "Proof as a Gentzen tree",
+    unfinished: "The tree appears when the proof is complete.",
+    hint: "Select a formula to see the proof line it came from. Lines with R do not appear, because they only repeat a formula.",
+    tooLarge: "The tree for this proof would have more than {limit} nodes, so it is not shown: each line is repeated as many times as it is cited.",
+    line: "Line {line}: {formula} ({why})",
+  },
   fitch: {
     label: "Proof in Fitch notation",
     depth: "Subproof at level {depth}.",

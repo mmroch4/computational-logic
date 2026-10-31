@@ -172,7 +172,7 @@ export function statusHtml(status, notice) {
  * Monta o editor em `container`. Só aparece com `start(goal)`.
  * `onGoalChange(goal)`: ao desfazer ou refazer, o sequente da prova mudou.
  * `onProofChange()`: a prova mudou, por isso o que se disse sobre ela deixou de valer.
- * Devolve { start(goal), getProof(), getGoal(), getRules(), useProof(proof) }.
+ * Devolve { start(goal), getProof(), getGoal(), getRules(), highlightLine(line), useProof(proof) }.
  */
 export function mountProofEditor(container, { onGoalChange, onProofChange, rules = ruleSet("completo"), known = RULES } = {}) {
   let editor = null;
@@ -184,6 +184,8 @@ export function mountProofEditor(container, { onGoalChange, onProofChange, rules
   let selection = [];
   let choice = null;
   let reason = null;
+  /** A linha destacada de fora, ou null. */
+  let highlighted = null;
   /** Linhas com o erro já à vista: um erro novo na linha do cursor espera por uma pausa. */
   const shown = new Set();
 
@@ -210,6 +212,13 @@ export function mountProofEditor(container, { onGoalChange, onProofChange, rules
     container.querySelector(".proof-editor__status").innerHTML = statusHtml(status, editor.notice);
     container.querySelector('[data-action="undo"]').disabled = !canUndo(editor);
     container.querySelector('[data-action="redo"]').disabled = !canRedo(editor);
+  }
+
+  /** O destaque pedido de fora, que tem de sobreviver a redesenhar as linhas. */
+  function paintHighlight() {
+    container.querySelectorAll(".fitch--edit [data-line]").forEach((row) => {
+      row.toggleAttribute("data-highlight", Number(row.dataset.line) === highlighted);
+    });
   }
 
   /** O botão com o foco, para o voltar a encontrar depois de redesenhar. */
@@ -250,6 +259,7 @@ export function mountProofEditor(container, { onGoalChange, onProofChange, rules
     if (mode === "guided") {
       paintGuided(status);
       paintFooter(status);
+      paintHighlight();
       return;
     }
     let waiting = false;
@@ -263,6 +273,7 @@ export function mountProofEditor(container, { onGoalChange, onProofChange, rules
     });
     if (waiting) timer = setTimeout(() => refresh({ flush: true }), ERROR_DELAY_MS);
     paintFooter(status);
+    paintHighlight();
   }
 
   function focusCursor() {
@@ -447,6 +458,10 @@ export function mountProofEditor(container, { onGoalChange, onProofChange, rules
     getProof: () => editor?.proof ?? null,
     getGoal: () => editor?.goal ?? null,
     getRules: () => ({ rules, known }),
+    highlightLine(line) {
+      highlighted = line;
+      paintHighlight();
+    },
     useProof(proof) {
       show(loadProof(tidied(), proof, ruleLabels()));
     },

@@ -347,6 +347,14 @@ export default {
       unsound: "A regra não é sólida: há uma valoração em que as premissas são verdadeiras e a conclusão é falsa.",
     },
   },
+  tree: {
+    title: "Árvore de Gentzen",
+    label: "Prova em árvore de Gentzen",
+    unfinished: "A árvore aparece quando a prova estiver completa.",
+    hint: "Seleciona uma fórmula para ver a linha da prova de onde veio. As linhas com R não aparecem, porque só repetem uma fórmula.",
+    tooLarge: "A árvore desta prova teria mais de {limit} nós, por isso não a mostramos: cada linha repete-se tantas vezes quantas for citada.",
+    line: "Linha {line}: {formula} ({why})",
+  },
   fitch: {
     label: "Prova em notação de Fitch",
     depth: "Subdedução de nível {depth}.",
