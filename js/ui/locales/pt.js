@@ -233,6 +233,9 @@ export default {
     title: "Exercícios de dedução natural",
     lead: "Provas graduadas, com correção imediata e o teu progresso guardado.",
     empty: "Os exercícios ainda não estão disponíveis nesta página.",
+    hints: {
+      backAlongTheChain: "Começa pela implicação cujo consequente já sabes que é falso e recua um elo de cada vez.",
+    },
   },
   notFound: {
     title: "Esta página não existe",

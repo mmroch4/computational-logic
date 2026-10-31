@@ -5,7 +5,7 @@
 // Chaves usadas (todas com o prefixo nd:v1:):
 //   prefs    → { lang, speed }
 //   history  → [{ sequent, savedAt }], mais recente primeiro, máx. 20, sem sequentes repetidos
-//   progress → { [idDoExercício]: { ...estado livre definido pela página Exercícios } }
+//   progress → { [idDoExercício]: { status, ...outro estado da página } }, ver `core/exercises.js`
 //   step     → query string do Passo a passo (sequente, passo e vista), para voltar a ela
 //   prove    → query string da última prova aberta em Provar
 //   rules    → rascunhos das regras do utilizador (`serializeUserRules`), validados ao carregar

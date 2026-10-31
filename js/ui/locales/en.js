@@ -232,6 +232,9 @@ export default {
     title: "Natural deduction exercises",
     lead: "Graded proofs, with instant feedback and your progress saved.",
     empty: "The exercises are not available on this page yet.",
+    hints: {
+      backAlongTheChain: "Start with the implication whose consequent you already know is false, and go back one link at a time.",
+    },
   },
   notFound: {
     title: "This page does not exist",
