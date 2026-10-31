@@ -87,7 +87,7 @@ sequente válido pela tabela de verdade.
 **Feito quando:** o teste corre com semente fixa, e cada falso positivo encontrado está corrigido no
 verificador.
 
-### [ ] PAUSA-1 · Rever o motor
+### [x] PAUSA-1 · Rever o motor
 Antes do solver e da interface, vê se o verificador se comporta como esperas: `npm test` e
 `js/core/verify.js`. Se quiseres mudar regras ou citações, é agora que sai barato.
 
