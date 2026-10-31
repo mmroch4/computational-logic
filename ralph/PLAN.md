@@ -150,7 +150,7 @@ Conversão de Fitch para árvore de Gentzen e vista só de leitura, com scroll p
 linha correspondente.
 **Feito quando:** a conversão é testada em provas com ∨E, →I e RA.
 
-### [ ] D7 · Partilha e exportação
+### [x] D7 · Partilha e exportação
 Estado no URL, histórico local, exportação para LaTeX e impressão em PDF. Os testes de compilação LaTeX
 ficam ignorados se `pdflatex` não existir, porque não está instalado.
 **Feito quando:** abrir um link repõe a prova exata e um link inválido dá erro claro.
