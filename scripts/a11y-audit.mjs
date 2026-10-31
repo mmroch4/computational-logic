@@ -9,7 +9,8 @@
 // - cada elemento com tabindex="0" tem papel e nome;
 // - os ids são únicos (aria-labelledby e <label for> dependem deles);
 // - no mobile (< 768px), os alvos têm pelo menos 44×44px, contando a zona que um ::after absoluto
-//   acrescenta. Exceção: um link no meio de uma frase, que não se pode alargar sem tapar o texto.
+//   acrescenta. Exceção: um link no meio de uma frase, que não se pode alargar sem tapar o texto;
+// - o texto visível cumpre o contraste AA.
 //
 // A função é serializada com toString() e corre no browser: não pode usar nada de fora dela.
 export function a11yAudit() {
@@ -73,6 +74,73 @@ export function a11yAudit() {
       const { width, height } = reach(el);
       if (width < 44 || height < 44) problems.push(`Alvo pequeno (${Math.round(width)}×${Math.round(height)}): ${describe(el)}`);
     }
+  }
+
+  // Contraste AA: 4,5:1 para texto, 3:1 para texto grande (24px, ou 18,66px a negrito). Conta o valor e
+  // o placeholder dos campos, e a opacidade dos antepassados. Controlos desativados estão isentos, exceto
+  // as linhas da prova, que continuam a ser conteúdo a ler. Fundo com imagem não se mede e fica de fora.
+  const parseColor = (text) => {
+    const [r, g, b, a = 1] = text.match(/[\d.]+%?/g).map((part, index) => (
+      part.endsWith("%") ? parseFloat(part) / (index === 3 ? 100 : 1 / 2.55) : parseFloat(part)
+    ));
+    return { r, g, b, a };
+  };
+  const over = (top, bottom) => ({
+    r: top.r * top.a + bottom.r * (1 - top.a),
+    g: top.g * top.a + bottom.g * (1 - top.a),
+    b: top.b * top.a + bottom.b * (1 - top.a),
+    a: 1,
+  });
+  const luminance = ({ r, g, b }) => {
+    const [lr, lg, lb] = [r, g, b].map((value) => {
+      const channel = value / 255;
+      return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
+  };
+  const backgroundOf = (el) => {
+    const layers = [];
+    for (let node = el; node; node = node.parentElement) {
+      const style = getComputedStyle(node);
+      if (style.backgroundImage !== "none") return null;
+      const color = parseColor(style.backgroundColor);
+      if (color.a > 0) layers.push(color);
+      if (color.a === 1) break;
+    }
+    return layers.reduceRight((below, layer) => over(layer, below), { r: 255, g: 255, b: 255, a: 1 });
+  };
+  const opacityOf = (el) => {
+    let value = 1;
+    for (let node = el; node; node = node.parentElement) value *= parseFloat(getComputedStyle(node).opacity);
+    return value;
+  };
+  const checkContrast = (el, cssColor, sample) => {
+    const style = getComputedStyle(el);
+    const background = backgroundOf(el);
+    if (!background) return;
+    const color = parseColor(cssColor);
+    const text = over({ ...color, a: color.a * opacityOf(el) }, background);
+    const [light, dark] = [luminance(text), luminance(background)].sort((a, b) => b - a);
+    const ratio = (light + 0.05) / (dark + 0.05);
+    const size = parseFloat(style.fontSize);
+    const large = size >= 24 || (size >= 18.66 && parseInt(style.fontWeight, 10) >= 700);
+    if (ratio < (large ? 3 : 4.5)) {
+      problems.push(`Contraste ${ratio.toFixed(2)}:1 em «${sample.trim().slice(0, 24)}»: ${describe(el)}`);
+    }
+  };
+  const legible = (el) => !el.closest(".sr-only, .skip-link, [hidden]") && el.checkVisibility({ visibilityProperty: true, opacityProperty: false }) && visible(el);
+  const exempt = (el) => el.matches(":disabled:not(.fitch-pick), :disabled *") && !el.closest(".fitch-pick");
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const el = node.parentElement;
+    if (!node.textContent.trim() || el.closest("script, style, noscript, textarea") || !legible(el) || exempt(el)) continue;
+    if (getComputedStyle(el).color === "rgba(0, 0, 0, 0)") continue; // espelho do campo de sequente
+    checkContrast(el, getComputedStyle(el).color, node.textContent);
+  }
+  for (const field of document.querySelectorAll("input:not([type=hidden]), textarea")) {
+    if (!legible(field) || exempt(field)) continue;
+    if (field.value) checkContrast(field, getComputedStyle(field).color, field.value);
+    if (field.placeholder) checkContrast(field, getComputedStyle(field, "::placeholder").color, field.placeholder);
   }
 
   const seen = new Map();

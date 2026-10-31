@@ -4,6 +4,7 @@
 // As funções exportadas à parte são puras (testáveis em node); só mountFitchView() mexe no DOM.
 import { format } from "../core/formula.js";
 import { ruleLabel } from "../core/rules.js";
+import { speakFormula, speakJustification, speakProse } from "../core/speech.js";
 import { LOCALES, getLang, onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
 
@@ -50,6 +51,30 @@ export function barsHtml({ kind, depth }) {
   return `<span class="fitch__bars" aria-hidden="true">${bars.join("")}</span>`;
 }
 
+const speechWords = () => LOCALES[getLang()].speech;
+
+/** A fórmula em palavras; a linha por preencher também se tem de ouvir. */
+export function spokenFormula(formula) {
+  return formula === null ? t("fitch.emptyFormula") : speakFormula(format(formula), speechWords());
+}
+
+/** Uma frase com símbolos, em palavras. */
+export const spokenProse = (text) => speakProse(text, speechWords());
+
+/**
+ * `html` visível, lido como `spoken`. É um nome e não texto escondido, porque este ao selecionar seria
+ * copiado com a fórmula.
+ */
+export const readAsHtml = (html, spoken) => `<span role="img" aria-label="${escapeHtml(spoken)}">${html}</span>`;
+
+export const formulaReadHtml = (formula) => readAsHtml(formulaHtml(formula), spokenFormula(formula));
+
+/** A coluna da justificação; sem texto, fica vazia, porque um nome vazio não se lê. */
+export function whyHtml(text) {
+  if (text === "") return '<span class="fitch__why"></span>';
+  return `<span class="fitch__why">${readAsHtml(escapeHtml(text), speakJustification(text, speechWords()))}</span>`;
+}
+
 /** O ícone do estado, com o texto para leitores de ecrã. */
 export const stateHtml = (state) => (
   `<span class="fitch__state">${STATE_ICONS[state]}<span class="sr-only">${escapeHtml(t(`fitch.states.${state}`))}</span></span>`
@@ -72,8 +97,8 @@ export function lineHtml(line, index, { state, assumption }) {
   const attrs = state ? ` data-state="${state}"` : "";
   return `<li class="fitch__line" data-line="${number}"${attrs}>`
     + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${state ? stateHtml(state) : ""}</span>`
-    + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}<span class="${formulaClasses}"><span>${formulaHtml(line.formula)}</span></span></span>`
-    + `<span class="fitch__why">${escapeHtml(justificationText(line))}</span>`
+    + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}<span class="${formulaClasses}">${formulaReadHtml(line.formula)}</span></span>`
+    + whyHtml(justificationText(line))
     + "</li>";
 }
 
@@ -90,7 +115,7 @@ export function fitchHtml(proof, { states = null } = {}) {
   }));
   // tabindex: quem usa só o teclado também tem de conseguir deslocar uma prova larga.
   return `<div class="fitch" tabindex="0" role="group" aria-label="${escapeHtml(t("fitch.label"))}">`
-    + `<ol class="fitch__lines">${items.join("")}</ol></div>`;
+    + `<ol class="fitch__lines" role="list">${items.join("")}</ol></div>`;
 }
 
 /**

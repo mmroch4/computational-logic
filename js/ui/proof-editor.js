@@ -14,7 +14,8 @@ import {
 import { RULES, localizeRuleParam, ruleLabel, ruleSet } from "../core/rules.js";
 import { formatSequent } from "../core/sequent.js";
 import {
-  barsHtml, closesAssumptions, depthHtml, formulaHtml, justificationText, lineHtml, stateHtml,
+  barsHtml, closesAssumptions, depthHtml, formulaReadHtml, justificationText, lineHtml, readAsHtml, spokenFormula,
+  spokenProse, stateHtml, whyHtml,
 } from "./fitch-view.js";
 import { LOCALES, getLang, onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -40,6 +41,9 @@ export const EDITOR_MODES = ["write", "guided"];
 /** O ⊢ só faz falta no sequente. */
 const PROOF_KEYS = SYMBOL_KEYS.filter(({ name }) => name !== "turnstile");
 
+/** Quantas linhas se anunciam de uma vez: um desfazer pode mudar a prova toda. */
+const MAX_ANNOUNCED = 3;
+
 const ruleLabels = () => LOCALES[getLang()].rules.labels;
 
 /** A frase de uma mensagem de `editorStatus`, com as siglas do idioma. */
@@ -47,11 +51,30 @@ export function messageText({ key, params }) {
   return t(key, params.rule ? localizeRuleParam(params, ruleLabels()) : params);
 }
 
+/** O que muda na linha quando se ouve: o estado e a mensagem. */
+const rowKey = ({ state, message }) => `${state}:${message ? messageText(message) : ""}`;
+
+/**
+ * O que dizer ao leitor de ecrã quando as linhas passam de `before` para `after`: uma frase por linha
+ * que mudou, até `MAX_ANNOUNCED`. Sem `before`, ou com outro número de linhas, a mudança é a da prova, e
+ * quem a fez já sabe: não há nada a dizer.
+ */
+export function announcementText(before, after) {
+  if (!before || before.length !== after.length) return "";
+  const changed = after.flatMap((row, index) => (rowKey(row) === rowKey(before[index]) ? [] : [{ row, line: index + 1 }]));
+  const spoken = changed.slice(0, MAX_ANNOUNCED).map(({ row, line }) => {
+    const detail = row.message ? ` ${messageText(row.message)}` : "";
+    return `${t(`fitch.announce.${row.state}`, { line })}${detail}`;
+  });
+  if (changed.length > MAX_ANNOUNCED) spoken.push(t("fitch.moreChanges", { count: changed.length - MAX_ANNOUNCED }));
+  return spokenProse(spoken.join(" "));
+}
+
 function fieldHtml(line, field, value, { label, placeholder, classes = "" }) {
   const id = `proof-${field}-${line}`;
   return `<input id="${id}" class="fitch-edit__field fitch-edit__field--${field}${classes}" type="text" `
     + `data-field="${field}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" `
-    + `aria-label="${escapeHtml(label)}" aria-describedby="proof-error-${line}" aria-invalid="false" `
+    + `aria-label="${escapeHtml(label)}" aria-describedby="proof-reading-${line} proof-error-${line}" aria-invalid="false" `
     + 'enterkeyhint="next" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">';
 }
 
@@ -73,6 +96,7 @@ export function editableLineHtml(line, index, draft, assumption) {
     + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${stateHtml("pending")}</span>`
     + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}`
     + `<span class="fitch-edit__content"><span class="fitch-edit__fields">${formula}${justification}</span>`
+    + `<span class="sr-only" id="proof-reading-${number}"></span>`
     + `<span class="${msgClasses("error")} fitch-edit__error" id="proof-error-${number}" hidden></span></span>`
     + "</span></li>";
 }
@@ -102,15 +126,14 @@ export function guidedLineHtml(line, index, { row, status, assumption, target })
     + `<button type="button" class="fitch-pick" data-pick="${number}"${pressed}${current}${locked}>`
     + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${stateHtml(status.state)}</span>`
     + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}`
-    + `<span class="${formulaClasses}"><span>${formulaHtml(line.formula ?? target)}</span></span></span>`
-    + `<span class="fitch__why">${escapeHtml(why)}</span></button>${message}</li>`;
+    + `<span class="${formulaClasses}">${formulaReadHtml(line.formula ?? target)}</span></span>`
+    + `${whyHtml(why)}</button>${message}</li>`;
 }
 
 /** O painel das regras: o objetivo, um botão por regra, a escolha entre passos e o motivo pedido. */
-export function guidedPanelHtml({ anchor, rules, choice, reason }) {
-  const heading = anchor.target
-    ? t("guided.objective", { line: anchor.line, formula: format(anchor.target) })
-    : t("guided.noObjective");
+export function guidedPanelHtml({ anchor, rules, choice, reason, complete = false }) {
+  let heading = t(complete ? "guided.noneLeft" : "guided.noObjective");
+  if (!complete && anchor.target) heading = t("guided.objective", { line: anchor.line, formula: format(anchor.target) });
   const labels = ruleLabels();
   const buttons = rules.map(({ id, outcomes }) => (
     `<button type="button" class="guided__rule" data-rule="${escapeHtml(id)}" aria-disabled="${outcomes.length === 0}">`
@@ -118,18 +141,20 @@ export function guidedPanelHtml({ anchor, rules, choice, reason }) {
   )).join("");
   const options = choice
     ? choice.outcomes.map((outcome, index) => (
-      `<button type="button" class="guided__choice" data-choice="${index}">${escapeHtml(outcomeLabel(outcome))}</button>`
+      `<button type="button" class="guided__choice" data-choice="${index}" aria-label="${escapeHtml(spokenProse(outcomeLabel(outcome)))}">`
+      + `${escapeHtml(outcomeLabel(outcome))}</button>`
     )).join("")
     : "";
   const choices = choice
     ? `<div class="guided__choices" role="group" aria-label="${escapeHtml(t("guided.choose"))}">`
       + `<p>${escapeHtml(t("guided.choose"))}</p>${options}</div>`
     : "";
-  return `<p class="guided__objective">${escapeHtml(heading)}</p>`
+  // O motivo é anunciado pelo `.proof-editor__live`: este bloco nasce de novo a cada desenho.
+  return `<p class="guided__objective">${readAsHtml(escapeHtml(heading), spokenProse(heading))}</p>`
     + `<p class="guided__hint">${escapeHtml(t("guided.hint"))}</p>`
     + `<div class="guided__rules" role="group" aria-label="${escapeHtml(t("guided.rulesLabel"))}">${buttons}</div>`
     + choices
-    + `<div class="guided__reason" role="status">${reason ? msgHtml("info", escapeHtml(messageText(reason))) : ""}</div>`;
+    + `<div class="guided__reason">${reason ? msgHtml("info", escapeHtml(messageText(reason))) : ""}</div>`;
 }
 
 function modesHtml(mode) {
@@ -154,7 +179,8 @@ function shellHtml(mode) {
     + `<p class="proof-editor__shortcuts">${escapeHtml(t("editor.shortcuts"))}</p>`;
   return modesHtml(mode)
     + '<div class="fitch fitch--edit" role="group" '
-    + `aria-label="${escapeHtml(t("fitch.label"))}"><ol class="fitch__lines"></ol></div>`
+    + `aria-label="${escapeHtml(t("fitch.label"))}"><ol class="fitch__lines" role="list"></ol></div>`
+    + '<div class="sr-only proof-editor__live" role="status"></div>'
     + '<div class="proof-editor__status" role="status"></div>'
     + (guided ? '<div class="guided"></div>' : "")
     + `<div class="proof-editor__tools" role="group" aria-label="${escapeHtml(t("editor.toolsLabel"))}">${actions}</div>`
@@ -194,6 +220,8 @@ export function mountProofEditor(container, options = {}) {
   let highlighted = null;
   /** Linhas com o erro já à vista: um erro novo na linha do cursor espera por uma pausa. */
   const shown = new Set();
+  /** As linhas como foram anunciadas pela última vez: só se fala do que mudou. */
+  let announced = null;
 
   const rowOf = (line) => container.querySelector(`.fitch-edit__line[data-line="${line}"]`);
   const inputAt = ({ line, field }) => rowOf(line)?.querySelector(`[data-field="${field}"]`);
@@ -212,10 +240,26 @@ export function mountProofEditor(container, options = {}) {
     box.hidden = !showMessage;
     box.className = `${msgClasses(invalid ? "error" : "info")} fitch-edit__error`;
     box.innerHTML = showMessage ? msgBodyHtml(invalid ? "error" : "info", escapeHtml(messageText(message))) : "";
+    const { formula } = editor.proof.lines[line - 1];
+    const spoken = formula === null ? "" : `${spokenFormula(formula)}. `;
+    row.querySelector(`#proof-reading-${line}`).textContent = spoken + t(`fitch.states.${visible}`);
+  }
+
+  /** A escrever, uma linha à espera não fala: `seen` são as linhas como estão à vista. */
+  function announce(seen, extra = "") {
+    const text = [announcementText(announced, seen), spokenProse(extra)].filter(Boolean).join(" ");
+    announced = seen;
+    if (text) container.querySelector(".proof-editor__live").textContent = text;
   }
 
   function paintFooter(status) {
-    container.querySelector(".proof-editor__status").innerHTML = statusHtml(status, editor.notice);
+    const box = container.querySelector(".proof-editor__status");
+    const html = statusHtml(status, editor.notice);
+    // Reescrever o mesmo texto numa região viva faria o leitor de ecrã repeti-lo a cada tecla.
+    if (box.dataset.painted !== html) {
+      box.innerHTML = html;
+      box.dataset.painted = html;
+    }
     container.querySelector('[data-action="undo"]').disabled = !canUndo(editor);
     container.querySelector('[data-action="redo"]').disabled = !canRedo(editor);
   }
@@ -235,6 +279,16 @@ export function mountProofEditor(container, options = {}) {
     return name ? `[data-${name}="${CSS.escape(active.dataset[name])}"]` : null;
   }
 
+  /**
+   * No modo guiado o foco não volta a um campo. Se o botão que o tinha desapareceu ou ficou desativado
+   * (a escolha de um passo, Desfazer sem nada a desfazer), passa para o objetivo ou para a primeira regra.
+   */
+  function rescueFocus(hadFocus) {
+    const active = document.activeElement;
+    if (!hadFocus || (container.contains(active) && !active.disabled)) return;
+    (container.querySelector(".fitch-pick[aria-current]") ?? container.querySelector("[data-rule]"))?.focus();
+  }
+
   function paintGuided(status) {
     const focused = focusedSelector();
     const anchor = guidedAnchor(editor);
@@ -250,6 +304,7 @@ export function mountProofEditor(container, options = {}) {
       rules: guidedRules(editor, selection, { rules, known }),
       choice,
       reason,
+      complete: status.complete,
     });
     if (focused) container.querySelector(focused)?.focus();
   }
@@ -263,23 +318,34 @@ export function mountProofEditor(container, options = {}) {
     }
     const status = editorStatus(editor, { rules, known });
     if (mode === "guided") {
+      const hadFocus = container.contains(document.activeElement);
       paintGuided(status);
       paintFooter(status);
+      rescueFocus(hadFocus);
       paintHighlight();
+      announce(status.rows, guidedNews());
       return;
     }
     let waiting = false;
-    status.rows.forEach((row, index) => {
+    const seen = status.rows.map((row, index) => {
       const line = index + 1;
       if (row.message === null) shown.delete(line);
       const hold = !flush && row.message !== null && line === editor.cursor.line && !shown.has(line);
       if (hold) waiting = true;
       else if (row.message !== null) shown.add(line);
       paintRow(line, row, hold);
+      return hold ? { state: "pending", message: null } : row;
     });
     if (waiting) timer = setTimeout(() => refresh({ flush: true }), ERROR_DELAY_MS);
     paintFooter(status);
     paintHighlight();
+    announce(seen);
+  }
+
+  /** O que só o modo guiado tem a dizer: a recusa de uma regra ou que é preciso escolher o passo. */
+  function guidedNews() {
+    if (reason) return messageText(reason);
+    return choice ? t("guided.choose") : "";
   }
 
   function focusCursor() {
@@ -419,6 +485,7 @@ export function mountProofEditor(container, options = {}) {
   }
 
   function build() {
+    announced = null;
     container.innerHTML = shellHtml(mode);
     container.querySelectorAll("[data-mode]").forEach((button) => {
       button.addEventListener("click", () => setMode(button.dataset.mode));

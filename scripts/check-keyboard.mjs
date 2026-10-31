@@ -7,6 +7,7 @@ import { spawn } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { stateQuery } from "./prove-states.mjs";
 
 const BASE = process.argv[2] || `http://127.0.0.1:${process.env.PORT || 8765}`;
 const CHROME = process.env.CHROME_BIN || "/usr/bin/google-chrome";
@@ -20,6 +21,12 @@ const MENUS = [
   { path: "/provar", opener: "#examples-menu summary" },
   { path: "/en/prove", opener: "#examples-menu summary" },
 ];
+// A Provar com uma prova aberta, nos dois modos: a volta do Tab na página vazia não passa pelo editor.
+const PROVE_WALKS = ["/provar", "/en/prove"].flatMap((path) => [
+  { path: `${path}?${stateQuery("mixed")}`, tag: `${path} prova` },
+  { path: `${path}?${stateQuery("mixed")}`, tag: `${path} guiado`, guided: true },
+  { path: `${path}?${stateQuery("complete")}`, tag: `${path} árvore` },
+]);
 const VIEWPORTS = [{ width: 1280, height: 900, mobile: false }, { width: 390, height: 844, mobile: true }];
 const MAX_TABS = 400;
 
@@ -81,6 +88,14 @@ async function openPage(cdp, path, vp) {
   };
   return {
     evaluate,
+    press,
+    // O texto como o verá um leitor de ecrã: os nomes calculados pelo browser, sem o que está escondido.
+    spokenNames: async () => {
+      await cdp.send("Accessibility.enable", {}, sessionId);
+      const { nodes } = await cdp.send("Accessibility.getFullAXTree", {}, sessionId);
+      return nodes.filter((node) => !node.ignored).map((node) => node.name?.value ?? "");
+    },
+    type: (text) => cdp.send("Input.insertText", { text }, sessionId),
     tab: (shift = false) => press("Tab", "Tab", 9, shift ? 8 : 0),
     enter: () => press("Enter", "Enter", 13, 0, "\r"),
     arrowRight: () => press("ArrowRight", "ArrowRight", 39),
@@ -101,12 +116,17 @@ const FOCUS_STATE = `(() => {
   // No campo de sequente, o indicador é o contorno da caixa à volta do textarea.
   const indicator = seen(getComputedStyle(el.closest(".field-box") ?? el));
   const clipped = el.closest("[data-sheet-open], .sheet") === null && (r.bottom <= 0 || r.top >= innerHeight);
-  return { label, focusVisible, indicator, clipped, empty: r.width === 0 || r.height === 0 };
+  // Coberto pela barra do topo ou pela de baixo, que ficam presas ao ecrã.
+  const bars = [...document.querySelectorAll(".hdr, .tabbar")].filter((bar) => bar.checkVisibility() && !bar.contains(el)).map((bar) => bar.getBoundingClientRect());
+  const covered = !el.matches(".skip-link") && bars.some((bar) => r.top < bar.bottom && r.bottom > bar.top);
+  return { label, focusVisible, indicator, clipped, covered, empty: r.width === 0 || r.height === 0 };
 })()`;
 
-async function walk(cdp, path, vp) {
+async function walk(cdp, entry, vp) {
+  const { path, tag: name = path, guided = false } = typeof entry === "string" ? { path: entry } : entry;
   const page = await openPage(cdp, path, vp);
-  const tag = `${path} @${vp.width}`;
+  const tag = `${name} @${vp.width}`;
+  if (guided) await page.evaluate(`document.querySelector("[data-mode=guided]").click(); document.activeElement.blur()`);
   const seen = [];
   let steps = 0;
   for (; steps < MAX_TABS; steps++) {
@@ -116,12 +136,15 @@ async function walk(cdp, path, vp) {
       if (seen.length) break; // saiu do documento: deu a volta
       continue;
     }
-    if (seen.length && state.label === seen[0] && steps > 1) break;
+    // O mesmo elemento e não a mesma classe: as linhas da prova são todas iguais.
+    if (await page.evaluate(`document.activeElement.hasAttribute("data-kb-first")`)) break;
+    if (seen.length === 0) await page.evaluate(`document.activeElement.setAttribute("data-kb-first", "")`);
     seen.push(state.label);
     if (state.empty) problems.push(`${tag}: foco num elemento sem tamanho: ${state.label}`);
     if (!state.focusVisible) problems.push(`${tag}: foco sem :focus-visible: ${state.label}`);
     if (!state.indicator) problems.push(`${tag}: foco sem indicador visível: ${state.label}`);
     if (state.clipped) problems.push(`${tag}: foco fora do ecrã: ${state.label}`);
+    if (state.covered) problems.push(`${tag}: foco tapado por uma barra: ${state.label}`);
   }
   if (steps >= MAX_TABS) problems.push(`${tag}: o Tab não deu a volta em ${MAX_TABS} passos`);
   if (seen.length < 3) problems.push(`${tag}: só ${seen.length} paragens de Tab`);
@@ -199,12 +222,109 @@ async function actions(cdp, vp) {
   await page.close();
 }
 
+// Uma prova feita só com teclas: o estado de cada linha é anunciado na região viva, e o texto para o
+// leitor de ecrã traz a fórmula em palavras.
+async function writing(cdp, vp) {
+  const tag = `/provar escrever @${vp.width}`;
+  const page = await openPage(cdp, `/provar?${stateQuery("mixed")}`, vp);
+  const live = `document.querySelector(".proof-editor__live").textContent`;
+  await page.evaluate(`document.querySelector("#proof-formula-4").focus()`);
+  await page.evaluate(`document.querySelector("#proof-formula-4").select()`);
+  await page.type("q");
+  await sleep(100);
+  const fixed = await page.evaluate(live);
+  if (!fixed.includes("Linha 4 certa")) problems.push(`${tag}: corrigir a linha 4 anunciou «${fixed}»`);
+  await page.press("Backspace", "Backspace", 8);
+  await page.type("s");
+  await sleep(900);
+  const broken = await page.evaluate(live);
+  if (!broken.includes("Linha 4 com erro")) problems.push(`${tag}: estragar a linha 4 anunciou «${broken}»`);
+  const names = await page.spokenNames();
+  if (!names.includes("não q")) problems.push(`${tag}: a linha 2 não se lê em palavras`);
+  if (!names.includes("p implica q")) problems.push(`${tag}: a linha 1 não se lê em palavras`);
+  const reading = await page.evaluate(`document.querySelector("#proof-formula-3").getAttribute("aria-describedby")`);
+  if (!reading.includes("proof-reading-3")) problems.push(`${tag}: o campo não aponta para a leitura da linha`);
+  await page.close();
+}
+
+// No modo guiado, selecionar e aplicar uma regra só com teclas, sem o foco se perder quando o botão some.
+async function guiding(cdp, vp) {
+  const tag = `/provar guiado @${vp.width}`;
+  const page = await openPage(cdp, `/provar?${stateQuery("complete")}`, vp);
+  await page.evaluate(`document.querySelector("[data-mode=guided]").click()`);
+  const heading = await page.evaluate(`document.querySelector(".guided__objective").textContent`);
+  if (!heading.includes("completa")) problems.push(`${tag}: prova completa com o título «${heading}»`);
+  await page.close();
+
+  const open = await openPage(cdp, "/provar?s=p,q%20%7C-%20p%20%26%20q", vp);
+  await open.evaluate(`document.querySelector("#start-proof")?.click()`);
+  await sleep(100);
+  await open.evaluate(`document.querySelector("[data-mode=guided]").click()`);
+  await sleep(100);
+  await open.evaluate(`document.querySelector("[data-rule='∧E']").focus()`);
+  await open.enter();
+  await sleep(100);
+  const refused = await open.evaluate(`document.querySelector(".proof-editor__live").textContent`);
+  if (!refused) problems.push(`${tag}: a recusa de uma regra não foi anunciada`);
+  for (const line of [1, 2]) {
+    await open.evaluate(`document.querySelector("[data-pick='${line}']").focus()`);
+    await open.press(" ", "Space", 32, 0, " ");
+    await sleep(60);
+  }
+  const pressed = await open.evaluate(`document.querySelector("[data-pick='2']").getAttribute("aria-pressed")`);
+  if (pressed !== "true") problems.push(`${tag}: o Espaço não selecionou a linha`);
+  await open.evaluate(`document.querySelector("[data-rule='∧I']").focus()`);
+  await open.enter();
+  await sleep(100);
+  if (await open.evaluate(`document.querySelector("[data-choice]") !== null`)) {
+    await open.evaluate(`document.querySelector("[data-choice]").focus()`);
+    await open.enter();
+    await sleep(100);
+  }
+  const lost = await open.evaluate(`document.activeElement === document.body`);
+  if (lost) problems.push(`${tag}: o foco perdeu-se depois de aplicar a regra`);
+  await open.press("z", "KeyZ", 90, 2);
+  await sleep(100);
+  await open.evaluate(`document.querySelector("[data-action=undo]").focus()`);
+  await open.enter();
+  await sleep(100);
+  const stuck = await open.evaluate(`document.activeElement === document.body || document.activeElement.disabled`);
+  if (stuck) problems.push(`${tag}: o foco ficou num botão desativado`);
+  await open.close();
+}
+
+// Na árvore, um Tab chega à conclusão, as setas andam entre as fórmulas e o Tab seguinte sai dela.
+async function treeKeys(cdp, vp) {
+  const tag = `/provar árvore @${vp.width}`;
+  const page = await openPage(cdp, `/provar?${stateQuery("complete")}`, vp);
+  const stops = await page.evaluate(`document.querySelectorAll('[data-tree-line][tabindex="0"]').length`);
+  if (stops !== 1) problems.push(`${tag}: ${stops} paragens de Tab nas fórmulas`);
+  await page.evaluate(`document.querySelector('[data-tree-line][tabindex="0"]').focus()`);
+  const line = `document.activeElement.dataset.treeLine`;
+  const last = await page.evaluate(line);
+  await page.press("ArrowLeft", "ArrowLeft", 37);
+  const before = await page.evaluate(line);
+  if (before === undefined || before === last) problems.push(`${tag}: a seta não mudou de fórmula`);
+  const caption = await page.evaluate(`document.querySelector(".tree-panel__caption").textContent`);
+  if (!caption.includes(`Linha ${before}`)) problems.push(`${tag}: a legenda não seguiu a seta: «${caption}»`);
+  await page.press("Home", "Home", 36);
+  await page.press("End", "End", 35);
+  if ((await page.evaluate(line)) !== last) problems.push(`${tag}: o End não voltou à conclusão`);
+  await page.tab();
+  if (await page.evaluate(`document.activeElement.hasAttribute("data-tree-line")`)) problems.push(`${tag}: o Tab não saiu das fórmulas`);
+  await page.close();
+}
+
 const cdp = await launch();
 try {
   for (const vp of VIEWPORTS) {
     for (const path of PAGES) await walk(cdp, path, vp);
+    for (const entry of PROVE_WALKS) await walk(cdp, entry, vp);
     for (const entry of MENUS) await menu(cdp, entry, vp);
     await actions(cdp, vp);
+    await writing(cdp, vp);
+    await guiding(cdp, vp);
+    await treeKeys(cdp, vp);
   }
 } finally {
   cdp.stop();

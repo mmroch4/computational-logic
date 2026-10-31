@@ -7,7 +7,7 @@ import {
   IDLE, canRevealMore, errorKey, panelFromResult, revealMore, searching,
 } from "../core/assist.js";
 import { displayName, format } from "../core/formula.js";
-import { fitchHtml } from "./fitch-view.js";
+import { fitchHtml, readAsHtml, spokenProse } from "./fitch-view.js";
 import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
 import { msgHtml } from "./message.js";
@@ -21,8 +21,9 @@ const button = (action, label, variant = "outline") => (
 );
 
 function hintHtml({ target, levels, revealed, ...panel }) {
+  const targetText = target ? t("hints.target", { target: format(target) }) : "";
   const heading = target
-    ? `<p class="assist__target">${escapeHtml(t("hints.target", { target: format(target) }))}</p>`
+    ? `<p class="assist__target">${readAsHtml(escapeHtml(targetText), spokenProse(targetText))}</p>`
     : "";
   const items = levels.slice(0, revealed).map((level, index) => (
     `<li class="assist__level"><strong>${escapeHtml(t(`assist.levels.${LEVEL_NAMES[index]}`))}</strong>`

@@ -178,6 +178,8 @@
   /* O Basecoat liga o scroll suave sem olhar para a preferência. */
   html {
     scroll-behavior: auto;
+    /* O que recebe o foco não pode ficar por baixo do cabeçalho nem da tab bar, que estão sempre à vista. */
+    scroll-padding-block: calc(var(--header-height) + 12px) calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 12px);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -1520,8 +1522,9 @@
     font-size: 16px; /* 16px: evita o zoom automático do iOS */
   }
 
+  /* Não o subtle: nas linhas com erro, o fundo tira-lhe o AA. */
   .fitch-edit__field::placeholder {
-    color: var(--color-text-subtle);
+    color: var(--color-text-muted);
   }
 
   .fitch-edit__field:focus-visible {
@@ -1616,8 +1619,9 @@
     text-align: left;
   }
 
-  .fitch-pick:disabled {
-    opacity: 0.55;
+  /* Uma linha bloqueada não se seleciona, mas continua a ser parte da prova: tem de se ler. */
+  .fitch-pick:disabled .fitch__formula {
+    color: var(--color-text-muted);
   }
 
   .fitch-pick[aria-pressed="true"] {

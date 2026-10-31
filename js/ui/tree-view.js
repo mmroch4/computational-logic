@@ -5,7 +5,7 @@
 import { format } from "../core/formula.js";
 import { ruleLabel } from "../core/rules.js";
 import { proofTree } from "../core/tree.js";
-import { formulaHtml, justificationText } from "./fitch-view.js";
+import { formulaHtml, justificationText, spokenProse } from "./fitch-view.js";
 import { LOCALES, getLang, onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
 import { msgHtml } from "./message.js";
@@ -19,8 +19,19 @@ export function lineCaption(proof, line) {
 }
 
 function formulaButton(node, proof, inner) {
-  return `<button type="button" class="gt__formula" data-tree-line="${node.line}" `
-    + `aria-label="${escapeHtml(lineCaption(proof, node.line))}">${inner}</button>`;
+  return `<button type="button" class="gt__formula" data-tree-line="${node.line}" tabindex="-1" `
+    + `aria-label="${escapeHtml(spokenProse(lineCaption(proof, node.line)))}">${inner}</button>`;
+}
+
+/** A que distância anda cada tecla entre as fórmulas; `Home` e `End` vão aos extremos. */
+const TREE_KEYS = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 };
+
+/** O índice para onde a tecla `key` leva, em `count` fórmulas, ou null se não for uma tecla da árvore. */
+export function treeKeyTarget(key, index, count) {
+  if (key === "Home") return 0;
+  if (key === "End") return count - 1;
+  if (!(key in TREE_KEYS)) return null;
+  return Math.min(count - 1, Math.max(0, index + TREE_KEYS[key]));
 }
 
 function nodeHtml(node, proof, labels) {
@@ -47,7 +58,7 @@ export function treeBodyHtml(shown, proof) {
   if (shown.status === "unfinished") return `<p class="tree-panel__note">${escapeHtml(t("tree.unfinished"))}</p>`;
   if (shown.status === "tooLarge") return msgHtml("warn", escapeHtml(t("tree.tooLarge", { limit: shown.limit })));
   return `<p class="tree-panel__note">${escapeHtml(t("tree.hint"))}</p>${treeHtml(shown.tree, proof)}`
-    + '<p class="tree-panel__caption" role="status"></p>';
+    + '<p class="tree-panel__caption"></p>';
 }
 
 /**
@@ -58,6 +69,8 @@ export function treeBodyHtml(shown, proof) {
 export function mountTreeView(container, { source, onSelect }) {
   let shown = null;
   let proof = null;
+
+  const formulas = () => Array.from(container.querySelectorAll("[data-tree-line]"));
 
   function select(button) {
     const line = Number(button.dataset.treeLine);
@@ -73,6 +86,8 @@ export function mountTreeView(container, { source, onSelect }) {
     container.innerHTML = `<h2 class="tree-panel__title">${escapeHtml(t("tree.title"))}</h2>${treeBodyHtml(shown, proof)}`;
     const scroller = container.querySelector(".gentzen");
     if (scroller) scroller.scrollLeft = left;
+    // Uma árvore tem muitas fórmulas: o Tab para só numa, a conclusão, e as setas andam entre elas.
+    formulas().at(-1)?.setAttribute("tabindex", "0");
     onSelect(null);
   }
 
@@ -81,9 +96,27 @@ export function mountTreeView(container, { source, onSelect }) {
     if (button) select(button);
   };
 
+  function onFocusin(event) {
+    const button = event.target.closest("[data-tree-line]");
+    if (!button) return;
+    formulas().forEach((item) => item.setAttribute("tabindex", item === button ? "0" : "-1"));
+    onPoint(event);
+  }
+
+  function onKeydown(event) {
+    const button = event.target.closest("[data-tree-line]");
+    if (!button || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    const items = formulas();
+    const next = treeKeyTarget(event.key, items.indexOf(button), items.length);
+    if (next === null) return;
+    event.preventDefault();
+    items[next].focus();
+  }
+
   container.classList.add("tree-panel");
   container.addEventListener("click", onPoint);
-  container.addEventListener("focusin", onPoint);
+  container.addEventListener("focusin", onFocusin);
+  container.addEventListener("keydown", onKeydown);
   container.addEventListener("mouseover", onPoint);
   onLangChange(() => {
     if (shown) paint();
