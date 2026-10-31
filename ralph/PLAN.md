@@ -80,7 +80,7 @@ com contraexemplo, serialização e nova validação ao carregar. Integra no ver
 campo `userRules` e a marca de prova com regras próprias.
 **Feito quando:** há testes com regras sólidas, não sólidas, com subdedução e com link adulterado.
 
-### [ ] B9 · Solidez do verificador
+### [x] B9 · Solidez do verificador
 `tests/soundness.test.js`: corpo de pelo menos 30 provas originais e mutações automáticas (mudar
 regra, citação ou fórmula, mover linhas para fora do escopo). Toda a prova aceite tem de ter um
 sequente válido pela tabela de verdade.
