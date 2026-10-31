@@ -114,6 +114,13 @@ export default {
       tooManyVariables: "Há {count} variáveis, e a tabela de verdade só aceita até {max}.",
     },
   },
+  solver: {
+    errors: {
+      stepLimit: "A procura parou ao fim de {max} passos. Isto não quer dizer que não haja prova.",
+      searchExhausted: "A procura acabou sem prova, apesar de o sequente ser válido.",
+      unverifiedProof: "A prova gerada não passou no verificador, por isso não é mostrada.",
+    },
+  },
   proof: {
     errors: {
       noSuchLine: "A linha {line} não existe.",

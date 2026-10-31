@@ -113,6 +113,13 @@ export default {
       tooManyVariables: "There are {count} variables, and the truth table only takes up to {max}.",
     },
   },
+  solver: {
+    errors: {
+      stepLimit: "The search stopped after {max} steps. This does not mean there is no proof.",
+      searchExhausted: "The search ended without a proof, even though the sequent is valid.",
+      unverifiedProof: "The generated proof did not pass the checker, so it is not shown.",
+    },
+  },
   proof: {
     errors: {
       noSuchLine: "Line {line} does not exist.",
