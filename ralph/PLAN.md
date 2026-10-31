@@ -35,7 +35,7 @@ Adapta `check-page.sh`, `check-all.sh`, `check-keyboard.sh`, `check-edge.sh`, `l
 
 ## Bloco B — Núcleo lógico
 
-### [ ] B1 · Fórmulas e parser
+### [x] B1 · Fórmulas e parser
 `js/core/formula.js` e `parser.js`: AST imutável com ∧, ∨, ¬, →, F e átomos, igualdade estrutural e
 impressão com o mínimo de parênteses (¬ > ∧ > ∨ > →, → associa à direita). O AST deve poder receber
 termos, ∀ e ∃ mais tarde. Erros com posição e código traduzível. Todas as notações do `CLAUDE.md`.
