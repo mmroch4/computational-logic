@@ -171,7 +171,7 @@ seguinte assenta neste editor, por isso é a altura de pedir alterações de int
 
 ## Bloco E — Exercícios
 
-### [ ] E1 · Motor de exercícios
+### [x] E1 · Motor de exercícios
 `js/core/exercises.js`: formato com id, nível, sequente, conjunto de regras, `userRules`, solução e
 dicas opcionais. Regista progresso com «resolvido» e «resolvido com regras próprias».
 **Feito quando:** um teste valida todos os exercícios contra o verificador com o conjunto de cada um.
