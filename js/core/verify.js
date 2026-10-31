@@ -1,8 +1,11 @@
 // Verificação da prova. Módulo puro (sem DOM).
 // Contrato:
-//   verifyLine(proof, n, rules = BASE_RULES) → { ok: true } | { ok: false, error: { code, params } }
-//     vê só a linha n e as que ela cita.
-//   verifyProof(proof, goal, rules = BASE_RULES)
+//   verifyLine(proof, n, rules = BASE_RULES, known = rules)
+//     → { ok: true } | { ok: false, error: { code, params } }
+//     vê só a linha n e as que ela cita. `rules` é o que se pode usar, como um `ruleSet`, e `known` é
+//     tudo o que existe: uma regra de `known` fora de `rules` dá `ruleNotAllowed`. Quem usa um conjunto
+//     passa `known` (`RULES` e as regras do utilizador), senão a regra proibida dá `unknownRule`.
+//   verifyProof(proof, goal, rules = BASE_RULES, known = rules)
 //     → { ok, concludes, extraPremises, lineErrors, conclusionError }
 //     ok: a prova inteira demonstra o sequente `goal`. É o único veredicto: os outros campos dizem
 //     o que falta. `concludes` olha só para a última linha, sem garantir que ela foi bem derivada.
@@ -20,7 +23,8 @@ export const VERIFY_ERROR_CODES = [
   "noSuchLine", // a linha a verificar não existe
   "emptyFormula", // a linha ainda não tem fórmula
   "missingRule", // o passo não indica regra
-  "unknownRule", // { rule }: a regra não está no catálogo em uso
+  "unknownRule", // { rule }: a regra não existe
+  "ruleNotAllowed", // { rule }: a regra existe, mas o conjunto ativo não a permite
   "noSuchCitation", // { cited }: número de linha que não existe
   "inaccessibleLine", // { cited }: vem depois, ou está dentro de uma subdedução fechada ou alheia
   "openSubproof", // { cited }: a subdedução citada ainda contém esta linha
@@ -110,25 +114,9 @@ function applyRule(rule, formula, citations, lines) {
 
 const countKind = (items, kind, kindOf) => items.filter((item) => kindOf(item) === kind).length;
 
-/** Verifica a linha n da prova com o catálogo `rules`. */
-export function verifyLine(proof, n, rules = BASE_RULES) {
-  const line = proof.lines[n - 1];
-  if (!line) return failure("noSuchLine", n);
-  if (!line.formula) return failure("emptyFormula", n);
-  if (line.kind !== "step") return { ok: true };
-  if (!line.rule) return failure("missingRule", n);
-
-  const rule = rules.find(({ id }) => id === line.rule);
-  if (!rule) return failure("unknownRule", n, { rule: line.rule });
-
+/** Aplica uma forma da regra às citações: null se der a fórmula da linha, ou o que falhou. */
+function checkForm(rule, line, n, lines) {
   const { citations } = line;
-  const access = accessibleFrom(proof, n);
-  const all = subproofs(proof);
-  for (const citation of citations) {
-    const code = citationProblem(proof, n, citation, access, all);
-    if (code) return failure(code, n, { cited: citationText(citation) });
-  }
-
   const expected = rule.premises.length;
   const found = citations.length;
   if (found !== expected) {
@@ -139,9 +127,36 @@ export function verifyLine(proof, n, rules = BASE_RULES) {
     return failure("wrongCitationKind", n, { rule: rule.id });
   }
 
-  const { applicable, derives } = applyRule(rule, line.formula, citations, proof.lines);
-  if (derives) return { ok: true };
+  const { applicable, derives } = applyRule(rule, line.formula, citations, lines);
+  if (derives) return null;
   return failure(applicable ? "formulaMismatch" : "ruleNotApplicable", n, { rule: rule.id });
+}
+
+/** Verifica a linha n da prova com as regras permitidas `rules`. */
+export function verifyLine(proof, n, rules = BASE_RULES, known = rules) {
+  const line = proof.lines[n - 1];
+  if (!line) return failure("noSuchLine", n);
+  if (!line.formula) return failure("emptyFormula", n);
+  if (line.kind !== "step") return { ok: true };
+  if (!line.rule) return failure("missingRule", n);
+
+  const forms = rules.filter(({ id }) => id === line.rule);
+  if (forms.length === 0) {
+    const exists = known.some(({ id }) => id === line.rule);
+    return failure(exists ? "ruleNotAllowed" : "unknownRule", n, { rule: line.rule });
+  }
+
+  const access = accessibleFrom(proof, n);
+  const all = subproofs(proof);
+  for (const citation of line.citations) {
+    const code = citationProblem(proof, n, citation, access, all);
+    if (code) return failure(code, n, { cited: citationText(citation) });
+  }
+
+  // Entre as formas que falham, conta a que chegou mais longe: citação certa, fórmula errada.
+  const failures = forms.map((form) => checkForm(form, line, n, proof.lines));
+  if (failures.includes(null)) return { ok: true };
+  return failures.find(({ error }) => error.code === "formulaMismatch") ?? failures[0];
 }
 
 function findConclusionError(lines, goal) {
@@ -160,12 +175,12 @@ function findConclusionError(lines, goal) {
  * que o sequente não tem, e devolve-se o número da linha. Repetir uma premissa do sequente ou não
  * usar alguma delas não muda o que fica demonstrado, por isso não é erro.
  */
-export function verifyProof(proof, goal, rules = BASE_RULES) {
+export function verifyProof(proof, goal, rules = BASE_RULES, known = rules) {
   const { lines } = proof;
   const lineErrors = [];
   const extraPremises = [];
   lines.forEach(({ kind, formula }, index) => {
-    const result = verifyLine(proof, index + 1, rules);
+    const result = verifyLine(proof, index + 1, rules, known);
     if (!result.ok) lineErrors.push(result.error);
     const isExtra = kind === "premise" && formula
       && !goal.premises.some((premise) => equals(premise, formula));

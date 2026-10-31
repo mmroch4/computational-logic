@@ -131,6 +131,7 @@ export default {
       emptyFormula: "Falta escrever a fórmula da linha {line}.",
       missingRule: "Falta indicar a regra da linha {line}.",
       unknownRule: "Linha {line}: não há nenhuma regra chamada «{rule}».",
+      ruleNotAllowed: "Linha {line}: a regra {rule} não é permitida aqui.",
       noSuchCitation: "Linha {line}: a citação {cited} aponta para uma linha que não existe.",
       inaccessibleLine: "Linha {line}: não podes citar {cited} a partir daqui, porque não está acessível.",
       openSubproof: "Linha {line}: a subdedução {cited} ainda está aberta, por isso fecha-a antes de a citar.",
@@ -148,6 +149,17 @@ export default {
       wrongConclusion: "A linha {line} é a última, mas não é a conclusão do sequente.",
     },
     extraPremise: "A premissa da linha {line} não faz parte do sequente.",
+  },
+  rules: {
+    labels: {
+      MT: "MT",
+      "¬¬I": "¬¬I",
+      RA: "RA",
+      TE: "TE",
+      DM: "DM",
+      SH: "SH",
+      SD: "SD",
+    },
   },
   proofText: {
     premise: "premissa",

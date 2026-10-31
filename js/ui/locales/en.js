@@ -130,6 +130,7 @@ export default {
       emptyFormula: "Line {line} still needs a formula.",
       missingRule: "Line {line} still needs a rule.",
       unknownRule: "Line {line}: there is no rule called “{rule}”.",
+      ruleNotAllowed: "Line {line}: rule {rule} is not allowed here.",
       noSuchCitation: "Line {line}: citation {cited} points to a line that does not exist.",
       inaccessibleLine: "Line {line}: you cannot cite {cited} from here, because it is not accessible.",
       openSubproof: "Line {line}: subproof {cited} is still open, so close it before citing it.",
@@ -147,6 +148,17 @@ export default {
       wrongConclusion: "Line {line} is the last one, but it is not the conclusion of the sequent.",
     },
     extraPremise: "The premise on line {line} is not part of the sequent.",
+  },
+  rules: {
+    labels: {
+      MT: "MT",
+      "¬¬I": "¬¬I",
+      RA: "RAA",
+      TE: "LEM",
+      DM: "DM",
+      SH: "HS",
+      SD: "DS",
+    },
   },
   proofText: {
     premise: "premise",

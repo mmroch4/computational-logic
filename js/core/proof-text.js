@@ -12,7 +12,7 @@
 // em branco ignoram-se.
 // Contrato:
 //   parseProof(text) → { ok: true, proof } | { ok: false, error: { code, params, start, end } }
-//   formatProof(proof, labels) → texto que `parseProof` volta a ler
+//   formatProof(proof, labels, ruleLabels) → texto que `parseProof` volta a ler
 // As posições são índices em `text`, e `params.line` é sempre a linha da prova. Os códigos são os de
 // `PROOF_TEXT_ERROR_CODES` (`proofText.errors.*`), do parser (`parser.errors.*`) e da estrutura da
 // prova (`proof.errors.*`).
@@ -20,6 +20,7 @@
 import { format } from "./formula.js";
 import { parseFormula } from "./parser.js";
 import { citeLine, citeRange, createProof } from "./proof.js";
+import { ruleLabel } from "./rules.js";
 
 /** Códigos de erro próprios deste formato; todos têm o parâmetro { line }. */
 export const PROOF_TEXT_ERROR_CODES = [
@@ -64,6 +65,14 @@ const RULE_SYMBOLS = new Map([
 const RULE_SYMBOL_RE = /^(->|=>|\/\\|&|\^|\\\/|\||v|⊥)(?=[IE]$)/;
 const RULE_NEGATION_RE = /^[~!-]+(?=[IE]$)/;
 
+/** Siglas EN que diferem do id, para uma prova se ler da mesma forma nos dois idiomas. */
+const RULE_ALIASES = new Map([
+  ["RAA", "RA"],
+  ["LEM", "TE"],
+  ["HS", "SH"],
+  ["DS", "SD"],
+]);
+
 const LINE_RE = /^\s*(\d+)\s*\|(.*)$/;
 const CITATION_RE = /^(\d+)(?:\s*[-–—]\s*(\d+))?$/;
 
@@ -73,6 +82,7 @@ const reads = (text) => text === EMPTY_FORMULA || parseFormula(text).ok;
 
 /** O id do catálogo para uma regra escrita na notação de entrada. */
 function ruleId(written) {
+  if (RULE_ALIASES.has(written)) return RULE_ALIASES.get(written);
   return written
     .replace(RULE_SYMBOL_RE, (symbol) => RULE_SYMBOLS.get(symbol))
     .replace(RULE_NEGATION_RE, (symbols) => "¬".repeat(symbols.length));
@@ -193,16 +203,17 @@ const citationText = (citation) => (
   citation.kind === "line" ? String(citation.line) : `${citation.from}–${citation.to}`
 );
 
-function justification({ kind, rule, citations }, labels) {
+function justification({ kind, rule, citations }, labels, ruleLabels) {
   if (kind !== "step") return labels[kind];
-  return [rule ?? "", ...citations.map(citationText)].join(", ");
+  return [rule ? ruleLabel(rule, ruleLabels) : "", ...citations.map(citationText)].join(", ");
 }
 
 /**
  * Imprime a prova com as justificações em coluna. `labels` tem as palavras { premise, hypothesis }
  * do idioma da página (`proofText.premise` e `proofText.hypothesis`), todas lidas por `parseProof`.
+ * `ruleLabels` (`rules.labels`) dá as siglas do idioma, que o `parseProof` também lê.
  */
-export function formatProof({ lines }, labels = DEFAULT_LABELS) {
+export function formatProof({ lines }, labels = DEFAULT_LABELS, ruleLabels = {}) {
   const numberWidth = String(lines.length).length;
   const bodies = lines.map(({ depth, formula }) => (
     "  ".repeat(depth) + (formula ? format(formula) : EMPTY_FORMULA)
@@ -210,7 +221,7 @@ export function formatProof({ lines }, labels = DEFAULT_LABELS) {
   const column = bodies.reduce((widest, body) => Math.max(widest, body.length), 0);
   return lines.map((line, index) => {
     const number = String(index + 1).padStart(numberWidth);
-    const written = justification(line, labels);
+    const written = justification(line, labels, ruleLabels);
     const body = written ? `${bodies[index].padEnd(column)}   ${written}` : bodies[index];
     return `${number} | ${body}`;
   }).join("\n");
