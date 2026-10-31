@@ -103,7 +103,7 @@ O solver respeita o conjunto ativo. Distingue «sem prova com estas regras» de 
 sem nunca afirmar o primeiro sem o provar. Inclui `¬¬p ⊢ p` sem ¬E, RA e TE.
 **Feito quando:** há testes para os dois casos, sem mensagens enganadoras.
 
-### [ ] C3 · Provas legíveis
+### [x] C3 · Provas legíveis
 Pós-processamento: remove linhas e subdeduções inúteis e reutiliza subprovas. Cada passo guarda a
 estratégia usada (código traduzível). Provas curtas em exemplos simples.
 **Feito quando:** um benchmark fixa o comprimento máximo por exemplo, e `¬q → ¬p ⊢ p → ¬¬q` e análogos
