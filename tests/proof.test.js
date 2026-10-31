@@ -150,6 +150,11 @@ test("uma subdedução de uma só linha cita-se como intervalo", () => {
   assert.deepEqual(accessibleFrom(proof, 2), { lines: [], ranges: [{ from: 1, to: 1 }] });
 });
 
+test("uma subdedução que acaba dentro de outra não é citável", () => {
+  const proof = build([hyp(1), hyp(2), step(0)]);
+  assert.deepEqual(accessibleFrom(proof, 3), { lines: [], ranges: [] });
+});
+
 test("linha inexistente não tem nada acessível", () => {
   for (const n of [0, 10, 1.5, "2"]) assert.deepEqual(accessibleFrom(nested(), n), { lines: [], ranges: [] });
 });

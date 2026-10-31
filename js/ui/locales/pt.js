@@ -136,6 +136,7 @@ export default {
       inaccessibleLine: "Linha {line}: não podes citar {cited} a partir daqui, porque não está acessível.",
       openSubproof: "Linha {line}: a subdedução {cited} ainda está aberta, por isso fecha-a antes de a citar.",
       notASubproof: "Linha {line}: o intervalo {cited} não é uma subdedução completa.",
+      nestedConclusion: "Linha {line}: a subdedução {cited} acaba dentro de outra, por isso a última linha ainda depende de uma hipótese interior.",
       emptyCitation: "Linha {line}: a citação {cited} depende de uma linha que ainda não tem fórmula.",
       missingCitation: "Linha {line}: a regra {rule} cita {expected}, e só indicaste {found}.",
       extraCitation: "Linha {line}: a regra {rule} cita {expected}, e indicaste {found}.",

@@ -303,6 +303,19 @@ test("um intervalo tem de ser exatamente uma subdedução", () => {
   rejects([...lines, step(0, "a → a", "→I", [3, 4])], "notASubproof", { cited: "3–4" });
 });
 
+test("a subdedução citada tem de acabar no seu próprio escopo", () => {
+  rejects([hyp(1, "a"), hyp(2, "b"), step(0, "a → b", "→I", [1, 2])], "nestedConclusion", { cited: "1–2" });
+  rejects(
+    [hyp(1, "a"), step(1, "a", "R", 1), hyp(2, "b"), step(2, "b", "R", 3), step(0, "a → b", "→I", [1, 4])],
+    "nestedConclusion",
+    { cited: "1–4" },
+  );
+});
+
+test("depois de fechar a subdedução interior, a exterior pode acabar e ser citada", () => {
+  accepts([hyp(1, "a"), hyp(2, "b"), step(2, "a", "R", 1), step(1, "b → a", "→I", [2, 3]), step(0, "a → (b → a)", "→I", [1, 4])]);
+});
+
 test("a citação de um número que não existe é recusada, seja linha ou intervalo", () => {
   rejects([premise("a"), step(0, "a", "R", 9)], "noSuchCitation", { cited: "9" });
   rejects([hyp(1, "a"), step(0, "a → a", "→I", [1, 9])], "noSuchCitation", { cited: "1–9" });

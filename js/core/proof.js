@@ -131,7 +131,8 @@ const isLine = ({ lines }, n) => Number.isInteger(n) && n >= 1 && n <= lines.len
 /**
  * O que a linha n pode citar: `lines`, as linhas anteriores fora de subdeduções fechadas, e
  * `ranges`, as subdeduções já fechadas cuja subdedução-mãe contém n (ou que estão no nível de topo).
- * As linhas dentro de uma subdedução fechada só se alcançam pelo intervalo.
+ * As linhas dentro de uma subdedução fechada só se alcançam pelo intervalo. Uma subdedução que acaba
+ * dentro de outra não conta: a última linha dependeria de uma hipótese que nada descarregou.
  */
 export function accessibleFrom(proof, n) {
   if (!isLine(proof, n)) return { lines: [], ranges: [] };
@@ -142,7 +143,7 @@ export function accessibleFrom(proof, n) {
     if (inScope.has(owner[line])) lines.push(line);
   }
   const ranges = found
-    .filter(({ to, parent }) => to < n && inScope.has(parent))
+    .filter(({ to, depth, parent }) => to < n && inScope.has(parent) && proof.lines[to - 1].depth === depth)
     .map(({ from, to }) => ({ from, to }));
   return { lines, ranges };
 }

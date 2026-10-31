@@ -30,6 +30,7 @@ export const VERIFY_ERROR_CODES = [
   "inaccessibleLine", // { cited }: vem depois, ou está dentro de uma subdedução fechada ou alheia
   "openSubproof", // { cited }: a subdedução citada ainda contém esta linha
   "notASubproof", // { cited }: o intervalo não é exatamente uma subdedução
+  "nestedConclusion", // { cited }: a última linha do intervalo depende de uma hipótese interior
   "emptyCitation", // { cited }: a citação depende de uma linha sem fórmula
   "missingCitation", // { rule, expected, found }: faltam citações
   "extraCitation", // { rule, expected, found }: há citações a mais
@@ -66,6 +67,7 @@ function citationProblem(proof, n, citation, access, all) {
   if (cited && from < n && n <= cited.to) return "openSubproof";
   if (to >= n) return "inaccessibleLine";
   if (cited?.to !== to) return "notASubproof";
+  if (lines[to - 1].depth !== cited.depth) return "nestedConclusion";
   if (!access.ranges.some((range) => range.from === from && range.to === to)) return "inaccessibleLine";
   return lines[from - 1].formula && lines[to - 1].formula ? null : "emptyCitation";
 }

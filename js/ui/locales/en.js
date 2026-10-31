@@ -135,6 +135,7 @@ export default {
       inaccessibleLine: "Line {line}: you cannot cite {cited} from here, because it is not accessible.",
       openSubproof: "Line {line}: subproof {cited} is still open, so close it before citing it.",
       notASubproof: "Line {line}: range {cited} is not a complete subproof.",
+      nestedConclusion: "Line {line}: subproof {cited} ends inside another one, so its last line still depends on an inner hypothesis.",
       emptyCitation: "Line {line}: citation {cited} depends on a line with no formula yet.",
       missingCitation: "Line {line}: rule {rule} cites {expected}, and you gave only {found}.",
       extraCitation: "Line {line}: rule {rule} cites {expected}, and you gave {found}.",
