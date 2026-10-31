@@ -27,6 +27,7 @@
   --color-text-subtle: #71717a; /* só em bg ou surface: em surface-2 falha o AA */
   --color-ink: #18181b;
   --color-ink-hover: #27272a;
+  --color-grip: #d4d4d8;
 
   /* Eventos: cor (texto, ícone, contorno) e fundo suave */
   --color-ev-unit: #0369a1;
@@ -35,8 +36,8 @@
   --color-ev-branch-soft: #fffbeb;
   --color-ev-conflict: #b91c1c;
   --color-ev-conflict-soft: #fef2f2;
-  --color-ev-sat: #15803d;
-  --color-ev-sat-soft: #f0fdf4;
+  --color-ev-ok: #15803d;
+  --color-ev-ok-soft: #f0fdf4;
   --color-ev-back: #6d28d9;
   --color-ev-back-soft: #f5f3ff;
   --color-ev-res: #a21caf;
@@ -303,5 +304,802 @@
   .skip-link:focus {
     top: 8px;
     color: #fff;
+  }
+
+  /* Barra de créditos: 36px, a mesma altura que o --credits-bar-height reserva antes do layout.js correr.
+     A tinta invertida destaca-a sem gastar uma cor de estado. */
+  .credits {
+    view-transition-name: shell-credits;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: var(--credits-bar-height);
+    padding-inline: 12px;
+    background: var(--color-ink);
+    color: rgb(255 255 255 / 0.8);
+    font-size: 12px;
+    line-height: 20px;
+    white-space: nowrap;
+  }
+
+  /* No mobile, 12px para a frase caber a 390px; com espaço, 13px. */
+  @media (min-width: 768px) {
+    .credits {
+      gap: 12px;
+      font-size: 13px;
+    }
+  }
+
+  .credits a {
+    color: #fff;
+    font-weight: var(--weight-medium);
+    text-decoration: underline;
+    text-decoration-color: rgb(255 255 255 / 0.4);
+    text-underline-offset: 3px;
+    transition: text-decoration-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+
+  .credits a:hover {
+    text-decoration-color: #fff;
+  }
+
+  /* O anel de foco normal é a tinta, que aqui não se via. */
+  .credits a:focus-visible {
+    outline-color: #fff;
+  }
+
+  .credits p a svg {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: 2px;
+    vertical-align: -1px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+
+  .credits p a:hover svg {
+    transform: translate(1px, -1px);
+  }
+
+  /* O ícone do GitHub: 20px à vista, 44×44 de alvo (o ::after passa a altura da barra sem a mudar). */
+  .credits .credits-gh {
+    position: relative;
+    display: inline-flex;
+    padding-left: 10px;
+    border-left: 1px solid rgb(255 255 255 / 0.25);
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  .credits .credits-gh:hover {
+    color: #fff;
+  }
+
+  .credits-gh::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: calc(50% + 5px);
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  .credits-gh svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+
+  /* Cabeçalho: fica fixo no topo ao fazer scroll (a barra de créditos sai). */
+  .hdr {
+    view-transition-name: shell-header;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--color-bg);
+    border-bottom: var(--header-border) solid var(--color-hairline);
+  }
+
+  .hdr-in {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  .wm {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-text);
+    font-size: 16px;
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .wm:hover {
+    color: var(--color-text);
+  }
+
+  /* No mobile a navegação é a tab bar. */
+  .nav {
+    display: none;
+    flex: 1;
+    font-size: 14px;
+  }
+
+  /* O sublinhado da página ativa assenta na linha do cabeçalho; o padding em cima compensa-o. */
+  .nav a {
+    display: flex;
+    align-items: center;
+    height: var(--header-height);
+    padding-top: 2px;
+    border-bottom: 2px solid transparent;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  .nav a:hover {
+    color: var(--color-text);
+  }
+
+  .nav a[aria-current="page"] {
+    border-bottom-color: var(--color-ink);
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+  }
+
+  /* Botões: API do Basecoat (.btn + data-variant + data-size), com os tamanhos e as cores do sistema.
+     O Basecoat recorta o fundo pela borda transparente, o que tirava 2px ao tamanho visível. */
+  .btn {
+    gap: 8px;
+    background-clip: border-box;
+    font-size: 14px;
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+      transform var(--dur-fast) var(--ease);
+  }
+
+  .btn svg:not([class*="size-"]) {
+    width: 18px;
+    height: 18px;
+  }
+
+  .btn:not([data-size]),
+  .btn[data-size="default"] {
+    gap: 8px;
+    height: 40px;
+    padding-inline: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .btn[data-size="sm"] {
+    gap: 8px;
+    height: 32px;
+    padding-inline: 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+  }
+
+  .btn[data-size="lg"] {
+    gap: 8px;
+    height: 48px;
+    padding-inline: 20px;
+    border-radius: var(--radius-lg);
+    font-size: 15px;
+  }
+
+  .btn:not([data-variant]),
+  .btn[data-variant="primary"] {
+    background-color: var(--color-ink);
+    color: #fff;
+  }
+
+  .btn:not([data-variant]):hover,
+  .btn[data-variant="primary"]:hover {
+    background-color: var(--color-ink-hover);
+    color: #fff;
+  }
+
+  .btn[data-variant="secondary"] {
+    background-color: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  .btn[data-variant="secondary"]:hover {
+    background-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .btn[data-variant="outline"] {
+    border-color: var(--color-border-strong);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    box-shadow: none;
+  }
+
+  .btn[data-variant="outline"]:hover {
+    background-color: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  .btn[data-variant="ghost"] {
+    background-color: transparent;
+    color: var(--color-text-2);
+  }
+
+  .btn[data-variant="ghost"]:hover {
+    background-color: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  .btn[data-size="icon"] {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+  }
+
+  /* Só o anel de foco global: o Basecoat somava-lhe um halo. */
+  .btn:focus-visible {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .btn[data-variant="outline"]:focus-visible {
+    border-color: var(--color-border-strong);
+  }
+
+  .btn:active:not([aria-haspopup]) {
+    translate: none;
+    transform: scale(0.98);
+  }
+
+  /* Com aria-disabled o botão continua a receber o foco; quem o trata ignora o clique. */
+  .btn:disabled,
+  .btn:disabled:hover,
+  .btn[aria-disabled="true"],
+  .btn[aria-disabled="true"]:hover {
+    background-color: var(--color-surface-2);
+    color: #a1a1aa;
+    opacity: 1;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn[data-variant="ghost"]:disabled,
+  .btn[data-variant="ghost"]:disabled:hover,
+  .btn[data-variant="ghost"][aria-disabled="true"],
+  .btn[data-variant="ghost"][aria-disabled="true"]:hover {
+    background-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn:active:not([aria-haspopup]) {
+      transform: none;
+    }
+  }
+
+  .seg {
+    display: inline-flex;
+    flex: none;
+    padding: 3px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+  }
+
+  .seg button {
+    position: relative;
+    height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 14px;
+    font-weight: var(--weight-medium);
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  .seg button:hover {
+    color: var(--color-text);
+  }
+
+  .seg button[aria-pressed="true"],
+  .seg button[aria-selected="true"] {
+    background: var(--color-bg);
+    color: var(--color-text);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .seg button:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .seg.sm button {
+    height: 26px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  /* Mensagens: fundo suave + ícone na cor do tipo, sem barra lateral. */
+  .msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+    color: var(--color-text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .msg[hidden] {
+    display: none;
+  }
+
+  .msg .ic {
+    margin-top: 1px;
+  }
+
+  .msg > span {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .msg b {
+    font-weight: var(--weight-semibold);
+  }
+
+  .msg-error {
+    background: var(--color-ev-conflict-soft);
+  }
+
+  .msg-error .ic {
+    color: var(--color-ev-conflict);
+  }
+
+  .msg-warn {
+    background: var(--color-ev-branch-soft);
+  }
+
+  .msg-warn .ic {
+    color: var(--color-ev-branch);
+  }
+
+  .msg-info {
+    background: var(--color-surface);
+  }
+
+  .msg-info .ic {
+    color: var(--color-text-muted);
+  }
+
+  .msg-ok {
+    background: var(--color-ev-ok-soft);
+  }
+
+  .msg-ok .ic {
+    color: var(--color-ev-ok);
+  }
+
+  /* Menu ou painel que abre de um botão: por baixo dele a partir de 768px, numa folha abaixo disso. */
+  .dd {
+    position: relative;
+  }
+
+  /* Sem a transição do Basecoat: durante ela o conteúdo ainda não recebe o foco. */
+  .dd::details-content {
+    transition: none;
+  }
+
+  .dd > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .dd > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .dd[open] > summary > svg:last-child:not(:first-child) {
+    transform: rotate(180deg);
+  }
+
+  .dd-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 40;
+  }
+
+  .dd.end > .dd-panel {
+    right: 0;
+    left: auto;
+  }
+
+  .menu,
+  .pop {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .pop {
+    padding: 16px;
+  }
+
+  .menu {
+    display: flex;
+    flex-direction: column;
+    min-width: 240px;
+    padding: 6px;
+  }
+
+  .menu .grp {
+    padding: 8px 10px 4px;
+    color: var(--color-text-subtle);
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+    line-height: 16px;
+  }
+
+  .pop .grp {
+    margin-bottom: 12px;
+    color: var(--color-text-subtle);
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+    line-height: 16px;
+  }
+
+  .menu > button,
+  .menu > a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 10px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-size: 14px;
+    text-align: left;
+    text-decoration: none;
+    transition: background-color var(--dur-fast) var(--ease);
+  }
+
+  .menu > button:hover,
+  .menu > a:hover,
+  .menu > button:focus-visible,
+  .menu > a:focus-visible {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  .menu > button:focus-visible,
+  .menu > a:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .menu > button[aria-pressed="true"] {
+    font-weight: var(--weight-medium);
+  }
+
+  .menu > button > svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-muted);
+  }
+
+  .menu-key {
+    color: var(--color-text-subtle);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .menu hr {
+    margin: 6px 0;
+    border: 0;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  /* Folha inferior: um <dialog> modal, por isso o scrim é o ::backdrop. */
+  .sheet {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    margin: 0;
+    padding: 8px 8px calc(16px + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    box-shadow: var(--shadow-lg);
+    overscroll-behavior: contain;
+    animation: sheet-in var(--dur-base) var(--ease);
+  }
+
+  .sheet[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sheet::backdrop {
+    background: rgb(24 24 27 / 0.4);
+  }
+
+  @keyframes sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  html:has(.sheet[open]) {
+    overflow: hidden;
+  }
+
+  .sheet-grip {
+    flex: none;
+    align-self: center;
+    width: 36px;
+    height: 4px;
+    margin: 4px 0 6px;
+    border-radius: 2px;
+    background: var(--color-grip);
+    touch-action: none;
+  }
+
+  .sheet-head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px 6px 12px;
+    touch-action: none;
+  }
+
+  .sheet-title {
+    flex: 1;
+    font-size: 17px;
+    font-weight: var(--weight-semibold);
+  }
+
+  .sheet > :not(.sheet-grip, .sheet-head) {
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .sheet .dd-panel {
+    position: static;
+  }
+
+  .sub {
+    display: none;
+  }
+
+  .sheet .sub {
+    display: block;
+    color: var(--color-text-subtle);
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .sheet .menu,
+  .sheet .pop {
+    min-width: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .sheet .menu {
+    padding: 0;
+  }
+
+  .sheet .pop {
+    padding: 4px 12px;
+  }
+
+  .sheet .menu > button,
+  .sheet .menu > a {
+    min-height: 52px;
+    padding: 0 12px;
+    font-size: 15px;
+  }
+
+  .sheet .menu > button > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .ftr {
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .ftr-in {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    padding-block: 16px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    line-height: 20px;
+    text-align: center;
+  }
+
+  .ftr-credits {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0 16px;
+  }
+
+  .ftr-repo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 44px;
+    min-height: 44px;
+    color: var(--color-text-muted);
+  }
+
+  .ftr-repo:hover {
+    color: var(--color-text);
+  }
+
+  .ftr-repo svg {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  /* No mobile não há navegação no rodapé: é a tab bar. */
+  .ftr nav {
+    display: none;
+  }
+
+  .ftr nav a {
+    color: var(--color-text-muted);
+  }
+
+  .ftr nav a:hover {
+    color: var(--color-text);
+  }
+
+  .ic {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Tab bar: 64px + a zona segura do telemóvel. O body guarda a mesma altura. */
+  .tabbar {
+    view-transition-name: shell-tabs;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 30;
+    height: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .tabbar ul {
+    height: 100%;
+  }
+
+  .tabbar a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 100%;
+    color: var(--color-text-muted);
+    font-size: 11px;
+    line-height: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .tabbar a:hover {
+    color: var(--color-text);
+  }
+
+  .tabbar a[aria-current="page"] {
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  .tabbar .ic {
+    width: 20px;
+    height: 20px;
+  }
+
+  .tabbar a[aria-current="page"] .ic {
+    stroke-width: 2.25;
+  }
+
+  /* Mantém o tamanho visível e alarga só a zona de toque até aos 44px. */
+  @media (max-width: 767.98px) {
+    .btn:not([data-size]),
+    .btn[data-size="default"],
+    .btn[data-size="sm"] {
+      min-width: 44px;
+      height: 44px;
+    }
+
+    .btn[data-size="icon"] {
+      width: 44px;
+      height: 44px;
+    }
+
+    .seg button {
+      min-width: 44px;
+      height: 38px;
+    }
+
+    /* O .seg tem 3px de padding: a zona de toque chega ao contorno dele, com 44px. */
+    .seg button::after {
+      content: "";
+      position: absolute;
+      inset: -3px 0;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .wrap {
+      padding-inline: 32px;
+    }
+
+    .nav {
+      display: block;
+    }
+
+    .ftr-in {
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .ftr nav {
+      display: block;
+    }
+
+    .ftr-repo {
+      min-height: 0;
+    }
+
+    .tabbar {
+      display: none;
+    }
   }
 }
