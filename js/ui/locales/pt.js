@@ -93,4 +93,15 @@ export default {
     back: "Ir para o início",
     prove: "Fazer uma prova",
   },
+  parser: {
+    errors: {
+      emptyInput: "Escreve uma fórmula.",
+      tooLong: "A fórmula tem {length} caracteres sem contar os espaços, e o máximo é {max}.",
+      unexpectedChar: "O símbolo «{char}» não faz parte da notação.",
+      badVariable: "«{token}» não é uma variável: os nomes começam por uma letra (ex.: p, q1, x_2).",
+      unbalanced: "«{char}» não tem par: confirma os parênteses.",
+      missingOperand: "Falta uma fórmula junto de «{char}».",
+      missingOperator: "Falta um conectivo antes de «{token}».",
+    },
+  },
 };

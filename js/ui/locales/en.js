@@ -92,4 +92,15 @@ export default {
     back: "Go to the home page",
     prove: "Write a proof",
   },
+  parser: {
+    errors: {
+      emptyInput: "Write a formula.",
+      tooLong: "The formula has {length} characters not counting spaces, and the maximum is {max}.",
+      unexpectedChar: "The symbol “{char}” is not part of the notation.",
+      badVariable: "“{token}” is not a variable: names start with a letter (e.g. p, q1, x_2).",
+      unbalanced: "“{char}” has no match: check the parentheses.",
+      missingOperand: "A formula is missing next to “{char}”.",
+      missingOperator: "A connective is missing before “{token}”.",
+    },
+  },
 };
