@@ -145,7 +145,7 @@ Painéis para os 3 níveis de dica, solução automática com cancelamento, cont
 vazios. A solução pode ser pedida a partir da prova parcial, quando possível.
 **Feito quando:** cada estado tem teste e aparece corretamente em PT e EN.
 
-### [ ] D6 · Vista em árvore
+### [x] D6 · Vista em árvore
 Conversão de Fitch para árvore de Gentzen e vista só de leitura, com scroll próprio e destaque da
 linha correspondente.
 **Feito quando:** a conversão é testada em provas com ∨E, →I e RA.
