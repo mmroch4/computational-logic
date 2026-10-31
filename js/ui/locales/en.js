@@ -108,4 +108,9 @@ export default {
       missingConclusion: "The conclusion is missing after “{token}”.",
     },
   },
+  semantics: {
+    errors: {
+      tooManyVariables: "There are {count} variables, and the truth table only takes up to {max}.",
+    },
+  },
 };

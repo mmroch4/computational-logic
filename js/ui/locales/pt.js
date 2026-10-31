@@ -109,4 +109,9 @@ export default {
       missingConclusion: "Falta a conclusão depois de «{token}».",
     },
   },
+  semantics: {
+    errors: {
+      tooManyVariables: "Há {count} variáveis, e a tabela de verdade só aceita até {max}.",
+    },
+  },
 };
