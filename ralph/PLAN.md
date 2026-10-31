@@ -28,7 +28,7 @@ e testes de rotas, meta e páginas.
 **Feito quando:** as 10 páginas e a 404 abrem localmente, o seletor de idioma funciona e os testes de
 build falham se os ficheiros gerados estiverem desatualizados.
 
-### [ ] A4 · Verificações de browser
+### [x] A4 · Verificações de browser
 Adapta `check-page.sh`, `check-all.sh`, `check-keyboard.sh`, `check-edge.sh`, `lighthouse.sh`,
 `smoke-deploy.sh`, `a11y-audit.mjs` e `motion-audit.mjs` às novas rotas.
 **Feito quando:** `scripts/check-all.sh` passa em todas as páginas.
