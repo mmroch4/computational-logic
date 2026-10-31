@@ -1,10 +1,14 @@
 // Procura de provas. Módulo puro (sem DOM).
 // Contrato:
-//   solve(goal, { maxSteps = MAX_STEPS })
-//     → { ok: true, valid: true, proof, steps }
+//   solve(goal, { rules = RULES, maxSteps = MAX_STEPS })
+//     → { ok: true, valid: true, provable: true, proof, steps }
+//     | { ok: true, valid: true, provable: false, witness }
 //     | { ok: true, valid: false, counterexample }
 //     | { ok: false, error: { code, params } }
-// As mensagens estão em `solver.errors.*`; `tooManyVariables` vem da semântica.
+// `rules` é o conjunto ativo, como um `ruleSet` ou o `rules` de `activeRules`.
+// `provable: false` só sai com uma demonstração: `witness` é um modelo de `countermodel.js` em que
+// todas as regras ativas são corretas e o sequente falha. Um erro nunca diz nada sobre haver prova.
+// As mensagens estão em `solver.noProof` e `solver.errors.*`; `tooManyVariables` vem da semântica.
 //
 // A tabela de verdade decide a validade e depois guia a procura: só se tenta provar o que as fórmulas
 // conhecidas implicam. Cada fórmula guarda as linhas da tabela em que é verdadeira, num BigInt, por
@@ -14,24 +18,34 @@
 // A procura constrói uma derivação em árvore (`node`) e só no fim a escreve em Fitch, pelo que os
 // factos que a prova não usa nunca chegam a ser linhas.
 // Ordem para um objetivo: já conhecido; regra de introdução da conclusão; encadear uma implicação;
-// casos de uma disjunção; contradição; e, em último recurso, RA ou assumir uma fórmula para obter a
-// negação dela (sem TE, para o resultado valer com as regras base mais RA).
+// casos de uma disjunção; contradição; e, em último recurso, o passo clássico ou assumir uma fórmula
+// para obter a negação dela. O passo clássico é RA, ou ¬I + ¬E, ou TE + ∨E + FE, conforme o conjunto.
+// Cada passo só se tenta se a regra estiver ativa. As outras regras (MT, SD, regras do utilizador)
+// só entram numa segunda procura, se a primeira falhar: nela, tudo o que derem é um facto de partida.
 
-import { atom, equals, FALSUM, format, not } from "./formula.js";
+import { countermodel } from "./countermodel.js";
+import { atom, equals, FALSUM, format, not, or } from "./formula.js";
 import { citeLine, citeRange, createProof } from "./proof.js";
 import { RULES } from "./rules.js";
+import { applySubstitution, matchSchema } from "./schema.js";
 import { checkSequent, variablesOf } from "./semantics.js";
 import { verifyProof } from "./verify.js";
 
 /** Limite de passos da procura. */
 export const MAX_STEPS = 20000;
 
-/** Códigos de erro próprios; o outro é `tooManyVariables`. */
+/** Códigos de erro próprios; o outro é `tooManyVariables`. Nenhum afirma que não há prova. */
 export const SOLVER_ERROR_CODES = [
   "stepLimit", // { max }: a procura parou sem provar nem refutar que há prova
-  "searchExhausted", // o sequente é válido e a procura acabou sem prova: é um erro do solver
+  "searchExhausted", // a procura acabou sem prova nem demonstração de que não a há
   "unverifiedProof", // a prova gerada não passou no verificador: é um erro do solver
 ];
+
+/** Regras que a procura sabe usar por si. */
+const CORE_RULES = new Set(["∧I", "∧E", "∨I", "∨E", "¬I", "¬E", "FI", "FE", "→I", "→E", "R", "RA", "TE"]);
+
+/** Uma fórmula nova vinda das outras regras pode ser isto maior do que a maior do sequente. */
+const EXTRA_FORMULA_SLACK = 4;
 
 class StepLimit extends Error {}
 
@@ -89,11 +103,19 @@ const assumption = (entry) => node(entry, null);
 
 const subderivation = (hypothesis, end) => ({ hypothesis, end });
 
-function createSearch(goal, maxSteps) {
+/** As regras que `applyExtras` pode usar: só premissas simples, e não as que a procura já conhece. */
+const extraRulesOf = (rules) => rules.filter(({ id, premises }) => (
+  !CORE_RULES.has(id) && premises.length > 0 && premises.every(({ kind }) => kind === "formula")
+));
+
+function createSearch(goal, maxSteps, rules, extraRules) {
   const table = createTable(variablesOf([...goal.premises, goal.conclusion]));
   const { all, intern } = table;
   const absurd = intern(FALSUM);
   const active = new Set();
+  const allowed = new Set(rules.map(({ id }) => id));
+  const can = (id) => allowed.has(id);
+  const largest = Math.max(...[...goal.premises, goal.conclusion].map((formula) => format(formula).length));
   let steps = 0;
 
   const negation = (entry) => intern(not(entry.formula));
@@ -111,7 +133,7 @@ function createSearch(goal, maxSteps) {
     const facts = new Map(context.facts);
     const pending = [...fresh];
     const add = (item) => {
-      if (!facts.has(item.entry.id)) pending.push(item);
+      if (can(item.rule) && !facts.has(item.entry.id)) pending.push(item);
     };
     while (pending.length > 0) {
       const item = pending.pop();
@@ -166,20 +188,20 @@ function createSearch(goal, maxSteps) {
 
   function introduce(context, target) {
     const { formula } = target;
-    if (formula.kind === "implies") {
+    if (formula.kind === "implies" && can("→I")) {
       const body = inSubproof(context, arg(target, 0), arg(target, 1));
       return body && node(target, "→I", [body]);
     }
-    if (formula.kind === "not") {
+    if (formula.kind === "not" && can("¬I")) {
       const body = inSubproof(context, arg(target, 0), absurd);
       return body && node(target, "¬I", [body]);
     }
-    if (formula.kind === "and") {
+    if (formula.kind === "and" && can("∧I")) {
       const left = prove(context, arg(target, 0));
       const right = left && prove(extend(context, [left]), arg(target, 1));
       return right && node(target, "∧I", [left, right]);
     }
-    if (formula.kind === "or") {
+    if (formula.kind === "or" && can("∨I")) {
       const sides = [arg(target, 0), arg(target, 1)]
         .filter((side) => entailedBy(context.models, side))
         .sort((a, b) => known(context, b) - known(context, a));
@@ -196,10 +218,10 @@ function createSearch(goal, maxSteps) {
     const uses = [];
     for (const item of context.facts.values()) {
       const { entry } = item;
-      if (entry.formula.kind === "implies") {
+      if (entry.formula.kind === "implies" && can("→E")) {
         const gives = arg(entry, 1);
         if (!known(context, gives)) uses.push({ item, needs: arg(entry, 0), gives, rule: "→E" });
-      } else if (entry.formula.kind === "not") {
+      } else if (entry.formula.kind === "not" && can("FI")) {
         uses.push({ item, needs: arg(entry, 0), gives: absurd, rule: "FI" });
       }
     }
@@ -220,6 +242,7 @@ function createSearch(goal, maxSteps) {
   }
 
   function disjunctions(context) {
+    if (!can("∨E")) return [];
     return [...context.facts.values()].filter(({ entry }) => (
       entry.formula.kind === "or" && !known(context, arg(entry, 0)) && !known(context, arg(entry, 1))
     ));
@@ -233,6 +256,7 @@ function createSearch(goal, maxSteps) {
 
   /** Assume cada fórmula ainda por decidir: a subdedução dá ¬φ, um facto novo, e continua-se. */
   function assumeAndRefute(context) {
+    if (!can("¬I")) return null;
     const pending = pendingUses(context).map(({ needs }) => needs);
     const atoms = variablesOf([...goal.premises, goal.conclusion]).map((name) => intern(atom(name)));
     for (const entry of [...pending, ...atoms]) {
@@ -254,10 +278,64 @@ function createSearch(goal, maxSteps) {
     return null;
   }
 
+  /** Prova `target` por absurdo, com as regras clássicas que estiverem ativas. */
+  function classical(context, target) {
+    const negated = negation(target);
+    if (known(context, negated) && !known(context, absurd)) return null;
+    if (can("RA")) {
+      const body = inSubproof(context, negated, absurd);
+      return body && node(target, "RA", [body]);
+    }
+    if (can("¬I") && can("¬E")) {
+      const body = inSubproof(context, negated, absurd);
+      return body && node(target, "¬E", [node(negation(negated), "¬I", [body])]);
+    }
+    if (can("TE") && can("∨E") && can("FE")) {
+      const refuted = inSubproof(context, negated, target);
+      if (!refuted) return null;
+      const hypothesis = assumption(target);
+      const middle = node(intern(or(target.formula, negated.formula)), "TE");
+      return node(target, "∨E", [middle, subderivation(hypothesis, hypothesis), refuted]);
+    }
+    return null;
+  }
+
+  /** O que as outras regras dão de novo a partir de Γ. */
+  function applyExtras(context) {
+    const facts = [...context.facts.values()];
+    const found = new Map();
+
+    function bind(rule, index, substitution, citations) {
+      if (index < rule.premises.length) {
+        for (const fact of facts) {
+          spend();
+          const match = matchSchema(rule.premises[index].schema, fact.entry.formula, substitution);
+          if (match.ok) bind(rule, index + 1, match.substitution, [...citations, fact]);
+        }
+        return;
+      }
+      for (const conclusion of rule.conclusions) {
+        const instance = applySubstitution(conclusion, substitution);
+        if (!instance.ok) continue;
+        const entry = intern(instance.formula);
+        const fits = entry.key.length <= largest + EXTRA_FORMULA_SLACK;
+        if (fits && !known(context, entry) && !found.has(entry.id)) {
+          found.set(entry.id, node(entry, rule.id, citations));
+        }
+      }
+    }
+
+    for (const rule of extraRules) bind(rule, 0, {}, []);
+    return [...found.values()];
+  }
+
   function search(context, target) {
+    const extras = extraRules.length > 0 ? applyExtras(context) : [];
+    if (extras.length > 0) return prove(extend(context, extras), target);
+
     if (target !== absurd) {
-      if (known(context, absurd)) return node(target, "FE", [context.facts.get(absurd.id)]);
-      if (context.models === 0n) {
+      if (can("FE") && known(context, absurd)) return node(target, "FE", [context.facts.get(absurd.id)]);
+      if (can("FE") && context.models === 0n) {
         const contradiction = prove(context, absurd);
         if (contradiction) return node(target, "FE", [contradiction]);
       }
@@ -282,11 +360,7 @@ function createSearch(goal, maxSteps) {
         ?? firstOf(cases.filter((item) => !usefulCases.includes(item)), (item) => splitOn(context, item, target))
         ?? assumeAndRefute(context);
     }
-
-    const negated = negation(target);
-    if (known(context, negated)) return null;
-    const body = inSubproof(context, negated, absurd);
-    return body && node(target, "RA", [body]);
+    return classical(context, target);
   }
 
   /** Derivação de `target`, ou null. Voltar ao mesmo estado num ramo aberto não leva a lado nenhum. */
@@ -358,25 +432,39 @@ function writeProof(derivation, premises) {
   return createProof(lines).proof;
 }
 
+/** Uma passagem da procura: a prova verificada, ou o erro que explica porque não há. */
+function attempt(goal, maxSteps, rules, extraRules) {
+  const failure = (code, params = {}) => ({ ok: false, error: { code, params } });
+  let found;
+  try {
+    found = createSearch(goal, maxSteps, rules, extraRules);
+  } catch (error) {
+    if (error instanceof StepLimit) return failure("stepLimit", { max: maxSteps });
+    throw error;
+  }
+  if (!found.derivation) return failure("searchExhausted");
+
+  const proof = writeProof(found.derivation, found.premises);
+  // A escrita pede R ao fechar uma subdedução com um facto exterior: sem R, esta prova não serve.
+  const blocked = !rules.some(({ id }) => id === "R") && proof.lines.some(({ rule }) => rule === "R");
+  if (blocked) return failure("searchExhausted");
+  if (!verifyProof(proof, goal, rules).ok) return failure("unverifiedProof");
+  return { ok: true, valid: true, provable: true, proof, steps: found.stepsUsed() };
+}
+
 /** Decide `goal` e, se for válido, procura uma prova, que passa pelo verificador antes de sair. */
-export function solve(goal, { maxSteps = MAX_STEPS } = {}) {
+export function solve(goal, { rules = RULES, maxSteps = MAX_STEPS } = {}) {
   const decided = checkSequent(goal);
   if (!decided.ok) return decided;
   if (!decided.valid) return { ok: true, valid: false, counterexample: decided.counterexample };
 
-  const limit = { ok: false, error: { code: "stepLimit", params: { max: maxSteps } } };
-  let found;
-  try {
-    found = createSearch(goal, maxSteps);
-  } catch (error) {
-    if (error instanceof StepLimit) return limit;
-    throw error;
+  let result = attempt(goal, maxSteps, rules, []);
+  const extraRules = extraRulesOf(rules);
+  if (!result.ok && result.error.code !== "unverifiedProof" && extraRules.length > 0) {
+    result = attempt(goal, maxSteps, rules, extraRules);
   }
-  if (!found.derivation) return { ok: false, error: { code: "searchExhausted", params: {} } };
+  if (result.ok || result.error.code === "unverifiedProof") return result;
 
-  const proof = writeProof(found.derivation, found.premises);
-  if (!verifyProof(proof, goal, RULES).ok) {
-    return { ok: false, error: { code: "unverifiedProof", params: {} } };
-  }
-  return { ok: true, valid: true, proof, steps: found.stepsUsed() };
+  const witness = countermodel(goal, rules);
+  return witness ? { ok: true, valid: true, provable: false, witness } : result;
 }

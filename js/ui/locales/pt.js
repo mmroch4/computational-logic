@@ -115,9 +115,10 @@ export default {
     },
   },
   solver: {
+    noProof: "O sequente é válido, mas não tem prova com estas regras: há um modelo em que todas elas são corretas e o sequente falha.",
     errors: {
       stepLimit: "A procura parou ao fim de {max} passos. Isto não quer dizer que não haja prova.",
-      searchExhausted: "A procura acabou sem prova, apesar de o sequente ser válido.",
+      searchExhausted: "A procura não encontrou prova com estas regras. Isto não quer dizer que não haja prova.",
       unverifiedProof: "A prova gerada não passou no verificador, por isso não é mostrada.",
     },
   },

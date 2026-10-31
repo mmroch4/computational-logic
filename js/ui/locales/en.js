@@ -114,9 +114,10 @@ export default {
     },
   },
   solver: {
+    noProof: "The sequent is valid, but it has no proof with these rules: there is a model in which all of them are correct and the sequent fails.",
     errors: {
       stepLimit: "The search stopped after {max} steps. This does not mean there is no proof.",
-      searchExhausted: "The search ended without a proof, even though the sequent is valid.",
+      searchExhausted: "The search found no proof with these rules. This does not mean there is no proof.",
       unverifiedProof: "The generated proof did not pass the checker, so it is not shown.",
     },
   },
