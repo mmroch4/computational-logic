@@ -125,7 +125,7 @@ com orçamentos de tempo.
 Campo de sequente com teclas para símbolos, exemplos, conversão de notação e erros inline.
 **Feito quando:** funciona a 390px com teclado virtual e os erros mostram a posição.
 
-### [ ] D2 · Vista de Fitch
+### [x] D2 · Vista de Fitch
 `js/ui/fitch-view.js`: numeração, barras de escopo, fórmula, regra e citações, com estado de cada
 linha. Só leitura, com testes de snapshot.
 **Feito quando:** subdeduções com 4 níveis cabem a 390px com scroll próprio.
