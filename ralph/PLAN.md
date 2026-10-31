@@ -114,7 +114,7 @@ ficam com comprimento próximo de uma prova manual.
 passo exato. Baseia-se nas heurísticas do solver e funciona com provas incompletas.
 **Feito quando:** há testes em estados iniciais, a meio e sem saída.
 
-### [ ] C5 · Worker e desempenho
+### [x] C5 · Worker e desempenho
 `js/ui/solver-worker.js` com tempo limite e cancelamento, sem bloquear a página. `tests/performance`
 com orçamentos de tempo.
 **Feito quando:** um sequente difícil não bloqueia a UI e o cancelamento é testado.
