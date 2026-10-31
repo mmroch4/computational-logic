@@ -140,7 +140,7 @@ Selecionar linhas, escolher regra e gerar o passo, para a frente e a partir do o
 inaplicáveis ou proibidas ficam desativadas, com motivo.
 **Feito quando:** a mesma prova de D3 é feita sem escrever fórmulas, também a 390px.
 
-### [ ] D5 · Dicas, solução e contraexemplo
+### [x] D5 · Dicas, solução e contraexemplo
 Painéis para os 3 níveis de dica, solução automática com cancelamento, contraexemplo e estados
 vazios. A solução pode ser pedida a partir da prova parcial, quando possível.
 **Feito quando:** cada estado tem teste e aparece corretamente em PT e EN.
