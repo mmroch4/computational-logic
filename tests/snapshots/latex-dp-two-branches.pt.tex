@@ -1,0 +1,44 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.5cm]{geometry}
+
+% Um passo da prova: \passo{profundidade}{(n)}{texto}{conjunto}
+\newcommand{\passo}[4]{%
+  \par{\leftskip=\dimexpr 2em*#1\relax
+  \noindent\makebox[2.5em][l]{#2}#3\par
+  \if\relax\detokenize{#4}\relax\else\noindent\hspace*{2.5em}#4\par\fi}%
+  \smallskip}
+
+% Pares resolvidos de uma eliminação: (cláusula com x) · (cláusula com ¬x) → resolvente
+\newenvironment{pares}{\begin{itemize}\setlength{\itemsep}{0pt}\small}{\end{itemize}\smallskip}
+
+\begin{document}
+
+\section*{Algoritmo DP (Davis-Putnam, 1960)}
+
+Conjunto de cláusulas: $S = \{\neg p \lor \neg q,\allowbreak\ \neg p \lor q,\allowbreak\ p \lor \neg q,\allowbreak\ p \lor q\}$
+
+\subsection*{Sequência de conjuntos}
+
+O DP não ramifica nem volta atrás: em cada passo troca $S$ por um conjunto que é satisfazível se e só se $S$ o for. Sem cláusulas unitárias, elimina a primeira variável $x$ por resolução: as cláusulas com $x$ e com $\neg x$ dão lugar aos resolventes de cada par.
+
+\passo{0}{(1)}{Conjunto inicial $S$:}{$\{\neg p \lor \neg q,\allowbreak\ \neg p \lor q,\allowbreak\ p \lor \neg q,\allowbreak\ p \lor q\}$}
+\passo{0}{(2)}{Eliminação de $p$ por resolução:}{$\{\neg q,\allowbreak\ q\}$}
+\noindent\hspace*{2.5em}{\small Pares resolvidos (cláusula com $p$ $\cdot$ cláusula com $\neg p$ $\to$ resolvente):}
+\begin{pares}
+\item $p \lor \neg q \;\cdot\; \neg p \lor \neg q \;\to\; \neg q$
+\item $p \lor \neg q \;\cdot\; \neg p \lor q \;\to\; \neg q \lor q$ (tautologia: descartada)
+\item $p \lor q \;\cdot\; \neg p \lor \neg q \;\to\; q \lor \neg q$ (tautologia: descartada)
+\item $p \lor q \;\cdot\; \neg p \lor q \;\to\; q$
+\end{pares}
+\passo{0}{(3)}{Propagação de $\neg q$:}{$\{F\}$}
+\passo{0}{}{$S$ contém $F$ $\Rightarrow$ insatisfazível}{}
+\passo{0}{}{\textbf{Resultado: $S$ é insatisfazível.}}{}
+
+\vfill
+{\footnotesize Gerado com Learn Davis-Putnam SAT, desenvolvido por Miguel Rocha (miguelrocha.dev).}
+
+\end{document}

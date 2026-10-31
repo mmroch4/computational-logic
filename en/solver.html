@@ -1,0 +1,117 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de resolver.html: não editar. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- seo (gerado por scripts/build-pages.mjs) -->
+  <title>Online SAT solver using DPLL · Learn Davis-Putnam SAT</title>
+  <meta name="description" content="Online SAT solver: paste a clause set in any notation and find out whether it is satisfiable, with a satisfying valuation and the full DPLL tree.">
+  <link rel="canonical" href="https://sat.computational-logic.miguelrocha.dev/en/solver">
+  <link rel="alternate" hreflang="pt" href="https://sat.computational-logic.miguelrocha.dev/resolver">
+  <link rel="alternate" hreflang="en" href="https://sat.computational-logic.miguelrocha.dev/en/solver">
+  <link rel="alternate" hreflang="x-default" href="https://sat.computational-logic.miguelrocha.dev/en/solver">
+  <meta name="theme-color" content="#fafafa">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Learn Davis-Putnam SAT">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:locale:alternate" content="pt_PT">
+  <meta property="og:url" content="https://sat.computational-logic.miguelrocha.dev/en/solver">
+  <meta property="og:title" content="Online SAT solver using DPLL · Learn Davis-Putnam SAT">
+  <meta property="og:description" content="Online SAT solver: paste a clause set in any notation and find out whether it is satisfiable, with a satisfying valuation and the full DPLL tree.">
+  <meta property="og:image" content="https://sat.computational-logic.miguelrocha.dev/og-image-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Learn Davis-Putnam SAT: the DLL algorithm step by step, with the decision tree.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://sat.computational-logic.miguelrocha.dev/og-image-en.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","url":"https://sat.computational-logic.miguelrocha.dev/en/solver","inLanguage":"en","description":"Online SAT solver: paste a clause set in any notation and find out whether it is satisfiable, with a satisfying valuation and the full DPLL tree.","isAccessibleForFree":true,"author":{"@type":"Person","name":"Miguel Rocha","url":"https://miguelrocha.dev"},"name":"Online SAT solver using DPLL","applicationCategory":"EducationalApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <!-- /seo -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fontes sem bloquear o primeiro desenho (display=swap: o texto aparece logo com a fonte do sistema). -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"></noscript>
+  <!-- Transição entre páginas. Fica antes da folha de estilos e não dentro dela: tem de ser conhecida no
+       primeiro desenho, sem fazer o resto do <head> esperar pela folha. Vindo de outra página do site, esse
+       desenho espera pelo JS, que traz o cabeçalho; se mesmo assim ele não chegou, não há transição: o
+       cabeçalho piscava. -->
+  <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+  <script src="/js/boot.js" data-entry="/js/pages/resolver.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
+  <link rel="modulepreload" href="/js/pages/resolver.js">
+  <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/formula-input.js">
+  <link rel="modulepreload" href="/js/ui/examples-menu.js">
+  <link rel="modulepreload" href="/js/ui/generator-panel.js">
+  <link rel="modulepreload" href="/js/ui/result-card.js">
+  <link rel="modulepreload" href="/js/ui/empty-state.js">
+  <link rel="modulepreload" href="/js/ui/share-link.js">
+  <link rel="modulepreload" href="/js/ui/latex-export.js">
+  <link rel="modulepreload" href="/js/ui/print-sheet.js">
+  <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/ui/storage.js">
+  <link rel="modulepreload" href="/js/core/dll.js">
+  <link rel="modulepreload" href="/js/core/share.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/core/routes.js">
+  <link rel="modulepreload" href="/js/ui/segmented.js">
+  <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/core/parser.js">
+  <link rel="modulepreload" href="/js/core/literals.js">
+  <link rel="modulepreload" href="/js/ui/message.js">
+  <link rel="modulepreload" href="/js/ui/parser-messages.js">
+  <link rel="modulepreload" href="/js/core/examples.js">
+  <link rel="modulepreload" href="/js/ui/menu.js">
+  <link rel="modulepreload" href="/js/core/generator.js">
+  <link rel="modulepreload" href="/js/core/clauses.js">
+  <link rel="modulepreload" href="/js/core/verify.js">
+  <link rel="modulepreload" href="/js/ui/events.js">
+  <link rel="modulepreload" href="/js/ui/step-bar.js">
+  <link rel="modulepreload" href="/js/ui/toast.js">
+  <link rel="modulepreload" href="/js/core/latex.js">
+  <link rel="modulepreload" href="/js/ui/proof-view.js">
+  <link rel="modulepreload" href="/js/ui/dp-view.js">
+  <link rel="modulepreload" href="/js/ui/tree-view.js">
+  <link rel="modulepreload" href="/js/ui/locales/pt.js">
+  <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <link rel="modulepreload" href="/js/core/trace.js">
+  <link rel="modulepreload" href="/js/core/resolution.js">
+  <link rel="modulepreload" href="/js/ui/pseudocode-view.js">
+  <link rel="modulepreload" href="/js/ui/code-glide.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
+  <!-- /modulepreload -->
+  <script type="module" src="/js/pages/resolver.js"></script>
+</head>
+<body data-page="solve">
+  <main id="main" class="wrap solve">
+    <div class="solve-head">
+      <h1 data-i18n="pages.solve">Online SAT solver</h1>
+      <p class="solve-head__intro" data-i18n="placeholder.solveIntro">Write a set of clauses and the DPLL algorithm tells you whether it is satisfiable.</p>
+    </div>
+    <div class="solve-layout">
+      <div class="solve-layout__input">
+        <div class="solve-toolbar">
+          <div id="examples-menu"></div>
+          <div id="generator"></div>
+          <span class="solve-toolbar__notations" data-i18n="formulaInput.notations">Notations: compact · sets · logic</span>
+        </div>
+        <div class="solve-input" id="formula-input"></div>
+      </div>
+      <div class="solve-layout__output">
+        <div class="solve-empty" id="empty-state"></div>
+        <div class="solve-empty" id="notation-help" hidden></div>
+        <div class="solve-result" id="result" hidden></div>
+      </div>
+    </div>
+  </main>
+  <!-- footer (gerado por scripts/build-pages.mjs) -->
+  <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Developed by Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Source on GitHub</a><a class="ftr-repo" href="/resolver" hreflang="pt" lang="pt" data-lang="pt">Português</a></div><nav aria-label="Pages"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/en">Home</a></li><li><a href="/en/solver">Solve</a></li><li><a href="/en/step-by-step">Step by step</a></li><li><a href="/en/learn">Learn</a></li><li><a href="/en/exercises">Exercises</a></li></ul></nav></div></footer>
+  <!-- /footer -->
+</body>
+</html>

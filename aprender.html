@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- seo (gerado por scripts/build-pages.mjs) -->
+  <title>O algoritmo DPLL explicado · Learn Davis-Putnam SAT</title>
+  <meta name="description" content="Lição interativa sobre o algoritmo de Davis-Putnam (DPLL): satisfazibilidade, propagação unitária e ramificação, com exemplos animados e um quiz.">
+  <link rel="canonical" href="https://sat.computational-logic.miguelrocha.dev/aprender">
+  <link rel="alternate" hreflang="pt" href="https://sat.computational-logic.miguelrocha.dev/aprender">
+  <link rel="alternate" hreflang="en" href="https://sat.computational-logic.miguelrocha.dev/en/learn">
+  <link rel="alternate" hreflang="x-default" href="https://sat.computational-logic.miguelrocha.dev/en/learn">
+  <meta name="theme-color" content="#fafafa">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Learn Davis-Putnam SAT">
+  <meta property="og:locale" content="pt_PT">
+  <meta property="og:locale:alternate" content="en_GB">
+  <meta property="og:url" content="https://sat.computational-logic.miguelrocha.dev/aprender">
+  <meta property="og:title" content="O algoritmo DPLL explicado · Learn Davis-Putnam SAT">
+  <meta property="og:description" content="Lição interativa sobre o algoritmo de Davis-Putnam (DPLL): satisfazibilidade, propagação unitária e ramificação, com exemplos animados e um quiz.">
+  <meta property="og:image" content="https://sat.computational-logic.miguelrocha.dev/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Learn Davis-Putnam SAT: o algoritmo DLL passo a passo, com a árvore de decisão.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://sat.computational-logic.miguelrocha.dev/og-image.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"LearningResource","url":"https://sat.computational-logic.miguelrocha.dev/aprender","inLanguage":"pt-PT","description":"Lição interativa sobre o algoritmo de Davis-Putnam (DPLL): satisfazibilidade, propagação unitária e ramificação, com exemplos animados e um quiz.","isAccessibleForFree":true,"author":{"@type":"Person","name":"Miguel Rocha","url":"https://miguelrocha.dev"},"name":"O algoritmo DPLL explicado","educationalLevel":"Iniciante","teaches":["O problema SAT","Cláusulas e conjuntos de cláusulas","Propagação unitária","Algoritmo DPLL"],"learningResourceType":"lesson","timeRequired":"PT20M"}</script>
+  <!-- /seo -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fontes sem bloquear o primeiro desenho (display=swap: o texto aparece logo com a fonte do sistema). -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"></noscript>
+  <!-- Transição entre páginas. Fica antes da folha de estilos e não dentro dela: tem de ser conhecida no
+       primeiro desenho, sem fazer o resto do <head> esperar pela folha. Vindo de outra página do site, esse
+       desenho espera pelo JS, que traz o cabeçalho; se mesmo assim ele não chegou, não há transição: o
+       cabeçalho piscava. -->
+  <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+  <script src="/js/boot.js" data-entry="/js/pages/aprender.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
+  <link rel="modulepreload" href="/js/pages/aprender.js">
+  <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/ui/lesson-toc.js">
+  <link rel="modulepreload" href="/js/ui/lesson-reveal.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/core/routes.js">
+  <link rel="modulepreload" href="/js/ui/storage.js">
+  <link rel="modulepreload" href="/js/ui/segmented.js">
+  <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/ui/locales/pt.js">
+  <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
+  <!-- /modulepreload -->
+  <script type="module" src="/js/pages/aprender.js"></script>
+</head>
+<body data-page="learn">
+  <main id="main" class="wrap lesson">
+    <div class="lesson__layout">
+      <nav class="lesson-toc" id="lesson-toc" data-i18n-attr="aria-label:learn.toc.title" aria-label="Nesta lição"></nav>
+      <article class="lesson__body">
+        <p class="lesson__eyebrow" data-i18n="learn.eyebrow">Lição · 7 secções · cerca de 20 minutos</p>
+        <h1 class="lesson__title" data-i18n="learn.title">O algoritmo de Davis‑Putnam (DPLL)</h1>
+        <p class="lesson__lead" data-i18n="learn.intro">Uma lição curta para ler de cima a baixo. Cada secção acaba com um exemplo para experimentares. Ao longo da lição o algoritmo chama-se DLL, o mesmo que DPLL (Davis–Putnam–Logemann–Loveland).</p>
+        <section class="lesson-section" id="sat" aria-labelledby="sat-title">
+          <h2 class="lesson-section__title" id="sat-title"><span class="lesson-section__num">01</span> <span data-section-title data-i18n="learn.sections.sat">O problema SAT</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.sat.p1">Uma fórmula da lógica proposicional é satisfazível se existe pelo menos uma valoração das suas variáveis que a torna verdadeira (V). Se é falsa em todas as valorações, é insatisfazível.</p>
+            <p data-i18n="learn.sat.p2">Saber se uma fórmula é satisfazível é um problema central em Ciência de Computadores, porque muitos problemas de outras áreas se podem escrever nesses termos: otimização (planeamento, horários), combinatória (coloração de grafos) e teorias de primeira ordem (os solvers SMT). Os programas que o resolvem chamam-se SAT solvers.</p>
+            <p data-i18n="learn.sat.p3">A forma mais direta de responder é construir a tabela de verdade e procurar uma linha em que a fórmula dê V. Com n variáveis a tabela tem 2ⁿ linhas: cada variável a mais duplica o trabalho. E, no pior caso, não se conhece nada melhor: não se conhece nenhum algoritmo para SAT que não seja exponencial no número de variáveis e de conectivos da fórmula (SAT é NP-completo).</p>
+          </div>
+          <div class="lesson-interactive" id="sat-explorer"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.sat.p4">Mas, no caso geral, dá para fazer bem melhor do que a força bruta. A ideia é construir aos poucos uma valoração parcial que satisfaça a fórmula, em vez de gerar valorações completas (linhas da tabela) e verificar cada uma. É isto que o algoritmo de Davis-Putnam faz, e fica especialmente simples com a fórmula em forma normal conjuntiva (FNC), escrita como um conjunto de cláusulas: o tema da §2.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/passo-a-passo?f=p1,+-p1+-p2,+p3+p2,+-p7+p2,+-p3+p4,+-p3+p5,+-p4+-p+q,+-p5+-p6+r,+-p+-q+p6,+p+p7,+-r+p7&amp;a=dll" data-i18n="learn.tryStep">Experimenta no Passo a passo →</a></p>
+        </section>
+        <section class="lesson-section" id="clausulas" aria-labelledby="clausulas-title">
+          <h2 class="lesson-section__title" id="clausulas-title"><span class="lesson-section__num">02</span> <span data-section-title data-i18n="learn.sections.clauses">Cláusulas e conjuntos de cláusulas</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.clauses.p1">Um literal é uma variável (p) ou a negação de uma variável (¬p). Uma cláusula é uma disjunção de literais l₁ ∨ l₂ ∨ … ∨ lₙ, com n ≥ 0, e pode ser representada pelo conjunto dos seus literais: p ∨ ¬q ∨ ¬p ∨ s é representada por {p, ¬q, ¬p, s}. Como é um conjunto, a ordem não importa e um literal repetido conta só uma vez.</p>
+            <p data-i18n="learn.clauses.p2">Se n = 0, a cláusula é vazia e corresponde a F: não tem nenhum literal que a possa tornar verdadeira. Se n = 1, a cláusula é unitária (por exemplo, {¬p}).</p>
+            <p data-i18n="learn.clauses.p3">Qualquer fórmula em FNC pode ser representada por um conjunto de cláusulas, lido como a conjunção dessas cláusulas. Por exemplo, ¬p ∧ (q ∨ r ∨ q) ∧ (¬r ∨ ¬s) ∧ (p ∨ s) ∧ (¬q ∨ ¬s) corresponde ao conjunto {{¬p}, {q, r}, {¬r, ¬s}, {p, s}, {¬q, ¬s}}. Também é comum escrever cada cláusula como disjunção: {¬p, q ∨ r, ¬r ∨ ¬s, …}.</p>
+            <p data-i18n="learn.clauses.p4">Daqui saem os dois casos em que o algoritmo termina. O conjunto vazio {} não tem nenhuma cláusula para satisfazer, por isso é satisfazível. Um conjunto que contém F tem uma cláusula que nenhuma valoração torna verdadeira, por isso é insatisfazível.</p>
+            <p data-i18n="learn.clauses.p5">Na ferramenta podes escrever um conjunto em qualquer das três notações: a compacta das linhas «Entrada» dos exercícios (p1, -p1 -p2), a de conjuntos ou a lógica. Experimenta no conversor: o mesmo conjunto aparece nas três.</p>
+          </div>
+          <div class="lesson-interactive" id="notation-converter"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.clauses.p6">Literais complementares: dado um literal l, o complementar l̃ é ¬l se l é uma variável (literal positivo) e é p se l é da forma ¬p (literal negativo). Por exemplo, o complementar de p é ¬p e o complementar de ¬p é p.</p>
+            <p data-i18n="learn.clauses.p7">Uma cláusula é uma tautologia se contém um par de literais complementares p e ¬p, como {p, ¬q, ¬p, s}. É verdadeira em qualquer valoração, por isso pode ser retirada do conjunto sem alterar a satisfazibilidade. Aqui as tautologias são assinaladas mas não retiradas: o DLL da ferramenta trata-as como as outras cláusulas.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/passo-a-passo?f=-p,+q+r,+-r+-s,+p+s,+-q+-s&amp;a=dll" data-i18n="learn.tryStep">Experimenta no Passo a passo →</a></p>
+        </section>
+        <section class="lesson-section" id="propagacao" aria-labelledby="propagacao-title">
+          <h2 class="lesson-section__title" id="propagacao-title"><span class="lesson-section__num">03</span> <span data-section-title data-i18n="learn.sections.propagation">Propagação unitária</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.propagation.p1">Uma cláusula unitária {l} tem um só literal, por isso só é verdadeira se l for verdadeiro. Aqui não há nada a escolher: qualquer valoração que satisfaça S tem de tornar l verdadeiro. A propagação unitária aproveita isto para simplificar S sem perder nenhuma solução.</p>
+            <p data-i18n="learn.propagation.p2">Dado um conjunto de cláusulas S, obtém-se S′ por propagação unitária repetindo a transformação seguinte: se S contém uma cláusula unitária l, então</p>
+            <ol class="lesson-rules">
+              <li data-i18n="learn.propagation.r1">removem-se de S todas as cláusulas da forma l ∨ C′ (ficam verdadeiras quando l é verdadeiro; a própria {l} também sai);</li>
+              <li data-i18n="learn.propagation.r2">substitui-se em S cada cláusula da forma l̃ ∨ C′ pela cláusula C′ (l̃ é falso, por isso já não ajuda a satisfazer a cláusula).</li>
+            </ol>
+            <p data-i18n="learn.propagation.p3">No diagrama propaga-se p: {p} e p ∨ q contêm p e saem (regra 1); ¬p ∨ r perde ¬p e fica r (regra 2); q ∨ s não tem p nem ¬p e fica igual.</p>
+          </div>
+          <div class="lesson-interactive" id="propagation-rules"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.propagation.p4">Repara que a regra 2 pode criar cláusulas unitárias novas (¬p ∨ r ficou r), por isso repete-se a transformação enquanto houver unitárias. E se a cláusula {l̃} também estiver em S, perde o seu único literal e fica F, a cláusula vazia: o conjunto é insatisfazível.</p>
+            <p data-i18n="learn.propagation.p5">Experimenta com o conjunto abaixo: clica numa cláusula unitária para a propagar e vê as duas regras a funcionar. Neste exemplo chega-se a F só com propagação unitária.</p>
+          </div>
+          <div class="lesson-interactive" id="propagation-lab"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.propagation.p6">No pseudocódigo do DLL este passo é S := propagate(S). A ferramenta propaga um literal de cada vez e usa sempre a primeira cláusula unitária pela ordem do conjunto; aqui podes escolher outra para veres que as regras são as mesmas. Quando a propagação para sem S vazio e sem F, é preciso escolher um literal e ramificar: é o tema da §4.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/passo-a-passo?f=p1,+-p1+-p2,+p3+p2,+-p7+p2,+-p3+p4,+-p3+p5,+-p4+-p+q,+-p5+-p6+r,+-p+-q+p6,+p+p7,+-r+p7&amp;a=dll" data-i18n="learn.tryStep">Experimenta no Passo a passo →</a></p>
+        </section>
+        <section class="lesson-section" id="dll" aria-labelledby="dll-title">
+          <h2 class="lesson-section__title" id="dll-title"><span class="lesson-section__num">04</span> <span data-section-title data-i18n="learn.sections.dll">O algoritmo DLL</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.dll.p1">Quando a propagação unitária para, S está num de três casos: está vazio (todas as cláusulas ficaram satisfeitas, logo S é satisfazível), contém F (há uma cláusula que nenhuma valoração satisfaz, logo S é insatisfazível) ou nenhum dos dois. No terceiro caso não há mais nada a deduzir e é preciso experimentar: escolhe-se um literal l e tenta-se primeiro S ∪ {l}; se esse ramo for insatisfazível, tenta-se S ∪ {l̃}. É o algoritmo DLL (Davis, Logemann e Loveland), em pseudocódigo:</p>
+          </div>
+          <div class="lesson-interactive" id="dll-pseudocode"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.dll.p2">Acrescentar {l} a S é acrescentar uma cláusula unitária, por isso a chamada recursiva DLL(S ∪ {l}) começa logo por propagar l. Como qualquer valoração torna l ou l̃ verdadeiro, S é satisfazível se e só se S ∪ {l} ou S ∪ {l̃} o for: os dois ramos cobrem todos os casos, e o algoritmo só responde insatisfazível quando todos os ramos chegam a F.</p>
+            <p data-i18n="learn.dll.p3">O mesmo algoritmo em fluxograma, com um exemplo de dois ramos, {¬p ∨ ¬q, ¬p ∨ q, p ∨ ¬q, p ∨ q}. Este conjunto não tem cláusulas unitárias, por isso é preciso escolher um literal logo à partida. Avança passo a passo e vê que caixa do fluxograma corresponde a cada passo; as setas a tracejado são as chamadas recursivas, que voltam ao início com o conjunto novo.</p>
+          </div>
+          <div class="lesson-interactive" id="dll-player"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.dll.p4">A ferramenta escolhe sempre a primeira variável por ordem alfabética com o ramo positivo primeiro, por isso aqui começa por p; começar por ¬p também seria válido. Neste exemplo não faz diferença: nos dois ramos a propagação dá {¬q, q} e depois {F}, e DLL(S) devolve insatisfazível. Na §5 vês quando a escolha do literal muda o tamanho da árvore.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/passo-a-passo?f=-p+-q,+-p+q,+p+-q,+p+q&amp;a=dll" data-i18n="learn.tryStep">Experimenta no Passo a passo →</a></p>
+        </section>
+        <section class="lesson-section" id="escolha" aria-labelledby="escolha-title">
+          <h2 class="lesson-section__title" id="escolha-title"><span class="lesson-section__num">05</span> <span data-section-title data-i18n="learn.sections.select">Escolher o literal</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.select.p1">Quando a propagação para e S não está vazio nem contém F, o DLL tem de escolher um literal: é o l := select_literal(S) do pseudocódigo. Esta função pode ser vista como um parâmetro do algoritmo, porque uma escolha adequada do literal pode torná-lo mais eficiente. A resposta (satisfazível ou insatisfazível) é sempre a mesma; o que muda é o caminho e o tamanho da árvore. Critérios possíveis são escolher uma variável que:</p>
+            <ul class="lesson-rules">
+              <li data-i18n="learn.select.crit1">ocorre mais vezes;</li>
+              <li data-i18n="learn.select.crit2">tem o produto das ocorrências de l e de l̃ máximo;</li>
+              <li data-i18n="learn.select.crit3">ocorre mais vezes nas cláusulas de tamanho mínimo;</li>
+              <li data-i18n="learn.select.crit4">etc.</li>
+            </ul>
+            <p data-i18n="learn.select.p2">Escolhida a variável, falta o sinal, ou seja, qual dos dois ramos se tenta primeiro. Pode começar-se por p ou por ¬p; a ferramenta usa sempre a primeira variável por ordem alfabética e o ramo positivo primeiro. Num conjunto insatisfazível o sinal não muda o tamanho da árvore: o DLL só responde insatisfazível depois de os dois ramos chegarem a F, por isso muda só a ordem. Num conjunto satisfazível, acertar no ramo à primeira poupa o outro ramo inteiro.</p>
+            <p data-i18n="learn.select.p3">Compara as duas escolhas no mesmo conjunto. Cada nó é uma chamada DLL(S); as folhas acabam em ✓ (S vazio) ou ✗ (S contém F). Experimenta também os critérios acima: no conjunto de 8 variáveis, com o ramo positivo primeiro, a ordem alfabética dá 6 nós e a variável que ocorre mais vezes nas cláusulas de tamanho mínimo dá 3.</p>
+          </div>
+          <div class="lesson-interactive" id="select-compare"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.select.p4">Nenhum sinal é sempre o melhor: em «Três variáveis B» ganha o ramo positivo e em «Três variáveis E» ganha o ramo ¬. É por isso que os critérios acima olham para o conjunto em vez de seguirem uma ordem fixa. A ferramenta fica com a ordem alfabética e p primeiro, uma regra fixa e fácil de seguir à mão, para que possas comparar a tua resolução com o Passo a passo. Se escolheres outro literal o caminho muda, mas a conclusão é a mesma.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/passo-a-passo?f=-p+q+r,+p+q+r,+p+q+-r,+p+-q+r,+p+-q+-r&amp;a=dll" data-i18n="learn.tryStep">Experimenta no Passo a passo →</a></p>
+        </section>
+        <section class="lesson-section" id="historia" aria-labelledby="historia-title">
+          <h2 class="lesson-section__title" id="historia-title"><span class="lesson-section__num">06</span> <span data-section-title data-i18n="learn.sections.history">Davis-Putnam 1960 vs DLL 1962</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.history.p1">O algoritmo de Davis-Putnam, de 1960, é uma versão inicial que ainda é a base de muitos dos algoritmos mais eficientes de hoje (como os da SAT Competition). A ideia básica é considerar os valores de verdade possíveis de cada variável e simplificar a fórmula de acordo com eles até se poder concluir se é satisfazível ou não.</p>
+            <p data-i18n="learn.history.p2">Essa versão de 1960, de Martin Davis e Hilary Putnam (artigo «A Computing Procedure for Quantification Theory», no Journal of the ACM), trabalhava com um conjunto de cláusulas e três regras: a propagação de cláusulas unitárias (a da §3), a eliminação de literais puros (se o complementar de l não aparece em S, pode tornar-se l verdadeiro e as cláusulas com l saem) e a eliminação de uma variável por resolução. Não havia ramificação: o conjunto ia sendo transformado até ficar vazio (satisfazível) ou conter F (insatisfazível).</p>
+            <p data-i18n="learn.history.p3">A resolução junta duas cláusulas com literais complementares: de p ∨ C e ¬p ∨ D tira-se o resolvente C ∨ D. Qualquer valoração que satisfaça as duas satisfaz C ∨ D, porque p ou ¬p é falso. Para eliminar p, substituem-se todas as cláusulas com p e com ¬p por todos os resolventes desses pares; o conjunto novo já não tem p e é satisfazível se e só se S o for. Os resolventes que são tautologias podem ser descartados. Na figura, o exemplo com dois ramos da §4: eliminar p dá {¬q, q} (dois dos quatro resolventes são tautologias) e a propagação de ¬q deixa F.</p>
+          </div>
+          <div class="lesson-interactive" id="history-figure"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.history.p4">O problema é o tamanho. Se p aparece em k cláusulas e ¬p em m, a eliminação troca essas k + m cláusulas por até k · m resolventes, e cada um pode ser mais comprido do que as cláusulas de onde veio. Em muitos conjuntos o número de cláusulas explode e, nos computadores da época, a memória não chegava.</p>
+          </div>
+          <div class="lesson-interactive" id="dp-player"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.history.p5">Em 1962, Martin Davis, George Logemann e Donald Loveland («A Machine Program for Theorem-Proving», na Communications of the ACM) trocaram a eliminação por resolução pela ramificação: escolher um literal l e tentar S ∪ {l} e depois S ∪ {l̃}, como na §4. Em vez de guardar um conjunto cada vez maior, explora-se uma árvore em profundidade e só se guarda o caminho atual. É este algoritmo, o DLL (também chamado DPLL), que muitas vezes também se apresenta com o nome de Davis-Putnam e que esta ferramenta usa.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/passo-a-passo?f=-p+-q,+-p+q,+p+-q,+p+q&amp;a=dll" data-i18n="learn.tryStep">Experimenta no Passo a passo →</a></p>
+        </section>
+        <section class="lesson-section" id="quiz" aria-labelledby="quiz-title">
+          <h2 class="lesson-section__title" id="quiz-title"><span class="lesson-section__num">07</span> <span data-section-title data-i18n="learn.sections.quiz">Quiz</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.quiz.intro">Oito perguntas para confirmares o que leste: umas de escolha múltipla e outras de «qual o próximo passo?», em que fazes de DLL. Depois de cada resposta vês o porquê, com a regra que se aplica. O teu melhor resultado fica guardado neste navegador.</p>
+          </div>
+          <div class="lesson-interactive" id="quiz-box"></div>
+          <p class="lesson-section__try"><a href="/exercicios" data-i18n="learn.tryExercises">Pratica nos Exercícios →</a></p>
+        </section>
+      </article>
+    </div>
+  </main>
+  <!-- footer (gerado por scripts/build-pages.mjs) -->
+  <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Desenvolvido por Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Código no GitHub</a><a class="ftr-repo" href="/en/learn" hreflang="en" lang="en" data-lang="en">English</a></div><nav aria-label="Páginas"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/">Início</a></li><li><a href="/resolver">Resolver</a></li><li><a href="/passo-a-passo">Passo a passo</a></li><li><a href="/aprender">Aprender</a></li><li><a href="/exercicios">Exercícios</a></li></ul></nav></div></footer>
+  <!-- /footer -->
+</body>
+</html>

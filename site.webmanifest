@@ -1,0 +1,13 @@
+{
+  "name": "Learn Davis-Putnam SAT",
+  "short_name": "Davis-Putnam",
+  "description": "A free, interactive tool to learn the Davis-Putnam (DPLL) algorithm.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#18181b",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

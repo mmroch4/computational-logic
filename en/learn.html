@@ -1,0 +1,189 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de aprender.html: não editar. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- seo (gerado por scripts/build-pages.mjs) -->
+  <title>The DPLL algorithm explained · Learn Davis-Putnam SAT</title>
+  <meta name="description" content="An interactive lesson on the Davis-Putnam (DPLL) algorithm: satisfiability, unit propagation and branching, with animated examples and a quiz.">
+  <link rel="canonical" href="https://sat.computational-logic.miguelrocha.dev/en/learn">
+  <link rel="alternate" hreflang="pt" href="https://sat.computational-logic.miguelrocha.dev/aprender">
+  <link rel="alternate" hreflang="en" href="https://sat.computational-logic.miguelrocha.dev/en/learn">
+  <link rel="alternate" hreflang="x-default" href="https://sat.computational-logic.miguelrocha.dev/en/learn">
+  <meta name="theme-color" content="#fafafa">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Learn Davis-Putnam SAT">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:locale:alternate" content="pt_PT">
+  <meta property="og:url" content="https://sat.computational-logic.miguelrocha.dev/en/learn">
+  <meta property="og:title" content="The DPLL algorithm explained · Learn Davis-Putnam SAT">
+  <meta property="og:description" content="An interactive lesson on the Davis-Putnam (DPLL) algorithm: satisfiability, unit propagation and branching, with animated examples and a quiz.">
+  <meta property="og:image" content="https://sat.computational-logic.miguelrocha.dev/og-image-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Learn Davis-Putnam SAT: the DLL algorithm step by step, with the decision tree.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://sat.computational-logic.miguelrocha.dev/og-image-en.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"LearningResource","url":"https://sat.computational-logic.miguelrocha.dev/en/learn","inLanguage":"en","description":"An interactive lesson on the Davis-Putnam (DPLL) algorithm: satisfiability, unit propagation and branching, with animated examples and a quiz.","isAccessibleForFree":true,"author":{"@type":"Person","name":"Miguel Rocha","url":"https://miguelrocha.dev"},"name":"The DPLL algorithm explained","educationalLevel":"Beginner","teaches":["The SAT problem","Clauses and clause sets","Unit propagation","DPLL algorithm"],"learningResourceType":"lesson","timeRequired":"PT20M"}</script>
+  <!-- /seo -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fontes sem bloquear o primeiro desenho (display=swap: o texto aparece logo com a fonte do sistema). -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"></noscript>
+  <!-- Transição entre páginas. Fica antes da folha de estilos e não dentro dela: tem de ser conhecida no
+       primeiro desenho, sem fazer o resto do <head> esperar pela folha. Vindo de outra página do site, esse
+       desenho espera pelo JS, que traz o cabeçalho; se mesmo assim ele não chegou, não há transição: o
+       cabeçalho piscava. -->
+  <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+  <script src="/js/boot.js" data-entry="/js/pages/aprender.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
+  <link rel="modulepreload" href="/js/pages/aprender.js">
+  <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/ui/lesson-toc.js">
+  <link rel="modulepreload" href="/js/ui/lesson-reveal.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/core/routes.js">
+  <link rel="modulepreload" href="/js/ui/storage.js">
+  <link rel="modulepreload" href="/js/ui/segmented.js">
+  <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/ui/locales/pt.js">
+  <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
+  <!-- /modulepreload -->
+  <script type="module" src="/js/pages/aprender.js"></script>
+</head>
+<body data-page="learn">
+  <main id="main" class="wrap lesson">
+    <div class="lesson__layout">
+      <nav class="lesson-toc" id="lesson-toc" data-i18n-attr="aria-label:learn.toc.title" aria-label="In this lesson"></nav>
+      <article class="lesson__body">
+        <p class="lesson__eyebrow" data-i18n="learn.eyebrow">Lesson · 7 sections · about 20 minutes</p>
+        <h1 class="lesson__title" data-i18n="learn.title">The Davis‑Putnam algorithm (DPLL)</h1>
+        <p class="lesson__lead" data-i18n="learn.intro">A short lesson to read from top to bottom. Each section ends with an example for you to try. Throughout the lesson the algorithm is called DLL, the same as DPLL (Davis–Putnam–Logemann–Loveland).</p>
+        <section class="lesson-section" id="sat" aria-labelledby="sat-title">
+          <h2 class="lesson-section__title" id="sat-title"><span class="lesson-section__num">01</span> <span data-section-title data-i18n="learn.sections.sat">The SAT problem</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.sat.p1">A propositional formula is satisfiable if there is at least one assignment of its variables that makes it true (T). If it is false under every assignment, it is unsatisfiable.</p>
+            <p data-i18n="learn.sat.p2">Knowing whether a formula is satisfiable is a central problem in Computer Science, because many problems from other areas can be expressed in those terms: optimisation (planning, scheduling), combinatorics (graph colouring) and first-order theories (SMT solvers).</p>
+            <p data-i18n="learn.sat.p3">The most direct way to answer is to build the truth table and look for a row where the formula is T. With n variables the table has 2ⁿ rows: each extra variable doubles the work. And, in the worst case, nothing better is known: no algorithm for SAT is known that is not exponential in the number of variables and connectives of the formula (SAT is NP-complete).</p>
+          </div>
+          <div class="lesson-interactive" id="sat-explorer"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.sat.p4">But in the general case we can do much better than brute force. The idea is to build, little by little, a partial assignment that satisfies the formula, instead of generating complete assignments (truth table rows) and checking each one. That is what the Davis-Putnam algorithm does, and it is especially simple when the formula is in conjunctive normal form (CNF), written as a set of clauses: the topic of §2.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/en/step-by-step?f=p1,+-p1+-p2,+p3+p2,+-p7+p2,+-p3+p4,+-p3+p5,+-p4+-p+q,+-p5+-p6+r,+-p+-q+p6,+p+p7,+-r+p7&amp;a=dll" data-i18n="learn.tryStep">Try it in Step by step →</a></p>
+        </section>
+        <section class="lesson-section" id="clausulas" aria-labelledby="clausulas-title">
+          <h2 class="lesson-section__title" id="clausulas-title"><span class="lesson-section__num">02</span> <span data-section-title data-i18n="learn.sections.clauses">Clauses and clause sets</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.clauses.p1">A literal is a variable (p) or the negation of a variable (¬p). A clause is a disjunction of literals l₁ ∨ l₂ ∨ … ∨ lₙ, with n ≥ 0, and can be represented by the set of its literals: p ∨ ¬q ∨ ¬p ∨ s is represented by {p, ¬q, ¬p, s}. Since it is a set, order does not matter and a repeated literal counts only once.</p>
+            <p data-i18n="learn.clauses.p2">If n = 0, the clause is empty and corresponds to F: it has no literal that could make it true. If n = 1, the clause is unitary (for example, {¬p}).</p>
+            <p data-i18n="learn.clauses.p3">Any formula in CNF can be represented by a set of clauses, read as the conjunction of those clauses. For example, ¬p ∧ (q ∨ r ∨ q) ∧ (¬r ∨ ¬s) ∧ (p ∨ s) ∧ (¬q ∨ ¬s) corresponds to the set {{¬p}, {q, r}, {¬r, ¬s}, {p, s}, {¬q, ¬s}}. It is also common to write each clause as a disjunction: {¬p, q ∨ r, ¬r ∨ ¬s, …}.</p>
+            <p data-i18n="learn.clauses.p4">This gives the two cases where the algorithm stops. The empty set {} has no clause to satisfy, so it is satisfiable. A set that contains F has a clause that no assignment makes true, so it is unsatisfiable.</p>
+            <p data-i18n="learn.clauses.p5">In the tool you can write a set in any of the three notations: the compact one from the exercises&#39; «Input» lines (p1, -p1 -p2), set notation or logic notation. Try the converter: the same set shows up in all three.</p>
+          </div>
+          <div class="lesson-interactive" id="notation-converter"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.clauses.p6">Complementary literals: given a literal <span class="sym">l</span>, its complement <span class="sym">l̃</span> is ¬<span class="sym">l</span> if <span class="sym">l</span> is a variable (positive literal) and p if <span class="sym">l</span> is of the form ¬p (negative literal). For example, the complement of p is ¬p and the complement of ¬p is p.</p>
+            <p data-i18n="learn.clauses.p7">A clause is a tautology if it contains a pair of complementary literals p and ¬p, such as {p, ¬q, ¬p, s}. It is true under every assignment, so it can be removed from the set without changing satisfiability. Here tautologies are flagged but not removed: the tool&#39;s DLL treats them like any other clause.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/en/step-by-step?f=-p,+q+r,+-r+-s,+p+s,+-q+-s&amp;a=dll" data-i18n="learn.tryStep">Try it in Step by step →</a></p>
+        </section>
+        <section class="lesson-section" id="propagacao" aria-labelledby="propagacao-title">
+          <h2 class="lesson-section__title" id="propagacao-title"><span class="lesson-section__num">03</span> <span data-section-title data-i18n="learn.sections.propagation">Unit propagation</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.propagation.p1">A unit clause {<span class="sym">l</span>} has a single literal, so it is only true if <span class="sym">l</span> is true. There is nothing to choose: every valuation that satisfies S must make <span class="sym">l</span> true. Unit propagation uses this to simplify S without losing any solution.</p>
+            <p data-i18n="learn.propagation.p2">Given a set of clauses S, a set S′ is obtained from S by unit propagation by repeating the following transformation: if S contains a unit clause <span class="sym">l</span>, then</p>
+            <ol class="lesson-rules">
+              <li data-i18n="learn.propagation.r1">remove from S all clauses of the form <span class="sym">l</span> ∨ C′ (they are true when <span class="sym">l</span> is true; {<span class="sym">l</span>} itself also goes);</li>
+              <li data-i18n="learn.propagation.r2">replace in S each clause of the form <span class="sym">l̃</span> ∨ C′ with the clause C′ (<span class="sym">l̃</span> is false, so it no longer helps satisfy the clause).</li>
+            </ol>
+            <p data-i18n="learn.propagation.p3">In the diagram p is propagated: {p} and p ∨ q contain p and go away (rule 1); ¬p ∨ r loses ¬p and becomes r (rule 2); q ∨ s has neither p nor ¬p and stays the same.</p>
+          </div>
+          <div class="lesson-interactive" id="propagation-rules"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.propagation.p4">Notice that rule 2 can create new unit clauses (¬p ∨ r became r), so the transformation is repeated while there are unit clauses. And if the clause {<span class="sym">l̃</span>} is also in S, it loses its only literal and becomes F, the empty clause: the set is unsatisfiable.</p>
+            <p data-i18n="learn.propagation.p5">Try it with the set below: click a unit clause to propagate it and watch both rules at work. In this example F is reached using unit propagation alone.</p>
+          </div>
+          <div class="lesson-interactive" id="propagation-lab"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.propagation.p6">In the DLL pseudocode this step is S := propagate(S). The tool propagates one literal at a time and always uses the first unit clause in the order of the set; here you can pick another one to see that the rules are the same. When propagation stops with S neither empty nor containing F, a literal has to be chosen to branch on: that is the topic of §4.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/en/step-by-step?f=p1,+-p1+-p2,+p3+p2,+-p7+p2,+-p3+p4,+-p3+p5,+-p4+-p+q,+-p5+-p6+r,+-p+-q+p6,+p+p7,+-r+p7&amp;a=dll" data-i18n="learn.tryStep">Try it in Step by step →</a></p>
+        </section>
+        <section class="lesson-section" id="dll" aria-labelledby="dll-title">
+          <h2 class="lesson-section__title" id="dll-title"><span class="lesson-section__num">04</span> <span data-section-title data-i18n="learn.sections.dll">The DLL algorithm</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.dll.p1">When unit propagation stops, S is in one of three cases: it is empty (every clause was satisfied, so S is satisfiable), it contains F (there is a clause no assignment satisfies, so S is unsatisfiable), or neither. In the third case there is nothing more to deduce and we have to try: pick a literal <span class="sym">l</span> and first try S ∪ {<span class="sym">l</span>}; if that branch is unsatisfiable, try S ∪ {<span class="sym">l̃</span>}. This is the DLL algorithm (Davis, Logemann and Loveland), in pseudocode:</p>
+          </div>
+          <div class="lesson-interactive" id="dll-pseudocode"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.dll.p2">Adding {<span class="sym">l</span>} to S adds a unit clause, so the recursive call DLL(S ∪ {<span class="sym">l</span>}) starts by propagating <span class="sym">l</span>. Since every assignment makes <span class="sym">l</span> or <span class="sym">l̃</span> true, S is satisfiable if and only if S ∪ {<span class="sym">l</span>} or S ∪ {<span class="sym">l̃</span>} is: the two branches cover every case, and the algorithm only answers unsatisfiable when every branch reaches F.</p>
+            <p data-i18n="learn.dll.p3">The same algorithm as a flowchart, with a two-branch example, {¬p ∨ ¬q, ¬p ∨ q, p ∨ ¬q, p ∨ q}. This set has no unit clauses, so a literal has to be chosen right away. Step through it and see which box of the flowchart matches each step; the dashed arrows are the recursive calls, which go back to the start with the new set.</p>
+          </div>
+          <div class="lesson-interactive" id="dll-player"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.dll.p4">The tool always picks the first variable in alphabetical order with the positive branch first, so here it starts with p; starting with ¬p would be just as valid. In this example it makes no difference: in both branches propagation gives {¬q, q} and then {F}, and DLL(S) returns unsatisfiable. In §5 you will see when the choice of literal changes the size of the tree.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/en/step-by-step?f=-p+-q,+-p+q,+p+-q,+p+q&amp;a=dll" data-i18n="learn.tryStep">Try it in Step by step →</a></p>
+        </section>
+        <section class="lesson-section" id="escolha" aria-labelledby="escolha-title">
+          <h2 class="lesson-section__title" id="escolha-title"><span class="lesson-section__num">05</span> <span data-section-title data-i18n="learn.sections.select">Choosing the literal</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.select.p1">When propagation stops and S is neither empty nor contains F, DLL has to choose a literal: this is the <span class="sym">l</span> := select_literal(S) of the pseudocode. This function can be seen as a parameter of the algorithm, since an appropriate choice of literal can make it more efficient. The answer (satisfiable or unsatisfiable) is always the same; what changes is the path and the size of the tree. Possible criteria are to choose a variable that:</p>
+            <ul class="lesson-rules">
+              <li data-i18n="learn.select.crit1">occurs more often;</li>
+              <li data-i18n="learn.select.crit2">has the maximum product of the occurrences of <span class="sym">l</span> and <span class="sym">l̃</span>;</li>
+              <li data-i18n="learn.select.crit3">occurs most often in clauses of minimum size;</li>
+              <li data-i18n="learn.select.crit4">etc.</li>
+            </ul>
+            <p data-i18n="learn.select.p2">Once the variable is chosen, the sign is left, that is, which of the two branches is tried first. You can start with p or with ¬p; the tool always uses the first variable in alphabetical order and the positive branch first. On an unsatisfiable set the sign does not change the size of the tree: DLL only answers unsatisfiable after both branches reach F, so only the order changes. On a satisfiable set, picking the right branch first saves the whole other branch.</p>
+            <p data-i18n="learn.select.p3">Compare the two choices on the same set. Each node is a call DLL(S); the leaves end in ✓ (S empty) or ✗ (S contains F). Try the criteria above too: on the 8-variable set, with the positive branch first, alphabetical order gives 6 nodes and the variable that occurs most often in clauses of minimum size gives 3.</p>
+          </div>
+          <div class="lesson-interactive" id="select-compare"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.select.p4">No sign is always best: in «Three variables B» the positive branch wins and in «Three variables E» the ¬ branch wins. That is why the criteria above look at the set instead of following a fixed order. The tool keeps alphabetical order with p first, a fixed rule that is easy to follow by hand, so you can compare your solution with the Step by step page. If you choose another literal the path changes, but the conclusion is the same.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/en/step-by-step?f=-p+q+r,+p+q+r,+p+q+-r,+p+-q+r,+p+-q+-r&amp;a=dll" data-i18n="learn.tryStep">Try it in Step by step →</a></p>
+        </section>
+        <section class="lesson-section" id="historia" aria-labelledby="historia-title">
+          <h2 class="lesson-section__title" id="historia-title"><span class="lesson-section__num">06</span> <span data-section-title data-i18n="learn.sections.history">Davis-Putnam 1960 vs DLL 1962</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.history.p1">The Davis-Putnam algorithm, from 1960, is an initial version that is still the basis of many of the most efficient algorithms today (like those in the SAT Competition). The basic idea is to consider the possible truth values of each variable and simplify the formula according to them until it is possible to conclude whether it is satisfiable or not.</p>
+            <p data-i18n="learn.history.p2">That 1960 version, by Martin Davis and Hilary Putnam (the paper “A Computing Procedure for Quantification Theory”, in the Journal of the ACM), worked on a set of clauses with three rules: unit clause propagation (the one from §3), pure literal elimination (if the complement of <span class="sym">l</span> does not occur in S, <span class="sym">l</span> can be made true and the clauses with <span class="sym">l</span> are removed) and the elimination of a variable by resolution. There was no branching: the set kept being transformed until it was empty (satisfiable) or contained F (unsatisfiable).</p>
+            <p data-i18n="learn.history.p3">Resolution combines two clauses with complementary literals: from p ∨ C and ¬p ∨ D you get the resolvent C ∨ D. Any valuation that satisfies both satisfies C ∨ D, because p or ¬p is false. To eliminate p, all clauses with p and with ¬p are replaced by all the resolvents of those pairs; the new set no longer has p and is satisfiable if and only if S is. Resolvents that are tautologies can be discarded. In the figure, the two-branch example from §4: eliminating p gives {¬q, q} (two of the four resolvents are tautologies) and propagating ¬q leaves F.</p>
+          </div>
+          <div class="lesson-interactive" id="history-figure"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.history.p4">The problem is size. If p occurs in k clauses and ¬p in m, elimination replaces those k + m clauses with up to k · m resolvents, and each one can be longer than the clauses it came from. In many sets the number of clauses explodes and, on the computers of the time, memory was not enough.</p>
+          </div>
+          <div class="lesson-interactive" id="dp-player"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.history.p5">In 1962, Martin Davis, George Logemann and Donald Loveland (“A Machine Program for Theorem-Proving”, in Communications of the ACM) replaced elimination by resolution with branching: choose a literal <span class="sym">l</span> and try S ∪ {<span class="sym">l</span>} and then S ∪ {<span class="sym">l̃</span>}, as in §4. Instead of keeping an ever larger set, a tree is explored depth-first and only the current path is kept. This algorithm, DLL (also called DPLL), is often also presented under the name Davis-Putnam, and it is the one this tool uses.</p>
+          </div>
+          <p class="lesson-section__try"><a href="/en/step-by-step?f=-p+-q,+-p+q,+p+-q,+p+q&amp;a=dll" data-i18n="learn.tryStep">Try it in Step by step →</a></p>
+        </section>
+        <section class="lesson-section" id="quiz" aria-labelledby="quiz-title">
+          <h2 class="lesson-section__title" id="quiz-title"><span class="lesson-section__num">07</span> <span data-section-title data-i18n="learn.sections.quiz">Quiz</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.quiz.intro">Eight questions to check what you have read: some are multiple choice and others ask «what is the next step?», where you play the part of DLL. After each answer you see the reason, with the rule that applies. Your best score is saved in this browser.</p>
+          </div>
+          <div class="lesson-interactive" id="quiz-box"></div>
+          <p class="lesson-section__try"><a href="/en/exercises" data-i18n="learn.tryExercises">Practise in Exercises →</a></p>
+        </section>
+      </article>
+    </div>
+  </main>
+  <!-- footer (gerado por scripts/build-pages.mjs) -->
+  <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Developed by Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Source on GitHub</a><a class="ftr-repo" href="/aprender" hreflang="pt" lang="pt" data-lang="pt">Português</a></div><nav aria-label="Pages"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/en">Home</a></li><li><a href="/en/solver">Solve</a></li><li><a href="/en/step-by-step">Step by step</a></li><li><a href="/en/learn">Learn</a></li><li><a href="/en/exercises">Exercises</a></li></ul></nav></div></footer>
+  <!-- /footer -->
+</body>
+</html>

@@ -1,0 +1,66 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.5cm]{geometry}
+
+% Um passo da prova: \passo{profundidade}{(n)}{texto}{conjunto}
+\newcommand{\passo}[4]{%
+  \par{\leftskip=\dimexpr 2em*#1\relax
+  \noindent\makebox[2.5em][l]{#2}#3\par
+  \if\relax\detokenize{#4}\relax\else\noindent\hspace*{2.5em}#4\par\fi}%
+  \smallskip}
+
+% Pares resolvidos de uma eliminação: (cláusula com x) · (cláusula com ¬x) → resolvente
+\newenvironment{pares}{\begin{itemize}\setlength{\itemsep}{0pt}\small}{\end{itemize}\smallskip}
+
+\begin{document}
+
+\section*{DP algorithm (Davis-Putnam, 1960)}
+
+Set of clauses: $S = \{p_{11} \lor p_{12},\allowbreak\ p_{21} \lor p_{22},\allowbreak\ p_{31} \lor p_{32},\allowbreak\ \neg p_{11} \lor \neg p_{21},\allowbreak\ \neg p_{11} \lor \neg p_{31},\allowbreak\ \neg p_{21} \lor \neg p_{31},\allowbreak\ \neg p_{12} \lor \neg p_{22},\allowbreak\ \neg p_{12} \lor \neg p_{32},\allowbreak\ \neg p_{22} \lor \neg p_{32}\}$
+
+\subsection*{Sequence of sets}
+
+DP never branches or backtracks: at each step it replaces $S$ with a set that is satisfiable if and only if $S$ is. With no unit clauses, it eliminates the first variable $x$ by resolution: the clauses with $x$ and with $\neg x$ are replaced by the resolvent of each pair.
+
+\passo{0}{(1)}{Initial set $S$:}{$\{p_{11} \lor p_{12},\allowbreak\ p_{21} \lor p_{22},\allowbreak\ p_{31} \lor p_{32},\allowbreak\ \neg p_{11} \lor \neg p_{21},\allowbreak\ \neg p_{11} \lor \neg p_{31},\allowbreak\ \neg p_{21} \lor \neg p_{31},\allowbreak\ \neg p_{12} \lor \neg p_{22},\allowbreak\ \neg p_{12} \lor \neg p_{32},\allowbreak\ \neg p_{22} \lor \neg p_{32}\}$}
+\passo{0}{(2)}{Eliminating $p_{11}$ by resolution:}{$\{p_{21} \lor p_{22},\allowbreak\ p_{31} \lor p_{32},\allowbreak\ \neg p_{21} \lor \neg p_{31},\allowbreak\ \neg p_{12} \lor \neg p_{22},\allowbreak\ \neg p_{12} \lor \neg p_{32},\allowbreak\ \neg p_{22} \lor \neg p_{32},\allowbreak\ p_{12} \lor \neg p_{21},\allowbreak\ p_{12} \lor \neg p_{31}\}$}
+\noindent\hspace*{2.5em}{\small Resolved pairs (clause with $p_{11}$ $\cdot$ clause with $\neg p_{11}$ $\to$ resolvent):}
+\begin{pares}
+\item $p_{11} \lor p_{12} \;\cdot\; \neg p_{11} \lor \neg p_{21} \;\to\; p_{12} \lor \neg p_{21}$
+\item $p_{11} \lor p_{12} \;\cdot\; \neg p_{11} \lor \neg p_{31} \;\to\; p_{12} \lor \neg p_{31}$
+\end{pares}
+\passo{0}{(3)}{Eliminating $p_{12}$ by resolution:}{$\{p_{21} \lor p_{22},\allowbreak\ p_{31} \lor p_{32},\allowbreak\ \neg p_{21} \lor \neg p_{31},\allowbreak\ \neg p_{22} \lor \neg p_{32},\allowbreak\ \neg p_{21} \lor \neg p_{22},\allowbreak\ \neg p_{21} \lor \neg p_{32},\allowbreak\ \neg p_{31} \lor \neg p_{22},\allowbreak\ \neg p_{31} \lor \neg p_{32}\}$}
+\noindent\hspace*{2.5em}{\small Resolved pairs (clause with $p_{12}$ $\cdot$ clause with $\neg p_{12}$ $\to$ resolvent):}
+\begin{pares}
+\item $p_{12} \lor \neg p_{21} \;\cdot\; \neg p_{12} \lor \neg p_{22} \;\to\; \neg p_{21} \lor \neg p_{22}$
+\item $p_{12} \lor \neg p_{21} \;\cdot\; \neg p_{12} \lor \neg p_{32} \;\to\; \neg p_{21} \lor \neg p_{32}$
+\item $p_{12} \lor \neg p_{31} \;\cdot\; \neg p_{12} \lor \neg p_{22} \;\to\; \neg p_{31} \lor \neg p_{22}$
+\item $p_{12} \lor \neg p_{31} \;\cdot\; \neg p_{12} \lor \neg p_{32} \;\to\; \neg p_{31} \lor \neg p_{32}$
+\end{pares}
+\passo{0}{(4)}{Eliminating $p_{21}$ by resolution:}{$\{p_{31} \lor p_{32},\allowbreak\ \neg p_{22} \lor \neg p_{32},\allowbreak\ \neg p_{31} \lor \neg p_{22},\allowbreak\ \neg p_{31} \lor \neg p_{32},\allowbreak\ p_{22} \lor \neg p_{31},\allowbreak\ p_{22} \lor \neg p_{32}\}$}
+\noindent\hspace*{2.5em}{\small Resolved pairs (clause with $p_{21}$ $\cdot$ clause with $\neg p_{21}$ $\to$ resolvent):}
+\begin{pares}
+\item $p_{21} \lor p_{22} \;\cdot\; \neg p_{21} \lor \neg p_{31} \;\to\; p_{22} \lor \neg p_{31}$
+\item $p_{21} \lor p_{22} \;\cdot\; \neg p_{21} \lor \neg p_{22} \;\to\; p_{22} \lor \neg p_{22}$ (tautology: discarded)
+\item $p_{21} \lor p_{22} \;\cdot\; \neg p_{21} \lor \neg p_{32} \;\to\; p_{22} \lor \neg p_{32}$
+\end{pares}
+\passo{0}{(5)}{Eliminating $p_{22}$ by resolution:}{$\{p_{31} \lor p_{32},\allowbreak\ \neg p_{31} \lor \neg p_{32},\allowbreak\ \neg p_{31},\allowbreak\ \neg p_{32}\}$}
+\noindent\hspace*{2.5em}{\small Resolved pairs (clause with $p_{22}$ $\cdot$ clause with $\neg p_{22}$ $\to$ resolvent):}
+\begin{pares}
+\item $p_{22} \lor \neg p_{31} \;\cdot\; \neg p_{22} \lor \neg p_{32} \;\to\; \neg p_{31} \lor \neg p_{32}$
+\item $p_{22} \lor \neg p_{31} \;\cdot\; \neg p_{31} \lor \neg p_{22} \;\to\; \neg p_{31}$
+\item $p_{22} \lor \neg p_{32} \;\cdot\; \neg p_{22} \lor \neg p_{32} \;\to\; \neg p_{32}$
+\item $p_{22} \lor \neg p_{32} \;\cdot\; \neg p_{31} \lor \neg p_{22} \;\to\; \neg p_{32} \lor \neg p_{31}$
+\end{pares}
+\passo{0}{(6)}{Propagating $\neg p_{31}$:}{$\{p_{32},\allowbreak\ \neg p_{32}\}$}
+\passo{0}{(7)}{Propagating $p_{32}$:}{$\{F\}$}
+\passo{0}{}{$S$ contains $F$ $\Rightarrow$ unsatisfiable}{}
+\passo{0}{}{\textbf{Result: $S$ is unsatisfiable.}}{}
+
+\vfill
+{\footnotesize Generated with Learn Davis-Putnam SAT, developed by Miguel Rocha (miguelrocha.dev).}
+
+\end{document}

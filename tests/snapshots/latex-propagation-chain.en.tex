@@ -1,0 +1,72 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{forest}
+
+% Um passo da prova: \passo{profundidade}{(n)}{texto}{conjunto}
+\newcommand{\passo}[4]{%
+  \par{\leftskip=\dimexpr 2em*#1\relax
+  \noindent\makebox[2.5em][l]{#2}#3\par
+  \if\relax\detokenize{#4}\relax\else\noindent\hspace*{2.5em}#4\par\fi}%
+  \smallskip}
+
+\begin{document}
+
+\section*{DLL algorithm (Davis-Putnam)}
+
+Set of clauses: $S = \{p_{1},\allowbreak\ \neg p_{1} \lor \neg p_{2},\allowbreak\ p_{3} \lor p_{2},\allowbreak\ \neg p_{7} \lor p_{2},\allowbreak\ \neg p_{3} \lor p_{4},\allowbreak\ \neg p_{3} \lor p_{5},\allowbreak\ \neg p_{4} \lor \neg p \lor q,\allowbreak\ \neg p_{5} \lor \neg p_{6} \lor r,\allowbreak\ \neg p \lor \neg q \lor p_{6},\allowbreak\ p \lor p_{7},\allowbreak\ \neg r \lor p_{7}\}$
+
+\subsection*{Proof view}
+
+\passo{0}{(1)}{Initial set $S$:}{$\{p_{1},\allowbreak\ \neg p_{1} \lor \neg p_{2},\allowbreak\ p_{3} \lor p_{2},\allowbreak\ \neg p_{7} \lor p_{2},\allowbreak\ \neg p_{3} \lor p_{4},\allowbreak\ \neg p_{3} \lor p_{5},\allowbreak\ \neg p_{4} \lor \neg p \lor q,\allowbreak\ \neg p_{5} \lor \neg p_{6} \lor r,\allowbreak\ \neg p \lor \neg q \lor p_{6},\allowbreak\ p \lor p_{7},\allowbreak\ \neg r \lor p_{7}\}$}
+\passo{0}{(2)}{Applying propagation to $p_{1}$:}{$\{\neg p_{2},\allowbreak\ p_{3} \lor p_{2},\allowbreak\ \neg p_{7} \lor p_{2},\allowbreak\ \neg p_{3} \lor p_{4},\allowbreak\ \neg p_{3} \lor p_{5},\allowbreak\ \neg p_{4} \lor \neg p \lor q,\allowbreak\ \neg p_{5} \lor \neg p_{6} \lor r,\allowbreak\ \neg p \lor \neg q \lor p_{6},\allowbreak\ p \lor p_{7},\allowbreak\ \neg r \lor p_{7}\}$}
+\passo{0}{(3)}{Applying propagation to $\neg p_{2}$:}{$\{p_{3},\allowbreak\ \neg p_{7},\allowbreak\ \neg p_{3} \lor p_{4},\allowbreak\ \neg p_{3} \lor p_{5},\allowbreak\ \neg p_{4} \lor \neg p \lor q,\allowbreak\ \neg p_{5} \lor \neg p_{6} \lor r,\allowbreak\ \neg p \lor \neg q \lor p_{6},\allowbreak\ p \lor p_{7},\allowbreak\ \neg r \lor p_{7}\}$}
+\passo{0}{(4)}{Applying propagation to $p_{3}$:}{$\{\neg p_{7},\allowbreak\ p_{4},\allowbreak\ p_{5},\allowbreak\ \neg p_{4} \lor \neg p \lor q,\allowbreak\ \neg p_{5} \lor \neg p_{6} \lor r,\allowbreak\ \neg p \lor \neg q \lor p_{6},\allowbreak\ p \lor p_{7},\allowbreak\ \neg r \lor p_{7}\}$}
+\passo{0}{(5)}{Applying propagation to $\neg p_{7}$:}{$\{p_{4},\allowbreak\ p_{5},\allowbreak\ \neg p_{4} \lor \neg p \lor q,\allowbreak\ \neg p_{5} \lor \neg p_{6} \lor r,\allowbreak\ \neg p \lor \neg q \lor p_{6},\allowbreak\ p,\allowbreak\ \neg r\}$}
+\passo{0}{(6)}{Applying propagation to $p_{4}$:}{$\{p_{5},\allowbreak\ \neg p \lor q,\allowbreak\ \neg p_{5} \lor \neg p_{6} \lor r,\allowbreak\ \neg p \lor \neg q \lor p_{6},\allowbreak\ p,\allowbreak\ \neg r\}$}
+\passo{0}{(7)}{Applying propagation to $p_{5}$:}{$\{\neg p \lor q,\allowbreak\ \neg p_{6} \lor r,\allowbreak\ \neg p \lor \neg q \lor p_{6},\allowbreak\ p,\allowbreak\ \neg r\}$}
+\passo{0}{(8)}{Applying propagation to $p$:}{$\{q,\allowbreak\ \neg p_{6} \lor r,\allowbreak\ \neg q \lor p_{6},\allowbreak\ \neg r\}$}
+\passo{0}{(9)}{Applying propagation to $q$:}{$\{\neg p_{6} \lor r,\allowbreak\ p_{6},\allowbreak\ \neg r\}$}
+\passo{0}{(10)}{Applying propagation to $p_{6}$:}{$\{r,\allowbreak\ \neg r\}$}
+\passo{0}{(11)}{Applying propagation to $r$:}{$\{F\}$}
+\passo{0}{}{$S$ contains $F$ $\Rightarrow$ unsatisfiable}{}
+\passo{0}{}{\textbf{Result: $S$ is unsatisfiable.}}{}
+
+\subsection*{Decision tree}
+
+Each node is a call DLL($S$) and shows the literal $l$ of $S \cup \{l\}$; the dashed edges are the unit propagations, one literal at a time. At the leaves, $\times$ means that $S$ contains $F$ and $\checkmark$ that $S$ became empty.
+
+\begin{center}
+\begin{forest}
+  for tree={align=center, l sep=1.5em, s sep=2em}
+  [{$S$}
+    [{$p_{1}$}, edge=dashed
+      [{$\neg p_{2}$}, edge=dashed
+        [{$p_{3}$}, edge=dashed
+          [{$\neg p_{7}$}, edge=dashed
+            [{$p_{4}$}, edge=dashed
+              [{$p_{5}$}, edge=dashed
+                [{$p$}, edge=dashed
+                  [{$q$}, edge=dashed
+                    [{$p_{6}$}, edge=dashed
+                      [{$r$\\ $\times$}, edge=dashed]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+\end{forest}
+\end{center}
+
+\vfill
+{\footnotesize Generated with Learn Davis-Putnam SAT, developed by Miguel Rocha (miguelrocha.dev).}
+
+\end{document}
