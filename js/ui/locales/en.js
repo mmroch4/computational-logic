@@ -119,6 +119,9 @@ export default {
       stepLimit: "The search stopped after {max} steps. This does not mean there is no proof.",
       searchExhausted: "The search found no proof with these rules. This does not mean there is no proof.",
       unverifiedProof: "The generated proof did not pass the checker, so it is not shown.",
+      timeout: "The search stopped after {seconds} s. This does not mean there is no proof.",
+      cancelled: "You cancelled the search.",
+      workerFailed: "The search could not run in this browser.",
     },
     strategies: {
       assumeAntecedent: "To prove an implication, assume the antecedent and look for the consequent.",

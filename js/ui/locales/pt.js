@@ -120,6 +120,9 @@ export default {
       stepLimit: "A procura parou ao fim de {max} passos. Isto não quer dizer que não haja prova.",
       searchExhausted: "A procura não encontrou prova com estas regras. Isto não quer dizer que não haja prova.",
       unverifiedProof: "A prova gerada não passou no verificador, por isso não é mostrada.",
+      timeout: "A procura parou ao fim de {seconds} s. Isto não quer dizer que não haja prova.",
+      cancelled: "Cancelaste a procura.",
+      workerFailed: "Não foi possível correr a procura neste browser.",
     },
     strategies: {
       assumeAntecedent: "Para provar uma implicação, assume o antecedente e procura o consequente.",
