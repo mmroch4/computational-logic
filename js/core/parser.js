@@ -1,7 +1,7 @@
 // Parser: texto → fórmula.
 // Contrato:
-//   parseFormula(text) → { ok: true, formula }
-//                      | { ok: false, error: { code, params, start, end } }
+//   parseFormula(text, { metavariables }) → { ok: true, formula }
+//                                         | { ok: false, error: { code, params, start, end } }
 // As posições são índices no texto original (end exclusivo), para a UI sublinhar o erro. Os códigos
 // são estáveis e têm mensagem em `parser.errors.*` nos locales. Módulo puro (sem DOM).
 //
@@ -10,8 +10,9 @@
 //   disjunção  := conjunção { ∨ conjunção }
 //   conjunção  := negação { ∧ negação }
 //   negação    := ¬ negação | átomo | F | ( implicação )
+// Com `metavariables`, φ, ψ e θ também são operandos.
 
-import { FALSUM, and, atom, implies, not, or } from "./formula.js";
+import { FALSUM, METAVARIABLES, and, atom, implies, meta, not, or } from "./formula.js";
 
 /** Códigos de erro. */
 export const ERROR_CODES = [
@@ -72,7 +73,7 @@ function readWord(word, start) {
   return { type: "name", name: plainDigits(word), text: word, start, end };
 }
 
-function tokenize(text) {
+function tokenize(text, metavariables) {
   const tokens = [];
   let pos = 0;
   while (pos < text.length) {
@@ -85,6 +86,11 @@ function tokenize(text) {
       const [written, type] = symbol;
       tokens.push({ type, text: written, start: pos, end: pos + written.length });
       pos += written.length;
+      continue;
+    }
+    if (metavariables && METAVARIABLES.includes(text[pos])) {
+      tokens.push({ type: "meta", name: text[pos], text: text[pos], start: pos, end: pos + 1 });
+      pos += 1;
       continue;
     }
     WORD_RE.lastIndex = pos;
@@ -121,6 +127,8 @@ function parseTokens(tokens) {
     switch (token.type) {
       case "name":
         return atom(token.name);
+      case "meta":
+        return meta(token.name);
       case "falsum":
         return FALSUM;
       case "not":
@@ -160,12 +168,12 @@ function parseTokens(tokens) {
 }
 
 /** Lê uma fórmula em qualquer uma das notações aceites. */
-export function parseFormula(text) {
+export function parseFormula(text, { metavariables = false } = {}) {
   try {
     const { maxChars } = INPUT_LIMITS;
     const length = text.replace(/\s/g, "").length;
     if (length > maxChars) throw new ParseFailure("tooLong", 0, text.length, { length, max: maxChars });
-    const tokens = tokenize(text);
+    const tokens = tokenize(text, metavariables);
     if (tokens.length === 0) throw new ParseFailure("emptyInput", 0, text.length);
     return { ok: true, formula: parseTokens(tokens) };
   } catch (failure) {

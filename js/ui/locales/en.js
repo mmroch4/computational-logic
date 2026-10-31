@@ -101,6 +101,11 @@ export default {
       unbalanced: "“{char}” has no match: check the parentheses.",
       missingOperand: "A formula is missing next to “{char}”.",
       missingOperator: "A connective is missing before “{token}”.",
+      missingTurnstile: "The ⊢ symbol is missing between the premises and the conclusion.",
+      multipleTurnstiles: "A sequent has a single ⊢, so this “{token}” is one too many.",
+      multipleConclusions: "A sequent has a single conclusion: the comma after ⊢ should not be there.",
+      emptyPremise: "A premise is missing next to this comma.",
+      missingConclusion: "The conclusion is missing after “{token}”.",
     },
   },
 };

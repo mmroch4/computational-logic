@@ -102,6 +102,11 @@ export default {
       unbalanced: "«{char}» não tem par: confirma os parênteses.",
       missingOperand: "Falta uma fórmula junto de «{char}».",
       missingOperator: "Falta um conectivo antes de «{token}».",
+      missingTurnstile: "Falta o símbolo ⊢ entre as premissas e a conclusão.",
+      multipleTurnstiles: "Um sequente só tem um ⊢, e este «{token}» está a mais.",
+      multipleConclusions: "Um sequente só tem uma conclusão: a vírgula depois do ⊢ está a mais.",
+      emptyPremise: "Falta uma premissa junto desta vírgula.",
+      missingConclusion: "Falta a conclusão depois de «{token}».",
     },
   },
 };

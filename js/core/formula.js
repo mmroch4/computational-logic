@@ -12,7 +12,7 @@ const NAME_RE = /^[A-Za-z][A-Za-z0-9_]*$/;
 export const RESERVED_NAMES = ["F", "v"];
 
 /** Força de ligação de cada conectivo: quanto maior, mais liga. */
-const PRECEDENCE = { implies: 1, or: 2, and: 3, not: 4, atom: 5, falsum: 5 };
+const PRECEDENCE = { implies: 1, or: 2, and: 3, not: 4, atom: 5, falsum: 5, meta: 5 };
 
 const SYMBOLS = { and: "∧", or: "∨", implies: "→" };
 
@@ -29,6 +29,15 @@ export function isAtomName(name) {
 export function atom(name, args = []) {
   if (!isAtomName(name)) throw new Error(`Nome de átomo inválido: ${name}`);
   return Object.freeze({ kind: "atom", name, args: Object.freeze([...args]) });
+}
+
+/** Metavariáveis dos esquemas. Só existem em esquemas: o parser só as lê quando lhe é pedido. */
+export const METAVARIABLES = ["φ", "ψ", "θ"];
+
+/** Metavariável: { kind: "meta", name, args: [] }. */
+export function meta(name) {
+  if (!METAVARIABLES.includes(name)) throw new Error(`Metavariável inválida: ${name}`);
+  return Object.freeze({ kind: "meta", name, args: Object.freeze([]) });
 }
 
 export const FALSUM = node("falsum", []);
@@ -58,6 +67,7 @@ export function displayName(name) {
 export function format(formula) {
   const { kind, name, args } = formula;
   if (kind === "atom") return displayName(name);
+  if (kind === "meta") return name;
   if (kind === "falsum") return "F";
 
   const strength = PRECEDENCE[kind];
