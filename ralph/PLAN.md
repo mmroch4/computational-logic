@@ -56,7 +56,7 @@ mínimo com a valoração.
 partir de cada linha. Inclui inserir, apagar, abrir e fechar subdedução, com renumeração.
 **Feito quando:** há testes para escopos aninhados, subdeduções fechadas e renumeração.
 
-### [ ] B5 · Regras base e verificação de uma linha
+### [x] B5 · Regras base e verificação de uma linha
 `js/core/rules.js` com o catálogo declarativo das regras base e `js/core/verify.js`. Erros com códigos
 distintos: regra inaplicável, linha inacessível, subdedução ainda aberta, citação em falta, fórmula
 não corresponde. Cumpre as convenções de citação do `CLAUDE.md`.
