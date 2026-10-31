@@ -21,7 +21,7 @@ o que for SAT. Copia os respetivos testes.
 **Feito quando:** não há referências a SAT, DLL ou `dpsat` em `js/` nem em `DESIGN.md`, e os testes
 passam.
 
-### [ ] A3 · Páginas vazias, rotas e geração EN
+### [x] A3 · Páginas vazias, rotas e geração EN
 Cria as 5 páginas PT e a 404, com barra de créditos, cabeçalho, rodapé e estado vazio. Cria
 `js/core/routes.js`, `js/pages/*` e os locales mínimos. Adapta `build-pages.mjs`, `modulepreload.mjs`
 e testes de rotas, meta e páginas.
