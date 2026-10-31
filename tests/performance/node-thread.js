@@ -5,12 +5,18 @@ import { fileURLToPath } from "node:url";
 /** Arranque para `createSolverWorker({ start })`, com a interface de um Worker do browser. */
 export function startNodeThread() {
   const worker = new Worker(fileURLToPath(import.meta.url));
+  let exited = false;
   const thread = {
     postMessage: (message) => worker.postMessage(message),
     terminate: () => {
       thread.terminated = worker.terminate();
     },
+    /** A thread já saiu? O código de saída não serve: é 0 se o terminate apanhar a thread a arrancar. */
+    hasExited: () => exited,
   };
+  worker.once("exit", () => {
+    exited = true;
+  });
   worker.on("message", (data) => thread.onmessage?.({ data }));
   worker.on("error", (error) => thread.onerror?.(error));
   return thread;

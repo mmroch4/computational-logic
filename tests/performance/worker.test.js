@@ -70,7 +70,10 @@ test("uma procura sem fim acaba no tempo limite e o Worker é terminado", async 
   const outcome = await worker.solve(hard, { maxSteps: HARD_MAX_STEPS }).promise;
   assert.equal(outcome.error.code, "timeout");
   assert.ok(performance.now() - startedAt < 2000);
-  assert.equal(await threads[0].terminated, 1, "o worker_thread não foi parado");
+  assert.equal(threads.length, 1);
+  assert.ok(threads[0].terminated, "o tempo limite não chamou terminate");
+  await threads[0].terminated;
+  assert.equal(threads[0].hasExited(), true, "o worker_thread não foi parado");
 });
 
 test("no Chrome, com a CSP do site, o trabalho não prende a página e o cancelamento funciona", {
