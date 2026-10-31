@@ -67,6 +67,31 @@ test("a solução continua a prova parcial, sem mexer no que está escrito", () 
   assertVerified(result.proof, goal);
 });
 
+test("a solução parte de qualquer início de uma prova gerada e mantém-no", () => {
+  const sequents = [
+    "p ∨ q ⊢ q ∨ p",
+    "p → q, q → r ⊢ p → r",
+    "¬q, p → q ⊢ ¬p",
+    "⊢ p ∨ ¬p",
+    "p ∧ (q ∨ r) ⊢ (p ∧ q) ∨ (p ∧ r)",
+    "¬(p ∧ q) ⊢ ¬p ∨ ¬q",
+  ];
+  for (const text of sequents) {
+    const goal = goalOf(text);
+    const whole = solve(goal, options).proof;
+    const premises = goal.premises.length;
+    for (let keep = premises + 1; keep < whole.lines.length; keep += 1) {
+      const start = { lines: whole.lines.slice(0, keep) };
+      const result = completeProof(start, goal, options);
+      const where = `${text}, ${keep} linhas`;
+      assert.equal(result.status, "solved", where);
+      assertVerified(result.proof, goal);
+      assert.equal(result.start, "partial", where);
+      assert.deepEqual(lineTexts(result.proof).slice(0, keep), lineTexts(start), where);
+    }
+  }
+});
+
 test("a solução aproveita a linha por preencher do editor", () => {
   const goal = goalOf("⊢ p → p");
   const opened = closeSubproof(proofOf("1 |   p  hipótese"), 1).proof;
@@ -269,6 +294,15 @@ test("contraexemplo: V/F em PT, T/F em EN", () => {
     assert.match(html, lang === "pt" ? /as premissas são verdadeiras/ : /the premises are true/);
     assert.doesNotMatch(html, /assist__note/);
     assertNoKeys(html);
+  });
+});
+
+test("contraexemplo: o sufixo numérico aparece em subscrito", () => {
+  const goal = goalOf("p1 ⊢ p2");
+  const panel = panelFromResult(hint(createProof([]).proof, goal, options), goal);
+  inBoth(panel, (html) => {
+    assert.match(html, /p₁ = /);
+    assert.match(html, /p₂ = /);
   });
 });
 
