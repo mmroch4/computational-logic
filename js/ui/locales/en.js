@@ -124,4 +124,22 @@ export default {
       alreadyClosed: "The subproof of line {line} is already closed.",
     },
   },
+  verify: {
+    errors: {
+      noSuchLine: "Line {line} does not exist.",
+      emptyFormula: "Line {line} still needs a formula.",
+      missingRule: "Line {line} still needs a rule.",
+      unknownRule: "Line {line}: there is no rule called “{rule}”.",
+      noSuchCitation: "Line {line}: citation {cited} points to a line that does not exist.",
+      inaccessibleLine: "Line {line}: you cannot cite {cited} from here, because it is not accessible.",
+      openSubproof: "Line {line}: subproof {cited} is still open, so close it before citing it.",
+      notASubproof: "Line {line}: range {cited} is not a complete subproof.",
+      emptyCitation: "Line {line}: citation {cited} depends on a line with no formula yet.",
+      missingCitation: "Line {line}: rule {rule} cites {expected}, and you gave only {found}.",
+      extraCitation: "Line {line}: rule {rule} cites {expected}, and you gave {found}.",
+      wrongCitationKind: "Line {line}: rule {rule} cites lines and subproofs differently, so check the citations.",
+      ruleNotApplicable: "Line {line}: what you cited does not have the form rule {rule} asks for.",
+      formulaMismatch: "Line {line}: rule {rule} applies to what you cited, but it does not give this formula.",
+    },
+  },
 };

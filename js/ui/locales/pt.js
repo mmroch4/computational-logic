@@ -125,4 +125,22 @@ export default {
       alreadyClosed: "A subdedução da linha {line} já está fechada.",
     },
   },
+  verify: {
+    errors: {
+      noSuchLine: "A linha {line} não existe.",
+      emptyFormula: "Falta escrever a fórmula da linha {line}.",
+      missingRule: "Falta indicar a regra da linha {line}.",
+      unknownRule: "Linha {line}: não há nenhuma regra chamada «{rule}».",
+      noSuchCitation: "Linha {line}: a citação {cited} aponta para uma linha que não existe.",
+      inaccessibleLine: "Linha {line}: não podes citar {cited} a partir daqui, porque não está acessível.",
+      openSubproof: "Linha {line}: a subdedução {cited} ainda está aberta, por isso fecha-a antes de a citar.",
+      notASubproof: "Linha {line}: o intervalo {cited} não é uma subdedução completa.",
+      emptyCitation: "Linha {line}: a citação {cited} depende de uma linha que ainda não tem fórmula.",
+      missingCitation: "Linha {line}: a regra {rule} cita {expected}, e só indicaste {found}.",
+      extraCitation: "Linha {line}: a regra {rule} cita {expected}, e indicaste {found}.",
+      wrongCitationKind: "Linha {line}: a regra {rule} cita linhas e subdeduções de outra forma, por isso revê as citações.",
+      ruleNotApplicable: "Linha {line}: o que citaste não tem a forma que a regra {rule} pede.",
+      formulaMismatch: "Linha {line}: a regra {rule} aplica-se ao que citaste, mas não dá esta fórmula.",
+    },
+  },
 };
