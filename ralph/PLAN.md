@@ -109,7 +109,7 @@ estratégia usada (código traduzível). Provas curtas em exemplos simples.
 **Feito quando:** um benchmark fixa o comprimento máximo por exemplo, e `¬q → ¬p ⊢ p → ¬¬q` e análogos
 ficam com comprimento próximo de uma prova manual.
 
-### [ ] C4 · Dicas
+### [x] C4 · Dicas
 `js/core/hints.js`: dado um estado parcial, sugere o próximo passo com 3 níveis: estratégia, regra e
 passo exato. Baseia-se nas heurísticas do solver e funciona com provas incompletas.
 **Feito quando:** há testes em estados iniciais, a meio e sem saída.
