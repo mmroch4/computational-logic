@@ -93,7 +93,7 @@ Antes do solver e da interface, vê se o verificador se comporta como esperas: `
 
 ## Bloco C — Solver
 
-### [ ] C1 · Procura de provas
+### [x] C1 · Procura de provas
 `js/core/solver.js`: decide a validade pela semântica e procura orientada pelo objetivo (→I, ¬I, ∧I,
 ∨E, RA, encadeamento para a frente), com limite de passos. Devolve uma prova do formato de B4.
 **Feito quando:** encontra prova para 40 sequentes válidos clássicos, todas aceites por `verifyProof`.
