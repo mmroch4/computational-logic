@@ -46,7 +46,7 @@ termos, ∀ e ∃ mais tarde. Erros com posição e código traduzível. Todas a
 correspondência de um esquema com uma fórmula e aplicação de substituições.
 **Feito quando:** há testes de sucesso, de conflito de metavariáveis e de falha.
 
-### [ ] B3 · Semântica
+### [x] B3 · Semântica
 `js/core/semantics.js`: avaliação, tabela de verdade, tautologia, sequente válido e contraexemplo
 mínimo com a valoração.
 **Feito quando:** há testes com sequentes válidos, inválidos e com premissas inconsistentes.
