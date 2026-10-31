@@ -41,7 +41,7 @@ impressão com o mínimo de parênteses (¬ > ∧ > ∨ > →, → associa à di
 termos, ∀ e ∃ mais tarde. Erros com posição e código traduzível. Todas as notações do `CLAUDE.md`.
 **Feito quando:** imprimir e voltar a ler dá a mesma fórmula, em teste com fórmulas aleatórias.
 
-### [ ] B2 · Sequentes, esquemas e substituição
+### [x] B2 · Sequentes, esquemas e substituição
 `js/core/sequent.js` para `p ∧ q, r ⊢ q ∧ r` e `⊢ φ`. `js/core/schema.js`: esquemas com metavariáveis,
 correspondência de um esquema com uma fórmula e aplicação de substituições.
 **Feito quando:** há testes de sucesso, de conflito de metavariáveis e de falha.
