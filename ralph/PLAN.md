@@ -51,7 +51,7 @@ correspondência de um esquema com uma fórmula e aplicação de substituições
 mínimo com a valoração.
 **Feito quando:** há testes com sequentes válidos, inválidos e com premissas inconsistentes.
 
-### [ ] B4 · Modelo de prova
+### [x] B4 · Modelo de prova
 `js/core/proof.js`: linhas, subdeduções e escopos. Calcula que linhas e intervalos estão acessíveis a
 partir de cada linha. Inclui inserir, apagar, abrir e fechar subdedução, com renumeração.
 **Feito quando:** há testes para escopos aninhados, subdeduções fechadas e renumeração.
