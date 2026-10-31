@@ -143,6 +143,32 @@ export default {
       applyRule: "This rule from the active set applies directly to what is already proved.",
     },
   },
+  hints: {
+    target: "Current goal: {target}",
+    startFromPremises: "Start by writing the premises of the sequent.",
+    notDerivable: "With these rules, the formula on line {line} does not follow from what you have above it.",
+    rule: {
+      premise: "A premise is missing.",
+      hypothesis: "Open a subproof: you will close it with {rule}.",
+      step: "Use the rule {rule}.",
+    },
+    exact: {
+      premise: "On line {line}, write the premise {formula}.",
+      hypothesis: "On line {line}, assume {formula}.",
+      step: "On line {line}, write {formula} by {rule}, {citations}.",
+      stepUncited: "On line {line}, write {formula} by {rule}.",
+    },
+    fixLine: {
+      look: "Before moving on, review line {line}.",
+      exact: "Fix line {line} or delete it.",
+    },
+    deadEnd: {
+      offTrack: "The hypothesis on line {line} does not seem to help reach the goal.",
+      noWayOut: "From the hypothesis on line {line} you cannot reach the goal with these rules, but the sequent has a proof by another route.",
+      rule: "Go back to the point before line {line} and choose another strategy.",
+      exact: "Delete the subproof that starts on line {line}.",
+    },
+  },
   proof: {
     errors: {
       noSuchLine: "Line {line} does not exist.",

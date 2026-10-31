@@ -53,8 +53,11 @@ const STRATEGY_OF_RULE = new Map([
   ["TE", "excludedMiddle"],
 ]);
 
+/** A estratégia por omissão de um passo com esta regra. */
+export const strategyOf = (rule) => STRATEGY_OF_RULE.get(rule) ?? "applyRule";
+
 /** Passo da derivação. Sem `strategy`, vale a da regra. */
-export const node = (entry, rule, from = [], strategy = STRATEGY_OF_RULE.get(rule) ?? "applyRule") => (
+export const node = (entry, rule, from = [], strategy = strategyOf(rule)) => (
   { entry, rule, from, strategy }
 );
 

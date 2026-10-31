@@ -144,6 +144,32 @@ export default {
       applyRule: "Esta regra do conjunto ativo aplica-se diretamente ao que já está provado.",
     },
   },
+  hints: {
+    target: "Objetivo de agora: {target}",
+    startFromPremises: "Começa por escrever as premissas do sequente.",
+    notDerivable: "Com estas regras, a fórmula da linha {line} não se segue do que tens acima dela.",
+    rule: {
+      premise: "Falta uma premissa.",
+      hypothesis: "Abre uma subdedução: vais fechá-la com {rule}.",
+      step: "Usa a regra {rule}.",
+    },
+    exact: {
+      premise: "Na linha {line}, escreve a premissa {formula}.",
+      hypothesis: "Na linha {line}, assume {formula}.",
+      step: "Na linha {line}, escreve {formula} por {rule}, {citations}.",
+      stepUncited: "Na linha {line}, escreve {formula} por {rule}.",
+    },
+    fixLine: {
+      look: "Antes de avançar, revê a linha {line}.",
+      exact: "Corrige a linha {line} ou apaga-a.",
+    },
+    deadEnd: {
+      offTrack: "A hipótese da linha {line} não parece ajudar a chegar ao objetivo.",
+      noWayOut: "A partir da hipótese da linha {line} não dá para chegar ao objetivo com estas regras, mas o sequente tem prova por outro caminho.",
+      rule: "Volta ao ponto antes da linha {line} e escolhe outra estratégia.",
+      exact: "Apaga a subdedução que começa na linha {line}.",
+    },
+  },
   proof: {
     errors: {
       noSuchLine: "A linha {line} não existe.",
