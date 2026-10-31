@@ -67,7 +67,7 @@ não corresponde. Cumpre as convenções de citação do `CLAUDE.md`.
 escopo). `verifyProof` indica se a prova conclui o sequente pedido e se tem premissas extra.
 **Feito quando:** há testes com pelo menos 10 provas originais corretas e 10 incorretas.
 
-### [ ] B7 · Regras derivadas e conjuntos de regras
+### [x] B7 · Regras derivadas e conjuntos de regras
 Acrescenta MT, ¬¬I, RA, TE, DM (as 4 direções), SH e SD ao catálogo. Cada uma guarda uma prova só com
 regras base. Implementa os conjuntos `base`, `completo`, `base + {…}` e `restrito`, e o erro
 «regra não permitida».
