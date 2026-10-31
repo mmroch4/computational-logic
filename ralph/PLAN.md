@@ -155,7 +155,7 @@ Estado no URL, histórico local, exportação para LaTeX e impressão em PDF. Os
 ficam ignorados se `pdflatex` não existir, porque não está instalado.
 **Feito quando:** abrir um link repõe a prova exata e um link inválido dá erro claro.
 
-### [ ] D8 · Editor de regras do utilizador
+### [x] D8 · Editor de regras do utilizador
 Interface do esquema-tipo, com pré-visualização, resultado da validação, contraexemplo, lista, apagar
 e uso nos dois modos. Inclui regras no link partilhado.
 **Feito quando:** criar, usar, partilhar e reabrir uma regra funciona de ponta a ponta.
