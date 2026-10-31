@@ -6,7 +6,7 @@ Cada `### [ ]` é uma tarefa, feita por uma sessão nova. O `ralph/run.sh` marca
 
 ## Bloco A — Fundação
 
-### [ ] A1 · Infraestrutura copiada do SAT
+### [x] A1 · Infraestrutura copiada do SAT
 A partir de `.reference/sat/`, cria `package.json` (mesmas versões fixas, nome `natural-deduction`),
 `vercel.json`, `.vercelignore`, `LICENSE`, `scripts/serve.mjs`, o build de CSS, o build do vendor e
 `js/boot.js`. Instala as dependências. Acrescenta `.reference` ao `.vercelignore` e ajusta a CSP para
