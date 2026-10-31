@@ -1,11 +1,16 @@
-// Verificação de uma linha da prova, sem olhar para as outras linhas além das que ela cita.
-// Módulo puro (sem DOM).
+// Verificação da prova. Módulo puro (sem DOM).
 // Contrato:
 //   verifyLine(proof, n, rules = BASE_RULES) → { ok: true } | { ok: false, error: { code, params } }
-// As mensagens estão em `verify.errors.*`.
+//     vê só a linha n e as que ela cita.
+//   verifyProof(proof, goal, rules = BASE_RULES)
+//     → { ok, concludes, extraPremises, lineErrors, conclusionError }
+//     ok: a prova inteira demonstra o sequente `goal`. É o único veredicto: os outros campos dizem
+//     o que falta. `concludes` olha só para a última linha, sem garantir que ela foi bem derivada.
+// As mensagens estão em `verify.errors.*`, `verify.conclusion.*` e `verify.extraPremise`.
 // Convenções de citação: linhas exteriores acessíveis citam-se sem R, a ordem é livre e uma subdedução
 // cita-se como intervalo, mesmo com uma só linha (`2–2`).
 
+import { equals } from "./formula.js";
 import { accessibleFrom, subproofs } from "./proof.js";
 import { BASE_RULES } from "./rules.js";
 import { matchSchema } from "./schema.js";
@@ -26,6 +31,13 @@ export const VERIFY_ERROR_CODES = [
   "wrongCitationKind", // { rule }: uma linha onde a regra pede uma subdedução, ou o inverso
   "ruleNotApplicable", // { rule }: o que foi citado não tem a forma das premissas da regra
   "formulaMismatch", // { rule }: a regra aplica-se, mas não dá a fórmula desta linha
+];
+
+/** Porque é que a prova não chega à conclusão pedida. */
+export const CONCLUSION_ERROR_CODES = [
+  "emptyProof", // a prova não tem linhas
+  "unfinishedProof", // { line }: a última linha ainda está dentro de uma subdedução
+  "wrongConclusion", // { line }: a última linha não é a conclusão do sequente
 ];
 
 const failure = (code, line, params = {}) => ({ ok: false, error: { code, params: { line, ...params } } });
@@ -130,4 +142,41 @@ export function verifyLine(proof, n, rules = BASE_RULES) {
   const { applicable, derives } = applyRule(rule, line.formula, citations, proof.lines);
   if (derives) return { ok: true };
   return failure(applicable ? "formulaMismatch" : "ruleNotApplicable", n, { rule: rule.id });
+}
+
+function findConclusionError(lines, goal) {
+  const last = lines.at(-1);
+  if (!last) return { code: "emptyProof", params: {} };
+  const line = lines.length;
+  if (last.depth > 0) return { code: "unfinishedProof", params: { line } };
+  if (!last.formula || !equals(last.formula, goal.conclusion)) {
+    return { code: "wrongConclusion", params: { line } };
+  }
+  return null;
+}
+
+/**
+ * Verifica todas as linhas e compara a prova com o sequente `goal`. Uma premissa extra é uma fórmula
+ * que o sequente não tem, e devolve-se o número da linha. Repetir uma premissa do sequente ou não
+ * usar alguma delas não muda o que fica demonstrado, por isso não é erro.
+ */
+export function verifyProof(proof, goal, rules = BASE_RULES) {
+  const { lines } = proof;
+  const lineErrors = [];
+  const extraPremises = [];
+  lines.forEach(({ kind, formula }, index) => {
+    const result = verifyLine(proof, index + 1, rules);
+    if (!result.ok) lineErrors.push(result.error);
+    const isExtra = kind === "premise" && formula
+      && !goal.premises.some((premise) => equals(premise, formula));
+    if (isExtra) extraPremises.push(index + 1);
+  });
+  const conclusionError = findConclusionError(lines, goal);
+  return {
+    ok: lineErrors.length === 0 && conclusionError === null && extraPremises.length === 0,
+    concludes: conclusionError === null,
+    extraPremises,
+    lineErrors,
+    conclusionError,
+  };
 }

@@ -142,5 +142,23 @@ export default {
       ruleNotApplicable: "Linha {line}: o que citaste não tem a forma que a regra {rule} pede.",
       formulaMismatch: "Linha {line}: a regra {rule} aplica-se ao que citaste, mas não dá esta fórmula.",
     },
+    conclusion: {
+      emptyProof: "A prova ainda não tem linhas.",
+      unfinishedProof: "A linha {line} ainda está dentro de uma subdedução: fecha-a para concluir a prova.",
+      wrongConclusion: "A linha {line} é a última, mas não é a conclusão do sequente.",
+    },
+    extraPremise: "A premissa da linha {line} não faz parte do sequente.",
+  },
+  proofText: {
+    premise: "premissa",
+    hypothesis: "hipótese",
+    errors: {
+      badLine: "Linha {line}: escreve o número, uma barra e a fórmula, como em «3 | p ∧ q   ∧I, 1, 2».",
+      badLineNumber: "Esta linha devia ter o número {expected}, e tem {found}.",
+      badIndent: "Linha {line}: a indentação é um espaço depois da barra, mais dois por cada subdedução.",
+      missingRuleName: "Linha {line}: há citações, mas falta o nome da regra.",
+      badCitation: "Linha {line}: «{token}» não é uma citação. Escreve um número, como 3, ou um intervalo, como 2–4.",
+      unexpectedCitation: "Linha {line}: premissas e hipóteses não citam outras linhas.",
+    },
   },
 };

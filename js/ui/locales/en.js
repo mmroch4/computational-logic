@@ -141,5 +141,23 @@ export default {
       ruleNotApplicable: "Line {line}: what you cited does not have the form rule {rule} asks for.",
       formulaMismatch: "Line {line}: rule {rule} applies to what you cited, but it does not give this formula.",
     },
+    conclusion: {
+      emptyProof: "The proof has no lines yet.",
+      unfinishedProof: "Line {line} is still inside a subproof: close it to finish the proof.",
+      wrongConclusion: "Line {line} is the last one, but it is not the conclusion of the sequent.",
+    },
+    extraPremise: "The premise on line {line} is not part of the sequent.",
+  },
+  proofText: {
+    premise: "premise",
+    hypothesis: "hypothesis",
+    errors: {
+      badLine: "Line {line}: write the number, a bar and the formula, as in “3 | p ∧ q   ∧I, 1, 2”.",
+      badLineNumber: "This line should be number {expected}, and it is {found}.",
+      badIndent: "Line {line}: the indentation is one space after the bar, plus two for each subproof.",
+      missingRuleName: "Line {line}: there are citations, but the rule name is missing.",
+      badCitation: "Line {line}: “{token}” is not a citation. Write a number, like 3, or a range, like 2–4.",
+      unexpectedCitation: "Line {line}: premises and hypotheses do not cite other lines.",
+    },
   },
 };
