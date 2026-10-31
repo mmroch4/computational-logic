@@ -100,7 +100,7 @@
   --prose-max: 42rem;
   --header-height: 52px;
   --header-border: 0px; /* sem linha no mobile */
-  --credits-bar-height: 28px;
+  --credits-bar-height: 36px;
   --tabbar-height: 64px;
 
   /* Lição: o que fica tapado no topo e onde pára o salto para uma secção (cabeçalho + barra do índice + 16px). */
@@ -322,15 +322,94 @@
     color: #fff;
   }
 
-  /* Barra de créditos: 28px, a mesma altura que o --credits-bar-height reserva antes do layout.js correr. */
+  /* Barra de créditos: 36px, a mesma altura que o --credits-bar-height reserva antes do layout.js correr.
+     A tinta invertida destaca-a sem gastar uma cor de evento. */
   .credits {
     view-transition-name: shell-credits;
-    padding: 6px 16px;
-    background: var(--color-surface);
-    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: var(--credits-bar-height);
+    padding-inline: 12px;
+    background: var(--color-ink);
+    color: rgb(255 255 255 / 0.8);
     font-size: 12px;
-    line-height: 16px;
-    text-align: center;
+    line-height: 20px;
+    white-space: nowrap;
+  }
+
+  /* No mobile, 12px para a frase caber a 390px; com espaço, 13px. */
+  @media (min-width: 768px) {
+    .credits {
+      gap: 12px;
+      font-size: 13px;
+    }
+  }
+
+  .credits a {
+    color: #fff;
+    font-weight: var(--weight-medium);
+    text-decoration: underline;
+    text-decoration-color: rgb(255 255 255 / 0.4);
+    text-underline-offset: 3px;
+    transition: text-decoration-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+
+  .credits a:hover {
+    text-decoration-color: #fff;
+  }
+
+  /* O anel de foco normal é a tinta, que aqui não se via. */
+  .credits a:focus-visible {
+    outline-color: #fff;
+  }
+
+  .credits p a svg {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: 2px;
+    vertical-align: -1px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+
+  .credits p a:hover svg {
+    transform: translate(1px, -1px);
+  }
+
+  /* O ícone do GitHub: 20px à vista, 44×44 de alvo (o ::after passa a altura da barra sem a mudar). */
+  .credits .credits-gh {
+    position: relative;
+    display: inline-flex;
+    padding-left: 10px;
+    border-left: 1px solid rgb(255 255 255 / 0.25);
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  .credits .credits-gh:hover {
+    color: #fff;
+  }
+
+  .credits-gh::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: calc(50% + 5px);
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  .credits-gh svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
   }
 
   .wrap {

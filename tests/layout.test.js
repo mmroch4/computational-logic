@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { renderCreditsBar, renderHeader, renderTabBar, renderFooter, pageTitle, escapeHtml, NAV_ITEMS } from "../js/ui/layout.js";
 import { setLang } from "../js/ui/i18n.js";
-import { APP_NAME, CREDITS_URL, REPO_URL, SITE_URL } from "../js/ui/config.js";
+import { APP_NAME, CREDITS_URL, CREDITS_GITHUB_URL, REPO_URL, SITE_URL } from "../js/ui/config.js";
 
 test("header tem nome e seletor PT/EN, sem crédito (o crédito do topo é a barra de créditos)", () => {
   setLang("pt", { silent: true });
@@ -23,11 +23,15 @@ test("header usa as classes do redesign: wordmark, nav e PT/EN em segmented pequ
   assert.doesNotMatch(html, /site-header|site-nav|segmented/);
 });
 
-test("barra de créditos no topo com o nome e o link (PT e EN)", () => {
+test("barra de créditos no topo com o nome, o link e o GitHub (PT e EN)", () => {
   setLang("pt", { silent: true });
-  assert.match(renderCreditsBar(), new RegExp(`Plataforma criada por Miguel Rocha · <a href="${CREDITS_URL}"[^>]*>miguelrocha.dev</a>`));
+  let html = renderCreditsBar();
+  assert.match(html, new RegExp(`Plataforma criada por Miguel Rocha · <a href="${CREDITS_URL}"[^>]*>miguelrocha.dev<svg[^>]*aria-hidden="true">`));
+  assert.match(html, new RegExp(`<a class="credits-gh" href="${CREDITS_GITHUB_URL}"[^>]*aria-label="Miguel Rocha no GitHub">`));
   setLang("en", { silent: true });
-  assert.match(renderCreditsBar(), new RegExp(`Platform created by Miguel Rocha · <a href="${CREDITS_URL}"[^>]*>miguelrocha.dev</a>`));
+  html = renderCreditsBar();
+  assert.match(html, new RegExp(`Platform created by Miguel Rocha · <a href="${CREDITS_URL}"[^>]*>miguelrocha.dev<svg`));
+  assert.match(html, /aria-label="Miguel Rocha on GitHub"/);
   setLang("pt", { silent: true });
 });
 

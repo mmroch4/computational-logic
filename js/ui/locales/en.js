@@ -45,6 +45,7 @@ export default {
   },
   creditsBar: {
     text: "Platform created by {name}",
+    github: "{name} on GitHub",
   },
   footer: {
     credit: "Developed by {name}",

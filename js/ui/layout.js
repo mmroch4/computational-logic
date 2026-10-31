@@ -6,14 +6,14 @@
 // mountLayout() é a única parte que mexe no DOM. Cada página HTML tem:
 //   <body data-page="solve"> … <main id="main"> … </main> … <script type="module" src="/js/pages/…">
 // e o entry da página chama mountLayout({ page: "solve" }) (ou sem argumento: lê data-page).
-import { APP_NAME, CREDITS_NAME, CREDITS_URL, CREDITS_LABEL, REPO_URL } from "./config.js";
+import { APP_NAME, CREDITS_NAME, CREDITS_URL, CREDITS_LABEL, CREDITS_GITHUB_URL, REPO_URL } from "./config.js";
 import { t, initI18n, getLang, pagePath, SUPPORTED_LANGS, LOCALES } from "./i18n.js";
 import { ROUTES, counterpartPath, pathFor } from "../core/routes.js";
 import { storage } from "./storage.js";
 import { installSegKeys } from "./segmented.js";
 import { loadAnalytics } from "./analytics.js";
 
-// Marca do GitHub (16×16, preenchida com a cor do texto), para o link do rodapé.
+// Marca do GitHub (16×16, preenchida com a cor do texto), para a barra de créditos e o link do rodapé.
 const GITHUB_ICON =
   '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 ' +
   "0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 " +
@@ -67,11 +67,18 @@ function langSwitch(lang) {
   return `<div class="seg sm" role="group" aria-label="${escapeHtml(t("header.langLabel"))}">${buttons}</div>`;
 }
 
-// Barra fina por cima do header com o crédito ao criador. Sai com o scroll (o header é que fica fixo).
+// Seta de link externo (12×12, traço com a cor do texto), a seguir ao domínio na barra de créditos.
+const EXTERNAL_ICON =
+  '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"/></svg>';
+
+// Barra a tinta por cima do header com o crédito ao criador. Sai com o scroll (o header é que fica fixo).
+// O link do site fica sem classe, no meio da frase; o do GitHub é um alvo à parte (ver .credits-gh).
 export function renderCreditsBar() {
   return (
     `<div class="credits"><p>${escapeHtml(t("creditsBar.text", { name: CREDITS_NAME }))} · ` +
-    `<a href="${CREDITS_URL}" target="_blank" rel="noopener">${CREDITS_LABEL}</a></p></div>`
+    `<a href="${CREDITS_URL}" target="_blank" rel="noopener">${CREDITS_LABEL}${EXTERNAL_ICON}</a></p>` +
+    `<a class="credits-gh" href="${CREDITS_GITHUB_URL}" target="_blank" rel="noopener" ` +
+    `aria-label="${escapeHtml(t("creditsBar.github", { name: CREDITS_NAME }))}">${GITHUB_ICON}</a></div>`
   );
 }
 

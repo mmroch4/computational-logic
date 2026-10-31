@@ -30,7 +30,7 @@ Contrastes pela fórmula WCAG 2.1. Mínimos: **4,5:1** para texto, **3:1** para 
 | Token | Valor | Uso | bg | surface | surface-2 |
 | --- | --- | --- | --- | --- | --- |
 | `--color-bg` | `#ffffff` | Fundo da página, cartões. | — | — | — |
-| `--color-surface` | `#fafafa` | Painéis sem borda, barra de créditos. | — | — | — |
+| `--color-surface` | `#fafafa` | Painéis sem borda. | — | — | — |
 | `--color-surface-2` | `#f4f4f5` | Botão secundário, segmented, blocos mono. | — | — | — |
 | `--color-hairline` | `#f0f0f2` | Divisórias discretas. | — | — | — |
 | `--color-border` | `#e4e4e7` | Contorno de cartões (decorativo). | 1,27 | — | — |
@@ -39,7 +39,7 @@ Contrastes pela fórmula WCAG 2.1. Mínimos: **4,5:1** para texto, **3:1** para 
 | `--color-text-2` | `#3f3f46` | Corpo da lição. | 10,44 | 10,01 | 9,50 |
 | `--color-text-muted` | `#52525b` | Texto secundário. | 7,73 | 7,41 | 7,03 |
 | `--color-text-subtle` | `#71717a` | Metadados pequenos, nº de linha. **Nunca em surface-2.** | 4,83 | 4,63 | 4,40 ✗ |
-| `--color-ink` | `#18181b` | O acento: botão primário, play, anel de foco. | 17,72 | 16,97 | 16,12 |
+| `--color-ink` | `#18181b` | O acento: botão primário, play, anel de foco, fundo da barra de créditos. | 17,72 | 16,97 | 16,12 |
 | `--color-ink-hover` | `#27272a` | Hover do primário. | — | — | — |
 | `--color-tree-future` | `#d4d4d8` | Tracejado dos nós por visitar. | — | — | — |
 
@@ -104,7 +104,7 @@ mão, e o play só troca de estado. Transições e animações usam sempre os to
 | `--prose-max` | 42rem |
 | `--header-height` | 52px (60px a partir de 768px) |
 | `--header-border` | 0 (1px a partir de 768px) |
-| `--credits-bar-height` | 28px |
+| `--credits-bar-height` | 36px |
 | `--tabbar-height` | 64px, mais `env(safe-area-inset-bottom)` |
 
 | Largura | Layout |

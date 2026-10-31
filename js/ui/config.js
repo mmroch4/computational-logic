@@ -7,6 +7,7 @@ export const SITE_URL = "https://sat.computational-logic.miguelrocha.dev";
 export const CREDITS_NAME = "Miguel Rocha";
 export const CREDITS_URL = "https://miguelrocha.dev";
 export const CREDITS_LABEL = "miguelrocha.dev";
+export const CREDITS_GITHUB_URL = "https://github.com/mmroch4";
 
 // Repositório público (rodapé e package.json).
 export const REPO_URL = "https://github.com/mmroch4/computational-logic";
