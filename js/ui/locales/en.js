@@ -113,4 +113,15 @@ export default {
       tooManyVariables: "There are {count} variables, and the truth table only takes up to {max}.",
     },
   },
+  proof: {
+    errors: {
+      noSuchLine: "Line {line} does not exist.",
+      invalidLine: "Line {line} is malformed.",
+      invalidDepth: "Line {line} cannot sit at this depth.",
+      misplacedPremise: "Line {line} is a premise: premises go at the start of the proof, outside subproofs.",
+      capturesLines: "A hypothesis at line {line} would capture the lines below it: close the subproof first.",
+      notInSubproof: "Line {line} is not inside a subproof.",
+      alreadyClosed: "The subproof of line {line} is already closed.",
+    },
+  },
 };

@@ -114,4 +114,15 @@ export default {
       tooManyVariables: "Há {count} variáveis, e a tabela de verdade só aceita até {max}.",
     },
   },
+  proof: {
+    errors: {
+      noSuchLine: "A linha {line} não existe.",
+      invalidLine: "A linha {line} está mal formada.",
+      invalidDepth: "A linha {line} não pode ficar a esta profundidade.",
+      misplacedPremise: "A linha {line} é uma premissa: as premissas ficam no início da prova, fora das subdeduções.",
+      capturesLines: "Uma hipótese na linha {line} ia apanhar as linhas seguintes: fecha primeiro a subdedução.",
+      notInSubproof: "A linha {line} não está dentro de uma subdedução.",
+      alreadyClosed: "A subdedução da linha {line} já está fechada.",
+    },
+  },
 };
