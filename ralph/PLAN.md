@@ -135,7 +135,7 @@ Edição linha a linha com verificação imediata, abrir e fechar subdedução, 
 erro por linha, numa só frase e sem jargão.
 **Feito quando:** uma prova com subdeduções é feita só com o teclado, em teste.
 
-### [ ] D4 · Modo guiado
+### [x] D4 · Modo guiado
 Selecionar linhas, escolher regra e gerar o passo, para a frente e a partir do objetivo. Regras
 inaplicáveis ou proibidas ficam desativadas, com motivo.
 **Feito quando:** a mesma prova de D3 é feita sem escrever fórmulas, também a 390px.
