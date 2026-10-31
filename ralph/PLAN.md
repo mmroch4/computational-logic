@@ -62,7 +62,7 @@ distintos: regra inaplicável, linha inacessível, subdedução ainda aberta, ci
 não corresponde. Cumpre as convenções de citação do `CLAUDE.md`.
 **Feito quando:** cada regra tem testes de uso correto e de cada erro relevante.
 
-### [ ] B6 · Formato textual e verificação da prova inteira
+### [x] B6 · Formato textual e verificação da prova inteira
 `js/core/proof-text.js`: lê e escreve provas em texto (`4 | r ∧ q   ∧I, 3, 2`, com indentação por
 escopo). `verifyProof` indica se a prova conclui o sequente pedido e se tem premissas extra.
 **Feito quando:** há testes com pelo menos 10 provas originais corretas e 10 incorretas.
