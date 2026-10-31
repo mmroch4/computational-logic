@@ -15,8 +15,8 @@
 // isso «Γ implica φ» é uma conta de bits. Quando Γ é inconsistente, tudo se implica e a tabela deixa
 // de distinguir: conta então o que Γ implica sem a fórmula candidata.
 //
-// A procura constrói uma derivação em árvore (`node`) e só no fim a escreve em Fitch, pelo que os
-// factos que a prova não usa nunca chegam a ser linhas.
+// A procura constrói uma derivação em árvore (`derivation.js`) e só no fim a arruma e escreve em Fitch,
+// pelo que os factos que a prova não usa nunca chegam a ser linhas. Sai a versão verificada mais curta.
 // Ordem para um objetivo: já conhecido; regra de introdução da conclusão; encadear uma implicação;
 // casos de uma disjunção; contradição; e, em último recurso, o passo clássico ou assumir uma fórmula
 // para obter a negação dela. O passo clássico é RA, ou ¬I + ¬E, ou TE + ∨E + FE, conforme o conjunto.
@@ -24,8 +24,8 @@
 // só entram numa segunda procura, se a primeira falhar: nela, tudo o que derem é um facto de partida.
 
 import { countermodel } from "./countermodel.js";
+import { assumption, node, subderivation, tidy, writeProof } from "./derivation.js";
 import { atom, equals, FALSUM, format, not, or } from "./formula.js";
-import { citeLine, citeRange, createProof } from "./proof.js";
 import { RULES } from "./rules.js";
 import { applySubstitution, matchSchema } from "./schema.js";
 import { checkSequent, variablesOf } from "./semantics.js";
@@ -95,13 +95,6 @@ function createTable(names) {
 
   return { all, intern };
 }
-
-/** Passo da derivação. `from` tem nós e, para as subdeduções, `{ hypothesis, end }`. */
-const node = (entry, rule, from = []) => ({ entry, rule, from });
-
-const assumption = (entry) => node(entry, null);
-
-const subderivation = (hypothesis, end) => ({ hypothesis, end });
 
 /** As regras que `applyExtras` pode usar: só premissas simples, e não as que a procura já conhece. */
 const extraRulesOf = (rules) => rules.filter(({ id, premises }) => (
@@ -177,23 +170,32 @@ function createSearch(goal, maxSteps, rules, extraRules) {
     return models;
   }
 
+  /** O que Γ implica sem `left` nem as fórmulas que, sozinhas, já a dão (como p ∧ q dá q). */
+  function withoutSources(context, left) {
+    let models = all;
+    for (const { entry } of context.facts.values()) {
+      if (!entailedBy(entry.models, left)) models &= entry.models;
+    }
+    return models;
+  }
+
   const bySize = (a, b) => a.needs.key.length - b.needs.key.length;
 
   /** Prova `target` dentro de uma subdedução com a hipótese `entry`. */
-  function inSubproof(context, entry, target) {
+  function inSubproof(context, entry, target, strategy) {
     const hypothesis = assumption(entry);
     const end = prove(extend(context, [hypothesis]), target);
-    return end && subderivation(hypothesis, end);
+    return end && subderivation(hypothesis, end, strategy);
   }
 
   function introduce(context, target) {
     const { formula } = target;
     if (formula.kind === "implies" && can("→I")) {
-      const body = inSubproof(context, arg(target, 0), arg(target, 1));
+      const body = inSubproof(context, arg(target, 0), arg(target, 1), "assumeAntecedent");
       return body && node(target, "→I", [body]);
     }
     if (formula.kind === "not" && can("¬I")) {
-      const body = inSubproof(context, arg(target, 0), absurd);
+      const body = inSubproof(context, arg(target, 0), absurd, "assumeToNegate");
       return body && node(target, "¬I", [body]);
     }
     if (formula.kind === "and" && can("∧I")) {
@@ -232,7 +234,8 @@ function createSearch(goal, maxSteps, rules, extraRules) {
   function applyUse(context, { item, needs, gives, rule }, target) {
     const proved = prove(context, needs);
     if (!proved) return null;
-    return prove(extend(context, [node(gives, rule, [proved, item])]), target);
+    const strategy = rule === "→E" ? "chainImplication" : undefined;
+    return prove(extend(context, [node(gives, rule, [proved, item], strategy)]), target);
   }
 
   /** `use` serve se o resto de Γ lhe dá o antecedente sem já implicar o objetivo. */
@@ -249,8 +252,8 @@ function createSearch(goal, maxSteps, rules, extraRules) {
   }
 
   function splitOn(context, item, target) {
-    const left = inSubproof(context, arg(item.entry, 0), target);
-    const right = left && inSubproof(context, arg(item.entry, 1), target);
+    const left = inSubproof(context, arg(item.entry, 0), target, "assumeCase");
+    const right = left && inSubproof(context, arg(item.entry, 1), target, "assumeCase");
     return right && node(target, "∨E", [item, left, right]);
   }
 
@@ -261,7 +264,7 @@ function createSearch(goal, maxSteps, rules, extraRules) {
     const atoms = variablesOf([...goal.premises, goal.conclusion]).map((name) => intern(atom(name)));
     for (const entry of [...pending, ...atoms]) {
       if (known(context, entry) || known(context, negation(entry))) continue;
-      const body = inSubproof(context, entry, absurd);
+      const body = inSubproof(context, entry, absurd, "assumeToRefute");
       if (!body) continue;
       const proved = prove(extend(context, [node(negation(entry), "¬I", [body])]), absurd);
       if (proved) return proved;
@@ -283,19 +286,19 @@ function createSearch(goal, maxSteps, rules, extraRules) {
     const negated = negation(target);
     if (known(context, negated) && !known(context, absurd)) return null;
     if (can("RA")) {
-      const body = inSubproof(context, negated, absurd);
+      const body = inSubproof(context, negated, absurd, "assumeNegation");
       return body && node(target, "RA", [body]);
     }
     if (can("¬I") && can("¬E")) {
-      const body = inSubproof(context, negated, absurd);
-      return body && node(target, "¬E", [node(negation(negated), "¬I", [body])]);
+      const body = inSubproof(context, negated, absurd, "assumeNegation");
+      return body && node(target, "¬E", [node(negation(negated), "¬I", [body], "concludeByAbsurd")]);
     }
     if (can("TE") && can("∨E") && can("FE")) {
-      const refuted = inSubproof(context, negated, target);
+      const refuted = inSubproof(context, negated, target, "assumeCase");
       if (!refuted) return null;
       const hypothesis = assumption(target);
       const middle = node(intern(or(target.formula, negated.formula)), "TE");
-      return node(target, "∨E", [middle, subderivation(hypothesis, hypothesis), refuted]);
+      return node(target, "∨E", [middle, subderivation(hypothesis, hypothesis, "assumeCase"), refuted]);
     }
     return null;
   }
@@ -351,16 +354,18 @@ function createSearch(goal, maxSteps, rules, extraRules) {
     if (chained) return chained;
 
     const cases = disjunctions(context);
-    const usefulCases = cases.filter(({ entry }) => !entailedBy(without(context, entry), target));
+    const usefulCases = cases.filter(({ entry }) => !entailedBy(withoutSources(context, entry), target));
     const split = firstOf(usefulCases, (item) => splitOn(context, item, target));
     if (split) return split;
 
+    const otherCases = cases.filter((item) => !usefulCases.includes(item));
     if (target === absurd) {
       return firstOf(uses.filter((use) => !needed.includes(use)), (use) => applyUse(context, use, target))
-        ?? firstOf(cases.filter((item) => !usefulCases.includes(item)), (item) => splitOn(context, item, target))
+        ?? firstOf(otherCases, (item) => splitOn(context, item, target))
         ?? assumeAndRefute(context);
     }
-    return classical(context, target);
+    // Um ramo que não use a hipótese do caso sai depois, no `tidy`.
+    return firstOf(otherCases, (item) => splitOn(context, item, target)) ?? classical(context, target);
   }
 
   /** Derivação de `target`, ou null. Voltar ao mesmo estado num ramo aberto não leva a lado nenhum. */
@@ -383,55 +388,6 @@ function createSearch(goal, maxSteps, rules, extraRules) {
   return { derivation: prove(root, intern(goal.conclusion)), premises, stepsUsed: () => steps };
 }
 
-/** Escreve a derivação em Fitch. Uma fórmula já acessível no escopo não se deriva de novo. */
-function writeProof(derivation, premises) {
-  const lines = [];
-  const scopes = [new Map()];
-  const lineOf = (entry) => {
-    for (const scope of scopes.toReversed()) {
-      if (scope.has(entry.id)) return scope.get(entry.id);
-    }
-    return null;
-  };
-  const depth = () => scopes.length - 1;
-  const push = (entry, line) => {
-    lines.push({ ...line, formula: entry.formula, depth: depth() });
-    if (!scopes.at(-1).has(entry.id)) scopes.at(-1).set(entry.id, lines.length);
-    return lines.length;
-  };
-
-  /** Garante que a última linha do escopo é `end`, com R se ela vier de trás. */
-  function finish(end) {
-    const line = write(end);
-    const closesScope = line === lines.length && lines[line - 1].depth === depth();
-    if (!closesScope) push(end.entry, { kind: "step", rule: "R", citations: [citeLine(line)] });
-  }
-
-  function writeSubproof({ hypothesis, end }) {
-    scopes.push(new Map());
-    const from = push(hypothesis.entry, { kind: "hypothesis" });
-    finish(end);
-    scopes.pop();
-    return citeRange(from, lines.length);
-  }
-
-  function write(item) {
-    const line = lineOf(item.entry);
-    if (line !== null) return line;
-    const citations = item.from.map((source) => (
-      source.hypothesis ? writeSubproof(source) : citeLine(write(source))
-    ));
-    return push(item.entry, { kind: "step", rule: item.rule, citations });
-  }
-
-  for (const { entry } of premises) {
-    lines.push({ kind: "premise", depth: 0, formula: entry.formula });
-    if (!scopes[0].has(entry.id)) scopes[0].set(entry.id, lines.length);
-  }
-  finish(derivation);
-  return createProof(lines).proof;
-}
-
 /** Uma passagem da procura: a prova verificada, ou o erro que explica porque não há. */
 function attempt(goal, maxSteps, rules, extraRules) {
   const failure = (code, params = {}) => ({ ok: false, error: { code, params } });
@@ -444,11 +400,20 @@ function attempt(goal, maxSteps, rules, extraRules) {
   }
   if (!found.derivation) return failure("searchExhausted");
 
-  const proof = writeProof(found.derivation, found.premises);
-  // A escrita pede R ao fechar uma subdedução com um facto exterior: sem R, esta prova não serve.
-  const blocked = !rules.some(({ id }) => id === "R") && proof.lines.some(({ rule }) => rule === "R");
-  if (blocked) return failure("searchExhausted");
-  if (!verifyProof(proof, goal, rules).ok) return failure("unverifiedProof");
+  const { derivation, premises } = found;
+  const tidied = tidy(derivation);
+  const drafts = [
+    writeProof(tidied, premises),
+    writeProof(tidied, premises, { share: true }),
+    writeProof(derivation, premises),
+  ].sort((a, b) => a.lines.length - b.lines.length);
+
+  // A escrita pede R ao fechar uma subdedução com um facto exterior: sem R, essa prova não serve.
+  const hasR = rules.some(({ id }) => id === "R");
+  const usable = drafts.filter(({ lines }) => hasR || lines.every(({ rule }) => rule !== "R"));
+  if (usable.length === 0) return failure("searchExhausted");
+  const proof = usable.find((draft) => verifyProof(draft, goal, rules).ok);
+  if (!proof) return failure("unverifiedProof");
   return { ok: true, valid: true, provable: true, proof, steps: found.stepsUsed() };
 }
 

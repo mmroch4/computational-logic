@@ -5,6 +5,7 @@
 //   formula: nó de `formula.js`, ou null numa linha por preencher
 //   rule: identificador da regra (só em "step"; quem o interpreta é o verificador), ou null
 //   citations: { kind: "line", line } | { kind: "range", from, to }, pela ordem em que foram escritas
+//   strategy: só nas provas geradas, código de `solver.strategies.*`; não conta para o verificador
 // As subdeduções não se guardam: cada hipótese abre uma, que acaba antes da primeira linha menos
 // profunda ou de outra hipótese à mesma profundidade (duas subdeduções seguidas, como no ∨E).
 // Uma subdedução tem uma só hipótese e está fechada quando há alguma linha depois dela.
@@ -50,8 +51,9 @@ function isWellFormed({ kind, depth, rule = null, citations = [] }) {
   return rule === null && citations.length === 0;
 }
 
-function freezeLine({ kind, depth, formula = null, rule = null, citations = [] }) {
-  return Object.freeze({ kind, depth, formula, rule, citations: Object.freeze([...citations]) });
+function freezeLine({ kind, depth, formula = null, rule = null, citations = [], strategy = null }) {
+  const line = { kind, depth, formula, rule, citations: Object.freeze([...citations]) };
+  return Object.freeze(strategy === null ? line : { ...line, strategy });
 }
 
 /** Primeiro erro de estrutura da lista de linhas, ou null. */
