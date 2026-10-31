@@ -74,7 +74,7 @@ regras base. Implementa os conjuntos `base`, `completo`, `base + {…}` e `restr
 **Feito quando:** um teste verifica todas as provas guardadas só com regras base, e as siglas seguem
 o idioma.
 
-### [ ] B8 · Regras do utilizador
+### [x] B8 · Regras do utilizador
 `js/core/user-rules.js` conforme o `SPEC.md`: esquema-tipo, validação sintática, solidez por tautologia
 com contraexemplo, serialização e nova validação ao carregar. Integra no verificador. Implementa o
 campo `userRules` e a marca de prova com regras próprias.
