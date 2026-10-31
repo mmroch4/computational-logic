@@ -89,7 +89,7 @@ function citationProblem(proof, n, citation, access, all) {
 }
 
 /** Estende a substituição com a premissa ou devolve null, se a citação não tiver a forma dela. */
-function bindPremise(premise, citation, lines, substitution) {
+export function bindPremise(premise, citation, lines, substitution) {
   if (premise.kind === "formula") {
     const match = matchSchema(premise.schema, lines[citation.line - 1].formula, substitution);
     return match.ok ? match.substitution : null;

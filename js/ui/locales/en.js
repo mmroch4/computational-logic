@@ -74,6 +74,11 @@ export default {
     start: "Start the proof",
   },
   editor: {
+    modesLabel: "Editing mode",
+    modes: {
+      write: "Write",
+      guided: "Guided",
+    },
     formulaField: "Formula of line {line}",
     justificationField: "Rule and citations of line {line}",
     formulaPlaceholder: "Formula",
@@ -89,6 +94,21 @@ export default {
     },
     shortcuts: "Enter moves on · Ctrl+Enter opens a subproof · Shift+Enter closes it · Ctrl+Shift+Backspace deletes the line · Ctrl+Z undoes · Ctrl+Y redoes",
     complete: "The proof is complete and every line is correct.",
+  },
+  guided: {
+    current: "goal",
+    pending: "to prove",
+    objective: "Goal of line {line}: {formula}",
+    noObjective: "This line has no goal: the step goes on a new line.",
+    hint: "Tap the lines to cite, then a rule. A dashed rule tells you why it doesn't apply.",
+    rulesLabel: "Rules",
+    choose: "Choose the step",
+    reasons: {
+      notAllowed: "The rule {rule} can't be used in this proof.",
+      needsSelection: "Select what the rule cites: {premises}.",
+      selectionMismatch: "The selection doesn't fit what the rule cites: {premises}.",
+      targetMismatch: "The goal doesn't have the form this rule gives: {conclusions}.",
+    },
   },
   sequentInput: {
     label: "Sequent",

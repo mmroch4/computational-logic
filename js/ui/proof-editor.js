@@ -1,14 +1,21 @@
-// Editor de provas, modo de escrita: uma linha de Fitch com campos, verificada a cada tecla.
-// A lógica está em core/editor.js: aqui só se desenha o estado e se ligam o teclado e os botões.
+// Editor de provas, com dois modos sobre o mesmo estado. A escrever, cada linha de Fitch tem campos,
+// verificados a cada tecla. No modo guiado, as linhas são botões: seleciona-se o que citar e escolhe-se
+// a regra. A lógica está em core/editor.js e core/guided.js: aqui só se desenha e se ligam os eventos.
 //
 // As funções exportadas à parte são puras (testáveis em node); só mountProofEditor() mexe no DOM.
 import {
-  canRedo, canUndo, createEditor, editorStatus, moveCursor, pressKey, restartEditor, runAction, setText,
+  canRedo, canUndo, createEditor, editorStatus, keyAction, moveCursor, pressKey, restartEditor, runAction, setText,
   tidyAll, tidyField,
 } from "../core/editor.js";
-import { RULES, localizeRuleParam, ruleSet } from "../core/rules.js";
+import { format } from "../core/formula.js";
+import {
+  applyOutcome, focusObjective, guidedAnchor, guidedLines, guidedRules, outcomeLabel, toggleSelection,
+} from "../core/guided.js";
+import { RULES, localizeRuleParam, ruleLabel, ruleSet } from "../core/rules.js";
 import { formatSequent } from "../core/sequent.js";
-import { barsHtml, closesAssumptions, depthHtml, lineHtml, stateHtml } from "./fitch-view.js";
+import {
+  barsHtml, closesAssumptions, depthHtml, formulaHtml, justificationText, lineHtml, stateHtml,
+} from "./fitch-view.js";
 import { LOCALES, getLang, onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
 import { msgBodyHtml, msgClasses, msgHtml } from "./message.js";
@@ -23,6 +30,12 @@ export const EDITOR_ACTIONS = [
   { name: "undo", shortcut: "Control+Z" },
   { name: "redo", shortcut: "Control+Y" },
 ];
+
+/** No modo guiado, as linhas nascem das regras. */
+const GUIDED_ACTIONS = ["close", "remove", "undo", "redo"];
+
+/** Os dois modos do editor. */
+export const EDITOR_MODES = ["write", "guided"];
 
 /** O ⊢ só faz falta no sequente. */
 const PROOF_KEYS = SYMBOL_KEYS.filter(({ name }) => name !== "turnstile");
@@ -72,8 +85,64 @@ function linesHtml({ proof, drafts }) {
   }).join("");
 }
 
-function shellHtml() {
-  const actions = EDITOR_ACTIONS.map(({ name, shortcut }) => {
+/** Uma linha no modo guiado: `row` vem de `guidedLines` e `status` de `editorStatus`. */
+export function guidedLineHtml(line, index, { row, status, assumption, target }) {
+  const number = index + 1;
+  const formulaClasses = assumption ? "fitch__formula fitch__formula--assumption" : "fitch__formula";
+  const pending = row.role === "current" || row.role === "objective";
+  const why = pending ? t(row.role === "current" ? "guided.current" : "guided.pending") : justificationText(line);
+  const pressed = row.role === "citable" ? ` aria-pressed="${row.selected}"` : "";
+  const current = row.role === "current" ? ' aria-current="true"' : "";
+  const locked = row.role === "locked" ? " disabled" : "";
+  const tone = status.state === "error" ? "error" : "info";
+  const message = status.message
+    ? `<span class="${msgClasses(tone)} fitch-edit__error">${msgBodyHtml(tone, escapeHtml(messageText(status.message)))}</span>`
+    : "";
+  return `<li class="fitch__line fitch-pick__line" data-line="${number}" data-state="${status.state}" data-role="${row.role}">`
+    + `<button type="button" class="fitch-pick" data-pick="${number}"${pressed}${current}${locked}>`
+    + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${stateHtml(status.state)}</span>`
+    + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}`
+    + `<span class="${formulaClasses}"><span>${formulaHtml(line.formula ?? target)}</span></span></span>`
+    + `<span class="fitch__why">${escapeHtml(why)}</span></button>${message}</li>`;
+}
+
+/** O painel das regras: o objetivo, um botão por regra, a escolha entre passos e o motivo pedido. */
+export function guidedPanelHtml({ anchor, rules, choice, reason }) {
+  const heading = anchor.target
+    ? t("guided.objective", { line: anchor.line, formula: format(anchor.target) })
+    : t("guided.noObjective");
+  const labels = ruleLabels();
+  const buttons = rules.map(({ id, outcomes }) => (
+    `<button type="button" class="guided__rule" data-rule="${escapeHtml(id)}" aria-disabled="${outcomes.length === 0}">`
+    + `${escapeHtml(ruleLabel(id, labels))}</button>`
+  )).join("");
+  const options = choice
+    ? choice.outcomes.map((outcome, index) => (
+      `<button type="button" class="guided__choice" data-choice="${index}">${escapeHtml(outcomeLabel(outcome))}</button>`
+    )).join("")
+    : "";
+  const choices = choice
+    ? `<div class="guided__choices" role="group" aria-label="${escapeHtml(t("guided.choose"))}">`
+      + `<p>${escapeHtml(t("guided.choose"))}</p>${options}</div>`
+    : "";
+  return `<p class="guided__objective">${escapeHtml(heading)}</p>`
+    + `<p class="guided__hint">${escapeHtml(t("guided.hint"))}</p>`
+    + `<div class="guided__rules" role="group" aria-label="${escapeHtml(t("guided.rulesLabel"))}">${buttons}</div>`
+    + choices
+    + `<div class="guided__reason" role="status">${reason ? msgHtml("info", escapeHtml(messageText(reason))) : ""}</div>`;
+}
+
+function modesHtml(mode) {
+  const buttons = EDITOR_MODES.map((name) => (
+    `<button type="button" data-mode="${name}" aria-pressed="${name === mode}">${escapeHtml(t(`editor.modes.${name}`))}</button>`
+  )).join("");
+  return `<div class="seg" role="group" aria-label="${escapeHtml(t("editor.modesLabel"))}">${buttons}</div>`;
+}
+
+function shellHtml(mode) {
+  const guided = mode === "guided";
+  const shownActions = EDITOR_ACTIONS.filter(({ name }) => !guided || GUIDED_ACTIONS.includes(name));
+  const actions = shownActions.map(({ name, shortcut }) => {
     const keys = shortcut ? ` aria-keyshortcuts="${shortcut}"` : "";
     return `<button type="button" class="btn" data-variant="outline" data-size="sm" data-action="${name}"${keys}>`
       + `${escapeHtml(t(`editor.actions.${name}`))}</button>`;
@@ -81,12 +150,15 @@ function shellHtml() {
   const keys = PROOF_KEYS.map(({ name, label }) => (
     `<button type="button" data-symbol="${name}" aria-label="${escapeHtml(t(`sequentInput.symbols.${name}`))}">${escapeHtml(label)}</button>`
   )).join("");
-  return '<div class="fitch fitch--edit" role="group" '
+  const writing = `<div class="keys" role="group" aria-label="${escapeHtml(t("sequentInput.symbolsLabel"))}">${keys}</div>`
+    + `<p class="proof-editor__shortcuts">${escapeHtml(t("editor.shortcuts"))}</p>`;
+  return modesHtml(mode)
+    + '<div class="fitch fitch--edit" role="group" '
     + `aria-label="${escapeHtml(t("fitch.label"))}"><ol class="fitch__lines"></ol></div>`
     + '<div class="proof-editor__status" role="status"></div>'
+    + (guided ? '<div class="guided"></div>' : "")
     + `<div class="proof-editor__tools" role="group" aria-label="${escapeHtml(t("editor.toolsLabel"))}">${actions}</div>`
-    + `<div class="keys" role="group" aria-label="${escapeHtml(t("sequentInput.symbolsLabel"))}">${keys}</div>`
-    + `<p class="proof-editor__shortcuts">${escapeHtml(t("editor.shortcuts"))}</p>`;
+    + (guided ? "" : writing);
 }
 
 /** A mensagem de baixo da prova: o aviso da última operação, a prova completa ou o que ainda falta. */
@@ -105,6 +177,11 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
   let editor = null;
   let painting = false;
   let timer = null;
+  let mode = "write";
+  /** Modo guiado: o que está selecionado, a regra à espera de uma escolha e o motivo à vista. */
+  let selection = [];
+  let choice = null;
+  let reason = null;
   /** Linhas com o erro já à vista: um erro novo na linha do cursor espera por uma pausa. */
   const shown = new Set();
 
@@ -127,10 +204,48 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
     box.innerHTML = showMessage ? msgBodyHtml(invalid ? "error" : "info", escapeHtml(messageText(message))) : "";
   }
 
+  function paintFooter(status) {
+    container.querySelector(".proof-editor__status").innerHTML = statusHtml(status, editor.notice);
+    container.querySelector('[data-action="undo"]').disabled = !canUndo(editor);
+    container.querySelector('[data-action="redo"]').disabled = !canRedo(editor);
+  }
+
+  /** O botão com o foco, para o voltar a encontrar depois de redesenhar. */
+  function focusedSelector() {
+    const active = document.activeElement;
+    if (!active || !container.contains(active)) return null;
+    const name = ["pick", "rule"].find((key) => key in active.dataset);
+    return name ? `[data-${name}="${CSS.escape(active.dataset[name])}"]` : null;
+  }
+
+  function paintGuided(status) {
+    const focused = focusedSelector();
+    const anchor = guidedAnchor(editor);
+    const rows = guidedLines(editor, selection);
+    container.querySelector(".fitch__lines").innerHTML = editor.proof.lines.map((line, index) => guidedLineHtml(line, index, {
+      row: rows[index],
+      status: status.rows[index],
+      assumption: closesAssumptions(editor.proof.lines, index),
+      target: index + 1 === anchor.line ? anchor.target : null,
+    })).join("");
+    container.querySelector(".guided").innerHTML = guidedPanelHtml({
+      anchor,
+      rules: guidedRules(editor, selection, { rules, known }),
+      choice,
+      reason,
+    });
+    if (focused) container.querySelector(focused)?.focus();
+  }
+
   /** Atualiza estados e mensagens sem tocar nos campos, para não perder o foco nem o cursor do texto. */
   function refresh({ flush = false } = {}) {
     clearTimeout(timer);
     const status = editorStatus(editor, { rules, known });
+    if (mode === "guided") {
+      paintGuided(status);
+      paintFooter(status);
+      return;
+    }
     let waiting = false;
     status.rows.forEach((row, index) => {
       const line = index + 1;
@@ -141,9 +256,7 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
       paintRow(line, row, hold);
     });
     if (waiting) timer = setTimeout(() => refresh({ flush: true }), ERROR_DELAY_MS);
-    container.querySelector(".proof-editor__status").innerHTML = statusHtml(status, editor.notice);
-    container.querySelector('[data-action="undo"]').disabled = !canUndo(editor);
-    container.querySelector('[data-action="redo"]').disabled = !canRedo(editor);
+    paintFooter(status);
   }
 
   function focusCursor() {
@@ -156,6 +269,10 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
   }
 
   function paintLines() {
+    if (mode === "guided") {
+      refresh();
+      return;
+    }
     painting = true;
     container.querySelector(".fitch__lines").innerHTML = linesHtml(editor);
     painting = false;
@@ -163,10 +280,17 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
     refresh({ flush: true });
   }
 
+  function clearGuided() {
+    selection = [];
+    choice = null;
+    reason = null;
+  }
+
   /** Passa para o estado `next` e mexe só no que mudou. */
   function show(next) {
     const before = editor;
     editor = next;
+    if (next.proof !== before.proof || next.cursor !== before.cursor) clearGuided();
     if (next.goal !== before.goal) onGoalChange?.(next.goal);
     if (next.drafts === before.drafts) refresh();
     else paintLines();
@@ -194,7 +318,54 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
     refresh();
   }
 
+  function pickLine(number) {
+    const { role, item } = guidedLines(editor, selection)[number - 1];
+    if (role === "objective") {
+      show(moveCursor(editor, number));
+      return;
+    }
+    if (role !== "citable") return;
+    selection = toggleSelection(selection, item);
+    choice = null;
+    reason = null;
+    refresh();
+  }
+
+  function pickRule(id) {
+    const { outcomes, reason: refused } = guidedRules(editor, selection, { rules, known }).find((rule) => rule.id === id);
+    choice = outcomes.length > 1 ? { id, outcomes } : null;
+    reason = refused;
+    if (outcomes.length === 1) show(applyOutcome(editor, outcomes[0], ruleLabels()));
+    else refresh();
+  }
+
+  function onGuidedClick({ target }) {
+    const pick = target.closest("[data-pick]");
+    const rule = target.closest("[data-rule]");
+    const option = target.closest("[data-choice]");
+    if (pick) pickLine(Number(pick.dataset.pick));
+    else if (rule) pickRule(rule.dataset.rule);
+    else if (option) show(applyOutcome(editor, choice.outcomes[Number(option.dataset.choice)], ruleLabels()));
+  }
+
+  function setMode(name) {
+    if (name === mode) return;
+    mode = name;
+    clearGuided();
+    editor = tidyAll(editor, ruleLabels());
+    if (mode === "guided") editor = focusObjective(editor);
+    build();
+    container.querySelector(`[data-mode="${name}"]`).focus();
+  }
+
   function onKeydown(event) {
+    if (mode === "guided") {
+      const name = keyAction({ key: event.key, ctrl: event.ctrlKey || event.metaKey, shift: event.shiftKey, alt: event.altKey });
+      if (name !== "undo" && name !== "redo") return;
+      event.preventDefault();
+      show(runAction(editor, name));
+      return;
+    }
     if (!event.target.matches(".fitch-edit__field") || event.isComposing) return;
     const { editor: next, handled } = pressKey(tidied(), {
       key: event.key,
@@ -225,7 +396,10 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
   }
 
   function build() {
-    container.innerHTML = shellHtml();
+    container.innerHTML = shellHtml(mode);
+    container.querySelectorAll("[data-mode]").forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.mode));
+    });
     container.querySelectorAll("[data-action], [data-symbol]").forEach((button) => {
       // Sem isto, o campo perde o foco ao carregar no botão e o teclado do telemóvel fecha.
       button.addEventListener("pointerdown", (event) => event.preventDefault());
@@ -241,6 +415,7 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
   }
 
   container.classList.add("proof-editor");
+  container.addEventListener("click", onGuidedClick);
   container.addEventListener("input", onInput);
   container.addEventListener("keydown", onKeydown);
   container.addEventListener("focusin", onFocusin);
@@ -259,6 +434,7 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
         return;
       }
       editor = editor ? restartEditor(editor, goal) : createEditor(goal);
+      clearGuided();
       build();
       focusCursor();
     },

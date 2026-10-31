@@ -25,7 +25,7 @@ import { isPendingCode, lineStates, verifyProof } from "./verify.js";
 export const UNDO_LIMIT = 200;
 
 /** O que uma linha tem escrito, sem erros: a de uma premissa vem do sequente. */
-const blankDraft = () => ({ formula: "", justification: "", formulaError: null, justificationError: null });
+export const blankDraft = () => ({ formula: "", justification: "", formulaError: null, justificationError: null });
 
 const isBlank = ({ formula, justification }) => formula.trim() === "" && justification.trim() === "";
 
@@ -48,7 +48,7 @@ function nearestEditable(proof, line) {
 const snapshot = ({ goal, proof, drafts, cursor }) => ({ goal, proof, drafts, cursor });
 
 /** O estado seguinte, com a fotografia do atual em `past`, se a mudança se puder desfazer. */
-function commit(editor, changes, group = null) {
+export function commit(editor, changes, group = null) {
   return {
     ...editor,
     ...changes,
@@ -77,7 +77,7 @@ export const restartEditor = (editor, goal) => commit(editor, freshProof(goal));
  * Depois de uma operação de estrutura, as citações de `proof` já têm os números novos: passa-os para
  * o texto. Uma justificação com erro de escrita não foi lida, por isso fica como está.
  */
-function syncJustifications(proof, drafts) {
+export function syncJustifications(proof, drafts) {
   return drafts.map((draft, index) => {
     const line = proof.lines[index];
     if (line.kind !== "step" || draft.justificationError) return draft;
@@ -97,7 +97,7 @@ function restructure(editor, result, drafts, cursor) {
   return commit(editor, { proof: result.proof, drafts: syncJustifications(result.proof, drafts), cursor });
 }
 
-const spliced = (drafts, at, removed, ...added) => [
+export const spliced = (drafts, at, removed, ...added) => [
   ...drafts.slice(0, at), ...added, ...drafts.slice(at + removed),
 ];
 

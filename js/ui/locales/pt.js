@@ -75,6 +75,11 @@ export default {
     start: "Começar a prova",
   },
   editor: {
+    modesLabel: "Modo de edição",
+    modes: {
+      write: "Escrever",
+      guided: "Guiado",
+    },
     formulaField: "Fórmula da linha {line}",
     justificationField: "Regra e citações da linha {line}",
     formulaPlaceholder: "Fórmula",
@@ -90,6 +95,21 @@ export default {
     },
     shortcuts: "Enter avança · Ctrl+Enter abre subdedução · Shift+Enter fecha · Ctrl+Shift+Backspace apaga a linha · Ctrl+Z desfaz · Ctrl+Y refaz",
     complete: "A prova está completa e todas as linhas estão certas.",
+  },
+  guided: {
+    current: "objetivo",
+    pending: "por provar",
+    objective: "Objetivo da linha {line}: {formula}",
+    noObjective: "Esta linha não tem objetivo: o passo fica numa linha nova.",
+    hint: "Toca nas linhas a citar e depois numa regra. Uma regra a tracejado diz-te porque não serve.",
+    rulesLabel: "Regras",
+    choose: "Escolhe o passo",
+    reasons: {
+      notAllowed: "A regra {rule} não pode ser usada nesta prova.",
+      needsSelection: "Seleciona o que a regra cita: {premises}.",
+      selectionMismatch: "A seleção não encaixa no que a regra cita: {premises}.",
+      targetMismatch: "O objetivo não tem a forma que a regra dá: {conclusions}.",
+    },
   },
   sequentInput: {
     label: "Sequente",
