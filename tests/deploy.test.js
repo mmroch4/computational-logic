@@ -59,6 +59,30 @@ test("o servidor responde em / com os headers de segurança", async () => {
   assert.equal(response.headers.get("x-content-type-options"), "nosniff");
 });
 
+test("as 10 rotas abrem, cada uma com o seu idioma e o entry certo", async () => {
+  const pages = [
+    ["/", "index", "pt-PT"], ["/provar", "provar", "pt-PT"], ["/passo-a-passo", "passo-a-passo", "pt-PT"],
+    ["/aprender", "aprender", "pt-PT"], ["/exercicios", "exercicios", "pt-PT"],
+    ["/en", "index", "en"], ["/en/prove", "provar", "en"], ["/en/step-by-step", "passo-a-passo", "en"],
+    ["/en/learn", "aprender", "en"], ["/en/exercises", "exercicios", "en"],
+  ];
+  for (const [path, entry, lang] of pages) {
+    const response = await get(path);
+    assert.equal(response.status, 200, path);
+    const html = await response.text();
+    assert.ok(html.includes(`<html lang="${lang}">`), path);
+    assert.ok(html.includes(`<script type="module" src="/js/pages/${entry}.js">`), path);
+  }
+});
+
+test("um caminho que não existe, também em /en, serve a 404 com o seu entry", async () => {
+  for (const path of ["/nao-existe", "/en/nao-existe"]) {
+    const response = await get(path);
+    assert.equal(response.status, 404, path);
+    assert.ok((await response.text()).includes('<body data-page="notFound">'), path);
+  }
+});
+
 test("serve o CSS compilado, o boot.js e o vendor", async () => {
   for (const [path, type] of [["/css/app.css", /^text\/css/], ["/js/boot.js", /^text\/javascript/], ["/js/vendor/motion-mini.js", /^text\/javascript/]]) {
     const response = await get(path);

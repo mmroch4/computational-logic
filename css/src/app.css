@@ -1102,4 +1102,132 @@
       display: none;
     }
   }
+
+  /* Página ainda sem conteúdo: título, entrada e o estado vazio. */
+  .page-empty {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-block: 40px;
+  }
+
+  .page-empty__title {
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .page-empty__lead {
+    max-width: 36em;
+    color: var(--color-text-muted);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+  }
+
+  .empty-state__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .empty-state__heading {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  .empty-state__hint {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+
+  /* A 404. */
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 18px;
+    padding-block: 64px;
+  }
+
+  .not-found__f {
+    font-size: 40px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .not-found__title {
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .not-found__text {
+    max-width: 28em;
+    color: var(--color-text-muted);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .not-found__actions .btn {
+    flex: 1;
+  }
+
+  @media (min-width: 768px) {
+    .page-empty {
+      padding-block: 64px;
+    }
+
+    .page-empty__title {
+      font-size: 36px;
+    }
+
+    .not-found {
+      align-items: center;
+      padding-block: 120px;
+      text-align: center;
+    }
+
+    .not-found__f {
+      font-size: 56px;
+    }
+
+    .not-found__title {
+      font-size: 36px;
+    }
+
+    .not-found__text {
+      font-size: 17px;
+    }
+
+    .not-found__actions {
+      justify-content: center;
+    }
+
+    .not-found__actions .btn {
+      flex: none;
+    }
+  }
 }

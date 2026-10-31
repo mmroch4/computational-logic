@@ -103,7 +103,7 @@ test("em inglês os textos mudam e os créditos continuam", () => {
   assert.match(renderHeader("home"), /data-lang="en" aria-pressed="true"/);
   assert.match(renderFooter(), /Developed by Miguel Rocha · <a/);
   assert.match(renderTabBar("home"), /<span>Steps<\/span>/);
-  assert.equal(pageTitle("prove"), `Online natural deduction proof checker · ${APP_NAME}`);
+  assert.equal(pageTitle("prove"), `Natural deduction proof checker · ${APP_NAME}`);
   setLang("pt", { silent: true });
 });
 
