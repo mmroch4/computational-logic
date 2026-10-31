@@ -40,15 +40,25 @@
   <link rel="stylesheet" href="/css/app.css">
   <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
   <link rel="modulepreload" href="/js/pages/provar.js">
+  <link rel="modulepreload" href="/js/ui/examples-menu.js">
   <link rel="modulepreload" href="/js/ui/layout.js">
-  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/ui/sequent-input.js">
+  <link rel="modulepreload" href="/js/core/examples.js">
   <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/ui/menu.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
   <link rel="modulepreload" href="/js/core/routes.js">
   <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/ui/segmented.js">
   <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/core/notation.js">
+  <link rel="modulepreload" href="/js/core/sequent.js">
+  <link rel="modulepreload" href="/js/ui/message.js">
   <link rel="modulepreload" href="/js/ui/locales/pt.js">
   <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <link rel="modulepreload" href="/js/core/parser.js">
+  <link rel="modulepreload" href="/js/core/formula.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/provar.js"></script>
 </head>
@@ -56,6 +66,8 @@
   <main id="main" class="wrap page-empty">
     <h1 class="page-empty__title" data-i18n="prove.title">Provar em dedução natural</h1>
     <p class="page-empty__lead" data-i18n="prove.lead">Escreve um sequente e constrói a prova em notação de Fitch, com cada linha verificada.</p>
+    <div id="examples-menu" class="prove-examples"></div>
+    <div id="sequent-input" class="sequent-input"></div>
     <div class="empty-state">
       <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
       <h2 class="empty-state__heading" data-i18n="emptyState.heading">Ainda em construção</h2>

@@ -32,7 +32,7 @@ export const ERROR_CODES = [
 export const INPUT_LIMITS = { maxChars: 1000 };
 
 /** Símbolos por ordem de tentativa: os de dois caracteres antes de `-`. */
-const SYMBOLS = [
+export const SYMBOLS = [
   ["->", "implies"],
   ["=>", "implies"],
   ["/\\", "and"],

@@ -1159,6 +1159,199 @@
     overflow-wrap: anywhere;
   }
 
+  /* Formulários. */
+  .field__label {
+    color: var(--color-text-subtle);
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+    line-height: 16px;
+  }
+
+  /* Campo de sequente: a caixa desenha o contorno, e o textarea transparente fica por cima do espelho. */
+  .field-box {
+    position: relative;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg);
+    box-shadow: inset 0 0 0 1px var(--color-border-strong);
+    transition: box-shadow var(--dur-fast) var(--ease);
+  }
+
+  .field-box:focus-within {
+    box-shadow: inset 0 0 0 1.5px var(--color-ink), 0 0 0 4px rgb(24 24 27 / 0.08);
+  }
+
+  .field-box:has([aria-invalid="true"]) {
+    box-shadow: inset 0 0 0 1.5px var(--color-ev-conflict);
+  }
+
+  .field-box:has([aria-invalid="true"]):focus-within {
+    box-shadow: inset 0 0 0 1.5px var(--color-ev-conflict), 0 0 0 4px rgb(185 28 28 / 0.08);
+  }
+
+  .field-box textarea,
+  .field-mirror {
+    padding: 12px 14px;
+    font-family: var(--font-mono);
+    font-size: 16px; /* 16px: evita o zoom automático do iOS */
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+
+  .field-box textarea {
+    position: relative;
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    color: var(--color-text);
+    resize: none;
+  }
+
+  .field-box textarea::placeholder {
+    color: var(--color-text-subtle);
+  }
+
+  .field-box textarea:focus-visible {
+    outline: none;
+  }
+
+  .field-mirror {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    color: transparent;
+    pointer-events: none;
+  }
+
+  .field-mirror mark {
+    background: var(--color-ev-conflict-soft);
+    color: transparent;
+    text-decoration: underline wavy var(--color-ev-conflict);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+  }
+
+  .sequent-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* O campo montado, para o conteúdo não saltar; ao subir com o teclado, fica abaixo do cabeçalho. */
+    min-height: 212px;
+    scroll-margin-top: calc(var(--header-height) + 12px);
+  }
+
+  .sequent-input__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 44px;
+  }
+
+  .sequent-input__convert {
+    min-height: 44px;
+    padding-inline: 4px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .sequent-input__convert[hidden] {
+    display: none;
+  }
+
+  .sequent-input__convert:hover {
+    color: var(--color-text);
+  }
+
+  /* Teclas: a 390px, 5 por linha para terem 44px, com o ⊢ a ocupar duas. */
+  .keys {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .keys button {
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 17px;
+    touch-action: manipulation; /* dois toques seguidos são dois símbolos, e não zoom */
+    transition: background-color var(--dur-fast) var(--ease);
+  }
+
+  /* Só com rato: num ecrã tátil, o hover ficava preso na última tecla. */
+  @media (hover: hover) {
+    .keys button:hover {
+      background: var(--color-border);
+    }
+  }
+
+  .keys [data-symbol="turnstile"] {
+    grid-column: span 2;
+  }
+
+  .preview {
+    max-height: 10rem;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    color: var(--color-text-2);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    white-space: pre-wrap;
+  }
+
+  .preview[hidden] {
+    display: none;
+  }
+
+  .prove-examples {
+    min-height: 44px;
+  }
+
+  .examples-menu > button {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    min-height: 52px;
+    padding-block: 6px;
+    flex: none;
+  }
+
+  .examples-menu code {
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 768px) {
+    .sequent-input {
+      max-width: 40rem;
+      min-height: 172px;
+    }
+
+    .keys {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .keys button {
+      width: 44px;
+    }
+
+    .examples-menu {
+      width: 22rem;
+    }
+  }
+
   /* A 404. */
   .not-found {
     display: flex;

@@ -15,8 +15,11 @@ const PAGES = [
   "/en", "/en/prove", "/en/step-by-step", "/en/learn", "/en/exercises",
 ];
 // Botões que abrem um menu ou folha, por página (seletor do que recebe o foco e o Enter):
-// { path, opener, mobileOnly? }. Ainda vazio: quem criar um menu acrescenta-o aqui.
-const MENUS = [];
+// { path, opener, mobileOnly? }. Quem criar um menu acrescenta-o aqui.
+const MENUS = [
+  { path: "/provar", opener: "#examples-menu summary" },
+  { path: "/en/prove", opener: "#examples-menu summary" },
+];
 const VIEWPORTS = [{ width: 1280, height: 900, mobile: false }, { width: 390, height: 844, mobile: true }];
 const MAX_TABS = 400;
 
@@ -95,7 +98,8 @@ const FOCUS_STATE = `(() => {
   const r = el.getBoundingClientRect();
   const focusVisible = el.matches(":focus-visible");
   const seen = (s) => (s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== "none";
-  const indicator = seen(getComputedStyle(el));
+  // No campo de sequente, o indicador é o contorno da caixa à volta do textarea.
+  const indicator = seen(getComputedStyle(el.closest(".field-box") ?? el));
   const clipped = el.closest("[data-sheet-open], .sheet") === null && (r.bottom <= 0 || r.top >= innerHeight);
   return { label, focusVisible, indicator, clipped, empty: r.width === 0 || r.height === 0 };
 })()`;
