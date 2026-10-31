@@ -130,7 +130,7 @@ Campo de sequente com teclas para símbolos, exemplos, conversão de notação e
 linha. Só leitura, com testes de snapshot.
 **Feito quando:** subdeduções com 4 níveis cabem a 390px com scroll próprio.
 
-### [ ] D3 · Modo de escrita
+### [x] D3 · Modo de escrita
 Edição linha a linha com verificação imediata, abrir e fechar subdedução, teclas de atalho, desfazer e
 erro por linha, numa só frase e sem jargão.
 **Feito quando:** uma prova com subdeduções é feita só com o teclado, em teste.
