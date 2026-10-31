@@ -88,6 +88,16 @@ export function loadProof(editor, proof, ruleLabels = {}) {
   return commit(editor, { proof: filled, drafts, cursor: { line: filled.lines.length, field: "formula" } });
 }
 
+/** Abre o editor já com `proof`, a de um link: não há nada de anterior para desfazer. */
+export function openProof(goal, proof, ruleLabels = {}) {
+  return { ...loadProof(createEditor(goal), proof, ruleLabels), past: [] };
+}
+
+/** Indica se há texto que não se conseguiu ler e que, por isso, não está em `proof`. */
+export const hasUnreadText = ({ drafts }) => drafts.some(({ formulaError, justificationError }) => (
+  formulaError !== null || justificationError !== null
+));
+
 /**
  * Depois de uma operação de estrutura, as citações de `proof` já têm os números novos: passa-os para
  * o texto. Uma justificação com erro de escrita não foi lida, por isso fica como está.

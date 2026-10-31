@@ -1706,6 +1706,83 @@
     display: none;
   }
 
+  /* Partilhar e exportar a prova. */
+  .proof-share {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    margin-top: 12px;
+  }
+
+  .proof-share:empty,
+  .proof-share__status:empty,
+  .share-error:empty {
+    display: none;
+  }
+
+  .proof-share__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .proof-share__actions .btn {
+    min-height: 44px;
+  }
+
+  /* A folha de impressão só existe entre o beforeprint e o afterprint. */
+  .print-sheet {
+    display: none;
+  }
+
+  @media print {
+    @page {
+      margin: 16mm 14mm;
+    }
+
+    body.is-printing {
+      padding: 0;
+      background: #fff;
+    }
+
+    body.is-printing > :not(.print-sheet, .ftr),
+    body.is-printing .ftr nav,
+    body.is-printing .ftr-repo {
+      display: none !important;
+    }
+
+    .print-sheet {
+      display: block;
+      color: #000;
+    }
+
+    .print-sheet__app {
+      color: var(--color-text-muted);
+      font-size: 14px;
+    }
+
+    .print-sheet__title {
+      font-size: 1.375rem;
+      font-weight: var(--weight-semibold);
+    }
+
+    .print-sheet__sequent {
+      margin-block: 8px 20px;
+      font-family: var(--font-mono);
+    }
+
+    /* A prova inteira, sem scroll nem caixa. */
+    .print-sheet .fitch {
+      overflow: visible;
+      border: 0;
+    }
+
+    .print-sheet .fitch__line {
+      break-inside: avoid;
+    }
+  }
+
   /* Ajuda com a prova: dicas, solução e contraexemplo. */
   .assist {
     display: flex;

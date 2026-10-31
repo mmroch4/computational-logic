@@ -4,8 +4,8 @@
 //
 // As funções exportadas à parte são puras (testáveis em node); só mountProofEditor() mexe no DOM.
 import {
-  canRedo, canUndo, createEditor, editorStatus, keyAction, loadProof, moveCursor, pressKey, restartEditor, runAction,
-  setText, tidyAll, tidyField,
+  canRedo, canUndo, createEditor, editorStatus, hasUnreadText, keyAction, loadProof, moveCursor, openProof, pressKey,
+  restartEditor, runAction, setText, tidyAll, tidyField,
 } from "../core/editor.js";
 import { format } from "../core/formula.js";
 import {
@@ -172,7 +172,8 @@ export function statusHtml(status, notice) {
  * Monta o editor em `container`. Só aparece com `start(goal)`.
  * `onGoalChange(goal)`: ao desfazer ou refazer, o sequente da prova mudou.
  * `onProofChange()`: a prova mudou, por isso o que se disse sobre ela deixou de valer.
- * Devolve { start(goal), getProof(), getGoal(), getRules(), highlightLine(line), useProof(proof) }.
+ * Devolve { start(goal), open(goal, proof), getProof(), getGoal(), getRules(), hasUnreadText(), highlightLine(line),
+ * useProof(proof) }.
  */
 export function mountProofEditor(container, { onGoalChange, onProofChange, rules = ruleSet("completo"), known = RULES } = {}) {
   let editor = null;
@@ -455,9 +456,16 @@ export function mountProofEditor(container, { onGoalChange, onProofChange, rules
       build();
       focusCursor();
     },
+    /** Abre a prova de um link. Sem foco: ao abrir a página, o teclado do telemóvel não deve saltar. */
+    open(goal, proof) {
+      editor = openProof(goal, proof, ruleLabels());
+      clearGuided();
+      build();
+    },
     getProof: () => editor?.proof ?? null,
     getGoal: () => editor?.goal ?? null,
     getRules: () => ({ rules, known }),
+    hasUnreadText: () => editor !== null && hasUnreadText(editor),
     highlightLine(line) {
       highlighted = line;
       paintHighlight();

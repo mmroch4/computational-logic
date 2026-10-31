@@ -7,7 +7,7 @@
 //   history  → [{ sequent, savedAt }], mais recente primeiro, máx. 20, sem sequentes repetidos
 //   progress → { [idDoExercício]: { ...estado livre definido pela página Exercícios } }
 //   step     → query string do Passo a passo (sequente, passo e vista), para voltar a ela
-//   prove    → query string do último sequente aberto em Provar
+//   prove    → query string da última prova aberta em Provar
 
 export const STORAGE_PREFIX = "nd:v1:";
 export const HISTORY_MAX = 20;

@@ -167,6 +167,8 @@ export default {
   },
   examples: {
     toggle: "Exemplos",
+    history: "Abertos há pouco",
+    clearHistory: "Limpar o histórico",
     groups: {
       direct: "Sem subdedução",
       subproofs: "Com subdedução",
@@ -183,6 +185,34 @@ export default {
       excludedMiddle: "Terceiro excluído",
       converse: "Afirmar o consequente",
     },
+  },
+  share: {
+    label: "Partilhar e exportar a prova",
+    copyLink: "Copiar link",
+    copyLatex: "Copiar LaTeX",
+    downloadTex: "Descarregar .tex",
+    print: "Imprimir ou guardar PDF",
+    linkCopied: "Link copiado.",
+    linkCopiedUnread: "Link copiado, mas as linhas com erro de escrita vão sem o texto que não se leu.",
+    linkFailed: "Não consegui copiar o link. Copia-o da barra de endereço.",
+    tooLong: "Esta prova é demasiado longa para caber num link. Descarrega o .tex para a guardares.",
+    latexCopied: "LaTeX copiado.",
+    latexFailed: "Não consegui copiar o LaTeX. Descarrega o ficheiro .tex.",
+    printTitle: "Prova em dedução natural",
+    errors: {
+      heading: "Este link não abriu.",
+      tooLong: "É demasiado longo para ser um link deste site.",
+      missingSequent: "Falta-lhe o sequente, por isso deve ter ficado cortado.",
+      badSequent: "O sequente que traz não se lê. O erro está assinalado no campo.",
+      unknownVersion: "Foi criado numa versão diferente do site ({version}).",
+      badProof: "A prova que traz está cortada ou foi alterada. Podes partir do sequente que ficou no campo.",
+      badLine: "A linha {line} da prova que traz não se lê. Podes partir do sequente que ficou no campo.",
+    },
+  },
+  latex: {
+    babel: "portuguese",
+    title: "Prova em dedução natural",
+    generatedBy: "Gerado por {app}",
   },
   step: {
     title: "Dedução natural passo a passo",
