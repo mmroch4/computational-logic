@@ -7,8 +7,7 @@ import { ruleLabel } from "../core/rules.js";
 import { LOCALES, getLang, onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
 
-/** Erros que querem dizer «falta acabar a linha», e não «a linha está errada». */
-const PENDING_CODES = ["emptyFormula", "missingRule", "emptyCitation"];
+export { lineStates } from "../core/verify.js";
 
 const svg = (path) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${path}</svg>`;
 
@@ -17,16 +16,6 @@ const STATE_ICONS = {
   error: svg('<path d="M12 4 2.5 20h19z"/><path d="M12 10v5M12 17.5v.01"/>'),
   pending: svg('<circle cx="12" cy="12" r="8"/>'),
 };
-
-/** Estado de cada linha ("ok", "error" ou "pending") a partir do resultado de `verifyProof`. */
-export function lineStates(proof, { lineErrors, extraPremises }) {
-  const states = proof.lines.map(() => "ok");
-  for (const { code, params } of lineErrors) {
-    states[params.line - 1] = PENDING_CODES.includes(code) ? "pending" : "error";
-  }
-  for (const line of extraPremises) states[line - 1] = "error";
-  return states;
-}
 
 const citationText = (citation) => (
   citation.kind === "line" ? String(citation.line) : `${citation.from}–${citation.to}`
@@ -53,7 +42,7 @@ export function formulaHtml(formula) {
   });
 }
 
-function barsHtml({ kind, depth }) {
+export function barsHtml({ kind, depth }) {
   const bars = Array.from({ length: depth + 1 }, (_, index) => {
     const opens = kind === "hypothesis" && index === depth;
     return `<span class="${opens ? "fitch__bar fitch__bar--open" : "fitch__bar"}"></span>`;
@@ -61,19 +50,29 @@ function barsHtml({ kind, depth }) {
   return `<span class="fitch__bars" aria-hidden="true">${bars.join("")}</span>`;
 }
 
-function lineHtml(line, index, { state, closesAssumptions }) {
+/** O ícone do estado, com o texto para leitores de ecrã. */
+export const stateHtml = (state) => (
+  `<span class="fitch__state">${STATE_ICONS[state]}<span class="sr-only">${escapeHtml(t(`fitch.states.${state}`))}</span></span>`
+);
+
+/** O texto do nível da subdedução, para leitores de ecrã. */
+export const depthHtml = ({ depth }) => (
+  depth > 0 ? `<span class="sr-only">${escapeHtml(t("fitch.depth", { depth }))}</span>` : ""
+);
+
+/** Se a linha leva o traço horizontal por baixo: cada hipótese e a última premissa. */
+export const closesAssumptions = (lines, index) => (
+  lines[index].kind === "hypothesis" || (lines[index].kind === "premise" && lines[index + 1]?.kind !== "premise")
+);
+
+/** Uma linha só de leitura; o editor usa-a nas premissas. */
+export function lineHtml(line, index, { state, assumption }) {
   const number = index + 1;
-  const formulaClasses = closesAssumptions ? "fitch__formula fitch__formula--assumption" : "fitch__formula";
-  const depth = line.depth > 0
-    ? `<span class="sr-only">${escapeHtml(t("fitch.depth", { depth: line.depth }))}</span>`
-    : "";
-  const stateHtml = state
-    ? `<span class="fitch__state">${STATE_ICONS[state]}<span class="sr-only">${escapeHtml(t(`fitch.states.${state}`))}</span></span>`
-    : "";
+  const formulaClasses = assumption ? "fitch__formula fitch__formula--assumption" : "fitch__formula";
   const attrs = state ? ` data-state="${state}"` : "";
   return `<li class="fitch__line" data-line="${number}"${attrs}>`
-    + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${stateHtml}</span>`
-    + `<span class="fitch__body">${barsHtml(line)}${depth}<span class="${formulaClasses}"><span>${formulaHtml(line.formula)}</span></span></span>`
+    + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${state ? stateHtml(state) : ""}</span>`
+    + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}<span class="${formulaClasses}"><span>${formulaHtml(line.formula)}</span></span></span>`
     + `<span class="fitch__why">${escapeHtml(justificationText(line))}</span>`
     + "</li>";
 }
@@ -87,7 +86,7 @@ export function fitchHtml(proof, { states = null } = {}) {
   if (lines.length === 0) return `<p class="fitch-empty">${escapeHtml(t("verify.conclusion.emptyProof"))}</p>`;
   const items = lines.map((line, index) => lineHtml(line, index, {
     state: states?.[index] ?? null,
-    closesAssumptions: line.kind === "hypothesis" || (line.kind === "premise" && lines[index + 1]?.kind !== "premise"),
+    assumption: closesAssumptions(lines, index),
   }));
   // tabindex: quem usa só o teclado também tem de conseguir deslocar uma prova larga.
   return `<div class="fitch" tabindex="0" role="group" aria-label="${escapeHtml(t("fitch.label"))}">`

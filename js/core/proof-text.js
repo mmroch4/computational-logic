@@ -108,22 +108,52 @@ function ruleStart(head, hasCitations) {
   return reads(head) ? head.length : start;
 }
 
+/** A citação escrita em `token`, ou null. */
+function readCitation(token) {
+  const [, first, second] = CITATION_RE.exec(token) ?? [];
+  const from = Number(first);
+  const to = second === undefined ? from : Number(second);
+  if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from < 1 || from > to) return null;
+  return second === undefined ? citeLine(from) : citeRange(from, to);
+}
+
 /** Lê as citações depois da vírgula; `offset` é a posição de `text` na linha. */
 function parseCitations(text, offset, fail) {
   const citations = [];
   let position = offset;
   for (const part of text.split(",")) {
     const token = part.trim();
-    const [, first, second] = CITATION_RE.exec(token) ?? [];
-    const from = Number(first);
-    const to = second === undefined ? from : Number(second);
-    if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from < 1 || from > to) {
-      return { failed: fail("badCitation", position, position + part.length, { token }) };
-    }
-    citations.push(second === undefined ? citeLine(from) : citeRange(from, to));
+    const citation = readCitation(token);
+    if (!citation) return { failed: fail("badCitation", position, position + part.length, { token }) };
+    citations.push(citation);
     position += part.length + 1;
   }
   return { citations };
+}
+
+/**
+ * Lê só a justificação da linha `line`, como no campo do editor: a regra e as citações, separadas por
+ * vírgulas ou espaços. Vazia, não tem regra.
+ * → { ok: true, rule, citations } | { ok: false, error: { code, params } }
+ */
+export function parseJustification(text, line) {
+  const written = text.trim();
+  if (written === "") return { ok: true, rule: null, citations: [] };
+  const [ruleText] = /^[^\s,]*/.exec(written);
+  if (ruleText === "" || /^\d/.test(ruleText)) {
+    return { ok: false, error: { code: "missingRuleName", params: { line } } };
+  }
+  const tokens = written.slice(ruleText.length)
+    .replace(/(\d)\s*[-–—]\s*(?=\d)/g, "$1–")
+    .split(/[\s,]+/)
+    .filter(Boolean);
+  const citations = [];
+  for (const token of tokens) {
+    const citation = readCitation(token);
+    if (!citation) return { ok: false, error: { code: "badCitation", params: { line, token } } };
+    citations.push(citation);
+  }
+  return { ok: true, rule: ruleId(ruleText), citations };
 }
 
 /** Lê a linha de número `number`; as posições dos erros somam `lineStart`. */
@@ -208,9 +238,14 @@ const citationText = (citation) => (
   citation.kind === "line" ? String(citation.line) : `${citation.from}–${citation.to}`
 );
 
+/** A justificação de um passo, como se imprime: `→E, 2, 1`. */
+export function formatJustification(rule, citations, ruleLabels = {}) {
+  return [rule ? ruleLabel(rule, ruleLabels) : "", ...citations.map(citationText)].join(", ");
+}
+
 function justification({ kind, rule, citations }, labels, ruleLabels) {
   if (kind !== "step") return labels[kind];
-  return [rule ? ruleLabel(rule, ruleLabels) : "", ...citations.map(citationText)].join(", ");
+  return formatJustification(rule, citations, ruleLabels);
 }
 
 /**

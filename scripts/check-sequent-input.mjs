@@ -82,7 +82,11 @@ const expect = (actual, wanted, what) => {
 
 async function scenario({ evaluate, tap, type, page }, origin) {
   await page("Page.navigate", { url: `${origin}/provar` });
-  await sleep(1000);
+  // Os testes correm em paralelo: com carga, uma espera fixa chega antes de a página estar montada.
+  for (let tries = 0; tries < 400 && !(await evaluate(`document.querySelector("${FIELD}") !== null`).catch(() => false)); tries += 1) {
+    await sleep(50);
+  }
+  await sleep(100);
 
   const screenshot = async (name) => {
     const { data } = await page("Page.captureScreenshot", { format: "png" });

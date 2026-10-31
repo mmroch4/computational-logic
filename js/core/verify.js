@@ -39,6 +39,22 @@ export const VERIFY_ERROR_CODES = [
   "formulaMismatch", // { rule }: a regra aplica-se, mas não dá a fórmula desta linha
 ];
 
+/** Erros que querem dizer «falta acabar a linha», e não «a linha está errada». */
+const PENDING_CODES = ["emptyFormula", "missingRule", "emptyCitation"];
+
+/** Se o erro `code` só diz que a linha está por acabar. */
+export const isPendingCode = (code) => PENDING_CODES.includes(code);
+
+/** Estado de cada linha ("ok", "error" ou "pending") a partir do resultado de `verifyProof`. */
+export function lineStates(proof, { lineErrors, extraPremises }) {
+  const states = proof.lines.map(() => "ok");
+  for (const { code, params } of lineErrors) {
+    states[params.line - 1] = isPendingCode(code) ? "pending" : "error";
+  }
+  for (const line of extraPremises) states[line - 1] = "error";
+  return states;
+}
+
 /** Porque é que a prova não chega à conclusão pedida. */
 export const CONCLUSION_ERROR_CODES = [
   "emptyProof", // a prova não tem linhas

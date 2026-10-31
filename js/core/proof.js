@@ -228,6 +228,20 @@ export function insertLine(proof, after, line) {
 }
 
 /**
+ * Muda o conteúdo da linha n: `formula`, `rule` e `citations`, os que vierem em `changes`. O tipo e a
+ * profundidade não mudam, por isso nenhuma outra linha é afetada. Perde-se a estratégia que a linha
+ * trazia de uma prova gerada, porque deixa de a descrever.
+ */
+export function editLine(proof, n, changes) {
+  if (!isLine(proof, n)) return failure("noSuchLine", n);
+  const { kind, depth, formula, rule, citations } = proof.lines[n - 1];
+  const edited = { formula, rule, citations, ...changes, kind, depth };
+  if (!isWellFormed(edited)) return failure("invalidLine", n);
+  const lines = proof.lines.with(n - 1, freezeLine(edited));
+  return { ok: true, proof: Object.freeze({ lines: Object.freeze(lines) }) };
+}
+
+/**
  * Apaga a linha n. Apagar uma hipótese apaga a subdedução inteira, porque as linhas dela dependiam
  * dessa hipótese.
  */

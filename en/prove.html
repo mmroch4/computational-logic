@@ -41,9 +41,13 @@
   <link rel="stylesheet" href="/css/app.css">
   <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
   <link rel="modulepreload" href="/js/pages/provar.js">
+  <link rel="modulepreload" href="/js/core/sequent.js">
   <link rel="modulepreload" href="/js/ui/examples-menu.js">
   <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/proof-editor.js">
   <link rel="modulepreload" href="/js/ui/sequent-input.js">
+  <link rel="modulepreload" href="/js/core/formula.js">
+  <link rel="modulepreload" href="/js/core/parser.js">
   <link rel="modulepreload" href="/js/core/examples.js">
   <link rel="modulepreload" href="/js/ui/i18n.js">
   <link rel="modulepreload" href="/js/ui/menu.js">
@@ -52,14 +56,18 @@
   <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/ui/segmented.js">
   <link rel="modulepreload" href="/js/ui/analytics.js">
-  <link rel="modulepreload" href="/js/core/notation.js">
-  <link rel="modulepreload" href="/js/core/sequent.js">
+  <link rel="modulepreload" href="/js/core/editor.js">
+  <link rel="modulepreload" href="/js/core/rules.js">
+  <link rel="modulepreload" href="/js/ui/fitch-view.js">
   <link rel="modulepreload" href="/js/ui/message.js">
+  <link rel="modulepreload" href="/js/core/notation.js">
   <link rel="modulepreload" href="/js/ui/locales/pt.js">
   <link rel="modulepreload" href="/js/ui/locales/en.js">
   <link rel="modulepreload" href="/js/ui/sheet.js">
-  <link rel="modulepreload" href="/js/core/parser.js">
-  <link rel="modulepreload" href="/js/core/formula.js">
+  <link rel="modulepreload" href="/js/core/proof.js">
+  <link rel="modulepreload" href="/js/core/proof-text.js">
+  <link rel="modulepreload" href="/js/core/verify.js">
+  <link rel="modulepreload" href="/js/core/schema.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/provar.js"></script>
 </head>
@@ -69,11 +77,15 @@
     <p class="page-empty__lead" data-i18n="prove.lead">Enter a sequent and build the proof in Fitch notation, with every line checked.</p>
     <div id="examples-menu" class="prove-examples"></div>
     <div id="sequent-input" class="sequent-input"></div>
-    <div class="empty-state">
-      <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-      <h2 class="empty-state__heading" data-i18n="emptyState.heading">Still under construction</h2>
-      <p class="empty-state__hint" data-i18n="prove.empty">The proof editor is not available on this page yet.</p>
+    <button type="button" id="start-proof" class="btn prove-start" data-i18n="prove.start">Start the proof</button>
+    <div id="proof-empty">
+      <div class="empty-state">
+        <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        <h2 class="empty-state__heading" data-i18n="prove.emptyHeading">No proof yet</h2>
+        <p class="empty-state__hint" data-i18n="prove.empty">Enter a sequent and press Enter to open the proof.</p>
+      </div>
     </div>
+    <div id="proof-editor"></div>
   </main>
   <!-- footer (gerado por scripts/build-pages.mjs) -->
   <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Developed by Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Source on GitHub</a><a class="ftr-repo" href="/provar" hreflang="pt" lang="pt" data-lang="pt">Português</a></div><nav aria-label="Pages"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/en">Home</a></li><li><a href="/en/prove">Prove</a></li><li><a href="/en/step-by-step">Step by step</a></li><li><a href="/en/learn">Learn</a></li><li><a href="/en/exercises">Exercises</a></li></ul></nav></div></footer>
