@@ -98,7 +98,7 @@ Antes do solver e da interface, vê se o verificador se comporta como esperas: `
 ∨E, RA, encadeamento para a frente), com limite de passos. Devolve uma prova do formato de B4.
 **Feito quando:** encontra prova para 40 sequentes válidos clássicos, todas aceites por `verifyProof`.
 
-### [ ] C2 · Conjuntos de regras e casos sem prova
+### [x] C2 · Conjuntos de regras e casos sem prova
 O solver respeita o conjunto ativo. Distingue «sem prova com estas regras» de «limite atingido»,
 sem nunca afirmar o primeiro sem o provar. Inclui `¬¬p ⊢ p` sem ¬E, RA e TE.
 **Feito quando:** há testes para os dois casos, sem mensagens enganadoras.
