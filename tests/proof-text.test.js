@@ -130,6 +130,7 @@ for (const [name, sequent, text] of CORRECT) {
       extraPremises: [],
       lineErrors: [],
       conclusionError: null,
+      usesUserRules: false,
     });
     assert.equal(checkSequent(goal(sequent)).valid, true);
   });

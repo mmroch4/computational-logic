@@ -160,6 +160,20 @@ export default {
       SD: "DS",
     },
   },
+  userRules: {
+    mark: "Proof with your own rules",
+    errors: {
+      malformed: "This rule is malformed.",
+      invalidName: "The rule name is a single word: it starts with a letter and may have letters, digits, _ and -.",
+      nameTooLong: "The rule name has at most {max} characters.",
+      reservedName: "The name “{name}” is reserved, so pick another one.",
+      duplicateName: "You already have a rule called “{name}”.",
+      tooManyPremises: "The rule has {count} premises, and the maximum is {max}.",
+      schemaTooLarge: "This schema has {size} symbols, and the maximum is {max}.",
+      tooManyRules: "You can only have up to {max} rules of your own.",
+      unsound: "The rule is not sound: there is a valuation where the premises are true and the conclusion is false.",
+    },
+  },
   proofText: {
     premise: "premise",
     hypothesis: "hypothesis",

@@ -66,7 +66,7 @@ const RULE_SYMBOL_RE = /^(->|=>|\/\\|&|\^|\\\/|\||v|⊥)(?=[IE]$)/;
 const RULE_NEGATION_RE = /^[~!-]+(?=[IE]$)/;
 
 /** Siglas EN que diferem do id, para uma prova se ler da mesma forma nos dois idiomas. */
-const RULE_ALIASES = new Map([
+export const RULE_ALIASES = new Map([
   ["RAA", "RA"],
   ["LEM", "TE"],
   ["HS", "SH"],
@@ -86,6 +86,11 @@ function ruleId(written) {
   return written
     .replace(RULE_SYMBOL_RE, (symbol) => RULE_SYMBOLS.get(symbol))
     .replace(RULE_NEGATION_RE, (symbols) => "¬".repeat(symbols.length));
+}
+
+/** Indica se `name`, escrito como regra, não seria lido como uma regra com esse mesmo nome. */
+export function isReservedRuleWord(name) {
+  return LINE_KINDS.has(name.toLowerCase()) || ruleId(name) !== name;
 }
 
 /**

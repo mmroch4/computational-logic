@@ -6,9 +6,10 @@
 //     tudo o que existe: uma regra de `known` fora de `rules` dá `ruleNotAllowed`. Quem usa um conjunto
 //     passa `known` (`RULES` e as regras do utilizador), senão a regra proibida dá `unknownRule`.
 //   verifyProof(proof, goal, rules = BASE_RULES, known = rules)
-//     → { ok, concludes, extraPremises, lineErrors, conclusionError }
+//     → { ok, concludes, extraPremises, lineErrors, conclusionError, usesUserRules }
 //     ok: a prova inteira demonstra o sequente `goal`. É o único veredicto: os outros campos dizem
 //     o que falta. `concludes` olha só para a última linha, sem garantir que ela foi bem derivada.
+//     usesUserRules: alguma linha cita uma regra do utilizador (`user: true` em `known`).
 // As mensagens estão em `verify.errors.*`, `verify.conclusion.*` e `verify.extraPremise`.
 // Convenções de citação: linhas exteriores acessíveis citam-se sem R, a ordem é livre e uma subdedução
 // cita-se como intervalo, mesmo com uma só linha (`2–2`).
@@ -187,11 +188,13 @@ export function verifyProof(proof, goal, rules = BASE_RULES, known = rules) {
     if (isExtra) extraPremises.push(index + 1);
   });
   const conclusionError = findConclusionError(lines, goal);
+  const userIds = new Set(known.filter(({ user }) => user).map(({ id }) => id));
   return {
     ok: lineErrors.length === 0 && conclusionError === null && extraPremises.length === 0,
     concludes: conclusionError === null,
     extraPremises,
     lineErrors,
     conclusionError,
+    usesUserRules: lines.some(({ kind, rule }) => kind === "step" && userIds.has(rule)),
   };
 }

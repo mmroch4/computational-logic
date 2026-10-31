@@ -161,6 +161,20 @@ export default {
       SD: "SD",
     },
   },
+  userRules: {
+    mark: "Prova com regras próprias",
+    errors: {
+      malformed: "Esta regra está mal formada.",
+      invalidName: "O nome da regra é uma só palavra: começa por uma letra e pode ter letras, dígitos, _ e -.",
+      nameTooLong: "O nome da regra tem no máximo {max} caracteres.",
+      reservedName: "O nome «{name}» já está reservado, por isso escolhe outro.",
+      duplicateName: "Já tens uma regra chamada «{name}».",
+      tooManyPremises: "A regra tem {count} premissas, e o máximo é {max}.",
+      schemaTooLarge: "Este esquema tem {size} símbolos, e o máximo é {max}.",
+      tooManyRules: "Só podes ter até {max} regras próprias.",
+      unsound: "A regra não é sólida: há uma valoração em que as premissas são verdadeiras e a conclusão é falsa.",
+    },
+  },
   proofText: {
     premise: "premissa",
     hypothesis: "hipótese",
