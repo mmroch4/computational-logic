@@ -1310,6 +1310,132 @@
     display: none;
   }
 
+  /* Vista de Fitch. O scroll horizontal é só deste bloco. As linhas partilham as colunas por subgrid,
+     para as justificações ficarem alinhadas, e as barras de linhas seguidas tocam-se. */
+  .fitch {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+  }
+
+  .fitch__lines {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.25;
+  }
+
+  .fitch__line {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    min-height: 36px;
+    background: var(--color-bg);
+  }
+
+  .fitch__line[data-state="error"] {
+    background: var(--color-ev-conflict-soft);
+  }
+
+  .fitch__gutter {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    padding-inline: 8px 6px;
+    background: inherit;
+  }
+
+  .fitch__number {
+    min-width: 2ch;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    text-align: right;
+  }
+
+  .fitch__state {
+    display: flex;
+  }
+
+  .fitch__state .ic {
+    width: 16px;
+    height: 16px;
+  }
+
+  .fitch__line[data-state="ok"] .fitch__state {
+    color: var(--color-ev-ok);
+  }
+
+  .fitch__line[data-state="error"] .fitch__state {
+    color: var(--color-ev-conflict);
+  }
+
+  .fitch__line[data-state="pending"] .fitch__state {
+    color: var(--color-text-muted);
+  }
+
+  .fitch__body {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .fitch__bars {
+    display: flex;
+    flex: none;
+  }
+
+  .fitch__bar {
+    width: 10px;
+    border-left: 1.5px solid var(--color-text-muted);
+  }
+
+  /* Duas subdeduções seguidas, como no ∨E, não podem parecer uma só. */
+  .fitch__bar--open {
+    margin-top: 5px;
+  }
+
+  .fitch__formula {
+    display: flex;
+    align-items: center;
+    padding-inline: 2px 6px;
+    color: var(--color-text);
+    white-space: pre;
+  }
+
+  .fitch__formula sub {
+    font-size: 0.75em;
+    line-height: 0;
+  }
+
+  .fitch__formula--assumption {
+    box-shadow: inset 0 -1.5px 0 var(--color-text-muted);
+  }
+
+  .fitch__why {
+    display: flex;
+    align-items: center;
+    padding-inline: 10px 10px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    white-space: pre;
+  }
+
+  .fitch-empty {
+    color: var(--color-text-muted);
+  }
+
   .prove-examples {
     min-height: 44px;
   }

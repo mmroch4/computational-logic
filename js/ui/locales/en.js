@@ -274,6 +274,15 @@ export default {
       unsound: "The rule is not sound: there is a valuation where the premises are true and the conclusion is false.",
     },
   },
+  fitch: {
+    label: "Proof in Fitch notation",
+    depth: "Subproof at level {depth}.",
+    states: {
+      ok: "Correct line.",
+      error: "Line with an error.",
+      pending: "Unfinished line.",
+    },
+  },
   proofText: {
     premise: "premise",
     hypothesis: "hypothesis",

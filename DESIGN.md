@@ -158,5 +158,6 @@ campos; o tema (`css/src/basecoat-vega.css`) é uma parte do original, com esses
 | Botão | `.btn` + `data-variant`, `data-size` | Primário a tinta; `secondary`, `outline`, `ghost`. Alturas 32/40/48px; 44px no mobile. |
 | Segmented | `.seg`, `.seg.sm` | Fundo `surface-2`, opção ativa em branco com sombra; setas movem a seleção. |
 | Mensagem | `.msg`, `.msg-info`… | Ícone + texto com veredito a negrito. |
+| Vista de Fitch | `.fitch` | Número e estado presos à esquerda, barras de escopo, fórmula em mono e justificação. Estados: certa (`ev-ok`, visto), erro (`ev-conflict`, triângulo e fundo suave), por acabar (`text-muted`, círculo). Scroll horizontal só dentro do bloco. |
 | Menu | `details.dd`, `.dd-panel`, `.menu` | Dropdown a partir de 768px; folha no mobile. |
 | Folha | `dialog.sheet` | Scrim a 40%, raio 20 em cima, pega, itens de 52px; arrasta para fechar. |

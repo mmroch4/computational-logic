@@ -275,6 +275,15 @@ export default {
       unsound: "A regra não é sólida: há uma valoração em que as premissas são verdadeiras e a conclusão é falsa.",
     },
   },
+  fitch: {
+    label: "Prova em notação de Fitch",
+    depth: "Subdedução de nível {depth}.",
+    states: {
+      ok: "Linha certa.",
+      error: "Linha com erro.",
+      pending: "Linha por acabar.",
+    },
+  },
   proofText: {
     premise: "premissa",
     hypothesis: "hipótese",
