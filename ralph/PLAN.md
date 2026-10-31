@@ -121,7 +121,7 @@ com orçamentos de tempo.
 
 ## Bloco D — Página Provar
 
-### [ ] D1 · Entrada de sequentes
+### [x] D1 · Entrada de sequentes
 Campo de sequente com teclas para símbolos, exemplos, conversão de notação e erros inline.
 **Feito quando:** funciona a 390px com teclado virtual e os erros mostram a posição.
 
