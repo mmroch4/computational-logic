@@ -1074,6 +1074,10 @@
       position: absolute;
       inset: -3px 0;
     }
+
+    .seg.sm button::after {
+      inset: -9px 0;
+    }
   }
 
   @media (min-width: 768px) {
