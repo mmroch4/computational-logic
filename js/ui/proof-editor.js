@@ -164,7 +164,10 @@ function shellHtml(mode) {
 /** A mensagem de baixo da prova: o aviso da última operação, a prova completa ou o que ainda falta. */
 export function statusHtml(status, notice) {
   if (notice) return msgHtml("warn", escapeHtml(messageText(notice)));
-  if (status.complete) return msgHtml("ok", escapeHtml(t("editor.complete")));
+  if (status.complete) {
+    const mark = status.usesUserRules ? ` <b>${escapeHtml(t("userRules.mark"))}.</b>` : "";
+    return msgHtml("ok", escapeHtml(t("editor.complete")) + mark);
+  }
   return status.conclusion ? msgHtml("info", escapeHtml(messageText(status.conclusion))) : "";
 }
 
@@ -172,10 +175,12 @@ export function statusHtml(status, notice) {
  * Monta o editor em `container`. Só aparece com `start(goal)`.
  * `onGoalChange(goal)`: ao desfazer ou refazer, o sequente da prova mudou.
  * `onProofChange()`: a prova mudou, por isso o que se disse sobre ela deixou de valer.
- * Devolve { start(goal), open(goal, proof), getProof(), getGoal(), getRules(), hasUnreadText(), highlightLine(line),
- * useProof(proof) }.
+ * Devolve { start(goal), open(goal, proof), getProof(), getGoal(), getRules(), setRules({ rules, known }),
+ * hasUnreadText(), highlightLine(line), useProof(proof) }.
  */
-export function mountProofEditor(container, { onGoalChange, onProofChange, rules = ruleSet("completo"), known = RULES } = {}) {
+export function mountProofEditor(container, options = {}) {
+  const { onGoalChange, onProofChange } = options;
+  let { rules = ruleSet("completo"), known = RULES } = options;
   let editor = null;
   let seenProof = null;
   let painting = false;
@@ -465,6 +470,13 @@ export function mountProofEditor(container, { onGoalChange, onProofChange, rules
     getProof: () => editor?.proof ?? null,
     getGoal: () => editor?.goal ?? null,
     getRules: () => ({ rules, known }),
+    /** As regras mudaram (criar ou apagar uma regra própria): a prova é a mesma, os estados não. */
+    setRules(next) {
+      ({ rules, known } = next);
+      if (!editor) return;
+      clearGuided();
+      refresh({ flush: true });
+    },
     hasUnreadText: () => editor !== null && hasUnreadText(editor),
     highlightLine(line) {
       highlighted = line;

@@ -1,19 +1,26 @@
 // Entry da página Provar: o layout comum, o campo de sequente, com o menu de exemplos, o editor, a ajuda, a
-// árvore e a partilha. Um link manda sempre; sem ele, volta a última prova aberta neste browser.
+// árvore, a partilha e as regras próprias. Um link manda sempre; sem ele, volta a última prova deste browser.
 import { formatSequent } from "../core/sequent.js";
 import { decodeShare } from "../core/share.js";
+import { activeRules } from "../core/user-rules.js";
 import { mountAssistPanel } from "../ui/assist-panel.js";
 import { mountExamplesMenu } from "../ui/examples-menu.js";
 import { mountLayout } from "../ui/layout.js";
 import { mountProofEditor } from "../ui/proof-editor.js";
-import { createUrlSync, mountPrintSheet, mountProofShare, shareErrorHtml } from "../ui/proof-share.js";
+import { createUrlSync, linkRulesHtml, mountPrintSheet, mountProofShare, shareErrorHtml } from "../ui/proof-share.js";
 import { mountSequentInput } from "../ui/sequent-input.js";
 import { storage } from "../ui/storage.js";
 import { mountTreeView } from "../ui/tree-view.js";
+import { mountUserRulesPanel } from "../ui/user-rules-panel.js";
+import { createUserRuleStore } from "../ui/user-rules-store.js";
 
 mountLayout();
 
+const userRules = createUserRuleStore();
+const currentRules = () => activeRules({ rules: "completo" }, userRules.list());
+
 const editor = mountProofEditor(document.getElementById("proof-editor"), {
+  ...currentRules(),
   onGoalChange: (goal) => input.setValue(formatSequent(goal)),
   onProofChange: () => {
     assist.reset();
@@ -25,9 +32,18 @@ const editor = mountProofEditor(document.getElementById("proof-editor"), {
 
 const assist = mountAssistPanel(document.getElementById("proof-assist"), { source: editor });
 const tree = mountTreeView(document.getElementById("proof-tree"), { source: editor, onSelect: editor.highlightLine });
-const sync = createUrlSync(editor);
+const sync = createUrlSync({ ...editor, getUserRules: userRules.list });
 const share = mountProofShare(document.getElementById("proof-share"), { source: editor, sync });
 mountPrintSheet(editor);
+const rulesPanel = mountUserRulesPanel(document.getElementById("user-rules"), { store: userRules });
+
+userRules.subscribe(() => {
+  editor.setRules(currentRules());
+  if (!editor.getProof()) return;
+  assist.reset();
+  tree.update();
+  sync.schedule();
+});
 
 const shareError = document.getElementById("share-error");
 
@@ -57,7 +73,11 @@ function openFromLink() {
   if (opened.status === "ok") {
     input.setValue(formatSequent(opened.goal));
     noteOpened(opened.goal);
+    const { added, replaced } = userRules.applyLink(opened.userRules.rules);
     editor.open(opened.goal, opened.proof);
+    if (fromStorage) return;
+    shareError.innerHTML = linkRulesHtml({ added, replaced, rejected: opened.userRules.rejected });
+    if (added.length + replaced.length > 0) rulesPanel.open();
   } else if (fromLink.status === "invalid") {
     if (fromLink.sequent !== null) input.setValue(fromLink.sequent);
     if (fromLink.error.code === "badSequent") input.submit();

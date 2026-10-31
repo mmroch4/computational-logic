@@ -1731,6 +1731,188 @@
     min-height: 44px;
   }
 
+  /* Regras do utilizador: fechado, o painel ocupa uma linha entre o sequente e a prova. */
+  .rules-panel {
+    min-width: 0;
+    margin-top: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .rules-panel__toggle {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .rules-panel__body,
+  .rules-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .rules-panel__body {
+    padding: 4px 12px 12px;
+  }
+
+  .rules-panel__status:empty,
+  .rules-panel__rejected:empty {
+    display: none;
+  }
+
+  .rules-panel__heading {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .rules-panel__empty {
+    color: var(--color-text-muted);
+    font-size: 14px;
+  }
+
+  .rules-panel__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rules-panel__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .rules-panel__item .btn,
+  .rules-form__add .btn,
+  .rules-form__premise .btn,
+  .rules-form__save {
+    min-height: 44px;
+  }
+
+  .rules-panel__item .btn,
+  .rules-form__premise .btn {
+    flex: none;
+    min-width: 44px;
+  }
+
+  .rules-panel__tag {
+    color: var(--color-text-muted);
+    font-size: 13px;
+  }
+
+  .rule-scheme {
+    display: inline-grid;
+    grid-template-columns: minmax(0, auto) auto;
+    column-gap: 8px;
+    align-items: center;
+    max-width: 100%;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+
+  .rule-scheme__premises {
+    grid-column: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 16px;
+  }
+
+  .rule-scheme__bar {
+    grid-column: 1;
+    height: 1px;
+    margin: 3px 0;
+    background: var(--color-text);
+  }
+
+  .rule-scheme__conclusion {
+    grid-column: 1;
+    text-align: center;
+  }
+
+  .rule-scheme__name {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    color: var(--color-text-muted);
+    font-size: 13px;
+  }
+
+  .rules-form {
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .rules-form__input {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    font-family: var(--font-mono);
+  }
+
+  .rules-form__premises {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .rules-form__premises:empty {
+    display: none;
+  }
+
+  .rules-form__premise {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .rules-form__bracket {
+    flex: none;
+    font-family: var(--font-mono);
+  }
+
+  .rules-form__add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rules-form__preview {
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+  }
+
+  .rules-form__preview[hidden] {
+    display: none;
+  }
+
+  .rules-form__result {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rules-form__result:empty {
+    display: none;
+  }
+
+  .rules-form__save {
+    align-self: flex-start;
+  }
+
   /* A folha de impressão só existe entre o beforeprint e o afterprint. */
   .print-sheet {
     display: none;

@@ -1,17 +1,21 @@
 // Link partilhável da página Provar: sequente e prova ↔ query string. Módulo puro (sem DOM).
 //
-//   ?s=p -> q, p |- q&p=1.<base64url>
+//   ?s=p -> q, p |- q&p=1.<base64url>&r=1.<base64url>
 //
 // `s` é o sequente em ASCII, legível. `p` é a versão do formato e, em base64url, um JSON com as linhas
 // que não são premissas: [profundidade, fórmula] numa hipótese e [profundidade, fórmula, justificação]
 // num passo, com "" no que está por preencher. As premissas vêm sempre do sequente, por isso um link não
 // consegue acrescentar nenhuma. Uma prova ainda em branco não leva `p`.
+// `r` é a mesma coisa para os rascunhos das regras do utilizador que a prova cita, e só essas: o link
+// fica curto, e uma regra que não venha com ele não faz falta. Vão só os esquemas: ao abrir, cada regra
+// passa outra vez pela validação de `loadUserRules`, e a que falhar deixa a linha com `unknownRule`.
 // O link é dado de fora: ao abrir, cada campo passa pelos mesmos leitores do editor, e só o verificador
 // decide depois se as linhas estão certas.
 // Contrato:
-//   encodeShare(goal, proof) → { query, complete }; `complete` é false se a prova não coube em
-//     `SHARE_LIMITS.maxLength`, e nesse caso a query só tem o sequente, ou fica vazia se nem esse couber.
-//   decodeShare(search) → { status: "none" } | { status: "ok", goal, proof }
+//   encodeShare(goal, proof, userRules = []) → { query, complete }; `complete` é false se a prova não coube
+//     em `SHARE_LIMITS.maxLength`, e nesse caso a query só tem o sequente, ou fica vazia se nem esse couber.
+//   decodeShare(search) → { status: "none" }
+//     | { status: "ok", goal, proof, userRules: { rules, rejected } }
 //     | { status: "invalid", error: { code, params }, sequent }, com `sequent` o texto de `s` ou null.
 // As mensagens estão em `share.errors.*`.
 
@@ -21,6 +25,7 @@ import { parseFormula } from "./parser.js";
 import { createProof } from "./proof.js";
 import { formatJustification, parseJustification } from "./proof-text.js";
 import { formatSequent, parseSequent } from "./sequent.js";
+import { loadUserRules, rulesUsedBy, serializeUserRules } from "./user-rules.js";
 
 /** Códigos de erro de um link. */
 export const SHARE_ERROR_CODES = [
@@ -30,6 +35,7 @@ export const SHARE_ERROR_CODES = [
   "unknownVersion", // { version }: link de um formato que este site não conhece
   "badProof", // os dados da prova estão cortados ou alterados
   "badLine", // { line }: uma linha da prova não se lê ou não encaixa na anterior
+  "badRules", // os dados das regras estão cortados ou alterados
 ];
 
 /** Os browsers e a Vercel aceitam mais do que isto, mas um link maior já se parte ao partilhar. */
@@ -71,13 +77,15 @@ function lineEntry({ kind, depth, formula, rule, citations }) {
   return kind === "hypothesis" ? [depth, written] : [depth, written, formatJustification(rule, citations)];
 }
 
-/** Query string (sem `?`) do sequente `goal` com a prova `proof`. */
-export function encodeShare(goal, proof) {
+/** Query string (sem `?`) do sequente `goal` com a prova `proof` e as regras de `userRules` que ela cita. */
+export function encodeShare(goal, proof, userRules = []) {
   const sequentPart = `s=${encodeValue(convertNotation(formatSequent(goal), "ascii"))}`;
   if (sequentPart.length > SHARE_LIMITS.maxLength) return { query: "", complete: false };
   if (isBlank(proof)) return { query: sequentPart, complete: true };
   const entries = proof.lines.filter(({ kind }) => kind !== "premise").map(lineEntry);
-  const query = `${sequentPart}&p=${VERSION}.${toBase64Url(JSON.stringify(entries))}`;
+  const used = serializeUserRules(rulesUsedBy(proof, userRules));
+  const rulesPart = used.length > 0 ? `&r=${VERSION}.${toBase64Url(JSON.stringify(used))}` : "";
+  const query = `${sequentPart}&p=${VERSION}.${toBase64Url(JSON.stringify(entries))}${rulesPart}`;
   return query.length > SHARE_LIMITS.maxLength ? { query: sequentPart, complete: false } : { query, complete: true };
 }
 
@@ -103,21 +111,28 @@ function readEntry(entry, number) {
   return { line: { kind: "step", depth, formula, rule: read.rule, citations: read.citations } };
 }
 
-/** Lê o valor de `p`, para as premissas de `goal`. */
-function readProof(value, goal) {
+/** A lista não vazia guardada num valor `<versão>.<base64url>`, ou `failed` com o código `badCode`. */
+function readList(value, badCode) {
+  const bad = { failed: { code: badCode, params: {} } };
   const dot = value.indexOf(".");
   const version = dot === -1 ? value : value.slice(0, dot);
-  if (dot === -1 || !/^\d+$/.test(version)) return { failed: { code: "badProof", params: {} } };
+  if (dot === -1 || !/^\d+$/.test(version)) return bad;
   if (version !== VERSION) return { failed: { code: "unknownVersion", params: { version } } };
 
   const text = fromBase64Url(value.slice(dot + 1));
-  let entries = null;
+  let list = null;
   try {
-    entries = text === null ? null : JSON.parse(text);
+    list = text === null ? null : JSON.parse(text);
   } catch {
     // Fica null: é o mesmo caso que dados que não são uma lista.
   }
-  if (!Array.isArray(entries) || entries.length === 0) return { failed: { code: "badProof", params: {} } };
+  return Array.isArray(list) && list.length > 0 ? { list } : bad;
+}
+
+/** Lê o valor de `p`, para as premissas de `goal`. */
+function readProof(value, goal) {
+  const { list: entries, failed: unread } = readList(value, "badProof");
+  if (unread) return { failed: unread };
 
   const premises = goal.premises.map((formula) => ({ kind: "premise", depth: 0, formula }));
   const lines = [...premises];
@@ -150,8 +165,13 @@ export function decodeShare(search) {
   const parsed = parseSequent(written);
   if (!parsed.ok) return invalid("badSequent", {}, written);
   const goal = parsed.sequent;
-  if (proofValue === null) return { status: "ok", goal, proof: blankProof(goal) };
+
+  const rulesValue = query.get("r");
+  const rulesRead = rulesValue === null ? { list: [] } : readList(rulesValue, "badRules");
+  if (rulesRead.failed) return invalid(rulesRead.failed.code, rulesRead.failed.params, written);
+  const userRules = loadUserRules(rulesRead.list);
+  if (proofValue === null) return { status: "ok", goal, proof: blankProof(goal), userRules };
 
   const { proof, failed } = readProof(proofValue, goal);
-  return failed ? invalid(failed.code, failed.params, written) : { status: "ok", goal, proof };
+  return failed ? invalid(failed.code, failed.params, written) : { status: "ok", goal, proof, userRules };
 }

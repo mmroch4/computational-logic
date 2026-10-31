@@ -14,6 +14,9 @@
 //   userRulesEnabled(exercise)      → boolean
 //   activeRules(exercise, userRules) → { rules, known }, os dois últimos argumentos de `verifyProof`
 //   progressMark(result)            → null | "solved" | "solvedWithUserRules"
+//   rulesUsedBy(proof, rules)       → as regras de `rules` citadas numa linha da prova
+//   mergeUserRules(saved, linked)   → { saved, session, added, replaced }: junta as regras de um link
+//   combineUserRules(saved, session) → as regras ativas
 // Um erro é { code, params }, mais `field` ("name", "premise", "conclusion"), `index` e `part`
 // ("hypothesis", "conclusion") quando é de uma premissa, e as posições dos erros do parser. O erro
 // `unsound` traz ainda `formula` e `counterexample`. As mensagens estão em `userRules.errors.*`,
@@ -209,6 +212,45 @@ export function activeRules(exercise, userRules = []) {
     rules: userRulesEnabled(exercise) ? [...allowed, ...userRules] : allowed,
     known: [...RULES, ...userRules],
   };
+}
+
+/** As regras de `rules` que a prova usa: é só o que precisa de ir no link. */
+export function rulesUsedBy({ lines }, rules) {
+  const used = new Set(lines.map(({ rule }) => rule));
+  return rules.filter(({ id }) => used.has(id));
+}
+
+const schemaOf = (rule) => JSON.stringify(serializeUserRules([rule]));
+
+/**
+ * Junta as regras `linked` de um link às `saved`, guardadas. Uma regra nova fica guardada, até ao limite.
+ * Com o mesmo nome e outro esquema, a do link manda só nesta sessão, porque é com ela que a prova do link
+ * foi escrita, e a guardada não se perde. `session` são as regras ativas que não se guardam.
+ */
+export function mergeUserRules(saved, linked) {
+  const next = [...saved];
+  const session = [];
+  const added = [];
+  const replaced = [];
+  for (const rule of linked) {
+    const same = saved.find(({ id }) => id === rule.id);
+    if (same && schemaOf(same) === schemaOf(rule)) continue;
+    if (same) {
+      session.push(rule);
+      replaced.push(rule.id);
+    } else {
+      if (next.length < USER_RULE_LIMITS.maxRules) next.push(rule);
+      else session.push(rule);
+      added.push(rule.id);
+    }
+  }
+  return { saved: next, session, added, replaced };
+}
+
+/** As regras ativas: as guardadas, com as de `session` por cima das que têm o mesmo nome. */
+export function combineUserRules(saved, session) {
+  const names = new Set(session.map(({ id }) => id));
+  return [...saved.filter(({ id }) => !names.has(id)), ...session];
 }
 
 /** O que uma prova verificada conta no progresso: `result` é o resultado de `verifyProof`. */

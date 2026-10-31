@@ -8,6 +8,7 @@
 //   progress → { [idDoExercício]: { ...estado livre definido pela página Exercícios } }
 //   step     → query string do Passo a passo (sequente, passo e vista), para voltar a ela
 //   prove    → query string da última prova aberta em Provar
+//   rules    → rascunhos das regras do utilizador (`serializeUserRules`), validados ao carregar
 
 export const STORAGE_PREFIX = "nd:v1:";
 export const HISTORY_MAX = 20;
@@ -120,6 +121,14 @@ export function createStorage(getBackend = browserBackend) {
     },
     clearLastQuery(page) {
       remove(page);
+    },
+
+    // --- regras do utilizador ---
+    getUserRules() {
+      return read("rules", (raw) => (Array.isArray(raw) ? raw : []));
+    },
+    setUserRules(drafts) {
+      write("rules", drafts);
     },
 
     // --- history ---

@@ -42,6 +42,7 @@
   <link rel="modulepreload" href="/js/pages/provar.js">
   <link rel="modulepreload" href="/js/core/sequent.js">
   <link rel="modulepreload" href="/js/core/share.js">
+  <link rel="modulepreload" href="/js/core/user-rules.js">
   <link rel="modulepreload" href="/js/ui/assist-panel.js">
   <link rel="modulepreload" href="/js/ui/examples-menu.js">
   <link rel="modulepreload" href="/js/ui/layout.js">
@@ -50,11 +51,16 @@
   <link rel="modulepreload" href="/js/ui/sequent-input.js">
   <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/ui/tree-view.js">
+  <link rel="modulepreload" href="/js/ui/user-rules-panel.js">
+  <link rel="modulepreload" href="/js/ui/user-rules-store.js">
   <link rel="modulepreload" href="/js/core/formula.js">
   <link rel="modulepreload" href="/js/core/parser.js">
   <link rel="modulepreload" href="/js/core/notation.js">
   <link rel="modulepreload" href="/js/core/proof.js">
   <link rel="modulepreload" href="/js/core/proof-text.js">
+  <link rel="modulepreload" href="/js/core/rules.js">
+  <link rel="modulepreload" href="/js/core/schema.js">
+  <link rel="modulepreload" href="/js/core/semantics.js">
   <link rel="modulepreload" href="/js/core/assist.js">
   <link rel="modulepreload" href="/js/ui/fitch-view.js">
   <link rel="modulepreload" href="/js/ui/i18n.js">
@@ -68,15 +74,13 @@
   <link rel="modulepreload" href="/js/ui/analytics.js">
   <link rel="modulepreload" href="/js/core/editor.js">
   <link rel="modulepreload" href="/js/core/guided.js">
-  <link rel="modulepreload" href="/js/core/rules.js">
   <link rel="modulepreload" href="/js/core/latex.js">
   <link rel="modulepreload" href="/js/core/tree.js">
-  <link rel="modulepreload" href="/js/core/semantics.js">
+  <link rel="modulepreload" href="/js/core/rule-form.js">
   <link rel="modulepreload" href="/js/core/verify.js">
   <link rel="modulepreload" href="/js/ui/locales/pt.js">
   <link rel="modulepreload" href="/js/ui/locales/en.js">
   <link rel="modulepreload" href="/js/ui/sheet.js">
-  <link rel="modulepreload" href="/js/core/schema.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/provar.js"></script>
 </head>
@@ -95,6 +99,7 @@
         <p class="empty-state__hint" data-i18n="prove.empty">Escreve um sequente e carrega em Enter para abrir a prova.</p>
       </div>
     </div>
+    <div id="user-rules"></div>
     <div id="proof-editor"></div>
     <div id="proof-share"></div>
     <div id="proof-assist"></div>

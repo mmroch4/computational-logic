@@ -3,7 +3,8 @@
 // e o aluno escolhe «Guardar como PDF». A folha nasce no `beforeprint`, por isso também serve o Ctrl+P.
 //
 // As funções exportadas à parte são puras (testáveis em node); só as mount*() mexem no DOM.
-// `source` é o editor: { getProof(), getGoal(), hasUnreadText() }.
+// `source` é o editor: { getProof(), getGoal(), hasUnreadText() }. O `createUrlSync` recebe também
+// `getUserRules()`, com as regras próprias ativas, para o link levar as que a prova cita.
 import { proofToLatex } from "../core/latex.js";
 import { formatSequent } from "../core/sequent.js";
 import { encodeShare } from "../core/share.js";
@@ -45,6 +46,17 @@ export function shareErrorHtml({ code, params }) {
   return msgHtml("error", `<b>${escapeHtml(t("share.errors.heading"))}</b> ${escapeHtml(t(`share.errors.${code}`, params))}`);
 }
 
+/** O aviso das regras que um link trouxe: `added` e `replaced` de `applyLink`, `rejected` do link. */
+export function linkRulesHtml({ added, replaced, rejected }) {
+  const names = (list) => list.join(", ");
+  const refused = rejected.map(({ name }) => name).filter(Boolean);
+  const parts = [];
+  if (added.length > 0) parts.push(msgHtml("info", escapeHtml(t("share.rulesAdded", { names: names(added) }))));
+  if (replaced.length > 0) parts.push(msgHtml("warn", escapeHtml(t("share.rulesReplaced", { names: names(replaced) }))));
+  if (rejected.length > 0) parts.push(msgHtml("warn", escapeHtml(t("share.rulesRejected", { names: names(refused) || "?" }))));
+  return parts.join("");
+}
+
 /**
  * Mantém o endereço igual à prova aberta, para recarregar não a perder e para o idioma a levar consigo.
  * Devolve { schedule(), flush() }; `flush()` dá o resultado de `encodeShare` e aplica-o já.
@@ -55,7 +67,7 @@ export function createUrlSync(source) {
   function flush() {
     clearTimeout(timer);
     timer = null;
-    const shared = encodeShare(source.getGoal(), source.getProof());
+    const shared = encodeShare(source.getGoal(), source.getProof(), source.getUserRules());
     const { pathname, hash } = location;
     try {
       history.replaceState(null, "", `${pathname}${shared.query ? `?${shared.query}` : ""}${hash}`);
