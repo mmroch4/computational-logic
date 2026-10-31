@@ -74,6 +74,21 @@ export const createEditor = (goal) => ({ ...freshProof(goal), notice: null, past
 export const restartEditor = (editor, goal) => commit(editor, freshProof(goal));
 
 /**
+ * Troca a prova por `proof`, já verificada (a solução automática). Pode desfazer-se. Uma prova só com
+ * premissas ganha uma linha por preencher, porque o cursor nunca fica numa premissa.
+ */
+export function loadProof(editor, proof, ruleLabels = {}) {
+  const editable = proof.lines.some(({ kind }) => kind !== "premise");
+  const filled = editable ? proof : insertLine(proof, proof.lines.length, {}).proof;
+  const drafts = filled.lines.map(({ kind, formula, rule, citations }) => ({
+    ...blankDraft(),
+    formula: formula ? format(formula) : "",
+    justification: kind === "step" && rule ? formatJustification(rule, citations, ruleLabels) : "",
+  }));
+  return commit(editor, { proof: filled, drafts, cursor: { line: filled.lines.length, field: "formula" } });
+}
+
+/**
  * Depois de uma operação de estrutura, as citações de `proof` já têm os números novos: passa-os para
  * o texto. Uma justificação com erro de escrita não foi lida, por isso fica como está.
  */

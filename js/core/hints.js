@@ -359,7 +359,7 @@ function findCursor(proof) {
 }
 
 /** A prova sem a linha por preencher do fim, se a houver. */
-function withoutTrailingBlank(proof) {
+export function withoutTrailingBlank(proof) {
   const last = proof.lines.at(-1);
   if (!last || !isBlank(last) || last.kind !== "step") return proof;
   return deleteLine(proof, proof.lines.length).proof;
@@ -372,12 +372,22 @@ function nextFormula({ lines }, line) {
   return fits ? next.formula : null;
 }
 
+/**
+ * Se a prova está acabada. Uma linha por preencher no fim não conta, exceto se só houver premissas
+ * antes dela: no editor há sempre uma linha para escrever, e ali falta repetir a premissa.
+ */
+export function isFinished(proof, goal, rules, known = rules) {
+  const written = withoutTrailingBlank(proof);
+  if (written !== proof && written.lines.every(({ kind }) => kind === "premise")) return false;
+  return verifyProof(written, goal, rules, known).ok;
+}
+
 /** Sugere o próximo passo de `proof` para demonstrar `goal`. */
 export function hint(proof, goal, { rules = RULES, known = rules, maxSteps } = {}) {
   const decided = checkSequent(goal);
   if (!decided.ok) return { status: "unknown", error: decided.error };
   if (!decided.valid) return { status: "invalid", counterexample: decided.counterexample };
-  if (verifyProof(withoutTrailingBlank(proof), goal, rules, known).ok) return { status: "done" };
+  if (isFinished(proof, goal, rules, known)) return { status: "done" };
 
   const cursor = findCursor(proof);
   for (let line = 1; line < cursor.line; line += 1) {

@@ -1,5 +1,6 @@
-// Entry da página Provar: o layout comum, o campo de sequente, com o menu de exemplos, e o editor.
+// Entry da página Provar: o layout comum, o campo de sequente, com o menu de exemplos, o editor e a ajuda.
 import { formatSequent } from "../core/sequent.js";
+import { mountAssistPanel } from "../ui/assist-panel.js";
 import { mountExamplesMenu } from "../ui/examples-menu.js";
 import { mountLayout } from "../ui/layout.js";
 import { mountProofEditor } from "../ui/proof-editor.js";
@@ -9,7 +10,10 @@ mountLayout();
 
 const editor = mountProofEditor(document.getElementById("proof-editor"), {
   onGoalChange: (goal) => input.setValue(formatSequent(goal)),
+  onProofChange: () => assist.reset(),
 });
+
+const assist = mountAssistPanel(document.getElementById("proof-assist"), { source: editor });
 
 const input = mountSequentInput(document.getElementById("sequent-input"), {
   onSubmit: (sequent) => {

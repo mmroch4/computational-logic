@@ -3,10 +3,11 @@
 //   const worker = createSolverWorker({ timeoutMs })
 //   worker.solve(goal, { rules, maxSteps })             → { promise, cancel }
 //   worker.hint(proof, goal, { rules, known, maxSteps }) → { promise, cancel }
-//   worker.dispose()                                    cancela o que corre e liberta o Worker
+//   worker.complete(proof, goal, { rules, known, maxSteps }) → { promise, cancel }
+//   worker.dispose()                                   cancela o que corre e liberta o Worker
 //
 // A `promise` nunca rejeita. Dá o resultado de `solve` ou de `hint` ou, se a tarefa não acabar, a falha
-// no formato deles: `{ ok: false, error }` no solve e `{ status: "unknown", error }` na dica. O código é
+// no formato deles: `{ ok: false, error }` no solve e `{ status: "unknown", error }` na dica e no complete. O código é
 // de `WORKER_ERROR_CODES`, com texto em `solver.errors.*`, e nenhum diz nada sobre haver prova.
 //
 // Corre uma tarefa de cada vez: pedir outra cancela a anterior, porque só a última interessa à página.
@@ -86,6 +87,7 @@ export function createSolverWorker({ timeoutMs = SOLVER_TIMEOUT_MS, start = star
   return {
     solve: (goal, options) => run({ type: "solve", goal, options }, solveFailure),
     hint: (proof, goal, options) => run({ type: "hint", proof, goal, options }, hintFailure),
+    complete: (proof, goal, options) => run({ type: "complete", proof, goal, options }, hintFailure),
     dispose() {
       abort("cancelled");
     },

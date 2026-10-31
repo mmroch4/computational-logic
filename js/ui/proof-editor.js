@@ -4,8 +4,8 @@
 //
 // As funções exportadas à parte são puras (testáveis em node); só mountProofEditor() mexe no DOM.
 import {
-  canRedo, canUndo, createEditor, editorStatus, keyAction, moveCursor, pressKey, restartEditor, runAction, setText,
-  tidyAll, tidyField,
+  canRedo, canUndo, createEditor, editorStatus, keyAction, loadProof, moveCursor, pressKey, restartEditor, runAction,
+  setText, tidyAll, tidyField,
 } from "../core/editor.js";
 import { format } from "../core/formula.js";
 import {
@@ -171,10 +171,12 @@ export function statusHtml(status, notice) {
 /**
  * Monta o editor em `container`. Só aparece com `start(goal)`.
  * `onGoalChange(goal)`: ao desfazer ou refazer, o sequente da prova mudou.
- * Devolve { start(goal), getProof() }.
+ * `onProofChange()`: a prova mudou, por isso o que se disse sobre ela deixou de valer.
+ * Devolve { start(goal), getProof(), getGoal(), getRules(), useProof(proof) }.
  */
-export function mountProofEditor(container, { onGoalChange, rules = ruleSet("completo"), known = RULES } = {}) {
+export function mountProofEditor(container, { onGoalChange, onProofChange, rules = ruleSet("completo"), known = RULES } = {}) {
   let editor = null;
+  let seenProof = null;
   let painting = false;
   let timer = null;
   let mode = "write";
@@ -240,6 +242,10 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
   /** Atualiza estados e mensagens sem tocar nos campos, para não perder o foco nem o cursor do texto. */
   function refresh({ flush = false } = {}) {
     clearTimeout(timer);
+    if (editor.proof !== seenProof) {
+      seenProof = editor.proof;
+      onProofChange?.();
+    }
     const status = editorStatus(editor, { rules, known });
     if (mode === "guided") {
       paintGuided(status);
@@ -439,5 +445,10 @@ export function mountProofEditor(container, { onGoalChange, rules = ruleSet("com
       focusCursor();
     },
     getProof: () => editor?.proof ?? null,
+    getGoal: () => editor?.goal ?? null,
+    getRules: () => ({ rules, known }),
+    useProof(proof) {
+      show(loadProof(tidied(), proof, ruleLabels()));
+    },
   };
 }
