@@ -165,7 +165,7 @@ Passa os check de teclado, toque, contraste, movimento reduzido e `localStorage`
 deve ser legível por leitor de ecrã, com estado anunciado.
 **Feito quando:** `scripts/check-all.sh` e `scripts/check-keyboard.sh` passam.
 
-### [ ] PAUSA-2 · Rever o editor
+### [x] PAUSA-2 · Rever o editor
 Experimenta `/provar` no computador e no telemóvel: `node scripts/serve.mjs 8765`. Todo o conteúdo
 seguinte assenta neste editor, por isso é a altura de pedir alterações de interação.
 
