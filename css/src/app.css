@@ -1,0 +1,307 @@
+@import "tailwindcss" source(none);
+/* Só os componentes do Basecoat que o site usa: com todos, o css/app.css tinha mais 157 KB. */
+@import "../../node_modules/basecoat-css/dist/base/base.css";
+@import "../../node_modules/basecoat-css/dist/components/button.css";
+@import "../../node_modules/basecoat-css/dist/components/card.css";
+@import "../../node_modules/basecoat-css/dist/components/input.css";
+@import "../../node_modules/basecoat-css/dist/components/native-select.css";
+@import "./basecoat-vega.css";
+@source "../../*.html";
+@source "../../js/**/*.js";
+@source not "../../js/vendor";
+@source not inline("ease");
+
+/* Tokens. Vêm depois do Basecoat para ganharem ao @theme dele. "static" emite todos, mesmo os que hoje
+   nenhuma regra usa, para o tema estar completo no css/app.css. */
+@theme static {
+  /* Neutros */
+  --color-bg: #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-2: #f4f4f5;
+  --color-hairline: #f0f0f2;
+  --color-border: #e4e4e7;
+  --color-border-strong: #8a8a93;
+  --color-text: #18181b;
+  --color-text-2: #3f3f46;
+  --color-text-muted: #52525b;
+  --color-text-subtle: #71717a; /* só em bg ou surface: em surface-2 falha o AA */
+  --color-ink: #18181b;
+  --color-ink-hover: #27272a;
+
+  /* Eventos: cor (texto, ícone, contorno) e fundo suave */
+  --color-ev-unit: #0369a1;
+  --color-ev-unit-soft: #f0f9ff;
+  --color-ev-branch: #b45309;
+  --color-ev-branch-soft: #fffbeb;
+  --color-ev-conflict: #b91c1c;
+  --color-ev-conflict-soft: #fef2f2;
+  --color-ev-sat: #15803d;
+  --color-ev-sat-soft: #f0fdf4;
+  --color-ev-back: #6d28d9;
+  --color-ev-back-soft: #f5f3ff;
+  --color-ev-res: #a21caf;
+  --color-ev-res-soft: #fdf4ff;
+
+  /* Tipografia */
+  --font-sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* Raios */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.08);
+  --shadow-md: 0 4px 16px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.12);
+
+  /* Movimento */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Layout */
+  --content-max: 1200px;
+}
+
+/* Variáveis do shadcn/Basecoat apontadas para os tokens: os componentes já nascem com a cara do site.
+   Sem tema escuro. */
+:root {
+  --radius: 10px;
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-bg);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-bg);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-ink);
+  --primary-foreground: #fff;
+  --secondary: var(--color-surface-2);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface-2);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-surface-2);
+  --accent-foreground: var(--color-text);
+  --destructive: var(--color-ev-conflict);
+  --border: var(--color-border);
+  --input: var(--color-border-strong);
+  --ring: var(--color-ink);
+
+  /* Medidas de layout */
+  --prose-max: 42rem;
+  --header-height: 52px;
+  --header-border: 0px; /* sem linha no mobile */
+  --credits-bar-height: 36px;
+  --tabbar-height: 64px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-height: 60px;
+    --header-border: 1px;
+  }
+}
+
+@layer base {
+  /* O display: block vem do Preflight. */
+  img,
+  svg,
+  video,
+  canvas {
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+  }
+
+  h2 {
+    font-size: 1.375rem;
+    line-height: 1.35;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    line-height: 1.5;
+  }
+
+  /* O atributo hidden ganha sempre, mesmo a componentes com display: flex. */
+  [hidden] {
+    display: none !important;
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  li {
+    overflow-wrap: break-word;
+  }
+
+  /* O negrito do browser é 700, um peso que não descarregamos (só 400/500/600, ver DESIGN.md). */
+  strong,
+  b {
+    font-weight: var(--weight-semibold);
+  }
+
+  code,
+  kbd,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  /* Subscrito das variáveis (p11 → p₁₁): <sub> para copiar/colar dar "p11". */
+  code sub {
+    font-size: 0.75em;
+    line-height: 0;
+  }
+
+  /* O Basecoat liga o scroll suave sem olhar para a preferência. */
+  html {
+    scroll-behavior: auto;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* A página ocupa o ecrã todo e guarda a altura da tab bar: o rodapé nunca fica tapado. */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  main {
+    flex: 1;
+    padding-block: 24px;
+  }
+
+  /* A barra de créditos e o cabeçalho são inseridos pelo layout.js depois do primeiro desenho. Até lá
+     o <main> é o primeiro filho do body: reserva-se a altura dos dois para o conteúdo não saltar. */
+  body > main:first-child {
+    margin-top: calc(var(--credits-bar-height) + var(--header-height) + var(--header-border));
+  }
+
+  @media (min-width: 768px) {
+    body {
+      padding-bottom: 0;
+    }
+
+    main {
+      padding-block: 32px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    main {
+      padding-block: 48px;
+    }
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  a {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  a:hover {
+    color: var(--color-ev-unit);
+  }
+
+  /* Entre páginas, um cross-fade curto (o @view-transition está no <head> de cada página). Só quem o
+     suporta o vê: nos outros, a navegação é normal. A barra de créditos, o cabeçalho e a tab bar têm nome
+     próprio e por isso não entram no fade. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: var(--dur-base);
+    animation-timing-function: var(--ease);
+  }
+
+  /* Sem animação para quem a desativou: a informação nunca depende dela. */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --dur-fast: 0ms;
+      --dur-base: 0ms;
+      --dur-slow: 0ms;
+    }
+
+    /* O Basecoat escreve as durações dele nos componentes, sem passar pelos tokens. */
+    *,
+    ::before,
+    ::after,
+    ::backdrop {
+      transition-duration: var(--dur-fast) !important;
+      transition-delay: var(--dur-fast) !important;
+      animation-duration: var(--dur-fast) !important;
+      animation-delay: var(--dur-fast) !important;
+    }
+
+    /* À parte: um browser sem este pseudo-elemento ignoraria a lista inteira. */
+    ::details-content {
+      transition-duration: var(--dur-fast) !important;
+    }
+  }
+}
+
+/* Em components e não em base: o Basecoat tira o contorno aos componentes dele (outline-none) nesta
+   camada. Com a mesma especificidade, ganha a regra que vem depois. */
+@layer components {
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  /* Fora do ecrã até receber o foco. */
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 100;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    background: var(--color-ink);
+    color: #fff;
+  }
+
+  .skip-link:focus {
+    top: 8px;
+    color: #fff;
+  }
+}

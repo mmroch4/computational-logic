@@ -1,0 +1,22 @@
+{
+  "name": "natural-deduction",
+  "private": true,
+  "description": "Learn Natural Deduction: a free, interactive tool to learn natural deduction proofs in Fitch notation.",
+  "license": "MIT",
+  "repository": "https://github.com/mmroch4/computational-logic",
+  "type": "module",
+  "scripts": {
+    "test": "node --test 'tests/**/*.test.js'",
+    "build:css": "tailwindcss -i css/src/app.css -o css/app.css --minify",
+    "watch:css": "tailwindcss -i css/src/app.css -o css/app.css --watch",
+    "build:vendor": "node scripts/build-vendor.mjs",
+    "build:pages": "node scripts/build-pages.mjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "basecoat-css": "1.1.0",
+    "esbuild": "0.28.2",
+    "motion": "14.9.0",
+    "tailwindcss": "4.3.3"
+  }
+}
