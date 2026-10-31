@@ -160,7 +160,7 @@ Interface do esquema-tipo, com pré-visualização, resultado da validação, co
 e uso nos dois modos. Inclui regras no link partilhado.
 **Feito quando:** criar, usar, partilhar e reabrir uma regra funciona de ponta a ponta.
 
-### [ ] D9 · Acessibilidade da página Provar
+### [x] D9 · Acessibilidade da página Provar
 Passa os check de teclado, toque, contraste, movimento reduzido e `localStorage` bloqueado. A prova
 deve ser legível por leitor de ecrã, com estado anunciado.
 **Feito quando:** `scripts/check-all.sh` e `scripts/check-keyboard.sh` passam.
