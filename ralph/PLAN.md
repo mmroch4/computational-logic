@@ -237,7 +237,7 @@ Tradução natural de todos os locales e de todo o conteúdo, com siglas EN.
 Meta, JSON-LD, sitemap, robots, `og-image`, favicon, ícones e manifest.
 **Feito quando:** `scripts/make-share-images.sh` gera as imagens e os testes de meta passam.
 
-### [ ] H4 · Auditoria final
+### [x] H4 · Auditoria final
 `check-all.sh`, `check-keyboard.sh`, `check-edge.sh`, Lighthouse (mínimo 95 e SEO 100) e testes.
 Corrige o que falhar.
 **Feito quando:** todos passam. Se a rede falhar no Lighthouse, regista isso em `ralph/NOTES.md`.
