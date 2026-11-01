@@ -3,6 +3,10 @@
 export const APP_NAME = "Learn Natural Deduction";
 export const SITE_URL = "https://nd.computational-logic.miguelrocha.dev";
 
+// A página de entrada e a outra ferramenta (rodapé), sem barra no fim.
+export const HUB_URL = "https://computational-logic.miguelrocha.dev";
+export const SAT_URL = "https://sat.computational-logic.miguelrocha.dev";
+
 // Créditos obrigatórios (barra do topo e footer).
 export const CREDITS_NAME = "Miguel Rocha";
 export const CREDITS_URL = "https://miguelrocha.dev";

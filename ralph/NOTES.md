@@ -42,3 +42,12 @@
 - Sem imagem de partilha, `apple-touch-icon` nem manifest: o plano não os pede.
 - `hub/scripts/` é uma cópia do SAT (`serve.mjs`, `check-page.*` e auditorias), porque nenhuma pasta importa de outra.
 - `hub` continua em `optional` no `test-all.sh`: entra por existir, sem alterar o script.
+
+## M6 · Ligações entre as ferramentas
+
+- Dois commits com o ID da M6, um por pasta: o plano e o `CLAUDE.md` da dedução natural pedem um commit próprio para o SAT, e isso prevalece sobre o «commit único» do prompt.
+- A pré-condição «três sites no ar» veio do commit `41901c7` e da PAUSA-1, sem `curl`: o loop não tem rede para o confirmar.
+- Os links do rodapé abrem no mesmo separador, como no hub, e reutilizam `.ftr-repo`, por isso não há CSS novo e desaparecem na impressão.
+- Mantém-se a proibição de `isPartOf` no SAT: a tarefa só levanta a dos links para o hub.
+- O `no-sat-references.test.js` proíbe «SAT» e «Davis» em `js/` da dedução natural, por isso o link diz «Satisfazibilidade» / «Satisfiability». Mostrar o nome da ferramenta exige o Miguel aceitar mudar esse teste.
+- O `tap` do `check-learn.mjs` espera que o alvo pare: o foco do quiz com `scroll-behavior: smooth` deslocava a página depois da medição. Mudar a altura do rodapé expôs esta corrida.

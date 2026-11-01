@@ -89,6 +89,18 @@ test("footer liga ao repositório, com o nome no texto e o ícone escondido, nos
   assert.equal(pkg.repository, REPO_URL);
 });
 
+test("footer liga ao hub e à outra ferramenta, no idioma da página", () => {
+  for (const [lang, home, hub, other] of [["pt", "/", "Todas as ferramentas", "Satisfazibilidade"], ["en", "/en", "All tools", "Satisfiability"]]) {
+    setLang(lang, { silent: true });
+    for (const page of ["home", "prove", "notFound"]) {
+      const html = renderFooter(page);
+      assert.ok(html.includes(`<a class="ftr-repo" href="https://computational-logic.miguelrocha.dev${home}">${hub}</a>`), `${lang} ${page}`);
+      assert.ok(html.includes(`<a class="ftr-repo" href="https://sat.computational-logic.miguelrocha.dev${home}">${other}</a>`), `${lang} ${page}`);
+    }
+  }
+  setLang("pt", { silent: true });
+});
+
 test("footer usa as classes do sistema e lista as 5 páginas", () => {
   setLang("pt", { silent: true });
   const html = renderFooter();

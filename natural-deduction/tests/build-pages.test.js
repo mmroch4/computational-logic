@@ -138,6 +138,8 @@ test("no HTML, sem JS, há links para as 5 páginas do idioma e para a mesma pá
       for (const paths of Object.values(ROUTES)) assert.ok(footer.includes(`href="${paths[lang]}"`), `${file}: ${paths[lang]}`);
       assert.ok(footer.includes(`href="${ROUTES[page][other]}" hreflang="${other}"`), file);
       assert.match(footer, /miguelrocha\.dev/, file);
+      const home = lang === "en" ? "/en" : "/";
+      for (const site of ["https://computational-logic.miguelrocha.dev", "https://sat.computational-logic.miguelrocha.dev"]) assert.ok(footer.includes(`href="${site}${home}"`), `${file}: ${site}`);
     }
   }
 });

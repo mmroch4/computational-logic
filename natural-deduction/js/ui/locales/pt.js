@@ -51,6 +51,8 @@ export default {
   footer: {
     credit: "Desenvolvido por {name}",
     repo: "Código no GitHub",
+    hub: "Todas as ferramentas",
+    otherTool: "Satisfazibilidade",
     pagesLabel: "Páginas",
   },
   layout: {

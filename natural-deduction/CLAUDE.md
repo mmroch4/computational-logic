@@ -24,6 +24,7 @@ O sistema visual está no `DESIGN.md`, e a documentação pública, em inglês, 
   «Desenvolvido por Miguel Rocha · miguelrocha.dev» no rodapé, com link para https://miguelrocha.dev.
 - Nome e URL só em `js/ui/config.js`: `APP_NAME = "Learn Natural Deduction"`,
   `SITE_URL = "https://nd.computational-logic.miguelrocha.dev"`.
+- O rodapé liga, no idioma da página, ao hub e ao SAT, com `HUB_URL` e `SAT_URL` do `js/ui/config.js`.
 - Vercel Web Analytics só no hostname do `SITE_URL`.
 - Licença MIT, © 2026 Miguel Rocha.
 

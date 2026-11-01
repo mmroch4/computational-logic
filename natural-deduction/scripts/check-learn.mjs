@@ -76,13 +76,23 @@ async function connect(wsUrl) {
     if (exceptionDetails) throw new Error(exceptionDetails.exception?.description ?? exceptionDetails.text);
     return result.value;
   };
+  // Só toca com o alvo parado: o foco dado por quem acabou de desenhar pode ter um scroll suave a meio,
+  // e um toque medido antes de ele acabar cai no elemento ao lado.
   const tap = async (selector) => {
-    const box = await evaluate(`(() => {
+    const measure = () => evaluate(`(() => {
       const target = document.querySelector(${JSON.stringify(selector)});
       target.scrollIntoView({ block: "center", behavior: "instant" });
       const box = target.getBoundingClientRect();
-      return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+      return { x: box.left + box.width / 2, y: box.top + box.height / 2, scrollY };
     })()`);
+    let box = await measure();
+    for (let tries = 0; tries < 40; tries += 1) {
+      await sleep(100);
+      const again = await measure();
+      const still = JSON.stringify(again) === JSON.stringify(box);
+      box = again;
+      if (still) break;
+    }
     await page("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: box.x, y: box.y }] });
     await page("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
     await sleep(80);
