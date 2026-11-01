@@ -16,3 +16,11 @@
 - `scripts/test-all.sh` falha se faltar `sat/` ou `natural-deduction/`; o `hub` só conta quando a pasta existir, por isso a M5 só tem de criar `hub/package.json`.
 - `scripts/test-test-all.sh` testa esse script com suites falsas. Não corre no `gate()`: corre-o se alterares o `test-all.sh`.
 - Corrida completa: cerca de 102 s (SAT 4 s, dedução natural 98 s), muito abaixo dos 3600 s do `TASK_TIMEOUT`.
+
+## M2 · Serviços e isolamento das pastas
+
+- Sem alterações de código: `repository`, `serve.mjs`, `deploy.test.js`, `docs.test.js` e `smoke-deploy.sh` já resolvem caminhos a partir da pasta do pacote. Só mudou o comentário do `.vercelignore` da dedução natural.
+- Isolamento provado com a outra pasta afastada: SAT 623/625 e dedução natural 1119/1120 (saltados só por `pdflatex`), smoke local OK nas duas.
+- Pendente para a M4: `sat/.vercelignore:2` ainda diz «raiz do repositório»; a M2 não pode tocar em `sat/`.
+- `sat/tests/deploy.test.js` usa `git ls-files`: exige que a pasta esteja num repositório git, mas não que seja a raiz.
+- Compostos com `;` ou variáveis podem ser recusados: um passo por chamada.
