@@ -206,7 +206,7 @@ Sequente à escolha, exemplos e explicação por passo. Sequente inválido mostr
 estratégias, solidez e completude. Componentes de figura e interação reutilizáveis.
 **Feito quando:** a página tem índice e secções navegáveis com link direto.
 
-### [ ] G2 · Secções 1 a 4
+### [x] G2 · Secções 1 a 4
 Texto PT original e exemplos verificados nos testes.
 **Feito quando:** cada regra tem exemplo e erro comum, e não há texto copiado de `conteudos/`.
 
