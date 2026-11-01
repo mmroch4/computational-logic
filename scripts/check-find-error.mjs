@@ -1,6 +1,6 @@
 // «Encontra o passo errado» no Chrome a 390px: um desafio até ao fim, à mão e com o teclado.
 // Uso: node scripts/check-find-error.mjs   (arranca o próprio servidor, numa porta livre)
-// O modo só entra numa página com a E4: até lá, é montado à mão na /exercicios, com o CSS do site.
+// Monta cada desafio à mão na /exercicios, para os correr todos; a página em si: scripts/check-exercises.sh.
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -104,6 +104,15 @@ async function tap({ page, evaluate }, selector) {
   await sleep(50);
 }
 
+/** Espera até 5 s que `expression` seja verdadeira: sob carga, um toque demora a chegar à página. */
+async function settled({ evaluate }, expression) {
+  for (let tries = 0; tries < 100; tries += 1) {
+    if (await evaluate(expression)) return true;
+    await sleep(50);
+  }
+  return false;
+}
+
 async function pressEnter({ page }) {
   const key = { key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, text: "\r" };
   await page("Input.dispatchKeyEvent", { type: "keyDown", ...key });
@@ -130,23 +139,23 @@ async function byTouch(client) {
 
   // A linha toda aceita o toque, e não só o número.
   await tap(client, '[data-line="2"] .fitch__formula');
-  check(await evaluate(`document.querySelector('[data-line="2"]').dataset.state === "ok"`), "a linha certa não ficou assinalada");
+  check(await settled(client, `document.querySelector('[data-line="2"]').dataset.state === "ok"`), "a linha certa não ficou assinalada");
   check(await evaluate(`document.querySelector('[data-line="2"] .fitch__pick').disabled`), "a linha recusada continua ativa");
   check((await evaluate(`document.querySelector(".find-error__live").textContent`)).includes("2"), "a recusa não foi anunciada");
   await writeScreenshot(page, "2-linha-certa");
 
   await tap(client, '[data-line="6"] .fitch__why');
-  check(await evaluate(`document.querySelector('[data-line="6"]').dataset.state === "error"`), "a linha errada não ficou assinalada");
+  check(await settled(client, `document.querySelector('[data-line="6"]').dataset.state === "error"`), "a linha errada não ficou assinalada");
   check(await evaluate(`document.querySelectorAll("[data-reason]").length === 4`), "faltam explicações");
   check(await evaluate(`document.activeElement === document.querySelector("[data-reason]")`), "o foco não passou para as explicações");
   await writeScreenshot(page, "3-explicar");
 
   await tap(client, `[data-reason="closedSubproofLine"]`);
-  check(await evaluate(`document.querySelector('[data-reason="closedSubproofLine"]').disabled`), "a explicação recusada continua ativa");
+  check(await settled(client, `document.querySelector('[data-reason="closedSubproofLine"]').disabled`), "a explicação recusada continua ativa");
   check(await evaluate(`window.solved.length === 0`), "uma explicação errada resolveu o desafio");
 
   await tap(client, `[data-reason="negationIntroResult"]`);
-  check(await evaluate(`window.solved.join() === "solved"`), "o desafio não ficou resolvido");
+  check(await settled(client, `window.solved.join() === "solved"`), "o desafio não ficou resolvido");
   check(await evaluate(`document.activeElement.classList.contains("find-error__done")`), "o foco não passou para o resultado");
   check(await evaluate(`document.querySelectorAll(".find-error__done .fitch__line").length === 7`), "falta a prova correta");
   check(await evaluate(`${pageWidth} <= ${WIDTH}`), "o resultado alargou a página");

@@ -44,15 +44,23 @@ test("cada entry monta o layout, que traz a barra de créditos, o cabeçalho e o
   }
 });
 
-test("as 5 páginas têm estado vazio, com o texto próprio de cada uma", () => {
-  for (const [file, page] of Object.entries(PAGES)) {
-    if (page === "notFound") continue;
+test("as páginas por acabar têm estado vazio, com o texto próprio de cada uma", () => {
+  const unfinished = Object.entries(PAGES).filter(([, page]) => !["notFound", "exercises"].includes(page));
+  for (const [file, page] of unfinished) {
     const html = read(file);
     assert.match(html, /<div class="empty-state">/, file);
     assert.ok(html.includes(`data-i18n="${page}.empty"`), file);
   }
-  const texts = Object.values(PAGES).filter((page) => page !== "notFound").map((page) => pt[page].empty);
+  const texts = unfinished.map(([, page]) => pt[page].empty);
   assert.equal(new Set(texts).size, texts.length);
+});
+
+test("a página Exercícios já não tem o estado vazio e monta em #exercises", () => {
+  const html = read("exercicios.html");
+  assert.doesNotMatch(html, /empty-state/);
+  assert.match(html, /<div id="exercises"/);
+  assert.equal(pt.exercises.empty, undefined);
+  assert.equal(en.exercises.empty, undefined);
 });
 
 test("a 404 tem as saídas para o início e para o editor", () => {

@@ -41,26 +41,55 @@
   <link rel="stylesheet" href="/css/app.css">
   <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
   <link rel="modulepreload" href="/js/pages/exercicios.js">
+  <link rel="modulepreload" href="/js/core/exercise-page.js">
+  <link rel="modulepreload" href="/js/ui/exercise-detail.js">
+  <link rel="modulepreload" href="/js/ui/exercise-list.js">
   <link rel="modulepreload" href="/js/ui/layout.js">
-  <link rel="modulepreload" href="/js/ui/config.js">
-  <link rel="modulepreload" href="/js/ui/i18n.js">
-  <link rel="modulepreload" href="/js/core/routes.js">
   <link rel="modulepreload" href="/js/ui/storage.js">
+  <link rel="modulepreload" href="/js/core/exercises.js">
+  <link rel="modulepreload" href="/js/core/find-error.js">
+  <link rel="modulepreload" href="/js/core/user-rules.js">
+  <link rel="modulepreload" href="/js/core/editor.js">
+  <link rel="modulepreload" href="/js/ui/assist-panel.js">
+  <link rel="modulepreload" href="/js/ui/find-error.js">
+  <link rel="modulepreload" href="/js/ui/fitch-view.js">
+  <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/ui/message.js">
+  <link rel="modulepreload" href="/js/ui/proof-editor.js">
+  <link rel="modulepreload" href="/js/ui/user-rules-store.js">
+  <link rel="modulepreload" href="/js/core/rules.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/core/routes.js">
   <link rel="modulepreload" href="/js/ui/segmented.js">
   <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/core/exercise-catalog.js">
+  <link rel="modulepreload" href="/js/core/proof-text.js">
+  <link rel="modulepreload" href="/js/core/sequent.js">
+  <link rel="modulepreload" href="/js/core/verify.js">
+  <link rel="modulepreload" href="/js/core/find-error-catalog.js">
+  <link rel="modulepreload" href="/js/core/semantics.js">
+  <link rel="modulepreload" href="/js/core/formula.js">
+  <link rel="modulepreload" href="/js/core/schema.js">
+  <link rel="modulepreload" href="/js/core/parser.js">
+  <link rel="modulepreload" href="/js/core/proof.js">
+  <link rel="modulepreload" href="/js/core/assist.js">
+  <link rel="modulepreload" href="/js/ui/solver-worker.js">
+  <link rel="modulepreload" href="/js/core/speech.js">
   <link rel="modulepreload" href="/js/ui/locales/pt.js">
   <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/core/guided.js">
+  <link rel="modulepreload" href="/js/ui/sequent-input.js">
+  <link rel="modulepreload" href="/js/core/notation.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/exercicios.js"></script>
 </head>
 <body data-page="exercises">
   <main id="main" class="wrap page-empty">
-    <h1 class="page-empty__title" data-i18n="exercises.title">Natural deduction exercises</h1>
-    <p class="page-empty__lead" data-i18n="exercises.lead">Graded proofs, with instant feedback and your progress saved.</p>
-    <div class="empty-state">
-      <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8.5h6M9 12h6M9 15.5h4"/></svg></span>
-      <h2 class="empty-state__heading" data-i18n="emptyState.heading">Still under construction</h2>
-      <p class="empty-state__hint" data-i18n="exercises.empty">The exercises are not available on this page yet.</p>
+    <div id="exercises" class="exercises-page">
+      <div class="exercises-title">
+        <h1 class="page-empty__title" data-i18n="exercises.title">Natural deduction exercises</h1>
+        <p class="page-empty__lead" data-i18n="exercises.lead">Graded proofs, with instant feedback and your progress saved.</p>
+      </div>
     </div>
   </main>
   <!-- footer (gerado por scripts/build-pages.mjs) -->

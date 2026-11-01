@@ -52,7 +52,7 @@ test("o texto EN está no HTML e o que não é uma página fica como está", () 
   for (const { page, output } of pageFiles()) {
     const html = read(output);
     assert.ok(html.includes(LOCALES.en[page].title), output);
-    assert.ok(html.includes(LOCALES.en[page].empty), output);
+    if (page !== "exercises") assert.ok(html.includes(LOCALES.en[page].empty), output);
     assert.match(html, /href="\/css\/app.css"/, output);
     assert.match(html, /src="\/js\/pages\/[a-z0-9-]+\.js"/, output);
   }
