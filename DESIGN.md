@@ -46,19 +46,19 @@ O acento é a tinta, e não uma cor: assim, um botão nunca se confunde com um e
 ### Estados
 
 Cada cor (texto, ícone, contorno) tem um fundo suave. A cor passa 4,5:1 no branco e no seu fundo suave,
-por isso o mesmo token serve para texto e para marcas. O significado dos tons ainda sem uso fica
-definido quando a vista de Fitch precisar deles.
+por isso o mesmo token serve para texto e para marcas.
 
 | Uso | Cor | Fundo | cor/bg | cor/fundo |
 | --- | --- | --- | --- | --- |
-| Certo (`.msg-ok`) | `--color-ev-ok` `#15803d` | `--color-ev-ok-soft` `#f0fdf4` | 5,02 | 4,79 |
-| Erro (`.msg-error`) | `--color-ev-conflict` `#b91c1c` | `--color-ev-conflict-soft` `#fef2f2` | 6,47 | 5,91 |
-| Aviso (`.msg-warn`) | `--color-ev-branch` `#b45309` | `--color-ev-branch-soft` `#fffbeb` | 5,02 | 4,84 |
-| Azul, sem uso fixo | `--color-ev-unit` `#0369a1` | `--color-ev-unit-soft` `#f0f9ff` | 5,93 | 5,57 |
-| Violeta, sem uso fixo | `--color-ev-back` `#6d28d9` | `--color-ev-back-soft` `#f5f3ff` | 7,10 | 6,48 |
-| Magenta, sem uso fixo | `--color-ev-res` `#a21caf` | `--color-ev-res-soft` `#fdf4ff` | 6,32 | 5,89 |
+| Certo (`.msg-ok`, linha certa, concluir na timeline) | `--color-ev-ok` `#15803d` | `--color-ev-ok-soft` `#f0fdf4` | 5,02 | 4,79 |
+| Erro (`.msg-error`, linha errada) | `--color-ev-conflict` `#b91c1c` | `--color-ev-conflict-soft` `#fef2f2` | 6,47 | 5,91 |
+| Aviso (`.msg-warn`, hipótese na timeline) | `--color-ev-branch` `#b45309` | `--color-ev-branch-soft` `#fffbeb` | 5,02 | 4,84 |
+| Informação: link em hover, linha citada no passo, derivar na timeline | `--color-ev-unit` `#0369a1` | `--color-ev-unit-soft` `#f0f9ff` | 5,93 | 5,57 |
+| Fechar uma subdedução na timeline | `--color-ev-back` `#6d28d9` | `--color-ev-back-soft` `#f5f3ff` | 7,10 | 6,48 |
+| Magenta, sem uso | `--color-ev-res` `#a21caf` | `--color-ev-res-soft` `#fdf4ff` | 6,32 | 5,89 |
 
-As classes de estado são escritas por inteiro, porque o Tailwind só gera o que encontra escrito.
+As classes de estado são escritas por inteiro, porque o Tailwind só gera o que encontra escrito. Os nomes
+`ev-*` são históricos: o que conta é o uso desta tabela.
 
 ### Tipografia
 
@@ -107,6 +107,7 @@ mão. Transições e animações usam sempre os tokens.
 | --- | --- |
 | < 768px (alvo: **390px**) | Uma coluna, tab bar inferior, menus em folha. |
 | ≥ 768px | Navegação no cabeçalho, menus em dropdown, duas colunas onde couber. |
+| ≥ 1080px | Na lição, o índice passa a coluna à esquerda; abaixo disso, é uma barra fixa (`--lesson-toc-bar`, 52px). |
 
 ## Movimento
 
@@ -140,7 +141,10 @@ carregamento não muda). Sem suporte no browser, a navegação é normal.
 - **Alvos:** ≥ 44×44px a 390px. Onde o tamanho visível é menor (`.seg`), um `::after` alarga a zona de
   toque. Exceção: links no meio de uma frase.
 - **Estados** dizem-se com cor + ícone + texto; o que só se vê tem texto em `sr-only`.
-- **Regiões vivas:** feedback em `role="status"` fixo, para ser anunciado.
+- **Regiões vivas:** feedback em `role="status"` fixo, para ser anunciado. O editor tem uma região só,
+  `.proof-editor__live`, que anuncia apenas as linhas que mudaram.
+- **Fórmulas lidas:** os leitores de ecrã saltam ¬ e →, por isso as fórmulas levam `role="img"` com
+  `aria-label` em palavras (`js/core/speech.js`), e não texto `.sr-only`, que seria copiado com a fórmula.
 
 ## Navegação mobile
 
@@ -159,5 +163,15 @@ campos; o tema (`css/src/basecoat-vega.css`) é uma parte do original, com esses
 | Segmented | `.seg`, `.seg.sm` | Fundo `surface-2`, opção ativa em branco com sombra; setas movem a seleção. |
 | Mensagem | `.msg`, `.msg-info`… | Ícone + texto com veredito a negrito. |
 | Vista de Fitch | `.fitch` | Número e estado presos à esquerda, barras de escopo, fórmula em mono e justificação. Estados: certa (`ev-ok`, visto), erro (`ev-conflict`, triângulo e fundo suave), por acabar (`text-muted`, círculo). Scroll horizontal só dentro do bloco. |
+| Editor de prova | `.proof-editor`, `.fitch--edit` | A vista de Fitch com campos de fórmula e justificação; sem scroll horizontal, cada campo desloca o próprio texto. |
+| Modo guiado | `.guided`, `.fitch-pick` | Cada linha é um botão com toda a largura; escolhem-se as linhas e depois a regra. |
+| Árvore de Gentzen | `.tree-panel`, `.gentzen`, `.gt` | Só de leitura, com scroll horizontal próprio; as setas andam entre fórmulas. |
+| Campo de sequente | `.sequent-input`, `.field-box`, `.keys`, `.preview` | Textarea sobre um espelho, teclas de símbolos e pré-visualização. A 390px, 5 teclas por linha. |
+| Ajuda | `.assist` | Dicas por níveis, solução e contraexemplo. |
+| Regras próprias | `.rules-panel`, `.rules-form`, `.rule-scheme` | Painel de uma linha, fechado, entre o sequente e a prova. |
+| Player | `.step-player`, `.step-card`, `.timeline`, `.play` | Explicação do passo, linha atual a tinta e citadas a azul; timeline fixa, com pontos coloridos por tipo de passo. |
+| Lição | `.lesson`, `.lesson-toc`, `.lesson-figure`, `.quiz` | Índice, artigo de 42rem e figuras em `surface`, mais largas do que o texto. |
+| Exercícios | `.exercise-group`, `.exercise-item`, `.exercise-status`, `.find-error` | Lista por níveis, com estado em ícone e texto; no passo errado, a linha toda aceita o toque. |
 | Menu | `details.dd`, `.dd-panel`, `.menu` | Dropdown a partir de 768px; folha no mobile. |
 | Folha | `dialog.sheet` | Scrim a 40%, raio 20 em cima, pega, itens de 52px; arrasta para fechar. |
+| Impressão | `.print-sheet` | Só existe entre o `beforeprint` e o `afterprint`, com a prova inteira, sem scroll nem caixa. |

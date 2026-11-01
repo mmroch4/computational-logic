@@ -109,9 +109,14 @@ export function a11yAudit() {
     }
     return layers.reduceRight((below, layer) => over(layer, below), { r: 255, g: 255, b: 255, a: 1 });
   };
+  // Um elemento a meio de uma animação conta pelo estado final: uma linha da demonstração da página
+  // inicial apanhada no início do fade media 1:1.
+  const animating = (node) => node.getAnimations().some((animation) => animation.playState === "running");
   const opacityOf = (el) => {
     let value = 1;
-    for (let node = el; node; node = node.parentElement) value *= parseFloat(getComputedStyle(node).opacity);
+    for (let node = el; node; node = node.parentElement) {
+      if (!animating(node)) value *= parseFloat(getComputedStyle(node).opacity);
+    }
     return value;
   };
   const checkContrast = (el, cssColor, sample) => {

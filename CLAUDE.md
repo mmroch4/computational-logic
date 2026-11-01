@@ -2,6 +2,7 @@
 
 Site público para aprender provas no sistema DN em notação de Fitch. A especificação é o `SPEC.md`.
 Em caso de conflito, a ordem é: `SPEC.md`, depois este ficheiro, depois `.reference/sat/`.
+O sistema visual está no `DESIGN.md`, e a documentação pública, em inglês, no `README.md`.
 
 ## Restrições
 
@@ -52,8 +53,27 @@ que têm gralhas. Toda a prova publicada no site passa pelo verificador nos test
 
 ## Comandos
 
-- Testes: `npm test`. Snapshots: `UPDATE_SNAPSHOTS=1 npm test`.
-- CSS: `npm run build:css`. Páginas EN e SEO: `npm run build:pages`.
-- Módulos: `node scripts/modulepreload.mjs` depois de mudar imports.
-- Servidor local: `node scripts/serve.mjs 8765`.
-- Verificação visual: `scripts/check-page.sh <caminho> [pasta]`. Valida sempre a 390px.
+Os ficheiros gerados são commitados, e a Vercel não compila nada. Nunca edites `en/` nem os blocos
+`<!-- seo -->` e `<!-- footer -->` à mão.
+
+- Testes: `npm test`, que também corre o Chrome headless (`CHROME_BIN` muda o caminho). Snapshots:
+  `UPDATE_SNAPSHOTS=1 npm test`, em `tests/__snapshots__/`.
+- CSS: `npm run build:css`. `npm run watch:css` não minifica: corre o build antes do commit.
+- Módulos: `node scripts/modulepreload.mjs` depois de mudar imports, antes do `build:pages`.
+- Páginas EN e SEO: `npm run build:pages`.
+- Vendor: `npm run build:vendor`, só depois de mudar a versão do `motion`.
+- Imagens de partilha: `scripts/make-share-images.sh`, se mudar o nome ou o modelo em
+  `scripts/share-images/`. Nenhum teste deteta um PNG desatualizado.
+- Servidor local: `node scripts/serve.mjs 8765`. Imita a Vercel a partir do `vercel.json` e do
+  `.vercelignore`.
+- Verificação visual: `scripts/check-page.sh <caminho> [pasta]`. Valida sempre a 390px. Opções:
+  `FULL_PAGE=1`, `PDF=1`, `REDUCED_MOTION=1`, `BLOCK_STORAGE=1`, `MEASURE=1`, `CLICK`, `EVAL`, `PORT`.
+  As screenshots vão para `tmp/screens/`.
+- Todas as páginas: `scripts/check-all.sh [pasta]`, nas 3 condições (normal, movimento reduzido e
+  `localStorage` bloqueado).
+- Outras verificações no Chrome: `scripts/check-step.sh`, `scripts/check-exercises.sh`,
+  `scripts/check-edge.sh` e `scripts/check-keyboard.sh`. Os `scripts/check-*.mjs` correm no `npm test`.
+- Lighthouse: `scripts/lighthouse.sh [pasta]`. Usa a rede e falha abaixo de `MIN=95`.
+- Deploy: `scripts/smoke-deploy.sh [url-base]`, com `curl`; sem URL, corre contra o `serve.mjs`.
+- Documentação: o `tests/docs.test.js` exige que existam os scripts, os comandos, as rotas e os tokens
+  citados aqui, no `README.md` e no `DESIGN.md`.

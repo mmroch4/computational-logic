@@ -86,10 +86,22 @@ test("o check-page falha se a falha transitória se repetir", () => {
   assert.match(output, /ERR_CERT_VERIFIER_CHANGED/);
 });
 
+test("o check-page repete uma vez a ligação às fontes fechada a meio", () => {
+  const message = "net::ERR_CONNECTION_CLOSED https://fonts.googleapis.com/css2?family=Geist";
+  const { status, runs } = runCheckPage({ fails: 1, message });
+  assert.deepEqual([status, runs], [0, 2]);
+});
+
 test("o check-page não repete nenhum outro erro", () => {
   const { status, output, runs } = runCheckPage({ fails: 1, message: "Erro na consola" });
   assert.deepEqual([status, runs], [1, 1]);
   assert.match(output, /Erro na consola/);
+});
+
+test("o check-page não repete uma ligação fechada que não seja às fontes", () => {
+  const message = "net::ERR_CONNECTION_CLOSED http://127.0.0.1:8797/js/boot.js";
+  const { status, runs } = runCheckPage({ fails: 1, message });
+  assert.deepEqual([status, runs], [1, 1]);
 });
 
 test("o check-page corre uma só vez quando passa", () => {

@@ -6,6 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { a11yAudit } from "./a11y-audit.mjs";
 
 const CHROME = process.env.CHROME_BIN || "/usr/bin/google-chrome";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -151,6 +152,29 @@ async function english(client, origin) {
   check(/^Line \d/.test(caption), `EN: legenda: ${caption}`);
 }
 
+// A demonstração continua a animar durante a auditoria: uma linha no início do fade não é falta de
+// contraste, mas uma opacidade parada é.
+async function auditDuringFade(client, origin) {
+  const { evaluate } = client;
+  await open(client, `${origin}/`);
+  const audit = `(${a11yAudit.toString()})()`;
+  const contrast = async (mark) => (await evaluate(audit)).filter((problem) => problem.includes(mark));
+  await evaluate(`{
+    const fading = document.createElement("p");
+    fading.textContent = "a-meio-do-fade";
+    document.querySelector("main").append(fading);
+    fading.animate({ opacity: [0, 1] }, 60000);
+  }`);
+  check((await contrast("a-meio-do-fade")).length === 0, "a auditoria mediu uma animação a meio");
+  await evaluate(`{
+    const faint = document.createElement("p");
+    faint.textContent = "sempre-transparente";
+    faint.style.opacity = "0.1";
+    document.querySelector("main").append(faint);
+  }`);
+  check((await contrast("sempre-transparente")).length === 1, "a auditoria deixou passar uma opacidade parada");
+}
+
 const server = spawn("node", [join(ROOT, "scripts/serve.mjs"), "0"], { stdio: ["ignore", "pipe", "ignore"] });
 const profile = mkdtempSync(join(tmpdir(), "nd-chrome-"));
 const chrome = spawn(CHROME, [
@@ -167,6 +191,7 @@ try {
   await playThrough(client, origin);
   await reducedMotion(client, origin);
   await english(client, origin);
+  await auditDuringFade(client, origin);
   client.close();
 } catch (error) {
   problems.push(error.stack ?? String(error));

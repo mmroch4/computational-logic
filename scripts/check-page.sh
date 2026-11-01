@@ -33,10 +33,10 @@ run_check() {
 }
 
 run_check
-# O Chrome às vezes falha o pedido às Google Fonts ao arrancar: só esse erro, e só ele, tem nova tentativa.
+# O Chrome às vezes falha o pedido às Google Fonts ao arrancar: só esses erros, e só eles, têm nova tentativa.
 if [ "$STATUS" -ne 0 ]; then
   case "$OUTPUT" in
-    *ERR_CERT_VERIFIER_CHANGED*) run_check ;;
+    *ERR_CERT_VERIFIER_CHANGED*|*ERR_CONNECTION_CLOSED*fonts.googleapis.com*) run_check ;;
   esac
 fi
 echo "$OUTPUT"
