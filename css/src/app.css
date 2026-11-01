@@ -2669,6 +2669,30 @@
     outline-offset: -2px;
   }
 
+  /* Escolha do sequente no Passo a passo: com uma prova aberta, recolhe-se atrás de «Mudar de sequente». */
+  .step-choose:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .has-timeline .step-choose:not([hidden]),
+  .has-timeline .step-change,
+  .has-timeline .step-message:not(:empty) {
+    margin-bottom: 16px;
+  }
+
+  /* A `.fitch` recebe foco por causa do scroll: a prova de uma linha (`a ⊢ a`) tem de dar um alvo de 44px. */
+  .step-player__fitch .fitch {
+    min-height: 44px;
+  }
+
+  .step-outcome {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
   /* Player do Passo a passo. */
   .step-player {
     display: flex;

@@ -16,6 +16,7 @@ const SCRIPTS = [
   "scripts/check-page.sh",
   "scripts/check-page.mjs",
   "scripts/check-exercises.sh",
+  "scripts/check-step.sh",
   "scripts/check-keyboard.sh",
   "scripts/prove-states.mjs",
   "scripts/a11y-audit.mjs",

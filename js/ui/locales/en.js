@@ -221,7 +221,10 @@ export default {
   step: {
     title: "Natural deduction step by step",
     lead: "Follow a proof from start to finish, with the strategy that explains each line.",
-    empty: "Proof playback is not available on this page yet.",
+    emptyHeading: "No proof yet",
+    empty: "Pick an example or write a sequent to see its proof step by step.",
+    start: "Show the proof",
+    change: "Change sequent",
   },
   timeline: {
     label: "Step controls",
@@ -248,6 +251,8 @@ export default {
   player: {
     loading: "Generating the proof…",
     invalid: "This sequent is not valid, so there is no proof to play.",
+    counterexample: "Counterexample: with these values, the premises are true and the conclusion is false.",
+    counterexampleNoPremises: "Counterexample: with these values, the conclusion is false.",
     noLines: "There are no lines yet: this sequent has no premises.",
     start: "You start with only the premises. Each step adds one line to the proof.",
     startEmpty: "There are no premises, so the proof starts with nothing proved. Each step adds one line.",

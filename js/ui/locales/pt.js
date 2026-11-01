@@ -222,7 +222,10 @@ export default {
   step: {
     title: "Dedução natural passo a passo",
     lead: "Acompanha uma prova do início ao fim, com a estratégia que explica cada linha.",
-    empty: "A reprodução de provas ainda não está disponível nesta página.",
+    emptyHeading: "Ainda não há prova",
+    empty: "Escolhe um exemplo ou escreve um sequente para veres a prova passo a passo.",
+    start: "Ver a prova",
+    change: "Mudar de sequente",
   },
   timeline: {
     label: "Controlo dos passos",
@@ -249,6 +252,8 @@ export default {
   player: {
     loading: "A gerar a prova…",
     invalid: "Este sequente não é válido, por isso não há prova para reproduzir.",
+    counterexample: "Contraexemplo: com estes valores, as premissas são verdadeiras e a conclusão é falsa.",
+    counterexampleNoPremises: "Contraexemplo: com estes valores, a conclusão é falsa.",
     noLines: "Ainda não há linhas: este sequente não tem premissas.",
     start: "Começas só com as premissas. Cada passo acrescenta uma linha à prova.",
     startEmpty: "Não há premissas, por isso a prova começa sem nada provado. Cada passo acrescenta uma linha.",

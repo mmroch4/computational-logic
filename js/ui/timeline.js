@@ -198,7 +198,8 @@ export function keepsKey(action, target) {
  *     (seguinte e play). Pode devolver a sequência do passo ({ finished, cancel() }, ver js/ui/motion.js):
  *     o play espera por ela, e qualquer interação a meio cancela-a.
  *   store: armazenamento das prefs (por omissão o de storage.js), para a velocidade.
- * Devolve { setTrace(trace, index), go(index), play(), pause(), settle(), index, playing }.
+ * Devolve { setTrace(trace, index), clear(), go(index), play(), pause(), settle(), index, playing }.
+ * clear() para e tira a timeline: sem ela, as teclas deixam de contar.
  * settle() cancela a sequência do passo, para mostrar logo o estado final.
  */
 export function mountTimeline(container, { onChange = () => {}, store = defaultStorage } = {}) {
@@ -368,7 +369,7 @@ export function mountTimeline(container, { onChange = () => {}, store = defaultS
   mountMenus(container);
   onLangChange(() => {
     settle();
-    draw();
+    if (container.firstElementChild) draw();
   });
 
   return {
@@ -377,6 +378,12 @@ export function mountTimeline(container, { onChange = () => {}, store = defaultS
       trace = newTrace;
       index = clampStep(startIndex, trace);
       draw();
+    },
+    clear() {
+      pause();
+      trace = [];
+      index = 0;
+      container.replaceChildren();
     },
     go(target) {
       pause();

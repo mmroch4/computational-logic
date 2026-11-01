@@ -1,4 +1,4 @@
-// Menu de exemplos da página Provar: os últimos sequentes abertos e os de core/examples.js, por grupos. O
+// Menu de exemplos das páginas Provar e Passo a passo: os últimos sequentes abertos e os de core/examples.js, por grupos. O
 // comportamento (teclado, fechar, folha no telemóvel) vem do menu.js.
 import { EXAMPLE_GROUPS, findExample } from "../core/examples.js";
 import { onLangChange, t } from "./i18n.js";

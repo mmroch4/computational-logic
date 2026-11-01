@@ -6,7 +6,8 @@
 import {
   IDLE, canRevealMore, errorKey, panelFromResult, revealMore, searching,
 } from "../core/assist.js";
-import { displayName, format } from "../core/formula.js";
+import { format } from "../core/formula.js";
+import { valuationHtml } from "./counterexample.js";
 import { fitchHtml, readAsHtml, spokenProse } from "./fitch-view.js";
 import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -33,14 +34,9 @@ function hintHtml({ target, levels, revealed, ...panel }) {
   return `${heading}<ol class="assist__levels">${items}</ol>${more}`;
 }
 
-function invalidHtml({ valuation, freeVariables, hasPremises }) {
-  const text = msgHtml("warn", escapeHtml(t(hasPremises ? "assist.invalid" : "assist.invalidNoPremises")));
-  if (valuation.length === 0) return `${text}<p class="assist__note">${escapeHtml(t("assist.anyValuation"))}</p>`;
-  const items = valuation.map(([name, value]) => (
-    `<li>${escapeHtml(`${displayName(name)} = ${t(`assist.values.${value}`)}`)}</li>`
-  )).join("");
-  const others = freeVariables ? `<p class="assist__note">${escapeHtml(t("assist.otherValues"))}</p>` : "";
-  return `${text}<ul class="assist__valuation" aria-label="${escapeHtml(t("assist.valuationLabel"))}">${items}</ul>${others}`;
+function invalidHtml(panel) {
+  const text = msgHtml("warn", escapeHtml(t(panel.hasPremises ? "assist.invalid" : "assist.invalidNoPremises")));
+  return text + valuationHtml(panel);
 }
 
 function solutionHtml({ proof, start, reason }) {

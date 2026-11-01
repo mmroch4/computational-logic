@@ -40,41 +40,45 @@
   <link rel="stylesheet" href="/css/app.css">
   <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
   <link rel="modulepreload" href="/js/pages/passo-a-passo.js">
-  <link rel="modulepreload" href="/js/core/step-link.js">
+  <link rel="modulepreload" href="/js/core/sequent.js">
   <link rel="modulepreload" href="/js/core/rules.js">
+  <link rel="modulepreload" href="/js/core/step-link.js">
+  <link rel="modulepreload" href="/js/ui/examples-menu.js">
   <link rel="modulepreload" href="/js/ui/i18n.js">
   <link rel="modulepreload" href="/js/ui/layout.js">
   <link rel="modulepreload" href="/js/ui/message.js">
+  <link rel="modulepreload" href="/js/ui/sequent-input.js">
   <link rel="modulepreload" href="/js/ui/solver-worker.js">
   <link rel="modulepreload" href="/js/ui/step-player.js">
-  <link rel="modulepreload" href="/js/core/share.js">
+  <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/core/formula.js">
+  <link rel="modulepreload" href="/js/core/parser.js">
   <link rel="modulepreload" href="/js/core/schema.js">
-  <link rel="modulepreload" href="/js/core/sequent.js">
+  <link rel="modulepreload" href="/js/core/share.js">
+  <link rel="modulepreload" href="/js/core/examples.js">
+  <link rel="modulepreload" href="/js/ui/menu.js">
   <link rel="modulepreload" href="/js/core/routes.js">
   <link rel="modulepreload" href="/js/ui/locales/pt.js">
   <link rel="modulepreload" href="/js/ui/locales/en.js">
   <link rel="modulepreload" href="/js/ui/config.js">
-  <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/ui/segmented.js">
   <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/core/notation.js">
   <link rel="modulepreload" href="/js/core/assist.js">
   <link rel="modulepreload" href="/js/core/proof-trace.js">
   <link rel="modulepreload" href="/js/core/tree.js">
+  <link rel="modulepreload" href="/js/ui/counterexample.js">
   <link rel="modulepreload" href="/js/ui/fitch-view.js">
-  <link rel="modulepreload" href="/js/ui/menu.js">
   <link rel="modulepreload" href="/js/ui/motion.js">
   <link rel="modulepreload" href="/js/ui/timeline.js">
   <link rel="modulepreload" href="/js/ui/tree-view.js">
-  <link rel="modulepreload" href="/js/core/notation.js">
-  <link rel="modulepreload" href="/js/core/parser.js">
   <link rel="modulepreload" href="/js/core/proof.js">
   <link rel="modulepreload" href="/js/core/proof-text.js">
   <link rel="modulepreload" href="/js/core/user-rules.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
   <link rel="modulepreload" href="/js/core/semantics.js">
   <link rel="modulepreload" href="/js/core/verify.js">
   <link rel="modulepreload" href="/js/core/speech.js">
-  <link rel="modulepreload" href="/js/ui/sheet.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/passo-a-passo.js"></script>
 </head>
@@ -82,12 +86,22 @@
   <main id="main" class="wrap page-empty">
     <h1 class="page-empty__title" data-i18n="step.title">Dedução natural passo a passo</h1>
     <p class="page-empty__lead" data-i18n="step.lead">Acompanha uma prova do início ao fim, com a estratégia que explica cada linha.</p>
-    <div class="empty-state">
-      <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 5.5v13l11-6.5z"/></svg></span>
-      <h2 class="empty-state__heading" data-i18n="emptyState.heading">Ainda em construção</h2>
-      <p class="empty-state__hint" data-i18n="step.empty">A reprodução de provas ainda não está disponível nesta página.</p>
+    <div id="step-choose" class="step-choose">
+      <div id="examples-menu" class="prove-examples"></div>
+      <div id="sequent-input" class="sequent-input"></div>
+      <button type="button" id="step-start" class="btn prove-start" data-i18n="step.start">Ver a prova</button>
     </div>
-    <div id="step-message" aria-live="polite"></div>
+    <div id="step-empty">
+      <div class="empty-state">
+        <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+        <h2 class="empty-state__heading" data-i18n="step.emptyHeading">Ainda não há prova</h2>
+        <p class="empty-state__hint" data-i18n="step.empty">Escolhe um exemplo ou escreve um sequente para veres a prova passo a passo.</p>
+      </div>
+    </div>
+    <div class="step-change" id="step-change-row" hidden>
+      <button type="button" id="step-change" class="btn" data-variant="outline" data-size="sm" aria-expanded="false" aria-controls="step-choose" data-i18n="step.change">Mudar de sequente</button>
+    </div>
+    <div id="step-message" class="step-message" aria-live="polite"></div>
     <div id="step-player" class="step-player" hidden></div>
   </main>
   <!-- footer (gerado por scripts/build-pages.mjs) -->

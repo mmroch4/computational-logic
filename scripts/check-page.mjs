@@ -28,6 +28,8 @@ const REDUCED_MOTION = process.env.REDUCED_MOTION === "1";
 // BLOCK_STORAGE=1: o localStorage lança SecurityError (como num browser com cookies bloqueados),
 // antes de qualquer script da página; a página tem de funcionar na mesma e sem erros na consola.
 const BLOCK_STORAGE = process.env.BLOCK_STORAGE === "1";
+// PRELOAD="js": corre antes de cada documento, por exemplo para limpar o que a outra largura guardou.
+const PRELOAD = process.env.PRELOAD || "";
 // EXPECT_404="texto": os 404 de URLs com esse texto são de propósito (ex.: abrir a página 404 num iframe).
 const EXPECT_404 = process.env.EXPECT_404 || "";
 // /favicon.ico: o Chrome pede-o enquanto as páginas não ligam um favicon. A H3 cria-o e tira esta exceção.
@@ -154,6 +156,7 @@ async function checkViewport(cdp, vp, errors) {
                Object.defineProperty(navigator, "languages", { get: () => [${JSON.stringify(LANG)}] });`,
     }, sessionId);
   }
+  if (PRELOAD) await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: PRELOAD }, sessionId);
   if (BLOCK_STORAGE) {
     await cdp.send("Page.addScriptToEvaluateOnNewDocument", {
       source: `Object.defineProperty(window, "localStorage", {

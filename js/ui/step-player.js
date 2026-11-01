@@ -3,11 +3,12 @@
 // leva ao passo que a escreveu. Quem monta dá a prova com `load` e guarda o estado que `onState` lhe diz.
 //
 // As funções exportadas à parte são puras (testáveis em node); só mountStepPlayer() mexe no DOM.
-import { errorKey } from "../core/assist.js";
+import { errorKey, panelFromResult } from "../core/assist.js";
 import { clampStep, proofAt, proofTrace, stepOfLine } from "../core/proof-trace.js";
 import { formatSequent } from "../core/sequent.js";
 import { STEP_VIEWS } from "../core/step-link.js";
 import { MAX_TREE_NODES, treeAt } from "../core/tree.js";
+import { valuationHtml } from "./counterexample.js";
 import { fitchHtml, readAsHtml, spokenProse } from "./fitch-view.js";
 import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -27,6 +28,17 @@ export function solveOutcome(result) {
   if (!result.valid) return { kind: "warn", key: "player.invalid", params: {} };
   if (!result.provable) return { kind: "warn", key: "solver.noProof", params: {} };
   return null;
+}
+
+/** A mensagem de um `solveOutcome`; um sequente inválido traz o contraexemplo. Com prova, é vazia. */
+export function outcomeHtml(result, goal) {
+  const outcome = solveOutcome(result);
+  if (!outcome) return "";
+  const text = msgHtml(outcome.kind, escapeHtml(t(outcome.key, outcome.params)));
+  if (!result.ok || result.valid) return text;
+  const panel = panelFromResult({ status: "invalid", counterexample: result.counterexample }, goal);
+  const lead = panel.valuation.length === 0 ? "" : `<p class="assist__note">${escapeHtml(t(panel.hasPremises ? "player.counterexample" : "player.counterexampleNoPremises"))}</p>`;
+  return `<div class="step-outcome">${text}${lead}${valuationHtml(panel)}</div>`;
 }
 
 /** As linhas a destacar no passo `index`: a dele e as que ele cita. */
@@ -102,7 +114,7 @@ function enterStep(targets, speed) {
 /**
  * Monta o player em `container`, vazio até `load`.
  * onState({ step, view }): chamado sempre que o passo ou a vista mudam, e logo depois de `load`.
- * Devolve { load(goal, proof, { step, view }), step, view }.
+ * Devolve { load(goal, proof, { step, view }), clear(), step, view }. `clear` para o player e larga a prova.
  */
 export function mountStepPlayer(container, { onState = () => {} } = {}) {
   let current = null; // { goal, proof, trace }
@@ -222,6 +234,10 @@ export function mountStepPlayer(container, { onState = () => {} } = {}) {
       drawAll();
       revealLine();
       report();
+    },
+    clear() {
+      timeline.clear();
+      current = null;
     },
     get step() {
       return timeline.index;

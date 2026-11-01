@@ -21,6 +21,9 @@ const PLAYER_QUERY = "s=p+-%3E+q,+~q+%7C-+~p&step=2";
 const MENUS = [
   { path: "/provar", opener: "#examples-menu summary" },
   { path: "/en/prove", opener: "#examples-menu summary" },
+  // Um sequente inválido deixa a escolha aberta, e um link manda sobre o que ficou guardado.
+  { path: "/passo-a-passo?s=p+%7C-+q", opener: "#examples-menu summary" },
+  { path: "/en/step-by-step?s=p+%7C-+q", opener: "#examples-menu summary" },
   { path: `/passo-a-passo?${PLAYER_QUERY}`, opener: ".tl details.dd > summary" },
   { path: `/en/step-by-step?${PLAYER_QUERY}`, opener: ".tl details.dd > summary" },
 ];

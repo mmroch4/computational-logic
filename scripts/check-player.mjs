@@ -213,9 +213,11 @@ async function scenario({ page, evaluate, tap, press }, origin, path, lang) {
   await page("Page.navigate", { url: `${origin}${path}?s=p+%7C-+(` });
   await waitFor(() => evaluate(`document.querySelector("#step-message .msg-error") !== null`), tag("o erro de link"));
 
+  // Sem link e sem nada guardado; o que fica guardado é coberto pelo check-step.sh.
+  await evaluate(`localStorage.removeItem("nd:v1:step")`);
   await page("Page.navigate", { url: `${origin}${path}` });
-  await waitFor(() => evaluate(`document.body.dataset.ready !== "" && document.querySelector(".hdr") !== null`), tag("a página sem link"));
-  expect(await evaluate(`document.querySelector(".empty-state").hidden`), false, tag("sem link fica o estado vazio"));
+  await waitFor(() => evaluate(`document.querySelector(".hdr") !== null && document.querySelector("#sequent") !== null`), tag("a página sem link"));
+  expect(await evaluate(`document.getElementById("step-empty").hidden`), false, tag("sem link fica o estado vazio"));
 }
 
 const server = spawn("node", [join(ROOT, "scripts/serve.mjs"), "0"], { stdio: ["ignore", "pipe", "ignore"] });
