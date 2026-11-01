@@ -51,3 +51,11 @@
 - Mantém-se a proibição de `isPartOf` no SAT: a tarefa só levanta a dos links para o hub.
 - O `no-sat-references.test.js` proíbe «SAT» e «Davis» em `js/` da dedução natural, por isso o link diz «Satisfazibilidade» / «Satisfiability». Mostrar o nome da ferramenta exige o Miguel aceitar mudar esse teste.
 - O `tap` do `check-learn.mjs` espera que o alvo pare: o foco do quiz com `scroll-behavior: smooth` deslocava a página depois da medição. Mudar a altura do rodapé expôs esta corrida.
+
+## M7 · Identidade e SEO do hub
+
+- O favicon do hub era uma variação do da dedução natural (o mesmo ⊢, só com `M11 8.5v15`). Foi redesenhado: a marca é o reticulado de Boole gerado por p e q (losango com quatro nós), sobre um círculo, sem o azulejo arredondado das ferramentas.
+- O modelo `og-image.html` muda de idioma com CSS (`:target`, `#en`), para o hub continuar sem JS.
+- O `site.webmanifest` é um só: a `description` leva o texto em EN e PT na mesma frase.
+- O teste da CSP passou a retirar só o bloco `application/ld+json` antes de procurar `<script`; qualquer outro script continua a falhar.
+- Os testes de identidade leem `../sat` e `../natural-deduction` e ficam saltados se a pasta faltar, para o hub continuar a testar-se sozinho.

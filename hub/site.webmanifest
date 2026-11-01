@@ -1,0 +1,13 @@
+{
+  "name": "Computational Logic",
+  "short_name": "Comp. Logic",
+  "description": "Learn computational logic · Aprende lógica computacional",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#18181b",
+  "theme_color": "#18181b",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

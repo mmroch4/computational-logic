@@ -57,6 +57,9 @@ test("headers de segurança em todas as respostas, incluindo a 404", async () =>
   }
 });
 
+// O JSON-LD é um bloco de dados, que o browser não executa: é o único <script> que as páginas podem ter.
+const withoutJsonLd = (html) => html.replace(/<script type="application\/ld\+json">[^<]*<\/script>/g, "");
+
 test("CSP: sem scripts, sem estilos inline, e as páginas cumprem-na", () => {
   const directives = Object.fromEntries(csp.value.split("; ").map((d) => [d.split(" ")[0], d.split(" ").slice(1)]));
   assert.deepEqual(directives["default-src"], ["'self'"]);
@@ -66,7 +69,7 @@ test("CSP: sem scripts, sem estilos inline, e as páginas cumprem-na", () => {
   assert.deepEqual(directives["object-src"], ["'none'"]);
   assert.deepEqual(directives["frame-ancestors"], ["'self'"]);
   for (const page of HTML) {
-    const html = read(page);
+    const html = withoutJsonLd(read(page));
     assert.doesNotMatch(html, /<script\b/, `${page}: script`);
     assert.doesNotMatch(html, /<style\b/, `${page}: <style>`);
     assert.doesNotMatch(html, /<[a-z][^>]*\s(on[a-z]+|style)=/, `${page}: atributo inline`);
@@ -95,8 +98,15 @@ test("Cache-Control e Content-Type", async () => {
   for (const path of ["/", "/en", "/css/app.css", "/sitemap.xml"]) {
     assert.equal((await get(path)).headers.get("cache-control"), "public, max-age=0, must-revalidate", path);
   }
-  assert.equal((await get("/favicon.svg")).headers.get("cache-control"), "public, max-age=86400");
-  const types = { "/sitemap.xml": "application/xml; charset=utf-8", "/robots.txt": "text/plain; charset=utf-8" };
+  for (const path of ["/favicon.svg", "/og-image.png", "/og-image-en.png", "/apple-touch-icon.png"]) {
+    assert.equal((await get(path)).headers.get("cache-control"), "public, max-age=86400", path);
+  }
+  const types = {
+    "/sitemap.xml": "application/xml; charset=utf-8",
+    "/robots.txt": "text/plain; charset=utf-8",
+    "/site.webmanifest": "application/manifest+json",
+    "/og-image.png": "image/png",
+  };
   for (const [path, type] of Object.entries(types)) {
     assert.equal((await get(path)).headers.get("content-type"), type, path);
   }
@@ -127,10 +137,10 @@ test(".vercelignore: cada entrada é um caminho que existe", () => {
   }
 });
 
-test(".vercelignore: para a Vercel só vão as páginas, o CSS, o favicon e os ficheiros de SEO", () => {
+test(".vercelignore: para a Vercel só vão as páginas, o CSS, os ícones, as imagens, o manifest e o SEO", () => {
   const tracked = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard"], { cwd: new URL(".", root), encoding: "utf8" })
     .trim()
     .split("\n");
   const deployed = tracked.filter((file) => !ignored.some((entry) => `/${file}` === entry || `/${file}`.startsWith(`${entry}/`)));
-  assert.deepEqual(deployed.sort(), [...HTML, "css/app.css", "favicon.svg", "robots.txt", "sitemap.xml", "vercel.json"].sort());
+  assert.deepEqual(deployed.sort(), [...HTML, "apple-touch-icon.png", "css/app.css", "favicon.svg", "og-image-en.png", "og-image.png", "robots.txt", "site.webmanifest", "sitemap.xml", "vercel.json"].sort());
 });

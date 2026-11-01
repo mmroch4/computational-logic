@@ -1,0 +1,55 @@
+<!doctype html>
+<!-- Modelo da imagem Open Graph do hub (1200×630). Gerada por scripts/make-share-images.sh → /og-image.png
+     e, com #en, → /og-image-en.png. O idioma muda só com CSS (:target), porque o hub não tem JS.
+     O diagrama é a marca do hub: o reticulado de Boole gerado por p e q. -->
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;display=swap">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html, body { width: 1200px; height: 630px; overflow: hidden; }
+    body { background: #18181b; color: #fff; font-family: "Geist", system-ui, sans-serif; }
+    .card { position: relative; width: 1200px; height: 630px; padding: 72px 76px; }
+    .en { display: none; }
+    #en:target .pt { display: none; }
+    #en:target .en { display: inline; }
+    h1 { width: 640px; font-size: 92px; font-weight: 600; line-height: 1; letter-spacing: -0.035em; }
+    .lead { width: 620px; margin-top: 32px; font-size: 32px; line-height: 1.35; color: #d4d4d8; }
+    .tools { position: absolute; left: 76px; bottom: 112px; font-size: 26px; font-weight: 500; }
+    .tools b { margin-inline: 10px; font-weight: 400; color: #a1a1aa; }
+    .by { position: absolute; left: 76px; bottom: 64px; font-size: 22px; color: #a1a1aa; }
+    svg { position: absolute; top: 75px; right: 76px; width: 400px; height: 480px; }
+    line { stroke: #71717a; stroke-width: 3; }
+    circle { fill: #fff; }
+    text { fill: #fff; font-size: 30px; font-weight: 500; text-anchor: middle; }
+  </style>
+</head>
+<body>
+  <div class="card" id="en">
+    <h1>Computational Logic</h1>
+    <p class="lead">
+      <span class="pt">Aprende lógica computacional com ferramentas gratuitas e interativas.</span>
+      <span class="en">Learn computational logic with free, interactive tools.</span>
+    </p>
+    <p class="tools">
+      Davis-Putnam SAT<b>·</b><span class="pt">Dedução natural</span><span class="en">Natural deduction</span>
+    </p>
+    <p class="by">computational-logic.miguelrocha.dev</p>
+    <svg viewBox="0 0 400 480" aria-hidden="true">
+      <line x1="200" y1="70" x2="340" y2="240"/>
+      <line x1="340" y1="240" x2="200" y2="410"/>
+      <line x1="200" y1="410" x2="60" y2="240"/>
+      <line x1="60" y1="240" x2="200" y2="70"/>
+      <circle cx="200" cy="70" r="16"/>
+      <circle cx="340" cy="240" r="16"/>
+      <circle cx="200" cy="410" r="16"/>
+      <circle cx="60" cy="240" r="16"/>
+      <text x="200" y="34">p ∨ q</text>
+      <text x="60" y="296">p</text>
+      <text x="340" y="296">q</text>
+      <text x="200" y="470">p ∧ q</text>
+    </svg>
+  </div>
+</body>
+</html>

@@ -1,4 +1,5 @@
-# O que não vai para a Vercel: só as páginas, css/, o favicon e os ficheiros de SEO são o site.
+# O que não vai para a Vercel: só as páginas, css/, os ícones, as imagens de partilha, o manifest e
+# os ficheiros de SEO são o site. Os modelos das imagens ficam em scripts/, fora do deploy.
 # Uma entrada por linha, sempre um caminho a partir da pasta hub/, sem padrões (o
 # scripts/serve.mjs e o tests/deploy.test.js leem este ficheiro com a mesma regra).
 /.vercelignore
