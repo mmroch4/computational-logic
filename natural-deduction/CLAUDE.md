@@ -1,14 +1,15 @@
 # Learn Natural Deduction
 
 Site público para aprender provas no sistema DN em notação de Fitch. A especificação é o `SPEC.md`.
-Em caso de conflito, a ordem é: `SPEC.md`, depois este ficheiro, depois `.reference/sat/`.
+Em caso de conflito, a ordem é: `SPEC.md`, depois este ficheiro, depois `../sat`.
 O sistema visual está no `DESIGN.md`, e a documentação pública, em inglês, no `README.md`.
 
 ## Restrições
 
 - HTML estático + ES modules nativos, sem framework JS. CSS com Tailwind v4 + Basecoat.
-- `.reference/sat/` é uma cópia só de leitura da ferramenta SAT. Usa-a como referência de convenções e
-  copia dela o que precisares. Nunca a edites nem importes dela em runtime. Não está no git.
+- `../sat` é a ferramenta SAT, noutro pacote do monorepo. Usa-a como referência de convenções e copia
+  dela o que precisares. Nunca importes dela em runtime. Só de leitura neste trabalho: uma alteração ao
+  SAT é um commit à parte, sem misturar com a dedução natural.
 - `js/core/` é puro: sem DOM, `window` nem `localStorage`, testável com `node --test`. Toda a lógica
   vive aqui, e a UI só a consome.
 - `js/ui/` são componentes DOM, `js/pages/` tem uma entrada por página.

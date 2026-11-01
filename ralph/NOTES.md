@@ -24,3 +24,8 @@
 - Pendente para a M4: `sat/.vercelignore:2` ainda diz «raiz do repositório»; a M2 não pode tocar em `sat/`.
 - `sat/tests/deploy.test.js` usa `git ls-files`: exige que a pasta esteja num repositório git, mas não que seja a raiz.
 - Compostos com `;` ou variáveis podem ser recusados: um passo por chamada.
+
+## M3 · A referência passa a ser `../sat`
+
+- O loop antigo está em `ralph/archive/natural-deduction/`. Os testes de deploy continuam a exigir `/ralph` e `/.reference` no `.vercelignore` e o 404 em `/ralph/PLAN.md`, que agora passa também por o ficheiro não existir. O `natural-deduction/.gitignore` ficou igual.
+- Pendente para a M4: `natural-deduction/SPEC.md:83` ainda aponta para `ralph/PLAN.md`, que saiu da pasta.
