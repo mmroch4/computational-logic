@@ -1,0 +1,264 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de aprender.html: não editar. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- seo (gerado por scripts/build-pages.mjs) -->
+  <title>Natural deduction explained · Learn Natural Deduction</title>
+  <meta name="description" content="An interactive natural deduction lesson: introduction and elimination rules, subproofs, derived rules and proof strategies.">
+  <link rel="canonical" href="https://nd.computational-logic.miguelrocha.dev/en/learn">
+  <link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/aprender">
+  <link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/learn">
+  <link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/learn">
+  <meta name="theme-color" content="#fafafa">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Learn Natural Deduction">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:locale:alternate" content="pt_PT">
+  <meta property="og:url" content="https://nd.computational-logic.miguelrocha.dev/en/learn">
+  <meta property="og:title" content="Natural deduction explained · Learn Natural Deduction">
+  <meta property="og:description" content="An interactive natural deduction lesson: introduction and elimination rules, subproofs, derived rules and proof strategies.">
+  <meta property="og:image" content="https://nd.computational-logic.miguelrocha.dev/og-image-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Learn Natural Deduction: Fitch-style proofs, checked line by line.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://nd.computational-logic.miguelrocha.dev/og-image-en.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"LearningResource","url":"https://nd.computational-logic.miguelrocha.dev/en/learn","inLanguage":"en","description":"An interactive natural deduction lesson: introduction and elimination rules, subproofs, derived rules and proof strategies.","isAccessibleForFree":true,"author":{"@type":"Person","name":"Miguel Rocha","url":"https://miguelrocha.dev"},"name":"Natural deduction explained","educationalLevel":"Beginner","teaches":["Introduction and elimination rules","Subproofs","Derived rules","Proof strategies"],"learningResourceType":"lesson"}</script>
+  <!-- /seo -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fontes sem bloquear o primeiro desenho (display=swap: o texto aparece logo com a fonte do sistema). -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"></noscript>
+  <!-- Transição entre páginas. Fica antes da folha de estilos e não dentro dela: tem de ser conhecida no
+       primeiro desenho, sem fazer o resto do <head> esperar pela folha. Vindo de outra página do site, esse
+       desenho espera pelo JS, que traz o cabeçalho; se mesmo assim ele não chegou, não há transição: o
+       cabeçalho piscava. -->
+  <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+  <script src="/js/boot.js" data-entry="/js/pages/aprender.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
+  <link rel="modulepreload" href="/js/pages/aprender.js">
+  <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/lesson-toc.js">
+  <link rel="modulepreload" href="/js/ui/lesson-reveal.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/core/routes.js">
+  <link rel="modulepreload" href="/js/ui/storage.js">
+  <link rel="modulepreload" href="/js/ui/segmented.js">
+  <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
+  <link rel="modulepreload" href="/js/ui/locales/pt.js">
+  <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <!-- /modulepreload -->
+  <script type="module" src="/js/pages/aprender.js"></script>
+</head>
+<body data-page="learn">
+  <main id="main" class="wrap lesson">
+    <div class="lesson__layout">
+      <nav class="lesson-toc" id="lesson-toc" data-i18n-attr="aria-label:learn.toc.title" aria-label="In this lesson"></nav>
+      <article class="lesson__body">
+        <p class="lesson__eyebrow" data-i18n="learn.eyebrow">Lesson · 9 sections</p>
+        <h1 class="lesson__title" data-i18n="learn.title">Learn natural deduction</h1>
+        <p class="lesson__lead" data-i18n="learn.lead">A lesson on the rules, subproofs and the strategies for finding a proof.</p>
+        <section class="lesson-section" id="prova" aria-labelledby="prova-title">
+          <h2 class="lesson-section__title" id="prova-title"><span class="lesson-section__num">01</span> <span data-section-title data-i18n="learn.sections.proof">What a proof is</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.proof.p1">A proof starts from the premises and reaches the conclusion in small steps, each justified by a rule. In Fitch notation, every line states the formula, the rule that allows it and the lines that rule relies on. If every line is correct, the conclusion follows from the premises.</p>
+            <p data-i18n="learn.proof.sequent">What you want to prove is written as a sequent, for example a ∧ b, a → c ⊢ c ∧ b. The premises sit to the left of ⊢, separated by commas, and the conclusion to the right. With nothing on the left, as in ⊢ a → a, the formula has to come from the rules alone, and it is called a theorem.</p>
+            <p data-i18n="learn.proof.reading">To save parentheses, ¬ binds tightest, ∧ and ∨ bind tighter than →, a chain of ∧ groups to the left and a chain of → groups to the right. So a → b ∧ c is a → (b ∧ c), a ∧ b ∧ c is (a ∧ b) ∧ c and a → b → c is a → (b → c). The site always shows the short form.</p>
+            <p data-i18n="learn.proof.p2">Step through the proof below, line by line, and notice what each justification cites.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="firstProof" data-stepped></div>
+          <div class="lesson-interactive" data-lesson-check="firstRule"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.proof.syntax">None of these lines asks you to know what a, b or c mean. A rule applies if the cited formulas have the shape it requires, whatever the subject. That is why a proof can be checked by hand or by a program, without debating the meaning of anything.</p>
+            <p data-i18n="learn.proof.pairs">Each connective brings two kinds of rule. The introduction rule, marked I, says how to reach a formula with that connective. The elimination rule, marked E, says what you can take from a formula that already has it. In the next sections you see, for each rule, its schema, where φ and ψ stand for any formulas, an example and the most frequent slip.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="conjuncao" aria-labelledby="conjuncao-title">
+          <h2 class="lesson-section__title" id="conjuncao-title"><span class="lesson-section__num">02</span> <span data-section-title data-i18n="learn.sections.and">Conjunction (∧)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.and.p1">Conjunction is the best place to start: φ ∧ ψ asserts both formulas, so there is one rule to join them and another to split them.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="andIntro"></div>
+          <div class="lesson-interactive" data-lesson-rule="andElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.and.p2">The elimination rule looks only at the main connective of the cited line. In a ∧ b ∧ c, which is (a ∧ b) ∧ c, the two sides are a ∧ b and c. Each ∧E removes one layer, and the example above spends one line per layer.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="andDepth"></div>
+        </section>
+        <section class="lesson-section" id="implicacao" aria-labelledby="implicacao-title">
+          <h2 class="lesson-section__title" id="implicacao-title"><span class="lesson-section__num">03</span> <span data-section-title data-i18n="learn.sections.implies">Implication (→)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p1">An implication φ → ψ is a promise: whenever you have φ, you have ψ. Using it is a plain exchange. You bring φ and you get ψ, with nothing else to do.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="implElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p2">An implication asserts neither φ nor ψ. It only rules out the case where φ is true and ψ is false. So having φ → ψ on a line gives you neither formula, and you must obtain φ some other way before applying the rule.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="citeOrder"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p3">It remains to see how to reach an implication. That takes a new tool, the subproof, which is the topic of the next section.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="subdeducoes" aria-labelledby="subdeducoes-title">
+          <h2 class="lesson-section__title" id="subdeducoes-title"><span class="lesson-section__num">04</span> <span data-section-title data-i18n="learn.sections.scope">Subproofs and scope</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p1">To prove φ → ψ, you don&#39;t need to know whether φ is true. You assume φ, just to see where it leads, and show that ψ follows. The assumption opens a subproof: a proof inside the proof, with its own bar and with the hypothesis on its first line.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="implIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p2">A subproof is cited as a range, from the hypothesis to the last line, for example 3–6. If it has a single line, the range starts and ends there, like 1–1 in ⊢ a → a, where the hypothesis a is already the last line.</p>
+            <p data-i18n="learn.scope.p3">Everything you write inside a subproof may depend on the hypothesis, so it only holds while the hypothesis is in force. When the subproof closes, the hypothesis stops counting, and the lines inside can no longer be cited one by one. What remains is the whole range, which is what the →I rule uses.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-mistake="closedLine"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p4">The other direction is no problem: from inside a subproof you can directly cite the outer lines above it, without repeating them. The proof must end on a line outside every subproof.</p>
+            <p data-i18n="learn.scope.p5">Subproofs can also sit inside one another. The most recent one closes first. Follow this proof, where each →I closes one hypothesis, the inner one before the outer one.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="nestedScopes" data-stepped></div>
+          <div class="lesson-interactive" data-lesson-check="scopeLines"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p6">One case is left. The subproof has to end on the formula you want, and that formula may already be written outside. Citing it is not enough, because it has to appear as the last line. That is what R is for: it repeats a formula on a new line.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="repeat"></div>
+        </section>
+        <section class="lesson-section" id="disjuncao" aria-labelledby="disjuncao-title">
+          <h2 class="lesson-section__title" id="disjuncao-title"><span class="lesson-section__num">05</span> <span data-section-title data-i18n="learn.sections.or">Disjunction (∨)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p1">To reach φ ∨ ψ, one of the formulas is enough. Using a disjunction takes more work: you don&#39;t know which one is true, so you handle both cases.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="orIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p2">The formula you add with ∨I can be anything, even one that appears nowhere else. The price is losing information: from a you go to knowing only that a or b is true. That is why ∨I is usually the last step, once you know which side you can prove.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="orElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p3">In ∨E, each case is a separate subproof, and what you write in one cannot be cited in the other. The conclusion need not mention φ or ψ at all. It only has to be the same formula on the last line of both cases, and that is the one that moves outside.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="orCases"></div>
+        </section>
+        <section class="lesson-section" id="negacao" aria-labelledby="negacao-title">
+          <h2 class="lesson-section__title" id="negacao-title"><span class="lesson-section__num">06</span> <span data-section-title data-i18n="learn.sections.not">Negation (¬) and F</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p1">To deny φ is to show that φ leads to a contradiction, written F. This is where ¬I, ¬E, FI and FE come in.</p>
+            <p data-i18n="learn.not.p2">F is a formula like any other, except that it is never true. Other texts write it as ⊥, and you can type it that way here too, although the site always displays F. The usual way to reach it is the FI rule.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="falseIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p3">With F you can now deny things. The ¬I rule follows the idea from the opening: you suppose φ, reach F and conclude that φ cannot be true.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="notIntro"></div>
+          <div class="lesson-interactive" data-lesson-check="closeNegated"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p4">Elimination does very little: it removes two negations in a row, and nothing else. No rule gives you φ from ¬φ, because those two formulas say the opposite of each other.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="notElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p5">That leaves FE. From a contradiction you can write any formula. It looks odd, but a line with F only appears in an impossible situation, where nothing is left to tell apart. It is mostly useful in ∨E: a case that contradicts the rest ends in F, and FE makes it give the formula the other case reaches.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="falseElim"></div>
+        </section>
+        <section class="lesson-section" id="derivadas" aria-labelledby="derivadas-title">
+          <h2 class="lesson-section__title" id="derivadas-title"><span class="lesson-section__num">07</span> <span data-section-title data-i18n="learn.sections.derived">Derived rules</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.derived.p1">Some proofs repeat the same pattern every time. Derived rules give it a name, and each of them can be replaced by a proof that uses only base rules.</p>
+            <p data-i18n="learn.derived.p2">A derived rule doesn&#39;t let you prove anything new. It shortens what you can already prove. Each figure has the schema, the right moment to use the rule and a proof with base rules only. Those proofs are written with p, q and r, but they hold for any formulas in place of φ, ψ and θ: just swap the letters.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-derived="modusTollens"></div>
+          <div class="lesson-interactive" data-lesson-derived="doubleNegationIntro"></div>
+          <div class="lesson-interactive" data-lesson-derived="reductio"></div>
+          <div class="lesson-interactive" data-lesson-derived="excludedMiddle"></div>
+          <div class="lesson-interactive" data-lesson-derived="deMorgan"></div>
+          <div class="lesson-interactive" data-lesson-derived="hypotheticalSyllogism"></div>
+          <div class="lesson-interactive" data-lesson-derived="disjunctiveSyllogism"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.derived.p3">In a proof, a derived rule is used like any other: you write its abbreviation and cite the lines. With MT, this proof does in two lines what would take two subproofs with base rules only.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="derivedUse"></div>
+          <div class="lesson-interactive" data-lesson-check="rewriteDerived"></div>
+        </section>
+        <section class="lesson-section" id="estrategias" aria-labelledby="estrategias-title">
+          <h2 class="lesson-section__title" id="estrategias-title"><span class="lesson-section__num">08</span> <span data-section-title data-i18n="learn.sections.strategy">Strategies</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.p1">The shape of the conclusion and of the premises often tells you the next step. These are the questions to ask when you don&#39;t know how to go on.</p>
+            <p data-i18n="learn.strategy.goalIntro">Start from the conclusion. Its shape tells you how the proof is likely to end, and that gives you a smaller goal:</p>
+          </div>
+          <div class="lesson-prose">
+            <ul class="lesson-rules">
+              <li data-i18n="learn.strategy.goalAnd">If it is φ ∧ ψ, prove each side and join them with ∧I.</li>
+              <li data-i18n="learn.strategy.goalImplies">If it is φ → ψ, suppose φ and look for ψ. Close with →I at the end.</li>
+              <li data-i18n="learn.strategy.goalNot">If it is ¬φ, suppose φ and look for F. Close with ¬I at the end.</li>
+              <li data-i18n="learn.strategy.goalOr">If it is φ ∨ ψ, see whether you can prove one side and finish with ∨I. Sometimes neither side comes out alone, and then the answer lies in the premises.</li>
+            </ul>
+          </div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.p2">Ask the same question for each new goal. Play the proof below, or step through it by hand, and read the reason for each line.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyBackward"></div>
+          <div class="lesson-interactive" data-lesson-check="goalNegation"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.labs">After each strategy there is a lab, with a sequent to prove right here. It opens in guided mode: you tap the lines you want to cite and choose the rule. If you prefer typing, switch mode at the top of the editor.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-lab="labBackward"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.premIntro">When the conclusion stops helping, look at what you have. Every accessible line offers something:</p>
+          </div>
+          <div class="lesson-prose">
+            <ul class="lesson-rules">
+              <li data-i18n="learn.strategy.premAnd">From φ ∧ ψ, take both sides with ∧E. It costs nothing and gives you more lines to cite.</li>
+              <li data-i18n="learn.strategy.premImplies">From φ → ψ, try to get φ, because then →E gives you ψ.</li>
+              <li data-i18n="learn.strategy.premOr">From φ ∨ ψ, open both cases with ∨E and aim for the same goal in each. Do this early: inside each case you have one more line to use.</li>
+              <li data-i18n="learn.strategy.premNot">With ¬φ, look for φ. If you get it, FI gives you F.</li>
+            </ul>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyCases"></div>
+          <div class="lesson-interactive" data-lesson-lab="labCases"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.absurd">If none of this is enough, reductio ad absurdum remains. Suppose the negation of the goal and look for F. You gain a line to use, and the contradiction often comes from a negated premise. It comes last because the proof ends up longer and less direct.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyAbsurd"></div>
+          <div class="lesson-interactive" data-lesson-lab="labAbsurd"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.stuck">If you are still stuck, the proof may not exist. The next section explains how to show that.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="solidez" aria-labelledby="solidez-title">
+          <h2 class="lesson-section__title" id="solidez-title"><span class="lesson-section__num">09</span> <span data-section-title data-i18n="learn.sections.meta">Soundness and completeness</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.meta.p1">The underlying question remains: does what you can prove match what is true under every valuation? Soundness and completeness say that it does.</p>
+            <p data-i18n="learn.meta.semantic">So far, everything has been syntax: ⊢ means that there is a proof. The other notion comes from truth tables. A valuation gives each variable the value true or false, and we write ⊨ when every valuation that makes the premises true also makes the conclusion true.</p>
+            <p data-i18n="learn.meta.soundness">Soundness says that if there is a proof, the sequent is valid: ⊨ follows from ⊢. The reason lies in the rules, because each one preserves truth. If what it cites is true, what it writes is true as well. Inside a subproof the same holds, for the valuations that make the open hypotheses true. Since a proof is a chain of such steps, the truth of the premises reaches the conclusion.</p>
+            <p data-i18n="learn.meta.counter">This gives you a way to show that there is no proof, without trying them all. One valuation with true premises and a false conclusion is enough, and it is called a counterexample.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-counter="orToSide"></div>
+          <div class="lesson-interactive" data-lesson-check="counterMeans"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.meta.completeness">Completeness is the opposite direction: if the sequent is valid, there is a proof. ⊢ follows from ⊨. This is the hard part, because it says the rules leave nothing out. The demonstration is beyond this lesson, but the idea is this: when a conclusion cannot be proved, you can build a valuation that serves as a counterexample.</p>
+            <p data-i18n="learn.meta.rules">Neither result is automatic, because both depend on the chosen rules. If you remove ¬E from the base rules, for example, a ∨ ¬a stays true under every valuation and no longer has a proof.</p>
+            <p data-i18n="learn.meta.together">Together, they say that ⊢ and ⊨ coincide. Every sequent has either a proof or a counterexample, never both. Completeness only says that the proof exists, not that it is short or easy to find, and that is what strategies are for.</p>
+          </div>
+        </section>
+        <section class="lesson-quiz" id="quiz" aria-labelledby="quiz-title">
+          <h2 class="lesson-section__title" id="quiz-title"><span data-i18n="learn.quiz.heading">Final quiz</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.quiz.intro">Eight questions to confirm what you read. Each answer comes with its own explanation, and your best score stays in this browser.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-quiz></div>
+        </section>
+      </article>
+    </div>
+  </main>
+  <!-- footer (gerado por scripts/build-pages.mjs) -->
+  <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Developed by Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Source on GitHub</a><a class="ftr-repo" href="/aprender" hreflang="pt" lang="pt" data-lang="pt">Português</a></div><nav aria-label="Pages"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/en">Home</a></li><li><a href="/en/prove">Prove</a></li><li><a href="/en/step-by-step">Step by step</a></li><li><a href="/en/learn">Learn</a></li><li><a href="/en/exercises">Exercises</a></li></ul></nav></div></footer>
+  <!-- /footer -->
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- seo (gerado por scripts/build-pages.mjs) -->
+  <title>Dedução natural explicada · Learn Natural Deduction</title>
+  <meta name="description" content="Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas e estratégias de prova.">
+  <link rel="canonical" href="https://nd.computational-logic.miguelrocha.dev/aprender">
+  <link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/aprender">
+  <link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/learn">
+  <link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/learn">
+  <meta name="theme-color" content="#fafafa">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Learn Natural Deduction">
+  <meta property="og:locale" content="pt_PT">
+  <meta property="og:locale:alternate" content="en_GB">
+  <meta property="og:url" content="https://nd.computational-logic.miguelrocha.dev/aprender">
+  <meta property="og:title" content="Dedução natural explicada · Learn Natural Deduction">
+  <meta property="og:description" content="Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas e estratégias de prova.">
+  <meta property="og:image" content="https://nd.computational-logic.miguelrocha.dev/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Learn Natural Deduction: provas em notação de Fitch, verificadas linha a linha.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://nd.computational-logic.miguelrocha.dev/og-image.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"LearningResource","url":"https://nd.computational-logic.miguelrocha.dev/aprender","inLanguage":"pt-PT","description":"Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas e estratégias de prova.","isAccessibleForFree":true,"author":{"@type":"Person","name":"Miguel Rocha","url":"https://miguelrocha.dev"},"name":"Dedução natural explicada","educationalLevel":"Iniciante","teaches":["Regras de introdução e eliminação","Subdeduções","Regras derivadas","Estratégias de prova"],"learningResourceType":"lesson"}</script>
+  <!-- /seo -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fontes sem bloquear o primeiro desenho (display=swap: o texto aparece logo com a fonte do sistema). -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"></noscript>
+  <!-- Transição entre páginas. Fica antes da folha de estilos e não dentro dela: tem de ser conhecida no
+       primeiro desenho, sem fazer o resto do <head> esperar pela folha. Vindo de outra página do site, esse
+       desenho espera pelo JS, que traz o cabeçalho; se mesmo assim ele não chegou, não há transição: o
+       cabeçalho piscava. -->
+  <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+  <script src="/js/boot.js" data-entry="/js/pages/aprender.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
+  <link rel="modulepreload" href="/js/pages/aprender.js">
+  <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/lesson-toc.js">
+  <link rel="modulepreload" href="/js/ui/lesson-reveal.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/core/routes.js">
+  <link rel="modulepreload" href="/js/ui/storage.js">
+  <link rel="modulepreload" href="/js/ui/segmented.js">
+  <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
+  <link rel="modulepreload" href="/js/ui/locales/pt.js">
+  <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <!-- /modulepreload -->
+  <script type="module" src="/js/pages/aprender.js"></script>
+</head>
+<body data-page="learn">
+  <main id="main" class="wrap lesson">
+    <div class="lesson__layout">
+      <nav class="lesson-toc" id="lesson-toc" data-i18n-attr="aria-label:learn.toc.title" aria-label="Nesta lição"></nav>
+      <article class="lesson__body">
+        <p class="lesson__eyebrow" data-i18n="learn.eyebrow">Lição · 9 secções</p>
+        <h1 class="lesson__title" data-i18n="learn.title">Aprender dedução natural</h1>
+        <p class="lesson__lead" data-i18n="learn.lead">Uma lição sobre as regras, as subdeduções e as estratégias para encontrar uma prova.</p>
+        <section class="lesson-section" id="prova" aria-labelledby="prova-title">
+          <h2 class="lesson-section__title" id="prova-title"><span class="lesson-section__num">01</span> <span data-section-title data-i18n="learn.sections.proof">O que é uma prova</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.proof.p1">Uma prova parte das premissas e chega à conclusão por passos pequenos, cada um justificado por uma regra. Em notação de Fitch, cada linha diz a fórmula, a regra que a permite e as linhas em que essa regra se apoia. Se todas as linhas estiverem certas, a conclusão segue das premissas.</p>
+            <p data-i18n="learn.proof.sequent">O que queres provar escreve-se como um sequente, por exemplo a ∧ b, a → c ⊢ c ∧ b. À esquerda de ⊢ ficam as premissas, separadas por vírgulas, e à direita a conclusão. Sem nada à esquerda, como em ⊢ a → a, a fórmula tem de sair só das regras, e diz-se um teorema.</p>
+            <p data-i18n="learn.proof.reading">Para poupar parênteses, ¬ liga mais do que tudo, ∧ e ∨ ligam mais do que →, uma cadeia de ∧ agrupa à esquerda e uma de → agrupa à direita. Assim, a → b ∧ c é a → (b ∧ c), a ∧ b ∧ c é (a ∧ b) ∧ c e a → b → c é a → (b → c). O site mostra sempre a forma curta.</p>
+            <p data-i18n="learn.proof.p2">Avança pela prova abaixo, linha a linha, e repara no que cada justificação cita.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="firstProof" data-stepped></div>
+          <div class="lesson-interactive" data-lesson-check="firstRule"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.proof.syntax">Nenhuma destas linhas pede que saibas o que a, b ou c querem dizer. Uma regra aplica-se se as fórmulas citadas tiverem a forma que ela exige, seja qual for o assunto. É por isso que uma prova se confere à mão ou por programa, sem discutir o significado de nada.</p>
+            <p data-i18n="learn.proof.pairs">Cada conectivo traz dois tipos de regra. A de introdução, marcada com I, diz como chegar a uma fórmula com esse conectivo. A de eliminação, marcada com E, diz o que podes tirar de uma fórmula que já o tem. Nas secções seguintes vês, para cada regra, o esquema, em que φ e ψ valem por quaisquer fórmulas, um exemplo e o engano mais frequente.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="conjuncao" aria-labelledby="conjuncao-title">
+          <h2 class="lesson-section__title" id="conjuncao-title"><span class="lesson-section__num">02</span> <span data-section-title data-i18n="learn.sections.and">Conjunção (∧)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.and.p1">A conjunção é o melhor sítio para começar: φ ∧ ψ afirma as duas fórmulas, por isso há uma regra para as juntar e outra para as separar.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="andIntro"></div>
+          <div class="lesson-interactive" data-lesson-rule="andElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.and.p2">A regra de eliminação olha só para o conectivo principal da linha citada. Em a ∧ b ∧ c, que é (a ∧ b) ∧ c, os dois lados são a ∧ b e c. Cada ∧E retira uma camada, e o exemplo acima gasta uma linha por camada.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="andDepth"></div>
+        </section>
+        <section class="lesson-section" id="implicacao" aria-labelledby="implicacao-title">
+          <h2 class="lesson-section__title" id="implicacao-title"><span class="lesson-section__num">03</span> <span data-section-title data-i18n="learn.sections.implies">Implicação (→)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p1">Uma implicação φ → ψ é uma promessa: sempre que tiveres φ, tens ψ. Usá-la é uma troca direta. Arranjas φ e recebes ψ, sem mais nada a fazer.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="implElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p2">Uma implicação não afirma φ nem afirma ψ. Só exclui o caso em que φ é verdadeira e ψ é falsa. Por isso, ter φ → ψ numa linha não te dá nenhuma das duas fórmulas, e é preciso obter φ por outro caminho antes de aplicar a regra.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="citeOrder"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p3">Falta saber como se chega a uma implicação. Isso pede uma ferramenta nova, a subdedução, que é o tema da secção seguinte.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="subdeducoes" aria-labelledby="subdeducoes-title">
+          <h2 class="lesson-section__title" id="subdeducoes-title"><span class="lesson-section__num">04</span> <span data-section-title data-i18n="learn.sections.scope">Subdeduções e escopo</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p1">Para provar φ → ψ, não precisas de saber se φ é verdadeira. Supões φ, só para ver no que dá, e mostras que daí se chega a ψ. A suposição abre uma subdedução: uma prova dentro da prova, com barra própria e com a hipótese na primeira linha.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="implIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p2">Uma subdedução cita-se como intervalo, da hipótese até à última linha, por exemplo 3–6. Se tiver uma só linha, o intervalo começa e acaba nela, como 1–1 em ⊢ a → a, onde a hipótese a é logo a última linha.</p>
+            <p data-i18n="learn.scope.p3">Tudo o que escreves dentro de uma subdedução pode depender da hipótese, por isso só vale enquanto ela estiver em vigor. Quando a subdedução fecha, a hipótese deixa de contar, e as linhas de dentro já não se podem citar uma a uma. Resta o intervalo completo, que é o que a regra →I usa.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-mistake="closedLine"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p4">No sentido contrário não há problema: de dentro de uma subdedução podes citar diretamente as linhas exteriores que estão acima, sem as repetir. A prova só termina numa linha fora de todas as subdeduções.</p>
+            <p data-i18n="learn.scope.p5">As subdeduções também podem ficar umas dentro das outras. A mais recente é a primeira a fechar. Segue esta prova, em que cada →I fecha uma hipótese, a de dentro antes da de fora.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="nestedScopes" data-stepped></div>
+          <div class="lesson-interactive" data-lesson-check="scopeLines"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p6">Sobra um caso. A subdedução tem de acabar na fórmula que queres, e essa fórmula pode já estar escrita lá fora. Citá-la não basta, porque ela tem de aparecer como última linha. É para isso que serve R: repete uma fórmula numa linha nova.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="repeat"></div>
+        </section>
+        <section class="lesson-section" id="disjuncao" aria-labelledby="disjuncao-title">
+          <h2 class="lesson-section__title" id="disjuncao-title"><span class="lesson-section__num">05</span> <span data-section-title data-i18n="learn.sections.or">Disjunção (∨)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p1">Para chegar a φ ∨ ψ basta uma das fórmulas. Usar uma disjunção dá mais trabalho: não sabes qual delas é verdadeira, por isso tratas os dois casos.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="orIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p2">A fórmula que acrescentas com ∨I pode ser qualquer uma, até uma que não apareça em mais lado nenhum. O preço é perder informação: de a passas a saber só que a ou b é verdadeira. Por isso, ∨I costuma ser o último passo, quando já sabes qual dos lados consegues provar.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="orElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p3">Em ∨E, cada caso é uma subdedução separada, e o que escreves num não se pode citar no outro. A conclusão pode nem falar de φ nem de ψ. Só tem de ser a mesma fórmula na última linha dos dois casos, e é essa que passa para fora.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="orCases"></div>
+        </section>
+        <section class="lesson-section" id="negacao" aria-labelledby="negacao-title">
+          <h2 class="lesson-section__title" id="negacao-title"><span class="lesson-section__num">06</span> <span data-section-title data-i18n="learn.sections.not">Negação (¬) e F</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p1">Negar φ é mostrar que φ leva a uma contradição, que se escreve F. É aqui que entram ¬I, ¬E, FI e FE.</p>
+            <p data-i18n="learn.not.p2">F é uma fórmula como as outras, mas nunca é verdadeira. Noutros textos aparece como ⊥, e aqui também a podes escrever assim, embora o site mostre sempre F. A maneira habitual de lá chegar é a regra FI.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="falseIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p3">Com F já se pode negar. A regra ¬I segue a ideia da abertura: supões φ, chegas a F e concluis que φ não pode ser verdadeira.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="notIntro"></div>
+          <div class="lesson-interactive" data-lesson-check="closeNegated"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p4">A eliminação faz muito pouco: tira duas negações seguidas, e mais nada. Não há regra que te dê φ a partir de ¬φ, porque as duas fórmulas dizem o contrário uma da outra.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="notElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p5">Falta FE. De uma contradição podes escrever qualquer fórmula. Parece estranho, mas uma linha com F só aparece numa situação impossível, onde já nada há a distinguir. É sobretudo útil em ∨E: um caso que contradiz o resto acaba em F, e FE faz com que dê a fórmula a que o outro caso chega.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="falseElim"></div>
+        </section>
+        <section class="lesson-section" id="derivadas" aria-labelledby="derivadas-title">
+          <h2 class="lesson-section__title" id="derivadas-title"><span class="lesson-section__num">07</span> <span data-section-title data-i18n="learn.sections.derived">Regras derivadas</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.derived.p1">Algumas provas repetem sempre o mesmo padrão. As regras derivadas dão-lhe um nome, e cada uma delas pode ser substituída por uma prova só com regras base.</p>
+            <p data-i18n="learn.derived.p2">Uma regra derivada não te deixa provar nada de novo. Encurta o que já consegues provar. Cada figura traz o esquema, o momento certo para a usar e uma prova só com regras base. Essas provas estão escritas com p, q e r, mas valem para quaisquer fórmulas no lugar de φ, ψ e θ: basta trocar as letras.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-derived="modusTollens"></div>
+          <div class="lesson-interactive" data-lesson-derived="doubleNegationIntro"></div>
+          <div class="lesson-interactive" data-lesson-derived="reductio"></div>
+          <div class="lesson-interactive" data-lesson-derived="excludedMiddle"></div>
+          <div class="lesson-interactive" data-lesson-derived="deMorgan"></div>
+          <div class="lesson-interactive" data-lesson-derived="hypotheticalSyllogism"></div>
+          <div class="lesson-interactive" data-lesson-derived="disjunctiveSyllogism"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.derived.p3">Numa prova, uma derivada usa-se como qualquer outra regra: escreves a sigla e citas as linhas. Com MT, esta prova faz em duas linhas o que, só com regras base, pediria duas subdeduções.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="derivedUse"></div>
+          <div class="lesson-interactive" data-lesson-check="rewriteDerived"></div>
+        </section>
+        <section class="lesson-section" id="estrategias" aria-labelledby="estrategias-title">
+          <h2 class="lesson-section__title" id="estrategias-title"><span class="lesson-section__num">08</span> <span data-section-title data-i18n="learn.sections.strategy">Estratégias</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.p1">A forma da conclusão e das premissas costuma dizer qual é o passo seguinte. Estas são as perguntas a fazer quando não sabes por onde continuar.</p>
+            <p data-i18n="learn.strategy.goalIntro">Começa pela conclusão. A forma dela diz como a prova costuma acabar, e isso dá-te um objetivo mais pequeno:</p>
+          </div>
+          <div class="lesson-prose">
+            <ul class="lesson-rules">
+              <li data-i18n="learn.strategy.goalAnd">Se é φ ∧ ψ, prova cada lado e junta-os com ∧I.</li>
+              <li data-i18n="learn.strategy.goalImplies">Se é φ → ψ, supõe φ e procura ψ. No fim, fecha com →I.</li>
+              <li data-i18n="learn.strategy.goalNot">Se é ¬φ, supõe φ e procura F. No fim, fecha com ¬I.</li>
+              <li data-i18n="learn.strategy.goalOr">Se é φ ∨ ψ, vê se consegues provar um dos lados e acaba com ∨I. Às vezes nenhum lado sai sozinho, e aí a resposta está nas premissas.</li>
+            </ul>
+          </div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.p2">Repete a pergunta para cada objetivo novo. Reproduz a prova abaixo, ou avança à mão, e lê a razão de cada linha.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyBackward"></div>
+          <div class="lesson-interactive" data-lesson-check="goalNegation"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.labs">Depois de cada estratégia há um laboratório, com um sequente para provares aqui mesmo. Abre no modo guiado: tocas nas linhas que queres citar e escolhes a regra. Se preferires escrever, muda de modo no topo do editor.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-lab="labBackward"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.premIntro">Quando a conclusão já não ajuda, olha para o que tens. Cada linha acessível oferece alguma coisa:</p>
+          </div>
+          <div class="lesson-prose">
+            <ul class="lesson-rules">
+              <li data-i18n="learn.strategy.premAnd">De φ ∧ ψ, tira os dois lados com ∧E. Não custa nada e dá-te mais linhas para citar.</li>
+              <li data-i18n="learn.strategy.premImplies">De φ → ψ, tenta obter φ, porque depois tens ψ com →E.</li>
+              <li data-i18n="learn.strategy.premOr">De φ ∨ ψ, abre os dois casos com ∨E e procura o mesmo objetivo em ambos. Faz isto cedo: dentro de cada caso tens mais uma linha para usar.</li>
+              <li data-i18n="learn.strategy.premNot">Com ¬φ, procura φ. Se o conseguires, FI dá-te F.</li>
+            </ul>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyCases"></div>
+          <div class="lesson-interactive" data-lesson-lab="labCases"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.absurd">Se nada disto chegar, resta a redução ao absurdo. Supõe a negação do objetivo e procura F. Ganhas uma linha para usar, e a contradição costuma sair de uma premissa negada. Fica para o fim porque a prova sai mais longa e menos direta.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyAbsurd"></div>
+          <div class="lesson-interactive" data-lesson-lab="labAbsurd"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.stuck">Se continuares preso, pode acontecer que a prova não exista. A secção seguinte explica como o mostrar.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="solidez" aria-labelledby="solidez-title">
+          <h2 class="lesson-section__title" id="solidez-title"><span class="lesson-section__num">09</span> <span data-section-title data-i18n="learn.sections.meta">Solidez e completude</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.meta.p1">Fica a pergunta de fundo: o que consegues provar coincide com o que é verdadeiro em todas as valorações? A solidez e a completude dizem que sim.</p>
+            <p data-i18n="learn.meta.semantic">Até aqui, tudo foi sintaxe: ⊢ quer dizer que há uma prova. A outra noção vem das tabelas de verdade. Uma valoração dá verdadeiro ou falso a cada variável, e escreve-se ⊨ quando todas as valorações que tornam as premissas verdadeiras também tornam a conclusão verdadeira.</p>
+            <p data-i18n="learn.meta.soundness">A solidez diz que, se há prova, o sequente é válido: de ⊢ segue ⊨. A razão está nas regras, porque cada uma preserva a verdade. Se o que ela cita é verdadeiro, o que ela escreve também é. Dentro de uma subdedução vale o mesmo, para as valorações que tornam as hipóteses abertas verdadeiras. Como uma prova é uma cadeia destes passos, a verdade das premissas chega à conclusão.</p>
+            <p data-i18n="learn.meta.counter">Isto dá-te uma forma de mostrar que não há prova, sem as experimentar todas. Basta uma valoração com as premissas verdadeiras e a conclusão falsa, a que se chama contraexemplo.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-counter="orToSide"></div>
+          <div class="lesson-interactive" data-lesson-check="counterMeans"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.meta.completeness">A completude é o sentido contrário: se o sequente é válido, há prova. De ⊨ segue ⊢. É a parte difícil, porque diz que as regras não deixam nada de fora. A demonstração sai do âmbito desta lição, mas a ideia é esta: quando uma conclusão não se prova, consegue construir-se uma valoração que serve de contraexemplo.</p>
+            <p data-i18n="learn.meta.rules">Nenhuma das duas é automática, porque dependem das regras escolhidas. Se tirares ¬E às regras base, por exemplo, a ∨ ¬a continua verdadeira em todas as valorações e deixa de ter prova.</p>
+            <p data-i18n="learn.meta.together">Juntas, as duas dizem que ⊢ e ⊨ coincidem. Cada sequente tem uma prova ou um contraexemplo, nunca os dois. A completude diz só que a prova existe, não que seja curta nem fácil de encontrar, e é para isso que servem as estratégias.</p>
+          </div>
+        </section>
+        <section class="lesson-quiz" id="quiz" aria-labelledby="quiz-title">
+          <h2 class="lesson-section__title" id="quiz-title"><span data-i18n="learn.quiz.heading">Quiz final</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.quiz.intro">Oito perguntas para confirmares o que leste. Cada resposta traz a sua explicação, e o teu melhor resultado fica guardado neste browser.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-quiz></div>
+        </section>
+      </article>
+    </div>
+  </main>
+  <!-- footer (gerado por scripts/build-pages.mjs) -->
+  <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Desenvolvido por Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Código no GitHub</a><a class="ftr-repo" href="/en/learn" hreflang="en" lang="en" data-lang="en">English</a></div><nav aria-label="Páginas"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/">Início</a></li><li><a href="/provar">Provar</a></li><li><a href="/passo-a-passo">Passo a passo</a></li><li><a href="/aprender">Aprender</a></li><li><a href="/exercicios">Exercícios</a></li></ul></nav></div></footer>
+  <!-- /footer -->
+</body>
+</html>

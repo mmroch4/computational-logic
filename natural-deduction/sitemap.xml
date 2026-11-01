@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/en</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/provar</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/provar"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/prove"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/prove"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/en/prove</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/provar"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/prove"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/prove"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/passo-a-passo</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/passo-a-passo"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/step-by-step"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/step-by-step"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/en/step-by-step</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/passo-a-passo"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/step-by-step"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/step-by-step"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/aprender</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/aprender"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/learn"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/learn"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/en/learn</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/aprender"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/learn"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/learn"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/exercicios</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/exercicios"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/exercises"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/exercises"/>
+  </url>
+  <url>
+    <loc>https://nd.computational-logic.miguelrocha.dev/en/exercises</loc>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/exercicios"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/exercises"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/exercises"/>
+  </url>
+</urlset>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- seo (gerado por scripts/build-pages.mjs) -->
+  <title>Provar em dedução natural online · Learn Natural Deduction</title>
+  <meta name="description" content="Escreve um sequente e faz a prova em notação de Fitch: cada linha é verificada, e tens dicas, solução automática e contraexemplos.">
+  <link rel="canonical" href="https://nd.computational-logic.miguelrocha.dev/provar">
+  <link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/provar">
+  <link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/prove">
+  <link rel="alternate" hreflang="x-default" href="https://nd.computational-logic.miguelrocha.dev/en/prove">
+  <meta name="theme-color" content="#fafafa">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Learn Natural Deduction">
+  <meta property="og:locale" content="pt_PT">
+  <meta property="og:locale:alternate" content="en_GB">
+  <meta property="og:url" content="https://nd.computational-logic.miguelrocha.dev/provar">
+  <meta property="og:title" content="Provar em dedução natural online · Learn Natural Deduction">
+  <meta property="og:description" content="Escreve um sequente e faz a prova em notação de Fitch: cada linha é verificada, e tens dicas, solução automática e contraexemplos.">
+  <meta property="og:image" content="https://nd.computational-logic.miguelrocha.dev/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Learn Natural Deduction: provas em notação de Fitch, verificadas linha a linha.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://nd.computational-logic.miguelrocha.dev/og-image.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","url":"https://nd.computational-logic.miguelrocha.dev/provar","inLanguage":"pt-PT","description":"Escreve um sequente e faz a prova em notação de Fitch: cada linha é verificada, e tens dicas, solução automática e contraexemplos.","isAccessibleForFree":true,"author":{"@type":"Person","name":"Miguel Rocha","url":"https://miguelrocha.dev"},"name":"Provar em dedução natural online","applicationCategory":"EducationalApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <!-- /seo -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fontes sem bloquear o primeiro desenho (display=swap: o texto aparece logo com a fonte do sistema). -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"></noscript>
+  <!-- Transição entre páginas. Fica antes da folha de estilos e não dentro dela: tem de ser conhecida no
+       primeiro desenho, sem fazer o resto do <head> esperar pela folha. Vindo de outra página do site, esse
+       desenho espera pelo JS, que traz o cabeçalho; se mesmo assim ele não chegou, não há transição: o
+       cabeçalho piscava. -->
+  <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+  <script src="/js/boot.js" data-entry="/js/pages/provar.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
+  <link rel="modulepreload" href="/js/pages/provar.js">
+  <link rel="modulepreload" href="/js/core/sequent.js">
+  <link rel="modulepreload" href="/js/core/share.js">
+  <link rel="modulepreload" href="/js/core/user-rules.js">
+  <link rel="modulepreload" href="/js/ui/assist-panel.js">
+  <link rel="modulepreload" href="/js/ui/examples-menu.js">
+  <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/proof-editor.js">
+  <link rel="modulepreload" href="/js/ui/proof-share.js">
+  <link rel="modulepreload" href="/js/ui/sequent-input.js">
+  <link rel="modulepreload" href="/js/ui/storage.js">
+  <link rel="modulepreload" href="/js/ui/tree-view.js">
+  <link rel="modulepreload" href="/js/ui/user-rules-panel.js">
+  <link rel="modulepreload" href="/js/ui/user-rules-store.js">
+  <link rel="modulepreload" href="/js/core/formula.js">
+  <link rel="modulepreload" href="/js/core/parser.js">
+  <link rel="modulepreload" href="/js/core/notation.js">
+  <link rel="modulepreload" href="/js/core/proof.js">
+  <link rel="modulepreload" href="/js/core/proof-text.js">
+  <link rel="modulepreload" href="/js/core/rules.js">
+  <link rel="modulepreload" href="/js/core/schema.js">
+  <link rel="modulepreload" href="/js/core/semantics.js">
+  <link rel="modulepreload" href="/js/core/assist.js">
+  <link rel="modulepreload" href="/js/ui/counterexample.js">
+  <link rel="modulepreload" href="/js/ui/fitch-view.js">
+  <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/ui/message.js">
+  <link rel="modulepreload" href="/js/ui/solver-worker.js">
+  <link rel="modulepreload" href="/js/core/examples.js">
+  <link rel="modulepreload" href="/js/ui/menu.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/core/routes.js">
+  <link rel="modulepreload" href="/js/ui/segmented.js">
+  <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/core/editor.js">
+  <link rel="modulepreload" href="/js/core/guided.js">
+  <link rel="modulepreload" href="/js/core/rule-pick.js">
+  <link rel="modulepreload" href="/js/core/latex.js">
+  <link rel="modulepreload" href="/js/core/tree.js">
+  <link rel="modulepreload" href="/js/core/rule-form.js">
+  <link rel="modulepreload" href="/js/core/speech.js">
+  <link rel="modulepreload" href="/js/core/verify.js">
+  <link rel="modulepreload" href="/js/ui/locales/pt.js">
+  <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <!-- /modulepreload -->
+  <script type="module" src="/js/pages/provar.js"></script>
+</head>
+<body data-page="prove">
+  <main id="main" class="wrap page-empty">
+    <h1 class="page-empty__title" data-i18n="prove.title">Provar em dedução natural</h1>
+    <p class="page-empty__lead" data-i18n="prove.lead">Escreve um sequente e constrói a prova em notação de Fitch, com cada linha verificada.</p>
+    <div id="examples-menu" class="prove-examples"></div>
+    <div id="sequent-input" class="sequent-input"></div>
+    <button type="button" id="start-proof" class="btn prove-start" data-i18n="prove.start">Começar a prova</button>
+    <div id="share-error" class="share-error" role="alert"></div>
+    <div id="proof-empty">
+      <div class="empty-state">
+        <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        <h2 class="empty-state__heading" data-i18n="prove.emptyHeading">Ainda não há prova</h2>
+        <p class="empty-state__hint" data-i18n="prove.empty">Escreve um sequente e carrega em Enter para abrir a prova.</p>
+      </div>
+    </div>
+    <div id="user-rules"></div>
+    <div id="proof-editor"></div>
+    <div id="proof-share"></div>
+    <div id="proof-share-status" class="proof-share__status" role="status"></div>
+    <div id="proof-assist"></div>
+    <div id="proof-tree"></div>
+  </main>
+  <!-- footer (gerado por scripts/build-pages.mjs) -->
+  <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Desenvolvido por Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Código no GitHub</a><a class="ftr-repo" href="/en/prove" hreflang="en" lang="en" data-lang="en">English</a></div><nav aria-label="Páginas"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/">Início</a></li><li><a href="/provar">Provar</a></li><li><a href="/passo-a-passo">Passo a passo</a></li><li><a href="/aprender">Aprender</a></li><li><a href="/exercicios">Exercícios</a></li></ul></nav></div></footer>
+  <!-- /footer -->
+</body>
+</html>
