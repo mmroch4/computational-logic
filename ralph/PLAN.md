@@ -44,7 +44,7 @@ sem framework nem build, com `vercel.json`, CSP e testes `node --test`.
 Revês `git log` e `git diff ac9dfe8..monorepo --stat -- sat/`. Se estiver bem, segue a etapa 6.1 e 6.2.
 O loop retoma quando os três sites estiverem no ar.
 
-### [ ] M6 · Ligações entre as ferramentas
+### [x] M6 · Ligações entre as ferramentas
 **Só depois de os três sites estarem no ar.** Acrescenta nos dois rodapés links para o hub e para a outra
 ferramenta, levanta a regra do `CLAUDE.md` do SAT que proibia ligar ao hub, com
 as strings em ambos os locales, EN gerado pelo `build:pages`, e testes. É a única alteração visível ao
