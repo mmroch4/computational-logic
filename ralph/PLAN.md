@@ -29,7 +29,7 @@ regra de não importar dele em runtime e a de não misturar alterações. Arquiv
 em `ralph/archive/natural-deduction/`. Mantém as entradas do `.vercelignore` e o teste de deploy.
 **Feito quando:** não existe `natural-deduction/ralph/`, e os testes e os `docs.test.js` passam.
 
-### [ ] M4 · Documentação
+### [x] M4 · Documentação
 Escreve o `README.md` da raiz, em inglês, com as duas ferramentas. Corrige no `README.md` da dedução
 natural o caminho de clonar e o «Live site», que só deve surgir quando o endereço existir. Atualiza a
 secção Publicação do `SPEC.md`. No SAT, autorizado nesta tarefa, só o que depender de caminhos.
