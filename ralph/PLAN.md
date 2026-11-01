@@ -52,5 +52,31 @@ SAT, autorizada nesta tarefa, com um commit próprio.
 **Feito quando:** o link aparece em todas as páginas PT e EN, a 390px, sem scroll horizontal, com as
 verificações de página a passar nas duas pastas.
 
+### [ ] M7 · Identidade e SEO do hub
+Pedido do Miguel: o hub tem SEO, Open Graph e favicons próprios, sem copiar nada de uma das ferramentas.
+Só muda `hub/` e o `ralph/NOTES.md`. Mantém o hub sem JavaScript e sem passo de build, com os ficheiros
+gerados no repositório e PT e EN em todo o texto.
+- Identidade: abre `hub/favicon.svg`, `sat/favicon.svg` e `natural-deduction/favicon.svg`. Se o do hub for
+  uma variação de um dos outros, redesenha-o com uma marca que represente a lógica computacional no seu
+  conjunto, sem reutilizar os elementos gráficos das ferramentas. Regista a decisão nas notas.
+- Modelos próprios em `hub/scripts/share-images/` e `hub/scripts/make-share-images.sh`, escritos para o
+  hub, que geram `og-image.png` e `og-image-en.png` (1200×630) e `apple-touch-icon.png` (180×180). As
+  imagens têm composição própria, com o nome «Computational Logic» e sem screenshots das ferramentas.
+  Vê os PNG gerados com a ferramenta Read: o texto tem de caber e ler-se.
+- `site.webmanifest` próprio, com o nome do hub, e `<link>` para o manifest e o `apple-touch-icon`.
+- Em `index.html` e `en/index.html`: `og:image` com URL absoluto da imagem na língua da página,
+  `og:image:width`, `og:image:height`, `og:image:alt`, e `twitter:card` = `summary_large_image`, com
+  `twitter:title`, `twitter:description`, `twitter:image` e `twitter:image:alt`.
+- JSON-LD em cada língua: `WebSite` e uma `ItemList` ou `CollectionPage` com as duas ferramentas. Confirma
+  no Chrome que a CSP de `hub/vercel.json` não gera erros na consola; muda a CSP só se for preciso, sem
+  permitir scripts executáveis. A 404 mantém `noindex`, sem JSON-LD.
+- Cabeçalhos do `hub/vercel.json`: `content-type` certo no manifest e cache de 86400 s nas imagens de
+  partilha, como no SAT. Confirma que o `.vercelignore` serve as imagens e o manifest.
+- Testes em `hub/tests/`: todas as tags nas duas línguas, com URLs absolutos e o idioma certo; PNG com as
+  dimensões certas; JSON-LD válido; e hub com hash diferente do SAT e da dedução natural para `favicon.svg`,
+  `og-image*.png`, `apple-touch-icon.png` e `site.webmanifest`.
+**Feito quando:** os testes do hub e o `scripts/test-all.sh` passam, `sat/` e `natural-deduction/` não
+mudam, as imagens foram vistas, e as páginas validam a 390px sem erros na consola.
+
 ### [ ] PAUSA-2 · Revisão final
-Revês as ligações, antes de as publicares.
+Revês as ligações e a identidade do hub, antes de as publicares.
