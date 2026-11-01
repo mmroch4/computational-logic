@@ -233,7 +233,7 @@ Apresentação, prova de exemplo a animar, ligações às 4 páginas.
 Tradução natural de todos os locales e de todo o conteúdo, com siglas EN.
 **Feito quando:** um teste garante chaves iguais em PT e EN, sem texto PT nas páginas EN.
 
-### [ ] H3 · SEO e imagens de partilha
+### [x] H3 · SEO e imagens de partilha
 Meta, JSON-LD, sitemap, robots, `og-image`, favicon, ícones e manifest.
 **Feito quando:** `scripts/make-share-images.sh` gera as imagens e os testes de meta passam.
 
