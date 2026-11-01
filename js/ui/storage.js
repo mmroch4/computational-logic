@@ -18,7 +18,8 @@ export const DEFAULT_PREFS = Object.freeze({
   speed: 1, // velocidade do play no Passo a passo (0.5×–2×)
 });
 
-const SPEEDS = [0.5, 1, 1.5, 2];
+/** Velocidades do play. */
+export const SPEEDS = [0.5, 1, 1.5, 2];
 
 // Mantém só valores válidos; o resto volta ao valor por omissão.
 function cleanPrefs(raw) {

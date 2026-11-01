@@ -53,20 +53,25 @@ export function treeHtml(tree, proof) {
     + `<div class="gentzen__inner">${nodeHtml(tree, proof, LOCALES[getLang()].rules.labels)}</div></div>`;
 }
 
-/** O interior do painel, para o resultado `shown` de `proofTree`. */
-export function treeBodyHtml(shown, proof) {
+/**
+ * O interior do painel, para o resultado `shown` de `proofTree`. Com `status: "note"`, mostra só a chave
+ * `key`. `hint` é a chave da nota por cima da árvore.
+ */
+export function treeBodyHtml(shown, proof, hint = "tree.hint") {
+  if (shown.status === "note") return `<p class="tree-panel__note">${escapeHtml(t(shown.key))}</p>`;
   if (shown.status === "unfinished") return `<p class="tree-panel__note">${escapeHtml(t("tree.unfinished"))}</p>`;
   if (shown.status === "tooLarge") return msgHtml("warn", escapeHtml(t("tree.tooLarge", { limit: shown.limit })));
-  return `<p class="tree-panel__note">${escapeHtml(t("tree.hint"))}</p>${treeHtml(shown.tree, proof)}`
+  return `<p class="tree-panel__note">${escapeHtml(t(hint))}</p>${treeHtml(shown.tree, proof)}`
     + '<p class="tree-panel__caption"></p>';
 }
 
 /**
  * Monta o painel em `container`, que fica vazio até `update()`: só há árvore com uma prova aberta.
- * `source` é o editor: { getProof(), getGoal(), getRules() }. `onSelect(line)` recebe a linha da fórmula
- * selecionada, ou null quando a árvore muda.
+ * `source` é o editor: { getProof(), getGoal(), getRules() }; quem quiser outra árvore que não a da prova
+ * acabada dá `getShown()`, que devolve o `shown`, e já não precisa de `getGoal` nem de `getRules`.
+ * `onSelect(line)` recebe a linha da fórmula selecionada, ou null quando a árvore muda.
  */
-export function mountTreeView(container, { source, onSelect }) {
+export function mountTreeView(container, { source, onSelect, hint = "tree.hint" }) {
   let shown = null;
   let proof = null;
 
@@ -83,7 +88,7 @@ export function mountTreeView(container, { source, onSelect }) {
 
   function paint() {
     const left = container.querySelector(".gentzen")?.scrollLeft ?? 0;
-    container.innerHTML = `<h2 class="tree-panel__title">${escapeHtml(t("tree.title"))}</h2>${treeBodyHtml(shown, proof)}`;
+    container.innerHTML = `<h2 class="tree-panel__title">${escapeHtml(t("tree.title"))}</h2>${treeBodyHtml(shown, proof, hint)}`;
     const scroller = container.querySelector(".gentzen");
     if (scroller) scroller.scrollLeft = left;
     // Uma árvore tem muitas fórmulas: o Tab para só numa, a conclusão, e as setas andam entre elas.
@@ -125,7 +130,7 @@ export function mountTreeView(container, { source, onSelect }) {
   return {
     update() {
       proof = source.getProof();
-      shown = proofTree(proof, source.getGoal(), source.getRules());
+      shown = source.getShown ? source.getShown() : proofTree(proof, source.getGoal(), source.getRules());
       paint();
     },
   };

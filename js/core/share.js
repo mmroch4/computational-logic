@@ -146,7 +146,7 @@ function readProof(value, goal) {
 }
 
 /** Uma prova em branco para `goal`, a mesma com que o editor começa. */
-function blankProof(goal) {
+export function blankProof(goal) {
   const premises = goal.premises.map((formula) => ({ kind: "premise", depth: 0, formula }));
   return createProof([...premises, { kind: "step", depth: 0 }]).proof;
 }

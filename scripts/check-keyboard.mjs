@@ -15,12 +15,20 @@ const PAGES = [
   "/", "/provar", "/passo-a-passo", "/aprender", "/exercicios", "/404",
   "/en", "/en/prove", "/en/step-by-step", "/en/learn", "/en/exercises",
 ];
+const PLAYER_QUERY = "s=p+-%3E+q,+~q+%7C-+~p&step=2";
 // Botões que abrem um menu ou folha, por página (seletor do que recebe o foco e o Enter):
 // { path, opener, mobileOnly? }. Quem criar um menu acrescenta-o aqui.
 const MENUS = [
   { path: "/provar", opener: "#examples-menu summary" },
   { path: "/en/prove", opener: "#examples-menu summary" },
+  { path: `/passo-a-passo?${PLAYER_QUERY}`, opener: ".tl details.dd > summary" },
+  { path: `/en/step-by-step?${PLAYER_QUERY}`, opener: ".tl details.dd > summary" },
 ];
+// O Passo a passo com uma prova aberta: a volta do Tab na página vazia não passa pelo player.
+const PLAYER_WALKS = ["/passo-a-passo", "/en/step-by-step"].flatMap((path) => [
+  { path: `${path}?${PLAYER_QUERY}`, tag: `${path} player` },
+  { path: `${path}?${PLAYER_QUERY}&view=tree`, tag: `${path} player árvore` },
+]);
 // A Provar com uma prova aberta, nos dois modos: a volta do Tab na página vazia não passa pelo editor.
 const PROVE_WALKS = ["/provar", "/en/prove"].flatMap((path) => [
   { path: `${path}?${stateQuery("mixed")}`, tag: `${path} prova` },
@@ -114,7 +122,8 @@ const FOCUS_STATE = `(() => {
   const focusVisible = el.matches(":focus-visible");
   const seen = (s) => (s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== "none";
   // No campo de sequente, o indicador é o contorno da caixa à volta do textarea.
-  const indicator = seen(getComputedStyle(el.closest(".field-box") ?? el));
+  // No slider, o indicador é o anel do botão de arrastar, que getComputedStyle não vê.
+  const indicator = el.matches(".tl-range") || seen(getComputedStyle(el.closest(".field-box") ?? el));
   const clipped = el.closest("[data-sheet-open], .sheet") === null && (r.bottom <= 0 || r.top >= innerHeight);
   // Coberto pela barra do topo ou pela de baixo, que ficam presas ao ecrã.
   const bars = [...document.querySelectorAll(".hdr, .tabbar")].filter((bar) => bar.checkVisibility() && !bar.contains(el)).map((bar) => bar.getBoundingClientRect());
@@ -222,6 +231,31 @@ async function actions(cdp, vp) {
   await page.close();
 }
 
+// A timeline anda com as setas no slider, e um segmented fica com as setas dele.
+async function timelineKeys(cdp, vp) {
+  const tag = `/passo-a-passo timeline @${vp.width}`;
+  const page = await openPage(cdp, `/passo-a-passo?${PLAYER_QUERY}`, vp);
+  const value = `document.querySelector(".tl-range").value`;
+  await page.evaluate(`document.querySelector(".tl-range").focus()`);
+  await page.arrowRight();
+  if ((await page.evaluate(value)) !== "3") problems.push(`${tag}: a seta no slider não avançou (passo ${await page.evaluate(value)})`);
+  await page.evaluate(`document.querySelector('[data-view="fitch"]').focus()`);
+  await page.arrowRight();
+  if ((await page.evaluate(value)) !== "3") problems.push(`${tag}: a seta no segmented mudou de passo`);
+  const pressed = await page.evaluate(`document.querySelector('[data-view="tree"]').getAttribute("aria-pressed")`);
+  if (pressed !== "true") problems.push(`${tag}: a seta no segmented não trocou de vista`);
+  // Os atalhos só existem com teclado físico; não têm nada focável, e o Esc fecha-os.
+  if (!vp.mobile) {
+    const open = `document.querySelector(".step-menu--keys").open`;
+    await page.press("?", "Slash", 191, 8, "?");
+    if (!(await page.evaluate(open))) problems.push(`${tag}: o ? não abriu os atalhos`);
+    await page.escape();
+    await sleep(150);
+    if (await page.evaluate(open)) problems.push(`${tag}: o Esc não fechou os atalhos`);
+  }
+  await page.close();
+}
+
 // Uma prova feita só com teclas: o estado de cada linha é anunciado na região viva, e o texto para o
 // leitor de ecrã traz a fórmula em palavras.
 async function writing(cdp, vp) {
@@ -320,8 +354,10 @@ try {
   for (const vp of VIEWPORTS) {
     for (const path of PAGES) await walk(cdp, path, vp);
     for (const entry of PROVE_WALKS) await walk(cdp, entry, vp);
+    for (const entry of PLAYER_WALKS) await walk(cdp, entry, vp);
     for (const entry of MENUS) await menu(cdp, entry, vp);
     await actions(cdp, vp);
+    await timelineKeys(cdp, vp);
     await writing(cdp, vp);
     await guiding(cdp, vp);
     await treeKeys(cdp, vp);

@@ -2669,6 +2669,422 @@
     outline-offset: -2px;
   }
 
+  /* Player do Passo a passo. */
+  .step-player {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .step-player__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+  }
+
+  .step-player__sequent {
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+
+  .step-player__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 118px;
+    padding: 12px 16px;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+  }
+
+  .step-card__title {
+    font-size: 15px;
+    font-weight: var(--weight-medium);
+  }
+
+  .step-card__line {
+    color: var(--color-text-2);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .step-card__why {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .step-card .msg {
+    margin-top: 8px;
+  }
+
+  .fitch__line[data-step-mark="current"] {
+    background: var(--color-surface-2);
+    box-shadow: inset 2px 0 0 var(--color-ink);
+  }
+
+  .fitch__line[data-step-mark="cited"] {
+    background: var(--color-ev-unit-soft);
+  }
+
+  /* Play/pausa da timeline: círculo de 48px, a única ação principal do ecrã. */
+  .play {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-ink);
+    color: #fff;
+    transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+
+  .play:hover {
+    background: var(--color-ink-hover);
+  }
+
+  .play:active {
+    transform: scale(0.98);
+  }
+
+  .play svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+
+  .play[aria-disabled="true"],
+  .play[aria-disabled="true"]:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .play:active {
+      transform: none;
+    }
+  }
+
+  .kbd-key {
+    display: inline-grid;
+    place-items: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: var(--radius-xs);
+    background: var(--color-surface-2);
+    color: var(--color-text-2);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: var(--weight-regular);
+  }
+
+  /* Atalhos só com teclado físico: no telemóvel o ícone não leva a lado nenhum. */
+  .step-menu--keys {
+    display: none;
+  }
+
+  .step-keys__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-block: 4px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .step-keys dt {
+    flex: none;
+  }
+
+  /* Reserva, no fundo do ecrã, o espaço da timeline fixa. */
+  .has-timeline {
+    --timeline-height: 102px;
+    padding-bottom: calc(var(--tabbar-height) + var(--timeline-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  html:has(.has-timeline) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + 102px + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+
+  .has-timeline main {
+    padding-block: 16px;
+  }
+
+  /* No mobile, por cima da tab bar; a partir do tablet, por baixo do palco. */
+  .timeline {
+    --progress: 0%;
+    --thumb: 16px;
+    position: fixed;
+    inset: auto 0 calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px)) 0;
+    z-index: 25;
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .tl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 8px 16px;
+  }
+
+  .tl-buttons {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .tl-track {
+    position: relative;
+    order: -1;
+    flex: 1 0 100%;
+    height: 28px;
+  }
+
+  .tl-rail,
+  .tl-labels {
+    position: absolute;
+    right: calc(var(--thumb) / 2);
+    left: calc(var(--thumb) / 2);
+  }
+
+  .tl-rail {
+    top: 13px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-border);
+  }
+
+  .tl-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--progress);
+    border-radius: inherit;
+    background: var(--color-ink);
+  }
+
+  .tl-dot {
+    position: absolute;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .d-derive {
+    background: var(--color-ev-unit);
+  }
+
+  .d-assume {
+    background: var(--color-ev-branch);
+  }
+
+  .d-discharge {
+    background: var(--color-ev-back);
+  }
+
+  .d-conclude {
+    background: var(--color-ev-ok);
+  }
+
+  .tl-tip {
+    position: absolute;
+    bottom: 12px;
+    left: clamp(70px, var(--left, 0%), calc(100% - 70px));
+    z-index: 2;
+    padding: 2px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xs);
+    background: var(--color-bg);
+    font-size: 12px;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .tl-tip[hidden] {
+    display: none;
+  }
+
+  .tl-labels {
+    top: 26px;
+    display: none;
+    height: 16px;
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .tl-label {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .tl-label:first-child {
+    transform: none;
+  }
+
+  .tl-label:last-child:not(:first-child) {
+    transform: translateX(-100%);
+  }
+
+  .tl-range {
+    --tl-range-height: 28px;
+    position: absolute;
+    inset: 0 0 auto;
+    width: 100%;
+    height: var(--tl-range-height);
+    margin: 0;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .tl-range::-webkit-slider-runnable-track {
+    height: 100%;
+    background: transparent;
+  }
+
+  .tl-range::-moz-range-track {
+    background: transparent;
+  }
+
+  .tl-range::-webkit-slider-thumb {
+    width: var(--thumb);
+    height: var(--thumb);
+    margin-top: calc((var(--tl-range-height) - var(--thumb)) / 2);
+    border: 2px solid var(--color-ink);
+    border-radius: 50%;
+    background: var(--color-bg);
+    appearance: none;
+  }
+
+  .tl-range::-moz-range-thumb {
+    width: var(--thumb);
+    height: var(--thumb);
+    box-sizing: border-box;
+    border: 2px solid var(--color-ink);
+    border-radius: 50%;
+    background: var(--color-bg);
+  }
+
+  .tl-range:focus-visible {
+    outline: none;
+  }
+
+  .tl-range:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-ink);
+  }
+
+  .tl-range:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-ink);
+  }
+
+  .tl-counter {
+    margin-left: auto;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* A timeline fica no fundo do ecrã: o menu abre para cima. */
+  .tl .dd-panel {
+    top: auto;
+    bottom: calc(100% + 6px);
+  }
+
+  .tl-menu {
+    min-width: 200px;
+  }
+
+  .tl-menu .seg {
+    display: flex;
+    margin: 0 4px 4px;
+  }
+
+  .tl-menu .seg button {
+    flex: 1;
+    padding-inline: 6px;
+  }
+
+  .sheet .tl-menu .seg {
+    margin: 0 12px 8px;
+  }
+
+  @media (max-width: 767.98px) {
+    /* 44px de slider, sem tapar os botões da linha de baixo. */
+    .tl {
+      row-gap: 8px;
+    }
+
+    .tl-range {
+      --tl-range-height: 44px;
+      top: -8px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .step-menu--keys {
+      display: block;
+    }
+
+    .has-timeline {
+      padding-bottom: 0;
+    }
+
+    html:has(.has-timeline) {
+      scroll-padding-bottom: 12px;
+    }
+
+    .has-timeline main {
+      padding-block: 20px;
+    }
+
+    .timeline {
+      position: static;
+    }
+
+    .tl {
+      flex-wrap: nowrap;
+      gap: 16px;
+      padding: 16px 0;
+    }
+
+    .tl-track {
+      order: 0;
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 44px;
+    }
+
+    .tl-labels {
+      display: block;
+    }
+
+    .tl-counter {
+      margin-left: 0;
+    }
+  }
+
   .examples-menu > button {
     flex-direction: column;
     align-items: flex-start;

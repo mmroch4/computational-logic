@@ -98,10 +98,10 @@ function numberHtml(number, pick) {
 }
 
 /** Uma linha só de leitura; o editor usa-a nas premissas. */
-export function lineHtml(line, index, { state, assumption, pick = null }) {
+export function lineHtml(line, index, { state, assumption, pick = null, mark = null }) {
   const number = index + 1;
   const formulaClasses = assumption ? "fitch__formula fitch__formula--assumption" : "fitch__formula";
-  const attrs = state ? ` data-state="${state}"` : "";
+  const attrs = (state ? ` data-state="${state}"` : "") + (mark ? ` data-step-mark="${mark}"` : "");
   return `<li class="fitch__line" data-line="${number}"${attrs}>`
     + `<span class="fitch__gutter">${numberHtml(number, pick)}${state ? stateHtml(state) : ""}</span>`
     + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}<span class="${formulaClasses}">${formulaReadHtml(line.formula)}</span></span>`
@@ -113,14 +113,16 @@ export function lineHtml(line, index, { state, assumption, pick = null }) {
  * HTML da prova. `states` é opcional, de `lineStates`: sem ele, não se mostra estado nenhum (uma prova
  * já verificada, numa lição). O traço horizontal fica por baixo de cada hipótese e da última premissa.
  * `pick` é opcional, `{ label(n), isDisabled(n) }`: torna cada número num botão, para apontar a linha.
+ * `marks` é opcional, um `Map` de número de linha para `current` ou `cited`: o passo que se está a ver.
  */
-export function fitchHtml(proof, { states = null, pick = null } = {}) {
+export function fitchHtml(proof, { states = null, pick = null, marks = null } = {}) {
   const { lines } = proof;
   if (lines.length === 0) return `<p class="fitch-empty">${escapeHtml(t("verify.conclusion.emptyProof"))}</p>`;
   const items = lines.map((line, index) => lineHtml(line, index, {
     state: states?.[index] ?? null,
     assumption: closesAssumptions(lines, index),
     pick,
+    mark: marks?.get(index + 1) ?? null,
   }));
   // tabindex: quem usa só o teclado também tem de conseguir deslocar uma prova larga.
   const classes = pick ? "fitch fitch--pick" : "fitch";

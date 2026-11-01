@@ -36,6 +36,16 @@ for prove in /provar /en/prove; do
   check_state "rules$lang" "$prove?$MIXED" ".rules-panel__toggle" ""
 done
 
+# O Passo a passo com uma prova aberta, nas duas vistas: a página sem link não mostra o player.
+PLAYER='s=p+-%3E+q,+~q+%7C-+~p&step=2'
+READY='for (let i = 0; i < 100 && !document.querySelector(".tl-range"); i++) await new Promise((r) => setTimeout(r, 50));
+  if (!document.querySelector(".tl-range")) throw new Error("o player não abriu");'
+for step in /passo-a-passo /en/step-by-step; do
+  lang="$(echo "$step" | tr -c 'a-z\n' '-')"
+  check_state "player$lang" "$step?$PLAYER" "" "$READY"
+  check_state "player-tree$lang" "$step?$PLAYER&view=tree" "" "$READY"
+done
+
 if [ "$FAILED" -gt 0 ]; then
   echo "check-all: $FAILED verificação(ões) com erros" >&2
   exit 1

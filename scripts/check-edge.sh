@@ -45,6 +45,21 @@ run "lang-query" "/passo-a-passo" "$WAIT
   if (url.search !== '?s=p&step=2') throw new Error('perdeu a query: ' + url.search);
   if (en.documentElement.lang !== 'en') throw new Error('lang=' + en.documentElement.lang);"
 
+# 1b) A troca de idioma a meio do play leva o passo em que ia.
+run "lang-play" "/passo-a-passo" "$WAIT
+  $SWITCH
+  const { frame, doc } = await openFrame('/passo-a-passo?s=p+-%3E+q,+~q+%7C-+~p&step=1');
+  for (let i = 0; i < 100 && !doc.querySelector('[data-role=play]'); i++) await wait(50);
+  let before = 0;
+  const en = await toEn(frame, doc, async (d) => {
+    d.querySelector('[data-role=play]').click();
+    await wait(2000);
+    before = Number(d.querySelector('[data-role=range]').value);
+  });
+  for (let i = 0; i < 100 && !en.querySelector('[data-role=range]'); i++) await wait(50);
+  if (before < 2) throw new Error('o play não andou');
+  if (Number(en.querySelector('[data-role=range]').value) < before) throw new Error('o passo recuou');"
+
 # 2) Aprender: o hash vai com a troca de idioma.
 run "lang-hash" "/aprender" "$WAIT
   $SWITCH

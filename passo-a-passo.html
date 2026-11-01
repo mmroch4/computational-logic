@@ -40,15 +40,41 @@
   <link rel="stylesheet" href="/css/app.css">
   <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
   <link rel="modulepreload" href="/js/pages/passo-a-passo.js">
-  <link rel="modulepreload" href="/js/ui/layout.js">
-  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/core/step-link.js">
+  <link rel="modulepreload" href="/js/core/rules.js">
   <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/message.js">
+  <link rel="modulepreload" href="/js/ui/solver-worker.js">
+  <link rel="modulepreload" href="/js/ui/step-player.js">
+  <link rel="modulepreload" href="/js/core/share.js">
+  <link rel="modulepreload" href="/js/core/formula.js">
+  <link rel="modulepreload" href="/js/core/schema.js">
+  <link rel="modulepreload" href="/js/core/sequent.js">
   <link rel="modulepreload" href="/js/core/routes.js">
+  <link rel="modulepreload" href="/js/ui/locales/pt.js">
+  <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
   <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/ui/segmented.js">
   <link rel="modulepreload" href="/js/ui/analytics.js">
-  <link rel="modulepreload" href="/js/ui/locales/pt.js">
-  <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/core/assist.js">
+  <link rel="modulepreload" href="/js/core/proof-trace.js">
+  <link rel="modulepreload" href="/js/core/tree.js">
+  <link rel="modulepreload" href="/js/ui/fitch-view.js">
+  <link rel="modulepreload" href="/js/ui/menu.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
+  <link rel="modulepreload" href="/js/ui/timeline.js">
+  <link rel="modulepreload" href="/js/ui/tree-view.js">
+  <link rel="modulepreload" href="/js/core/notation.js">
+  <link rel="modulepreload" href="/js/core/parser.js">
+  <link rel="modulepreload" href="/js/core/proof.js">
+  <link rel="modulepreload" href="/js/core/proof-text.js">
+  <link rel="modulepreload" href="/js/core/user-rules.js">
+  <link rel="modulepreload" href="/js/core/semantics.js">
+  <link rel="modulepreload" href="/js/core/verify.js">
+  <link rel="modulepreload" href="/js/core/speech.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/passo-a-passo.js"></script>
 </head>
@@ -61,6 +87,8 @@
       <h2 class="empty-state__heading" data-i18n="emptyState.heading">Ainda em construção</h2>
       <p class="empty-state__hint" data-i18n="step.empty">A reprodução de provas ainda não está disponível nesta página.</p>
     </div>
+    <div id="step-message" aria-live="polite"></div>
+    <div id="step-player" class="step-player" hidden></div>
   </main>
   <!-- footer (gerado por scripts/build-pages.mjs) -->
   <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Desenvolvido por Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Código no GitHub</a><a class="ftr-repo" href="/en/step-by-step" hreflang="en" lang="en" data-lang="en">English</a></div><nav aria-label="Páginas"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/">Início</a></li><li><a href="/provar">Provar</a></li><li><a href="/passo-a-passo">Passo a passo</a></li><li><a href="/aprender">Aprender</a></li><li><a href="/exercicios">Exercícios</a></li></ul></nav></div></footer>
