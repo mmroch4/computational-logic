@@ -1978,6 +1978,277 @@
     overflow-wrap: anywhere;
   }
 
+  /* Início: texto à esquerda e a demonstração à direita; empilham quando não cabem lado a lado. */
+  .home {
+    padding-block: 28px 40px;
+  }
+
+  .home-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 28px 56px;
+  }
+
+  .home-hero__text {
+    display: flex;
+    flex: 1 1 440px;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .home-hero__eyebrow {
+    color: var(--color-text-subtle);
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+    line-height: 16px;
+  }
+
+  .home-hero__title {
+    font-size: 34px;
+    font-weight: var(--weight-semibold);
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+  }
+
+  .home-hero__lead {
+    max-width: 30em;
+    color: var(--color-text-muted);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .home-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .home-hero__actions .btn {
+    flex: 1 1 auto;
+  }
+
+  /* A altura mínima é a da prova toda: o que está por baixo não salta quando o JS a desenha. */
+  .home-demo {
+    display: flex;
+    flex: 1 1 420px;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    min-height: 496px;
+    padding: 16px;
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+  }
+
+  .home-demo__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .home-demo__sequent {
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: var(--weight-medium);
+    line-height: 1.4;
+  }
+
+  .home-demo__bar .btn {
+    flex: none;
+  }
+
+  .home-demo__view {
+    min-width: 0;
+  }
+
+  /* As linhas por escrever guardam o lugar. Na impressão vê-se a prova toda. */
+  @media screen {
+    .home-demo .fitch__line[data-step-mark="future"] {
+      visibility: hidden;
+    }
+  }
+
+  /* Duas linhas de texto: a legenda muda a cada passo e não pode empurrar nada. */
+  .home-demo__caption {
+    min-height: 48px;
+  }
+
+  .home-demo__caption-text {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .home-more {
+    margin-top: 28px;
+  }
+
+  /* Atalhos: lista com divisórias no mobile, cartões a partir do tablet. */
+  .home-links {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .home-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-block: 14px;
+    border-bottom: 1px solid var(--color-hairline);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .home-link:last-child {
+    border-bottom: 0;
+  }
+
+  .home-link:hover {
+    color: var(--color-text);
+  }
+
+  .home-link__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-2);
+  }
+
+  .home-link__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .home-link__title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .home-link__arrow {
+    display: none;
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-subtle);
+  }
+
+  .home-link__chevron {
+    flex: none;
+    color: var(--color-text-subtle);
+  }
+
+  .home-link__text {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .home-about {
+    max-width: var(--prose-max);
+    margin-top: 28px;
+  }
+
+  .home-about p {
+    margin-top: 8px;
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 768px) {
+    .home {
+      padding-block: 64px;
+    }
+
+    .home-hero__text {
+      gap: 20px;
+    }
+
+    .home-hero__eyebrow {
+      font-size: 13px;
+    }
+
+    .home-hero__title {
+      font-size: 48px;
+      letter-spacing: -0.04em;
+      line-height: 1.04;
+    }
+
+    .home-hero__lead {
+      font-size: 18px;
+    }
+
+    .home-hero__actions .btn {
+      flex: none;
+    }
+
+    .home-demo {
+      padding: 20px;
+    }
+
+    .home-more {
+      margin-top: 64px;
+    }
+
+    .home-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .home-link,
+    .home-link:last-child {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 24px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+    }
+
+    .home-link {
+      transition: border-color var(--dur-fast) var(--ease);
+    }
+
+    .home-link:hover {
+      border-color: var(--color-border-strong);
+    }
+
+    .home-link__body {
+      flex: none;
+    }
+
+    .home-link__title {
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .home-link__arrow {
+      display: block;
+    }
+
+    .home-link__chevron {
+      display: none;
+    }
+
+    .home-about {
+      margin-top: 64px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .home-links {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
   /* Formulários. */
   .field__label {
     color: var(--color-text-subtle);

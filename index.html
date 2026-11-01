@@ -40,27 +40,89 @@
   <link rel="stylesheet" href="/css/app.css">
   <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
   <link rel="modulepreload" href="/js/pages/index.js">
+  <link rel="modulepreload" href="/js/ui/home-demo.js">
   <link rel="modulepreload" href="/js/ui/layout.js">
-  <link rel="modulepreload" href="/js/ui/config.js">
+  <link rel="modulepreload" href="/js/core/home-demo.js">
+  <link rel="modulepreload" href="/js/ui/fitch-view.js">
   <link rel="modulepreload" href="/js/ui/i18n.js">
+  <link rel="modulepreload" href="/js/ui/message.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
+  <link rel="modulepreload" href="/js/ui/config.js">
   <link rel="modulepreload" href="/js/core/routes.js">
   <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/ui/segmented.js">
   <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/core/proof-text.js">
+  <link rel="modulepreload" href="/js/core/rules.js">
+  <link rel="modulepreload" href="/js/core/sequent.js">
+  <link rel="modulepreload" href="/js/core/verify.js">
+  <link rel="modulepreload" href="/js/core/formula.js">
+  <link rel="modulepreload" href="/js/core/speech.js">
   <link rel="modulepreload" href="/js/ui/locales/pt.js">
   <link rel="modulepreload" href="/js/ui/locales/en.js">
+  <link rel="modulepreload" href="/js/core/parser.js">
+  <link rel="modulepreload" href="/js/core/proof.js">
+  <link rel="modulepreload" href="/js/core/schema.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/index.js"></script>
 </head>
 <body data-page="home">
-  <main id="main" class="wrap page-empty">
-    <h1 class="page-empty__title" data-i18n="home.title">Aprende dedução natural, linha a linha</h1>
-    <p class="page-empty__lead" data-i18n="home.lead">Faz provas em notação de Fitch e vê cada linha verificada, com a regra e as linhas que ela cita.</p>
-    <div class="empty-state">
-      <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg></span>
-      <h2 class="empty-state__heading" data-i18n="emptyState.heading">Ainda em construção</h2>
-      <p class="empty-state__hint" data-i18n="home.empty">A ferramenta está a ser construída. Em breve começas aqui a tua primeira prova.</p>
-    </div>
+  <main id="main" class="wrap home">
+    <section class="home-hero">
+      <div class="home-hero__text">
+        <p class="home-hero__eyebrow" data-i18n="home.eyebrow">Lógica computacional · Dedução natural</p>
+        <h1 class="home-hero__title" data-i18n="home.title">Aprende dedução natural, linha a linha</h1>
+        <p class="home-hero__lead" data-i18n="home.lead">Faz provas em notação de Fitch e vê cada linha verificada, com a regra e as linhas que ela cita.</p>
+        <div class="home-hero__actions">
+          <a class="btn" data-size="lg" href="/provar" data-i18n="home.start">Começar a provar</a>
+          <a class="btn" data-size="lg" data-variant="secondary" href="/aprender" data-i18n="home.learnFirst">Aprender as regras</a>
+        </div>
+      </div>
+      <aside class="home-demo" data-home-demo aria-label="Demonstração do editor de provas" data-i18n-attr="aria-label:home.demo.label"></aside>
+    </section>
+
+    <section class="home-more" aria-labelledby="home-cards-title">
+      <h2 class="sr-only" id="home-cards-title" data-i18n="home.cardsTitle">O que podes fazer</h2>
+      <div class="home-links">
+        <a class="home-link" href="/provar">
+          <span class="home-link__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <div class="home-link__body">
+            <h3 class="home-link__title"><span data-i18n="home.proveTitle">Provar</span><svg class="ic home-link__arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></h3>
+            <p class="home-link__text" data-i18n="home.proveText">Escreve um sequente e faz a prova, com dicas, solução automática e contraexemplo.</p>
+          </div>
+          <svg class="ic home-link__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="home-link" href="/passo-a-passo">
+          <span class="home-link__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 5.5v13l11-6.5z"/></svg></span>
+          <div class="home-link__body">
+            <h3 class="home-link__title"><span data-i18n="home.stepTitle">Passo a passo</span><svg class="ic home-link__arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></h3>
+            <p class="home-link__text" data-i18n="home.stepText">Vê uma prova gerada para o teu sequente e a estratégia de cada passo.</p>
+          </div>
+          <svg class="ic home-link__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="home-link" href="/aprender">
+          <span class="home-link__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 9l10-5 10 5-10 5zM6 11v5c3 2.5 9 2.5 12 0v-5"/></svg></span>
+          <div class="home-link__body">
+            <h3 class="home-link__title"><span data-i18n="home.learnTitle">Aprender</span><svg class="ic home-link__arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></h3>
+            <p class="home-link__text" data-i18n="home.learnText">Uma lição interativa sobre as regras, as subdeduções e as estratégias, com quiz no fim.</p>
+          </div>
+          <svg class="ic home-link__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="home-link" href="/exercicios">
+          <span class="home-link__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8.5h6M9 12h6M9 15.5h4"/></svg></span>
+          <div class="home-link__body">
+            <h3 class="home-link__title"><span data-i18n="home.exercisesTitle">Exercícios</span><svg class="ic home-link__arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></h3>
+            <p class="home-link__text" data-i18n="home.exercisesText">Provas graduadas, com o teu progresso guardado e o modo «encontra o passo errado».</p>
+          </div>
+          <svg class="ic home-link__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-about">
+      <h2 data-i18n="home.aboutTitle">O que é a dedução natural</h2>
+      <p data-i18n="home.aboutText">É uma forma de mostrar que uma conclusão decorre de certas premissas, um passo de cada vez. Cada linha da prova aplica uma regra simples às linhas anteriores, e uma subdedução permite supor algo, ver onde isso leva e, depois, largar a suposição.</p>
+    </section>
   </main>
   <!-- footer (gerado por scripts/build-pages.mjs) -->
   <footer class="ftr" data-layout><div class="wrap ftr-in"><div class="ftr-credits"><p>Desenvolvido por Miguel Rocha · <a href="https://miguelrocha.dev" target="_blank" rel="noopener">miguelrocha.dev</a></p><a class="ftr-repo" href="https://github.com/mmroch4/computational-logic" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Código no GitHub</a><a class="ftr-repo" href="/en" hreflang="en" lang="en" data-lang="en">English</a></div><nav aria-label="Páginas"><ul class="flex gap-[18px] list-none p-0 m-0"><li><a href="/">Início</a></li><li><a href="/provar">Provar</a></li><li><a href="/passo-a-passo">Passo a passo</a></li><li><a href="/aprender">Aprender</a></li><li><a href="/exercicios">Exercícios</a></li></ul></nav></div></footer>
