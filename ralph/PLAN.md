@@ -5,7 +5,7 @@ O detalhe e os motivos estão em `ralph/MONOREPO-PLAN.md`.
 
 ## Tarefas
 
-### [ ] M0 · Linha de base
+### [x] M0 · Linha de base
 Corre os testes das duas pastas sem alterar nada e regista em `ralph/NOTES.md` quantos passam, quais
 falham e quanto demoram. É aqui que se confirma se as 3 falhas por tempo da dedução natural eram mesmo
 da carga da máquina.
