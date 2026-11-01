@@ -176,7 +176,7 @@ seguinte assenta neste editor, por isso é a altura de pedir alterações de int
 dicas opcionais. Regista progresso com «resolvido» e «resolvido com regras próprias».
 **Feito quando:** um teste valida todos os exercícios contra o verificador com o conjunto de cada um.
 
-### [ ] E2 · Exercícios de prova
+### [x] E2 · Exercícios de prova
 ~50 exercícios originais em níveis, incluindo provar as regras derivadas com `base`.
 **Feito quando:** todas as soluções são aceites e nenhum enunciado é copiado de `conteudos/`.
 
