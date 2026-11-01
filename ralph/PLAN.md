@@ -190,7 +190,7 @@ Lista por níveis, reutilização do editor, regras permitidas visíveis, progre
 
 ## Bloco F — Passo a passo
 
-### [ ] F1 · Player
+### [x] F1 · Player
 Reproduz uma prova gerada por eventos com a estratégia de cada passo, usando a timeline e os atalhos do
 SAT adaptados. Estado no URL: `?s=…&step=N&view=fitch|tree`.
 **Feito quando:** avançar, recuar e abrir um passo por link estão testados.
