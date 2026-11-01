@@ -201,7 +201,7 @@ Sequente à escolha, exemplos e explicação por passo. Sequente inválido mostr
 
 ## Bloco G — Aprender
 
-### [ ] G1 · Estrutura da lição
+### [x] G1 · Estrutura da lição
 Índice e 9 secções: o que é uma prova, ∧, →, subdeduções e escopo, ∨, ¬ e F, regras derivadas,
 estratégias, solidez e completude. Componentes de figura e interação reutilizáveis.
 **Feito quando:** a página tem índice e secções navegáveis com link direto.
