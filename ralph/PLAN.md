@@ -242,6 +242,6 @@ Meta, JSON-LD, sitemap, robots, `og-image`, favicon, ícones e manifest.
 Corrige o que falhar.
 **Feito quando:** todos passam. Se a rede falhar no Lighthouse, regista isso em `ralph/NOTES.md`.
 
-### [ ] H5 · Documentação
+### [x] H5 · Documentação
 `README.md` em inglês, como o do SAT, e `CLAUDE.md` e `DESIGN.md` atualizados.
 **Feito quando:** os comandos documentados funcionam.
