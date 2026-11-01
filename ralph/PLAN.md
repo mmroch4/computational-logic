@@ -184,7 +184,7 @@ dicas opcionais. Regista progresso com «resolvido» e «resolvido com regras pr
 ~10 provas originais com um erro, e modo para apontar a linha e explicar o erro por escolha múltipla.
 **Feito quando:** o verificador confirma que cada erro está exatamente na linha indicada.
 
-### [ ] E4 · Página Exercícios
+### [x] E4 · Página Exercícios
 Lista por níveis, reutilização do editor, regras permitidas visíveis, progresso e repor.
 **Feito quando:** `scripts/check-exercises.sh`, adaptado, faz os dois modos até ao fim.
 
