@@ -17,8 +17,12 @@ import { createSolverWorker } from "./solver-worker.js";
 
 const LEVEL_NAMES = ["strategy", "rule", "exact"];
 
-const button = (action, label, variant = "outline") => (
-  `<button type="button" class="btn" data-variant="${variant}" data-assist="${action}">${escapeHtml(label)}</button>`
+const BULB = '<path d="M15 14c.2-1 .7-1.7 1.5-2.5A5 5 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4"/>';
+const SPARKLES = '<path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>';
+const ic = (path) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${path}</svg>`;
+
+const button = (action, label, variant = "outline", path = null) => (
+  `<button type="button" class="btn" data-variant="${variant}" data-assist="${action}">${path ? ic(path) : ""}${escapeHtml(label)}</button>`
 );
 
 function hintHtml({ target, levels, revealed, ...panel }) {
@@ -137,7 +141,7 @@ export function mountAssistPanel(container, { source, worker = createSolverWorke
 
   function build() {
     container.innerHTML = `<div class="assist__actions" role="group" aria-label="${escapeHtml(t("assist.label"))}">`
-      + `${button("hint", t("assist.hint"))}${button("solve", t("assist.solve"))}</div>`
+      + `${button("hint", t("assist.hint"), "outline", BULB)}${button("solve", t("assist.solve"), "outline", SPARKLES)}</div>`
       + '<div class="assist__body" aria-live="polite"></div>';
     paintBody(assist.getPanel());
   }

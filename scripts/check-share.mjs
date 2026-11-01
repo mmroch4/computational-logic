@@ -125,6 +125,10 @@ const b64 = (entries) => Buffer.from(JSON.stringify(entries)).toString("base64ur
 async function scenario({ page, evaluate, tap }, origin, path, lang) {
   const tag = (what) => `${lang}: ${what}`;
   const pt = lang === "pt";
+  const share = async (item) => {
+    await tap("#proof-share summary");
+    return tap(item);
+  };
   const go = async (url, ready) => {
     await page("Page.navigate", { url });
     await waitFor(() => evaluate(`document.getElementById("sequent") !== null && document.documentElement.dataset.ready !== "x"`), tag(`«${url}»`));
@@ -167,7 +171,7 @@ async function scenario({ page, evaluate, tap }, origin, path, lang) {
     window.copied = [];
     Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text) => { window.copied.push(text); } } });
   })()`);
-  const heights = [await tap('[data-share="copy-link"]')];
+  const heights = [await share('[data-share="copy-link"]')];
   await waitFor(() => evaluate(`document.querySelector(".proof-share__status .msg-ok") !== null`), tag("«link copiado»"));
   const url = (await evaluate("window.copied"))[0];
   expect(url, await evaluate("location.href"), tag("o link copiado é o do endereço"));
@@ -209,12 +213,12 @@ async function scenario({ page, evaluate, tap }, origin, path, lang) {
   // Texto que não se leu: o link funciona, mas avisa.
   await evaluate(`Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => {} } })`);
   await fill(3, "formula", "p ∧");
-  await tap('[data-share="copy-link"]');
+  await share('[data-share="copy-link"]');
   await waitFor(() => evaluate(`document.querySelector(".proof-share__status .msg-warn") !== null`), tag("o aviso do texto por ler"));
 
   // Sem área de transferência, explica o que fazer.
   await evaluate(`Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("recusado"); } } })`);
-  await tap('[data-share="copy-latex"]');
+  await share('[data-share="copy-latex"]');
   await waitFor(() => evaluate(`document.querySelector(".proof-share__status .msg-warn")?.textContent.includes(".tex")`), tag("a falha ao copiar"));
 
   // Links inválidos: erro claro, sem prova aberta, com o sequente no campo.
@@ -269,10 +273,10 @@ async function scenario({ page, evaluate, tap }, origin, path, lang) {
     const real = URL.createObjectURL;
     URL.createObjectURL = (blob) => { window.blobs.push(blob); return real.call(URL, blob); };
   })()`);
-  heights.push(await tap('[data-share="copy-latex"]'));
+  heights.push(await share('[data-share="copy-latex"]'));
   await waitFor(() => evaluate(`window.copied.length === 1`), tag("copiar o LaTeX"));
   expect((await evaluate("window.copied[0]")).includes(pt ? "{portuguese}{babel}".replace("{portuguese}", "[portuguese]") : "[english]{babel}"), true, tag("o LaTeX segue o idioma"));
-  heights.push(await tap('[data-share="download-tex"]'));
+  heights.push(await share('[data-share="download-tex"]'));
   await waitFor(() => evaluate(`window.blobs.length === 1`), tag("descarregar o .tex"));
   expect(await evaluate("window.blobs[0].text()"), await evaluate("window.copied[0]"), tag("o .tex é o mesmo documento"));
 

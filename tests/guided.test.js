@@ -256,3 +256,24 @@ test("no Chrome: a prova só com toques, em PT e EN, a 390px", { skip: !existsSy
   const run = spawnSync("node", ["scripts/check-guided.mjs"], { encoding: "utf8", timeout: 90000 });
   assert.equal(run.status, 0, run.stdout + run.stderr);
 });
+
+test("sem seleção, ∧I e →E encontram sozinhos o que citar e fecham o objetivo", () => {
+  const text = "a ∧ b → c ⊢ a → b → c";
+  let editor = apply(apply(start(text), [], "→I"), [], "→I");
+  assert.equal(format(guidedAnchor(editor).target), "c");
+
+  const conjunction = ruleOf(editor, [], "∧I");
+  assert.deepEqual(conjunction.outcomes.map(({ formula }) => format(formula)), ["a ∧ b"]);
+  editor = applyOutcome(editor, conjunction.outcomes[0]);
+  assert.equal(format(guidedAnchor(editor).target), "c");
+
+  const elimination = ruleOf(editor, [], "→E");
+  assert.equal(elimination.outcomes.length, 1);
+  editor = applyOutcome(editor, elimination.outcomes[0]);
+  assert.equal(verifyProof(editor.proof, goalOf(text), options.rules, options.known).ok, true);
+});
+
+test("sem seleção, só se oferecem fórmulas novas que já aparecem na prova", () => {
+  const editor = apply(start("a ⊢ a → a"), [], "→I");
+  assert.equal(ruleOf(editor, [], "∧I").outcomes.length, 0);
+});

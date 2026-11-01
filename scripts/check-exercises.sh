@@ -2,7 +2,7 @@
 # Exercícios no Chrome headless (via check-page.sh), cada caso com um EVAL que confirma o estado:
 #   1) lista: níveis, modos, filtro sem resultados, foco e barra de progresso;
 #   2) prova a escrever até ao fim: regra proibida, dica, progresso e próximo exercício;
-#   3) a mesma prova no modo guiado, com a regra proibida a tracejado;
+#   3) a mesma prova no modo guiado, com a regra proibida apagada;
 #   4) encontra o passo errado até ao fim: linha certa, explicação errada, resolvido e progresso;
 #   5) solução automática: completa a prova e não conta;
 #   6) progresso: acabar um exercício muda a lista depois de recarregar, e repor limpa;

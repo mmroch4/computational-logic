@@ -11,6 +11,7 @@ import { format } from "../core/formula.js";
 import {
   applyOutcome, focusObjective, guidedAnchor, guidedLines, guidedRules, outcomeLabel, toggleSelection,
 } from "../core/guided.js";
+import { applyPick, pickState, pickableRules } from "../core/rule-pick.js";
 import { RULES, localizeRuleParam, ruleLabel, ruleSet } from "../core/rules.js";
 import { formatSequent } from "../core/sequent.js";
 import {
@@ -162,6 +163,47 @@ export function guidedPanelHtml({ anchor, rules, choice, reason, complete = fals
     + `<div class="guided__reason">${reason ? msgHtml("info", escapeHtml(messageText(reason))) : ""}</div>`;
 }
 
+const lineOfItem = (item) => (item.kind === "line" ? String(item.line) : `${item.from}–${item.to}`);
+
+/** O painel da linha: a lista de regras ou o pedido em curso. `state` vem de `pickState`, e sem ele há a lista. */
+export function rulePickHtml({ ids, id, state, proof }) {
+  const labels = ruleLabels();
+  const cancel = `<button type="button" class="rule-pick__cancel" data-pick-cancel>${escapeHtml(t("rulePick.cancel"))}</button>`;
+  const wrap = (body) => `<div class="rule-pick">${body}</div>`;
+  if (!id) {
+    const buttons = ids.map((rule) => (
+      `<button type="button" class="guided__rule" data-pick-rule="${escapeHtml(rule)}">${escapeHtml(ruleLabel(rule, labels))}</button>`
+    )).join("");
+    return wrap(`<p>${escapeHtml(t("rulePick.choose"))}</p>`
+      + `<div class="guided__rules" role="group" aria-label="${escapeHtml(t("rulePick.choose"))}">${buttons}</div>`);
+  }
+  const rule = escapeHtml(ruleLabel(id, labels));
+  if (state.status === "refused") {
+    return wrap(msgHtml("info", escapeHtml(t("rulePick.refused", { rule: ruleLabel(id, labels), conclusions: state.conclusions }))) + cancel);
+  }
+  if (state.status === "done") {
+    const options = state.results.map((formula, index) => (
+      `<button type="button" class="guided__choice" data-pick-result="${index}">${escapeHtml(format(formula))}</button>`
+    )).join("");
+    return wrap(`<p><b>${rule}</b> ${escapeHtml(t("rulePick.result"))}</p><div class="guided__choices">${options}</div>${cancel}`);
+  }
+  const { premise, step, total, candidates } = state;
+  const options = candidates.map((item, index) => {
+    const first = item.kind === "line" ? item.line : item.from;
+    const shown = item.kind === "line"
+      ? format(proof.lines[first - 1].formula)
+      : `[${format(proof.lines[first - 1].formula)}] … ${format(proof.lines[item.to - 1].formula)}`;
+    return `<button type="button" class="guided__choice" data-pick-cite="${index}">`
+      + `<b>${lineOfItem(item)}</b> ${escapeHtml(shown)}</button>`;
+  }).join("");
+  const count = total > 1 ? `${escapeHtml(t("rulePick.step", { step, total }))} ` : "";
+  const prompt = t(`rulePick.${premise.kind}`, { premise: premise.text });
+  const none = candidates.length === 0 ? msgHtml("info", escapeHtml(t("rulePick.none"))) : "";
+  return wrap(`<p><b>${rule}</b> · ${count}${escapeHtml(prompt)}</p>${none}`
+    + (options ? `<div class="guided__choices" role="group" aria-label="${escapeHtml(prompt)}">${options}</div>` : "")
+    + cancel);
+}
+
 function modesHtml(mode) {
   const buttons = EDITOR_MODES.map((name) => (
     `<button type="button" data-mode="${name}" aria-pressed="${name === mode}">${escapeHtml(t(`editor.modes.${name}`))}</button>`
@@ -182,7 +224,7 @@ function shellHtml(mode) {
   )).join("");
   const writing = `<div class="keys" role="group" aria-label="${escapeHtml(t("sequentInput.symbolsLabel"))}">${keys}</div>`
     + `<p class="proof-editor__shortcuts">${escapeHtml(t("editor.shortcuts"))}</p>`;
-  return modesHtml(mode)
+  return `<div class="proof-editor__bar">${modesHtml(mode)}</div>`
     + '<div class="fitch fitch--edit" role="group" '
     + `aria-label="${escapeHtml(t("fitch.label"))}"><ol class="fitch__lines" role="list"></ol></div>`
     + '<div class="sr-only proof-editor__live" role="status"></div>'
@@ -209,9 +251,10 @@ export function statusHtml(status, notice) {
  * Devolve { start(goal), open(goal, proof), getProof(), getGoal(), getRules(), setRules({ rules, known }),
  * hasUnreadText(), highlightLine(line), useProof(proof) }.
  * `idPrefix` e `mode` servem a lição, que tem vários editores e abre no modo guiado.
+ * `barSlot` é um elemento a pôr na barra dos modos, à direita.
  */
 export function mountProofEditor(container, options = {}) {
-  const { onGoalChange, onProofChange, idPrefix = "proof" } = options;
+  const { onGoalChange, onProofChange, idPrefix = "proof", barSlot = null } = options;
   let { rules = ruleSet("completo"), known = RULES } = options;
   let editor = null;
   let seenProof = null;
@@ -222,6 +265,8 @@ export function mountProofEditor(container, options = {}) {
   let selection = [];
   let choice = null;
   let reason = null;
+  /** A escrever, a escolha da regra de uma linha: { line, id, cited, state }, ou null. */
+  let rulePick = null;
   /** A linha destacada de fora, ou null. */
   let highlighted = null;
   /** Linhas com o erro já à vista: um erro novo na linha do cursor espera por uma pausa. */
@@ -379,6 +424,100 @@ export function mountProofEditor(container, options = {}) {
     selection = [];
     choice = null;
     reason = null;
+    rulePick = null;
+  }
+
+  const pickRoot = () => container.querySelector(".fitch--edit");
+
+  /** Desenha o painel por baixo da linha e marca as linhas que se podem tocar. */
+  function paintPick() {
+    const root = pickRoot();
+    if (!root) return;
+    const hadFocus = root.querySelector(".rule-pick")?.contains(document.activeElement);
+    root.querySelector(".rule-pick")?.remove();
+    const row = rulePick && rowOf(rulePick.line);
+    const items = rulePick?.state?.candidates ?? [];
+    root.toggleAttribute("data-picking", Boolean(rulePick?.id && row));
+    root.querySelectorAll("[data-line]").forEach((line) => {
+      const number = Number(line.dataset.line);
+      const covers = (item) => (item.kind === "line" ? item.line === number : item.from <= number && number <= item.to);
+      line.toggleAttribute("data-candidate", items.some(covers));
+      line.toggleAttribute("data-cited", Boolean(rulePick?.cited.some(covers)));
+    });
+    if (!row) return;
+    row.querySelector(".fitch-edit__content").insertAdjacentHTML("beforeend", rulePickHtml({
+      ids: pickableRules(rules), id: rulePick.id, state: rulePick.state, proof: editor.proof,
+    }));
+    if (hadFocus) root.querySelector(".rule-pick button")?.focus();
+  }
+
+  function closePick({ focus = false } = {}) {
+    rulePick = null;
+    paintPick();
+    if (focus) focusCursor();
+  }
+
+  function finishPick(formula) {
+    const { line, id, state } = rulePick;
+    rulePick = null;
+    show(applyPick(editor, line, { id, citations: state.citations, formula }, ruleLabels()));
+  }
+
+  /** Recalcula o pedido. Quando já não falta nada e só há uma fórmula possível, escreve-a logo. */
+  function advancePick() {
+    rulePick.state = pickState(editor, rulePick.line, rulePick.id, rulePick.cited, { rules });
+    const { status, results } = rulePick.state;
+    if (status === "done" && results.length === 1) finishPick(results[0]);
+    else paintPick();
+  }
+
+  function citePick(item) {
+    rulePick.cited = [...rulePick.cited, item];
+    advancePick();
+  }
+
+  function onPickClick({ target }) {
+    if (target.matches?.('.fitch-edit__field[data-field="justification"]')) {
+      if (rulePick) return;
+      rulePick = { line: Number(target.closest("[data-line]").dataset.line), id: null, cited: [], state: null };
+      paintPick();
+      return;
+    }
+    if (!rulePick) return;
+    const rule = target.closest("[data-pick-rule]");
+    const cite = target.closest("[data-pick-cite]");
+    const result = target.closest("[data-pick-result]");
+    if (rule) {
+      rulePick.id = rule.dataset.pickRule;
+      advancePick();
+    } else if (cite) {
+      citePick(rulePick.state.candidates[Number(cite.dataset.pickCite)]);
+    } else if (result) {
+      finishPick(rulePick.state.results[Number(result.dataset.pickResult)]);
+    } else if (target.closest("[data-pick-cancel]")) {
+      closePick({ focus: true });
+    } else if (rulePick.id && !target.closest(".rule-pick")) {
+      const row = target.closest(".fitch__line[data-candidate]");
+      if (!row) return;
+      const number = Number(row.dataset.line);
+      const items = rulePick.state.candidates;
+      const item = items.find(({ kind, line }) => kind === "line" && line === number)
+        ?? items.find(({ kind, from, to }) => kind === "range" && from <= number && number <= to);
+      citePick(item);
+    }
+  }
+
+  /** O toque não pode tirar o foco do campo: o teclado do telemóvel fechava-se e a prova saltava. */
+  function keepFieldFocus(event) {
+    if (event.target.closest(".rule-pick, .fitch--edit[data-picking] .fitch__line")) event.preventDefault();
+  }
+
+  /** Abrir o campo vazio mostra as regras; mudar de campo fecha o que estava aberto. */
+  function syncPick(line, field) {
+    if (rulePick?.line === line && field === "justification") return;
+    const empty = field === "justification" && editor.drafts[line - 1].justification === "";
+    rulePick = empty ? { line, id: null, cited: [], state: null } : null;
+    paintPick();
   }
 
   /** Passa para o estado `next` e mexe só no que mudou. */
@@ -389,6 +528,7 @@ export function mountProofEditor(container, options = {}) {
     if (next.goal !== before.goal) onGoalChange?.(next.goal);
     if (next.drafts === before.drafts) refresh();
     else paintLines();
+    paintPick();
     focusCursor();
   }
 
@@ -411,6 +551,7 @@ export function mountProofEditor(container, options = {}) {
     if (!target.matches(".fitch-edit__field")) return;
     editor = setText(editor, Number(target.closest("[data-line]").dataset.line), target.dataset.field, target.value);
     refresh();
+    if (rulePick) closePick();
   }
 
   function pickLine(number) {
@@ -454,6 +595,11 @@ export function mountProofEditor(container, options = {}) {
   }
 
   function onKeydown(event) {
+    if (rulePick && event.key === "Escape") {
+      event.preventDefault();
+      closePick({ focus: true });
+      return;
+    }
     if (mode === "guided") {
       const name = keyAction({ key: event.key, ctrl: event.ctrlKey || event.metaKey, shift: event.shiftKey, alt: event.altKey });
       if (name !== "undo" && name !== "redo") return;
@@ -477,13 +623,16 @@ export function mountProofEditor(container, options = {}) {
     if (!target.matches(".fitch-edit__field")) return;
     const line = Number(target.closest("[data-line]").dataset.line);
     const { field } = target.dataset;
+    syncPick(line, field);
     if (line === editor.cursor.line && field === editor.cursor.field) return;
     editor = moveCursor(editor, line, field);
     refresh();
   }
 
-  function onFocusout({ target }) {
+  function onFocusout({ target, relatedTarget }) {
     if (painting || !target.matches(".fitch-edit__field")) return;
+    // A lista fecha ao sair do campo, mas um pedido a meio fica até se escolher ou cancelar.
+    if (rulePick && !rulePick.id && !relatedTarget?.closest(".rule-pick")) closePick();
     const line = Number(target.closest("[data-line]").dataset.line);
     editor = tidyField(editor, line, target.dataset.field, ruleLabels());
     target.value = editor.drafts[line - 1][target.dataset.field];
@@ -493,6 +642,7 @@ export function mountProofEditor(container, options = {}) {
   function build() {
     announced = null;
     container.innerHTML = shellHtml(mode);
+    if (barSlot) container.querySelector(".proof-editor__bar").append(barSlot);
     container.querySelectorAll("[data-mode]").forEach((button) => {
       button.addEventListener("click", () => setMode(button.dataset.mode));
     });
@@ -512,6 +662,8 @@ export function mountProofEditor(container, options = {}) {
 
   container.classList.add("proof-editor");
   container.addEventListener("click", onGuidedClick);
+  container.addEventListener("click", onPickClick);
+  container.addEventListener("mousedown", keepFieldFocus);
   container.addEventListener("input", onInput);
   container.addEventListener("keydown", onKeydown);
   container.addEventListener("focusin", onFocusin);

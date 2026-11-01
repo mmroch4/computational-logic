@@ -3256,10 +3256,70 @@
     overflow-wrap: anywhere;
   }
 
+  /* Uma regra indisponível ainda se pode tocar, para saber porquê, mas não pode parecer disponível. */
   .guided__rule[aria-disabled="true"] {
-    border-style: dashed;
-    border-color: var(--color-text-subtle);
+    border-color: var(--color-hairline);
+    background: var(--color-surface-2);
+    color: var(--color-border-strong);
+    font-weight: 400;
+  }
+
+  .guided__rule:not([aria-disabled="true"]) {
+    font-weight: 600;
+  }
+
+  .proof-editor__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  /* Escolher a regra no modo de escrita: o painel fica na própria linha, para não ser cortado pelo scroll. */
+  .rule-pick {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    margin: 6px 0 8px;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .fitch__line:has(.rule-pick) .fitch__gutter {
+    align-self: flex-start;
+    padding-top: 12px;
+  }
+
+  .rule-pick .guided__choice {
+    font-size: 14px;
+  }
+
+  .rule-pick__cancel {
+    align-self: flex-start;
+    min-height: 44px;
     color: var(--color-text-muted);
+    text-decoration: underline;
+  }
+
+  .fitch--edit[data-picking] .fitch-edit__field {
+    pointer-events: none;
+  }
+
+  .fitch--edit[data-picking] .fitch__line[data-candidate] {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .fitch--edit[data-picking] .fitch__line[data-cited] {
+    background: var(--color-surface-2);
   }
 
   .guided__rule:focus-visible,
@@ -3286,10 +3346,10 @@
 
   /* Partilhar e exportar a prova. */
   .proof-share {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0;
+    flex: none;
+  }
+
+  .proof-share__status {
     margin-top: 12px;
   }
 
@@ -3297,16 +3357,6 @@
   .proof-share__status:empty,
   .share-error:empty {
     display: none;
-  }
-
-  .proof-share__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .proof-share__actions .btn {
-    min-height: 44px;
   }
 
   /* Regras do utilizador: fechado, o painel ocupa uma linha entre o sequente e a prova. */
@@ -3652,6 +3702,40 @@
 
   .tree-panel:empty {
     display: none;
+  }
+
+  .tree-panel__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .tree-panel__toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .tree-panel__toggle::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    margin-right: 4px;
+    border-right: 2px solid var(--color-text-muted);
+    border-bottom: 2px solid var(--color-text-muted);
+    transform: rotate(45deg);
+  }
+
+  .tree-panel__section[open] .tree-panel__toggle::after {
+    transform: rotate(-135deg);
+  }
+
+  .tree-panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding-top: 6px;
   }
 
   .tree-panel__title {

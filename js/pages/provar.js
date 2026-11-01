@@ -21,6 +21,7 @@ const currentRules = () => activeRules({ rules: "completo" }, userRules.list());
 
 const editor = mountProofEditor(document.getElementById("proof-editor"), {
   ...currentRules(),
+  barSlot: document.getElementById("proof-share"),
   onGoalChange: (goal) => input.setValue(formatSequent(goal)),
   onProofChange: () => {
     assist.reset();
@@ -31,9 +32,11 @@ const editor = mountProofEditor(document.getElementById("proof-editor"), {
 });
 
 const assist = mountAssistPanel(document.getElementById("proof-assist"), { source: editor });
-const tree = mountTreeView(document.getElementById("proof-tree"), { source: editor, onSelect: editor.highlightLine });
+const tree = mountTreeView(document.getElementById("proof-tree"), { source: editor, onSelect: editor.highlightLine, collapsible: true });
 const sync = createUrlSync({ ...editor, getUserRules: userRules.list });
-const share = mountProofShare(document.getElementById("proof-share"), { source: editor, sync });
+const share = mountProofShare(document.getElementById("proof-share"), {
+  source: editor, sync, statusBox: document.getElementById("proof-share-status"),
+});
 mountPrintSheet(editor);
 const rulesPanel = mountUserRulesPanel(document.getElementById("user-rules"), { store: userRules });
 

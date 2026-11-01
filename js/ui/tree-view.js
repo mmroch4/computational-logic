@@ -70,8 +70,9 @@ export function treeBodyHtml(shown, proof, hint = "tree.hint") {
  * `source` é o editor: { getProof(), getGoal(), getRules() }; quem quiser outra árvore que não a da prova
  * acabada dá `getShown()`, que devolve o `shown`, e já não precisa de `getGoal` nem de `getRules`.
  * `onSelect(line)` recebe a linha da fórmula selecionada, ou null quando a árvore muda.
+ * Com `collapsible`, o painel é uma secção que nasce fechada e fica como estava a cada redesenho.
  */
-export function mountTreeView(container, { source, onSelect, hint = "tree.hint" }) {
+export function mountTreeView(container, { source, onSelect, hint = "tree.hint", collapsible = false }) {
   let shown = null;
   let proof = null;
 
@@ -88,7 +89,13 @@ export function mountTreeView(container, { source, onSelect, hint = "tree.hint" 
 
   function paint() {
     const left = container.querySelector(".gentzen")?.scrollLeft ?? 0;
-    container.innerHTML = `<h2 class="tree-panel__title">${escapeHtml(t("tree.title"))}</h2>${treeBodyHtml(shown, proof, hint)}`;
+    const title = `<h2 class="tree-panel__title">${escapeHtml(t("tree.title"))}</h2>`;
+    const body = treeBodyHtml(shown, proof, hint);
+    const open = container.querySelector("details")?.open ? " open" : "";
+    container.innerHTML = collapsible
+      ? `<details class="tree-panel__section"${open}><summary class="tree-panel__toggle">${title}</summary>`
+        + `<div class="tree-panel__body">${body}</div></details>`
+      : title + body;
     const scroller = container.querySelector(".gentzen");
     if (scroller) scroller.scrollLeft = left;
     // Uma árvore tem muitas fórmulas: o Tab para só numa, a conclusão, e as setas andam entre elas.

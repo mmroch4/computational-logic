@@ -135,6 +135,8 @@ async function scenario({ page, evaluate, tap }, origin, path, lang) {
     await page("Input.insertText", { text: sequent });
     await tap("#start-proof");
     await waitFor(() => evaluate(`document.querySelector(".tree-panel__title") !== null`), tag("o painel"));
+    expect(await evaluate(`document.querySelector(".tree-panel__section").open`), false, tag("a secção nasce fechada"));
+    await tap(".tree-panel__toggle");
   };
 
   const solve = async () => {

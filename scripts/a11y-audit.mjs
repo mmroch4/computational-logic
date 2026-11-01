@@ -135,7 +135,7 @@ export function a11yAudit() {
   };
   // Uma secção da lição à espera de aparecer: o check-all mede-a com movimento reduzido, em que nunca espera.
   const legible = (el) => !el.closest(".sr-only, .skip-link, [hidden], .is-waiting") && el.checkVisibility({ visibilityProperty: true, opacityProperty: false }) && visible(el);
-  const exempt = (el) => el.matches(":disabled:not(.fitch-pick), :disabled *") && !el.closest(".fitch-pick");
+  const exempt = (el) => el.matches(":disabled:not(.fitch-pick), :disabled *, [aria-disabled='true'], [aria-disabled='true'] *") && !el.closest(".fitch-pick");
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     const el = node.parentElement;

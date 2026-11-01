@@ -10,6 +10,9 @@
 //     acima do objetivo. Sem objetivo, fica por baixo do cursor.
 // Se a regra servir o objetivo, só se oferece isso. Uma premissa que já exista numa linha acessível é
 // citada sem ser preciso selecioná-la.
+// Sem seleção, se a regra não tiver outro passo, procuram-se citações nas linhas acessíveis: primeiro
+// para dar o objetivo e depois para a frente, só com fórmulas novas que já apareçam na prova ou no
+// sequente. Assim, `a` e `b` dão `a ∧ b` num toque em ∧I se a prova precisar dela, sem oferecer `a ∧ a`.
 // Contrato:
 //   guidedLines(editor, selection) → [{ role, item, selected }], por linha
 //     role: "current" (objetivo atual), "objective", "citable" ou "locked". item: citação, ou null.
@@ -27,7 +30,7 @@ import { applySubstitution, matchSchema } from "./schema.js";
 import { bindPremise } from "./verify.js";
 
 /** Passos oferecidos por regra e fórmulas candidatas para uma metavariável livre. */
-export const GUIDED_LIMITS = Object.freeze({ outcomes: 12, candidates: 8 });
+export const GUIDED_LIMITS = Object.freeze({ outcomes: 12, candidates: 8, automatic: 200 });
 
 const isPending = ({ kind, rule }) => kind === "step" && rule === null;
 
@@ -50,12 +53,14 @@ export function guidedAnchor(editor) {
 }
 
 /** Só se cita o que tem fórmula. */
-function citable({ lines }, { access }) {
+export function citableFrom({ lines }, access) {
   return {
     lines: access.lines.filter((line) => lines[line - 1].formula),
     ranges: access.ranges.filter(({ from, to }) => lines[from - 1].formula && lines[to - 1].formula),
   };
 }
+
+const citable = (proof, { access }) => citableFrom(proof, access);
 
 const sameItem = (a, b) => a.kind === b.kind && a.line === b.line && a.from === b.from && a.to === b.to;
 
@@ -96,7 +101,7 @@ export function focusObjective(editor) {
 const premiseKind = ({ kind }) => (kind === "formula" ? "line" : "range");
 
 /** Todas as formas de distribuir a seleção pelas premissas, porque a ordem é livre. */
-function* assignments(premises, selection, lines, substitution) {
+export function* assignments(premises, selection, lines, substitution) {
   const cited = new Map();
   function* place(index, bound) {
     if (index === selection.length) {
@@ -117,7 +122,31 @@ function* assignments(premises, selection, lines, substitution) {
   yield* place(0, substitution);
 }
 
-function instanceOf(schema, substitution) {
+/** Formas de citar todas as premissas da forma com o que já está na prova. */
+function* automaticAssignments(premises, { lines, available }, substitution) {
+  const items = [...available.lines.map(citeLine), ...available.ranges.map(({ from, to }) => citeRange(from, to))];
+  const cited = new Map();
+  let yielded = 0;
+  function* place(position, bound) {
+    if (position === premises.length) {
+      yielded += 1;
+      yield { substitution: bound, cited: new Map(cited) };
+      return;
+    }
+    for (const item of items) {
+      if (yielded >= GUIDED_LIMITS.automatic) return;
+      const next = premiseKind(premises[position]) === item.kind ? bindPremise(premises[position], item, lines, bound) : null;
+      if (next) {
+        cited.set(position, item);
+        yield* place(position + 1, next);
+        cited.delete(position);
+      }
+    }
+  }
+  yield* place(0, substitution);
+}
+
+export function instanceOf(schema, substitution) {
   const result = applySubstitution(schema, substitution);
   return result.ok ? result.formula : null;
 }
@@ -188,8 +217,8 @@ function premiseMetas(premises) {
   return found;
 }
 
-/** Subfórmulas do sequente e da prova, sem repetições: as candidatas a uma metavariável livre. */
-function candidateFormulas({ goal, proof }) {
+/** Subfórmulas do sequente e da prova, sem repetições, indexadas pelo texto. */
+function subformulas({ goal, proof }) {
   const seen = new Map();
   const visit = (formula) => {
     if (formula.kind !== "falsum") seen.set(format(formula), formula);
@@ -198,7 +227,7 @@ function candidateFormulas({ goal, proof }) {
   [...goal.premises, goal.conclusion, ...proof.lines.map(({ formula }) => formula)]
     .filter(Boolean)
     .forEach(visit);
-  return [...seen.values()].slice(0, GUIDED_LIMITS.candidates);
+  return seen;
 }
 
 /** As substituições que fixam as metavariáveis `free`, que só aparecem na conclusão. */
@@ -211,14 +240,17 @@ function* freeChoices(free, substitution, candidates) {
   for (const formula of candidates) yield* freeChoices(rest, { ...substitution, [first]: formula }, candidates);
 }
 
-/** Os passos que dão o objetivo. */
-function fromTarget(form, formIndex, selection, context) {
+/** Os passos que dão o objetivo. `options.pick` troca a seleção por citações encontradas sozinhas. */
+function fromTarget(form, formIndex, selection, context, { pick = null } = {}) {
   const found = [];
   for (const [index, conclusion] of form.conclusions.entries()) {
     const match = matchSchema(conclusion, context.target);
     if (match.ok) {
-      for (const assignment of assignments(form.premises, selection, context.lines, match.substitution)) {
-        const plan = planPremises(form, assignment, context, true);
+      const source = pick
+        ? pick(form, match.substitution)
+        : assignments(form.premises, selection, context.lines, match.substitution);
+      for (const assignment of source) {
+        const plan = planPremises(form, assignment, context, !pick);
         if (plan) found.push({ ...plan, group: `${formIndex}:${index}`, id: form.id, formula: context.target, closes: true });
       }
     }
@@ -227,12 +259,13 @@ function fromTarget(form, formIndex, selection, context) {
 }
 
 /** Os passos que seguem do que está selecionado, sem objetivo. */
-function fromSelection(form, formIndex, selection, context) {
-  if (selection.length === 0 && form.premises.length > 0) return [];
+function fromSelection(form, formIndex, selection, context, { pick = null } = {}) {
+  if (!pick && selection.length === 0 && form.premises.length > 0) return [];
   const found = [];
   const fromPremises = premiseMetas(form.premises);
   for (const [index, conclusion] of form.conclusions.entries()) {
-    for (const assignment of assignments(form.premises, selection, context.lines, {})) {
+    const source = pick ? pick(form, {}) : assignments(form.premises, selection, context.lines, {});
+    for (const assignment of source) {
       const free = [...metasOf(conclusion)].filter((name) => !assignment.substitution[name] && !fromPremises.has(name));
       for (const substitution of freeChoices(free, assignment.substitution, context.candidates)) {
         const plan = planPremises(form, { ...assignment, substitution }, context, false);
@@ -286,6 +319,21 @@ const premiseText = (premise) => (
 
 const uniqueText = (items) => [...new Set(items)].join(" · ");
 
+/** Os passos sem seleção: os que dão o objetivo ou, sem nenhum, os que trazem uma fórmula útil. */
+function automaticSteps(forms, context) {
+  const pick = (form, substitution) => automaticAssignments(form.premises, context, substitution);
+  const options = { pick };
+  const towardsTarget = context.target
+    ? forms.flatMap((form, index) => fromTarget(form, index, [], context, options))
+    : [];
+  if (towardsTarget.length > 0) return towardsTarget;
+  const known = context.available.lines.map((line) => format(context.lines[line - 1].formula));
+  return forms
+    .flatMap((form, index) => fromSelection(form, index, [], context, options))
+    .filter(({ formula }) => context.useful.has(format(formula)) && !known.includes(format(formula)))
+    .map((step) => ({ ...step, group: `${step.group}:${format(step.formula)}` }));
+}
+
 /** Porque é que nenhuma forma da regra serve. */
 function refusal(forms, selection, target) {
   const premises = uniqueText(forms.map((form) => form.premises.map(premiseText).join(", ")));
@@ -301,11 +349,13 @@ function refusal(forms, selection, target) {
 /** Todas as regras que existem, cada uma com os passos possíveis ou o motivo por que não tem nenhum. */
 export function guidedRules(editor, selection, { rules, known = rules }) {
   const anchor = guidedAnchor(editor);
+  const useful = subformulas(editor);
   const context = {
     lines: editor.proof.lines,
     available: citable(editor.proof, anchor),
     target: anchor.target,
-    candidates: candidateFormulas(editor),
+    candidates: [...useful.values()].slice(0, GUIDED_LIMITS.candidates),
+    useful,
   };
   const ids = [...new Set([...known, ...rules].map(({ id }) => id))];
 
@@ -317,9 +367,10 @@ export function guidedRules(editor, selection, { rules, known = rules }) {
     const towardsTarget = context.target
       ? forms.flatMap((form, index) => fromTarget(form, index, selection, context))
       : [];
-    const found = towardsTarget.length > 0
+    let found = towardsTarget.length > 0
       ? towardsTarget
       : forms.flatMap((form, index) => fromSelection(form, index, selection, context));
+    if (found.length === 0 && selection.length === 0) found = automaticSteps(forms, context);
     const outcomes = bestOutcomes(found);
     return { id, outcomes, reason: outcomes.length > 0 ? null : refusal(forms, selection, context.target) };
   });

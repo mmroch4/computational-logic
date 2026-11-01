@@ -12,6 +12,7 @@ import { APP_NAME } from "./config.js";
 import { fitchHtml } from "./fitch-view.js";
 import { LOCALES, getLang, onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
+import { closeMenu, mountMenus } from "./menu.js";
 import { msgHtml } from "./message.js";
 import { storage } from "./storage.js";
 
@@ -103,16 +104,26 @@ function downloadTex(text) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-const BUTTONS = [["copy-link", "copyLink"], ["copy-latex", "copyLatex"], ["download-tex", "downloadTex"], ["print", "print"]];
+const icon = (path) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${path}</svg>`;
+const SHARE_ICON = '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>';
 
-/** Monta os botões em `container`, que fica vazio até `show()`: só há o que exportar com uma prova aberta. */
-export function mountProofShare(container, { source, sync }) {
+const ITEMS = [
+  { action: "copy-link", key: "copyLink", path: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.8 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>' },
+  { action: "copy-latex", key: "copyLatex", path: '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>' },
+  { action: "download-tex", key: "downloadTex", path: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>' },
+  { action: "print", key: "print", path: '<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/>' },
+];
+
+/**
+ * Monta o menu em `container`, que fica vazio até `show()`: só há o que exportar com uma prova aberta.
+ * A resposta de cada ação aparece em `statusBox`, fora do menu.
+ */
+export function mountProofShare(container, { source, sync, statusBox }) {
   /** A última resposta, { kind, key }, para sobreviver a redesenhar. */
   let status = null;
 
   function paintStatus() {
-    const box = container.querySelector(".proof-share__status");
-    if (box) box.innerHTML = status ? msgHtml(status.kind, escapeHtml(t(status.key))) : "";
+    statusBox.innerHTML = status ? msgHtml(status.kind, escapeHtml(t(status.key))) : "";
   }
 
   function say(kind, key) {
@@ -149,18 +160,24 @@ export function mountProofShare(container, { source, sync }) {
   };
 
   function build() {
-    const buttons = BUTTONS.map(([action, key]) => (
-      `<button type="button" class="btn" data-variant="outline" data-share="${action}">${escapeHtml(t(`share.${key}`))}</button>`
+    const label = escapeHtml(t("share.label"));
+    const items = ITEMS.map(({ action, key, path }) => (
+      `<button type="button" data-share="${action}">${icon(path)}<span>${escapeHtml(t(`share.${key}`))}</span></button>`
     )).join("");
-    container.innerHTML = `<div class="proof-share__actions" role="group" aria-label="${escapeHtml(t("share.label"))}">${buttons}</div>`
-      + '<div class="proof-share__status" role="status"></div>';
+    container.innerHTML = `<details class="dd end" data-sheet-title="${label}">`
+      + `<summary class="btn" data-variant="outline" data-size="icon" aria-label="${label}" title="${label}">${icon(SHARE_ICON)}</summary>`
+      + `<div class="menu dd-panel">${items}</div></details>`;
     paintStatus();
   }
 
   container.classList.add("proof-share");
-  container.addEventListener("click", ({ target }) => {
+  mountMenus(container);
+  // Na folha do telemóvel, o painel sai do contentor: o clique tem de se ouvir no próprio painel.
+  document.addEventListener("click", ({ target }) => {
     const action = target.closest("[data-share]");
-    if (action) ACTIONS[action.dataset.share]();
+    if (!action) return;
+    closeMenu(container.querySelector("details"), { focus: true });
+    ACTIONS[action.dataset.share]();
   });
   onLangChange(() => {
     if (container.childElementCount > 0) build();

@@ -21,6 +21,8 @@ const PLAYER_QUERY = "s=p+-%3E+q,+~q+%7C-+~p&step=2";
 const MENUS = [
   { path: "/provar", opener: "#examples-menu summary" },
   { path: "/en/prove", opener: "#examples-menu summary" },
+  { path: `/provar?${stateQuery("mixed")}`, opener: "#proof-share summary" },
+  { path: `/en/prove?${stateQuery("mixed")}`, opener: "#proof-share summary" },
   // Um sequente inválido deixa a escolha aberta, e um link manda sobre o que ficou guardado.
   { path: "/passo-a-passo?s=p+%7C-+q", opener: "#examples-menu summary" },
   { path: "/en/step-by-step?s=p+%7C-+q", opener: "#examples-menu summary" },
@@ -334,6 +336,7 @@ async function guiding(cdp, vp) {
 async function treeKeys(cdp, vp) {
   const tag = `/provar árvore @${vp.width}`;
   const page = await openPage(cdp, `/provar?${stateQuery("complete")}`, vp);
+  await page.evaluate(`document.querySelector(".tree-panel__section").open = true`);
   const stops = await page.evaluate(`document.querySelectorAll('[data-tree-line][tabindex="0"]').length`);
   if (stops !== 1) problems.push(`${tag}: ${stops} paragens de Tab nas fórmulas`);
   await page.evaluate(`document.querySelector('[data-tree-line][tabindex="0"]').focus()`);
