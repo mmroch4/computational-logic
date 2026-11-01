@@ -35,7 +35,7 @@ natural o caminho de clonar e o «Live site», que só deve surgir quando o ende
 secção Publicação do `SPEC.md`. No SAT, autorizado nesta tarefa, só o que depender de caminhos.
 **Feito quando:** todos os links relativos resolvem, e os `docs.test.js` passam.
 
-### [ ] M5 · Hub
+### [x] M5 · Hub
 Cria `hub/`: página estática em PT (`/`) e EN (`/en`), com as duas ferramentas, créditos como no SAT,
 sem framework nem build, com `vercel.json`, CSP e testes `node --test`.
 **Feito quando:** os testes passam, a página valida a 390px e `hub/` entra no `scripts/test-all.sh`.
