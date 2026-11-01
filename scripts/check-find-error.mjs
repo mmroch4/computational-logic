@@ -95,7 +95,7 @@ const pageWidth = "document.documentElement.scrollWidth";
 async function tap({ page, evaluate }, selector) {
   const box = await evaluate(`(() => {
     const element = document.querySelector(${JSON.stringify(selector)});
-    element.scrollIntoView({ block: "center" });
+    element.scrollIntoView({ block: "center", behavior: "instant" });
     const { x, y, width, height } = element.getBoundingClientRect();
     return { x: x + width / 2, y: y + height / 2 };
   })()`);
