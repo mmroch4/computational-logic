@@ -219,7 +219,7 @@ Estratégias com provas animadas, solidez e completude em linguagem acessível, 
 interativos curtos usando o editor.
 **Feito quando:** há pelo menos 3 laboratórios a funcionar a 390px.
 
-### [ ] G5 · Quiz
+### [x] G5 · Quiz
 Quiz final com perguntas originais, explicação por resposta e reutilização do motor do SAT.
 **Feito quando:** o quiz vai até ao fim em PT e EN.
 
