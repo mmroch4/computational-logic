@@ -214,7 +214,7 @@ Texto PT original e exemplos verificados nos testes.
 Inclui cada derivada com a sua prova, mostrada a partir de B7.
 **Feito quando:** as provas vêm do catálogo, sem duplicação.
 
-### [ ] G4 · Secções 8 e 9 e laboratórios
+### [x] G4 · Secções 8 e 9 e laboratórios
 Estratégias com provas animadas, solidez e completude em linguagem acessível, e laboratórios
 interativos curtos usando o editor.
 **Feito quando:** há pelo menos 3 laboratórios a funcionar a 390px.
