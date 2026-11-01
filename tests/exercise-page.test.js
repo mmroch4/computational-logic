@@ -97,7 +97,7 @@ test("ruleSummaryText funciona em todos os exercícios e usa as siglas do idioma
     assert.doesNotMatch(ruleSummaryText(exercise), /exercises\.|\{/, exercise.id);
   }
   setLang("en", { silent: true });
-  assert.equal(ruleSummaryText({ rules: { set: "base", exclude: ["RA"] } }), "Prove RAA with basic rules only");
+  assert.equal(ruleSummaryText({ rules: { set: "base", exclude: ["RA"] } }), "Prove RAA with base rules only");
   setLang("pt", { silent: true });
   assert.equal(ruleSummaryText({ rules: { set: "base", exclude: ["RA"] } }), "Prova RA só com regras base");
 });

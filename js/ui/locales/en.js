@@ -792,11 +792,11 @@ export default {
     notFound: "This exercise does not exist.",
     rulesLabel: "Allowed rules",
     ruleSets: {
-      base: "Basic rules",
+      base: "Base rules",
       all: "All rules",
       only: "Only {rules}",
-      plus: "Basic rules and {rules}",
-      prove: "Prove {rules} with basic rules only",
+      plus: "Base rules and {rules}",
+      prove: "Prove {rules} with base rules only",
     },
     provesRule: "This exercise asks you to prove {rules}, so you cannot use it.",
     userRules: {
@@ -1031,7 +1031,7 @@ export default {
     premises: "Premises",
     conclusion: "Conclusion",
     premiseField: "Premise {number}",
-    hypothesisField: "Assumption of premise {number}",
+    hypothesisField: "Hypothesis of premise {number}",
     subproofConclusionField: "Last line of the subproof in premise {number}",
     removePremise: "Remove premise {number}",
     addPremise: "Premise",
