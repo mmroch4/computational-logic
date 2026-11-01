@@ -17,7 +17,7 @@ Cria `.gitignore`, `LICENSE`, `CLAUDE.md` e `scripts/test-all.sh`. O script corr
 série, com saída clara e código de erro correto.
 **Feito quando:** `scripts/test-all.sh` passa, e falha se uma das suites falhar.
 
-### [ ] M2 · Serviços e isolamento das pastas
+### [x] M2 · Serviços e isolamento das pastas
 Procura caminhos que assumam a raiz do repositório: `repository` nos `package.json`, `.vercelignore`,
 `scripts/serve.mjs`, `tests/deploy.test.js`, `tests/docs.test.js`. Na dedução natural, mantém a regra
 de `.vercelignore`. Confirma que correr cada `npm test` numa pasta não depende da outra.
