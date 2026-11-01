@@ -225,7 +225,7 @@ Quiz final com perguntas originais, explicação por resposta e reutilização d
 
 ## Bloco H — Fecho
 
-### [ ] H1 · Página inicial
+### [x] H1 · Página inicial
 Apresentação, prova de exemplo a animar, ligações às 4 páginas.
 **Feito quando:** mostra o editor em ação sem imagens pesadas e passa o `check-page.sh`.
 
