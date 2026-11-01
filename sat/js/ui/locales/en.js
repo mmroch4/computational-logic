@@ -50,6 +50,8 @@ export default {
   footer: {
     credit: "Developed by {name}",
     repo: "Source on GitHub",
+    hub: "All tools",
+    otherTool: "Natural deduction",
     pagesLabel: "Pages",
   },
   layout: {

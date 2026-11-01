@@ -6,7 +6,7 @@
 // mountLayout() é a única parte que mexe no DOM. Cada página HTML tem:
 //   <body data-page="solve"> … <main id="main"> … </main> … <script type="module" src="/js/pages/…">
 // e o entry da página chama mountLayout({ page: "solve" }) (ou sem argumento: lê data-page).
-import { APP_NAME, CREDITS_NAME, CREDITS_URL, CREDITS_LABEL, CREDITS_GITHUB_URL, REPO_URL } from "./config.js";
+import { APP_NAME, CREDITS_NAME, CREDITS_URL, CREDITS_LABEL, CREDITS_GITHUB_URL, REPO_URL, HUB_URL, ND_URL } from "./config.js";
 import { t, initI18n, getLang, pagePath, SUPPORTED_LANGS, LOCALES } from "./i18n.js";
 import { ROUTES, counterpartPath, pathFor } from "../core/routes.js";
 import { storage } from "./storage.js";
@@ -113,6 +113,15 @@ function otherLangLink(page) {
   return `<a class="ftr-repo" href="${href}" hreflang="${lang}" lang="${lang}" data-lang="${lang}">${escapeHtml(LOCALES[lang].meta.langName)}</a>`;
 }
 
+// O hub e a outra ferramenta, no idioma da página: os três sites têm a mesma raiz PT e EN.
+function siteLinks() {
+  const home = pathFor("home", getLang());
+  return (
+    `<a class="ftr-repo" href="${HUB_URL}${home}">${escapeHtml(t("footer.hub"))}</a>` +
+    `<a class="ftr-repo" href="${ND_URL}${home}">${escapeHtml(t("footer.otherTool"))}</a>`
+  );
+}
+
 export function renderFooter(page) {
   const links = NAV_ITEMS.map(
     (item) => `<li><a href="${pagePath(item.id)}">${escapeHtml(t(item.label))}</a></li>`
@@ -123,6 +132,7 @@ export function renderFooter(page) {
     `<p>${escapeHtml(t("footer.credit", { name: CREDITS_NAME }))} · ` +
     `<a href="${CREDITS_URL}" target="_blank" rel="noopener">${CREDITS_LABEL}</a></p>` +
     `<a class="ftr-repo" href="${REPO_URL}" target="_blank" rel="noopener">${GITHUB_ICON}${escapeHtml(t("footer.repo"))}</a>` +
+    siteLinks() +
     otherLangLink(page) +
     "</div>" +
     `<nav aria-label="${escapeHtml(t("footer.pagesLabel"))}"><ul class="flex gap-[18px] list-none p-0 m-0">${links}</ul></nav>` +

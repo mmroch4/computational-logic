@@ -97,8 +97,8 @@ Negação `¬ ~ - !` · disjunção `∨ | \/ v` (`v` só como token isolado) ·
   escolhe o idioma pelo caminho pedido.
 - As páginas PT são a fonte, escrita à mão; as `en/*.html` são geradas.
 - Cada página tem título, descrição, canonical limpo, `hreflang` (`x-default` → EN) e JSON-LD gerados pelo
-  `build:pages`. Nada de `isPartOf` nem de links para o hub `computational-logic.miguelrocha.dev`, que
-  ainda não existe.
+  `build:pages`. Nada de `isPartOf`.
+- O rodapé liga, no idioma da página, ao hub e à dedução natural, com `HUB_URL` e `ND_URL` do `js/ui/config.js`.
 
 ## UI
 
