@@ -1203,6 +1203,14 @@
     gap: 16px;
   }
 
+  .lesson-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 24px;
+    list-style: disc;
+  }
+
   .lesson-interactive {
     min-width: 0;
     margin-block: 8px;
@@ -1468,6 +1476,24 @@
     color: var(--color-text-muted);
     font-size: 13px;
     text-align: center;
+  }
+
+  .lesson-proof__play {
+    display: flex;
+    justify-content: center;
+  }
+
+  .lesson-proof__note,
+  .lesson-lab__task {
+    color: var(--color-text);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .lesson-lab__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .lesson-rule__schema {

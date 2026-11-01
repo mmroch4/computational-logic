@@ -70,24 +70,29 @@ export function announcementText(before, after) {
   return spokenProse(spoken.join(" "));
 }
 
-function fieldHtml(line, field, value, { label, placeholder, classes = "" }) {
-  const id = `proof-${field}-${line}`;
+function fieldHtml(line, field, value, { label, placeholder, classes = "", prefix }) {
+  const id = `${prefix}-${field}-${line}`;
   return `<input id="${id}" class="fitch-edit__field fitch-edit__field--${field}${classes}" type="text" `
     + `data-field="${field}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" `
-    + `aria-label="${escapeHtml(label)}" aria-describedby="proof-reading-${line} proof-error-${line}" aria-invalid="false" `
+    + `aria-label="${escapeHtml(label)}" aria-describedby="${prefix}-reading-${line} ${prefix}-error-${line}" aria-invalid="false" `
     + 'enterkeyhint="next" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">';
 }
 
-/** Uma linha editável; o estado e o erro vêm depois, por `paintRow`. */
-export function editableLineHtml(line, index, draft, assumption) {
+/**
+ * Uma linha editável; o estado e o erro vêm depois, por `paintRow`. `prefix` começa os ids, para uma página
+ * poder ter mais do que um editor.
+ */
+export function editableLineHtml(line, index, draft, assumption, prefix = "proof") {
   const number = index + 1;
   const formula = fieldHtml(number, "formula", draft.formula, {
+    prefix,
     label: t("editor.formulaField", { line: number }),
     placeholder: t("editor.formulaPlaceholder"),
     classes: assumption ? " fitch-edit__field--assumption" : "",
   });
   const justification = line.kind === "step"
     ? fieldHtml(number, "justification", draft.justification, {
+      prefix,
       label: t("editor.justificationField", { line: number }),
       placeholder: t("editor.justificationPlaceholder"),
     })
@@ -96,16 +101,16 @@ export function editableLineHtml(line, index, draft, assumption) {
     + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${stateHtml("pending")}</span>`
     + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}`
     + `<span class="fitch-edit__content"><span class="fitch-edit__fields">${formula}${justification}</span>`
-    + `<span class="sr-only" id="proof-reading-${number}"></span>`
-    + `<span class="${msgClasses("error")} fitch-edit__error" id="proof-error-${number}" hidden></span></span>`
+    + `<span class="sr-only" id="${prefix}-reading-${number}"></span>`
+    + `<span class="${msgClasses("error")} fitch-edit__error" id="${prefix}-error-${number}" hidden></span></span>`
     + "</span></li>";
 }
 
-function linesHtml({ proof, drafts }) {
+function linesHtml({ proof, drafts }, prefix) {
   return proof.lines.map((line, index) => {
     const assumption = closesAssumptions(proof.lines, index);
     if (line.kind === "premise") return lineHtml(line, index, { state: "ok", assumption });
-    return editableLineHtml(line, index, drafts[index], assumption);
+    return editableLineHtml(line, index, drafts[index], assumption, prefix);
   }).join("");
 }
 
@@ -203,15 +208,16 @@ export function statusHtml(status, notice) {
  * `onProofChange()`: a prova mudou, por isso o que se disse sobre ela deixou de valer.
  * Devolve { start(goal), open(goal, proof), getProof(), getGoal(), getRules(), setRules({ rules, known }),
  * hasUnreadText(), highlightLine(line), useProof(proof) }.
+ * `idPrefix` e `mode` servem a lição, que tem vários editores e abre no modo guiado.
  */
 export function mountProofEditor(container, options = {}) {
-  const { onGoalChange, onProofChange } = options;
+  const { onGoalChange, onProofChange, idPrefix = "proof" } = options;
   let { rules = ruleSet("completo"), known = RULES } = options;
   let editor = null;
   let seenProof = null;
   let painting = false;
   let timer = null;
-  let mode = "write";
+  let mode = options.mode ?? "write";
   /** Modo guiado: o que está selecionado, a regra à espera de uma escolha e o motivo à vista. */
   let selection = [];
   let choice = null;
@@ -242,7 +248,7 @@ export function mountProofEditor(container, options = {}) {
     box.innerHTML = showMessage ? msgBodyHtml(invalid ? "error" : "info", escapeHtml(messageText(message))) : "";
     const { formula } = editor.proof.lines[line - 1];
     const spoken = formula === null ? "" : `${spokenFormula(formula)}. `;
-    row.querySelector(`#proof-reading-${line}`).textContent = spoken + t(`fitch.states.${visible}`);
+    row.querySelector(`#${idPrefix}-reading-${line}`).textContent = spoken + t(`fitch.states.${visible}`);
   }
 
   /** A escrever, uma linha à espera não fala: `seen` são as linhas como estão à vista. */
@@ -363,7 +369,7 @@ export function mountProofEditor(container, options = {}) {
       return;
     }
     painting = true;
-    container.querySelector(".fitch__lines").innerHTML = linesHtml(editor);
+    container.querySelector(".fitch__lines").innerHTML = linesHtml(editor, idPrefix);
     painting = false;
     shown.clear();
     refresh({ flush: true });
@@ -531,6 +537,7 @@ export function mountProofEditor(container, options = {}) {
     /** Abre a prova de um link. Sem foco: ao abrir a página, o teclado do telemóvel não deve saltar. */
     open(goal, proof) {
       editor = openProof(goal, proof, ruleLabels());
+      if (mode === "guided") editor = focusObjective(editor);
       clearGuided();
       build();
     },

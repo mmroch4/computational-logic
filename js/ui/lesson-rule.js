@@ -5,9 +5,10 @@
 //
 // `lessonMistakeHtml`, `lessonRuleHtml` e `lessonDerivedHtml` são puras. Marca-se no `aprender.html` com
 // `data-lesson-rule="andIntro"`, `data-lesson-mistake="closedLine"` ou `data-lesson-derived="deMorgan"`.
-import { LESSON_DERIVED, LESSON_RULES, lessonDerivedForms, lessonMistake, lessonProof, ruleSchemaLines } from "../core/lesson.js";
+import { LESSON_DERIVED, LESSON_RULES, lessonCounter, lessonDerivedForms, lessonMistake, lessonProof, ruleSchemaLines } from "../core/lesson.js";
 import { ruleLabel } from "../core/rules.js";
 import { formatSequent } from "../core/sequent.js";
+import { valuationHtml } from "./counterexample.js";
 import { fitchHtml, readAsHtml, spokenProse } from "./fitch-view.js";
 import { LOCALES, getLang, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -32,6 +33,14 @@ function mistakeBodyHtml(id) {
 function schemaHtml(ruleId) {
   const lines = ruleSchemaLines(ruleId).map((line) => `<li>${proseHtml(line)}</li>`).join("");
   return `<ul class="lesson-rule__schema" role="list">${lines}</ul>`;
+}
+
+/** Um sequente inválido e a valoração que o mostra. */
+export function lessonCounterHtml(id) {
+  const { goal, valuation, freeVariables } = lessonCounter(id);
+  const why = `<p class="lesson-lab__task">${proseHtml(t(`learn.counters.${id}.why`))}</p>`;
+  const body = sequentHtml(goal) + valuationHtml({ valuation, freeVariables }) + why;
+  return lessonFigureHtml({ icon: "question", title: t(`learn.counters.${id}.title`), body });
 }
 
 /** A figura da regra `id` de `LESSON_RULES`. */

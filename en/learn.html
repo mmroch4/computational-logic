@@ -186,13 +186,62 @@
         <section class="lesson-section" id="estrategias" aria-labelledby="estrategias-title">
           <h2 class="lesson-section__title" id="estrategias-title"><span class="lesson-section__num">08</span> <span data-section-title data-i18n="learn.sections.strategy">Strategies</span></h2>
           <div class="lesson-prose">
-            <p data-i18n="learn.strategy.p1">The shape of the conclusion and the premises usually tells you the next step. These are the questions to ask when you don&#39;t know how to go on.</p>
+            <p data-i18n="learn.strategy.p1">The shape of the conclusion and of the premises often tells you the next step. These are the questions to ask when you don&#39;t know how to go on.</p>
+            <p data-i18n="learn.strategy.goalIntro">Start from the conclusion. Its shape tells you how the proof is likely to end, and that gives you a smaller goal:</p>
+          </div>
+          <div class="lesson-prose">
+            <ul class="lesson-rules">
+              <li data-i18n="learn.strategy.goalAnd">If it is φ ∧ ψ, prove each side and join them with ∧I.</li>
+              <li data-i18n="learn.strategy.goalImplies">If it is φ → ψ, suppose φ and look for ψ. Close with →I at the end.</li>
+              <li data-i18n="learn.strategy.goalNot">If it is ¬φ, suppose φ and look for F. Close with ¬I at the end.</li>
+              <li data-i18n="learn.strategy.goalOr">If it is φ ∨ ψ, see whether you can prove one side and finish with ∨I. Sometimes neither side comes out alone, and then the answer lies in the premises.</li>
+            </ul>
+          </div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.p2">Ask the same question for each new goal. Play the proof below, or step through it by hand, and read the reason for each line.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyBackward"></div>
+          <div class="lesson-interactive" data-lesson-check="goalNegation"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.labs">After each strategy there is a lab, with a sequent to prove right here. It opens in guided mode: you tap the lines you want to cite and choose the rule. If you prefer typing, switch mode at the top of the editor.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-lab="labBackward"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.premIntro">When the conclusion stops helping, look at what you have. Every accessible line offers something:</p>
+          </div>
+          <div class="lesson-prose">
+            <ul class="lesson-rules">
+              <li data-i18n="learn.strategy.premAnd">From φ ∧ ψ, take both sides with ∧E. It costs nothing and gives you more lines to cite.</li>
+              <li data-i18n="learn.strategy.premImplies">From φ → ψ, try to get φ, because then →E gives you ψ.</li>
+              <li data-i18n="learn.strategy.premOr">From φ ∨ ψ, open both cases with ∨E and aim for the same goal in each. Do this early: inside each case you have one more line to use.</li>
+              <li data-i18n="learn.strategy.premNot">With ¬φ, look for φ. If you get it, FI gives you F.</li>
+            </ul>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyCases"></div>
+          <div class="lesson-interactive" data-lesson-lab="labCases"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.absurd">If none of this is enough, reductio ad absurdum remains. Suppose the negation of the goal and look for F. You gain a line to use, and the contradiction often comes from a negated premise. It comes last because the proof ends up longer and less direct.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyAbsurd"></div>
+          <div class="lesson-interactive" data-lesson-lab="labAbsurd"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.stuck">If you are still stuck, the proof may not exist. The next section explains how to show that.</p>
           </div>
         </section>
         <section class="lesson-section" id="solidez" aria-labelledby="solidez-title">
           <h2 class="lesson-section__title" id="solidez-title"><span class="lesson-section__num">09</span> <span data-section-title data-i18n="learn.sections.meta">Soundness and completeness</span></h2>
           <div class="lesson-prose">
-            <p data-i18n="learn.meta.p1">That leaves the big question: does what you can prove match what is true under every valuation? Soundness and completeness say that it does.</p>
+            <p data-i18n="learn.meta.p1">The underlying question remains: does what you can prove match what is true under every valuation? Soundness and completeness say that it does.</p>
+            <p data-i18n="learn.meta.semantic">So far, everything has been syntax: ⊢ means that there is a proof. The other notion comes from truth tables. A valuation gives each variable the value true or false, and we write ⊨ when every valuation that makes the premises true also makes the conclusion true.</p>
+            <p data-i18n="learn.meta.soundness">Soundness says that if there is a proof, the sequent is valid: ⊨ follows from ⊢. The reason lies in the rules, because each one preserves truth. If what it cites is true, what it writes is true as well. Inside a subproof the same holds, for the valuations that make the open hypotheses true. Since a proof is a chain of such steps, the truth of the premises reaches the conclusion.</p>
+            <p data-i18n="learn.meta.counter">This gives you a way to show that there is no proof, without trying them all. One valuation with true premises and a false conclusion is enough, and it is called a counterexample.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-counter="orToSide"></div>
+          <div class="lesson-interactive" data-lesson-check="counterMeans"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.meta.completeness">Completeness is the opposite direction: if the sequent is valid, there is a proof. ⊢ follows from ⊨. This is the hard part, because it says the rules leave nothing out. The demonstration is beyond this lesson, but the idea is this: when a conclusion cannot be proved, you can build a valuation that serves as a counterexample.</p>
+            <p data-i18n="learn.meta.rules">Neither result is automatic, because both depend on the chosen rules. If you remove ¬E from the base rules, for example, a ∨ ¬a stays true under every valuation and no longer has a proof.</p>
+            <p data-i18n="learn.meta.together">Together, they say that ⊢ and ⊨ coincide. Every sequent has either a proof or a counterexample, never both. Completeness only says that the proof exists, not that it is short or easy to find, and that is what strategies are for.</p>
           </div>
         </section>
       </article>

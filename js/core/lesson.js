@@ -8,6 +8,7 @@
 import { format } from "./formula.js";
 import { parseProof } from "./proof-text.js";
 import { DERIVED_RULES, RULES, ruleGoal, ruleSet } from "./rules.js";
+import { checkSequent } from "./semantics.js";
 import { parseSequent } from "./sequent.js";
 import { verifyProof } from "./verify.js";
 
@@ -154,6 +155,91 @@ export const LESSON_PROOFS = Object.freeze({
 4 | ¬a      MT, 2, 3
 5 | ¬c      MT, 1, 4`,
   },
+  strategyBackward: {
+    sequent: "b → c ⊢ a ∧ b → a ∧ c",
+    text: `
+1 | b → c           premissa
+2 |   a ∧ b         hipótese
+3 |   a             ∧E, 2
+4 |   b             ∧E, 2
+5 |   c             →E, 4, 1
+6 |   a ∧ c         ∧I, 3, 5
+7 | a ∧ b → a ∧ c   →I, 2–6`,
+  },
+  strategyCases: {
+    sequent: "a ∨ b, a → c ⊢ b ∨ c",
+    text: `
+1 | a ∨ b     premissa
+2 | a → c     premissa
+3 |   a       hipótese
+4 |   c       →E, 3, 2
+5 |   b ∨ c   ∨I, 4
+6 |   b       hipótese
+7 |   b ∨ c   ∨I, 6
+8 | b ∨ c     ∨E, 1, 3–5, 6–7`,
+  },
+  strategyAbsurd: {
+    sequent: "¬(¬a ∨ b ∨ c) ⊢ a",
+    text: `
+1 | ¬(¬a ∨ b ∨ c)   premissa
+2 |   ¬a            hipótese
+3 |   ¬a ∨ b        ∨I, 2
+4 |   ¬a ∨ b ∨ c    ∨I, 3
+5 |   F             FI, 4, 1
+6 | a               RA, 2–5`,
+  },
+});
+
+/**
+ * Provas animadas: as de `LESSON_PROOFS` que têm uma nota por linha revelada, em
+ * `learn.walkthroughs.<id>.l<linha>`. Marcam-se com `data-lesson-walkthrough`.
+ */
+export const LESSON_WALKTHROUGHS = Object.freeze(["strategyBackward", "strategyCases", "strategyAbsurd"]);
+
+/**
+ * Laboratórios: um sequente para provar no editor, com as regras `rules` (ver `ruleSet`) e uma `solution`
+ * no formato de `proof-text.js`. Texto em `learn.labs.<id>`: `title`, `task` e `hint`.
+ */
+export const LESSON_LABS = Object.freeze({
+  labBackward: {
+    sequent: "c → a ∧ b ⊢ c → b ∧ a",
+    rules: "base",
+    solution: `
+1 | c → a ∧ b   premissa
+2 |   c         hipótese
+3 |   a ∧ b     →E, 2, 1
+4 |   a         ∧E, 3
+5 |   b         ∧E, 3
+6 |   b ∧ a     ∧I, 5, 4
+7 | c → b ∧ a   →I, 2–6`,
+  },
+  labCases: {
+    sequent: "a ∨ b, b → a ⊢ a",
+    rules: "base",
+    solution: `
+1 | a ∨ b   premissa
+2 | b → a   premissa
+3 |   a     hipótese
+4 |   b     hipótese
+5 |   a     →E, 4, 2
+6 | a       ∨E, 1, 3–3, 4–5`,
+  },
+  labAbsurd: {
+    sequent: "¬a → b, ¬b ⊢ a",
+    rules: { set: "base", plus: ["RA"] },
+    solution: `
+1 | ¬a → b   premissa
+2 | ¬b       premissa
+3 |   ¬a     hipótese
+4 |   b      →E, 3, 1
+5 |   F      FI, 4, 2
+6 | a        RA, 3–5`,
+  },
+});
+
+/** Sequentes inválidos da secção 9, com o contraexemplo e a explicação em `learn.counters.<id>`. */
+export const LESSON_COUNTERS = Object.freeze({
+  orToSide: { sequent: "a ∨ b ⊢ a" },
 });
 
 /**
@@ -314,6 +400,8 @@ export const LESSON_CHECKS = Object.freeze({
   orCases: { options: ["oneCase", "bothCases", "bothSides"], answer: "bothCases" },
   closeNegated: { options: ["plain", "doubled", "contradiction"], answer: "doubled" },
   rewriteDerived: { options: ["always", "sometimes", "never"], answer: "always" },
+  goalNegation: { options: ["suppose", "eliminate", "repeat"], answer: "suppose" },
+  counterMeans: { options: ["noProof", "harder", "newRule"], answer: "noProof" },
 });
 
 /** A prova `id` já lida: `{ goal, proof }`. Os testes garantem que todas se leem. */
@@ -343,6 +431,22 @@ export function mistakeFindings(id) {
     ...extraPremises.map((line) => ({ line, code: "extraPremise" })),
     ...(conclusionError ? [{ line: conclusionError.params.line ?? null, code: conclusionError.code }] : []),
   ];
+}
+
+/** O laboratório `id` já lido: `{ goal, rules, solution }`, com `rules` pronto a dar ao editor. */
+export function lessonLab(id) {
+  const { sequent, rules, solution } = LESSON_LABS[id];
+  return { goal: parseSequent(sequent).sequent, rules: ruleSet(rules), solution: parseProof(solution.trim()).proof };
+}
+
+/**
+ * O sequente inválido `id` e o seu contraexemplo, na forma de `valuationHtml`. Nenhuma variável fica de
+ * fora: a figura diz o valor de todas.
+ */
+export function lessonCounter(id) {
+  const goal = parseSequent(LESSON_COUNTERS[id].sequent).sequent;
+  const { counterexample } = checkSequent(goal);
+  return { goal, valuation: [...counterexample].sort(([a], [b]) => a.localeCompare(b)), freeVariables: false };
 }
 
 /** As formas da derivada `id`, tal como o catálogo as guarda: `[{ goal, proof }]`, uma por entrada em `RULES`. */

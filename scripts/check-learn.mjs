@@ -8,6 +8,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { LAB_GUIDED } from "../tests/fixtures/lab-guided.js";
 
 const CHROME = process.env.CHROME_BIN || "/usr/bin/google-chrome";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -127,8 +128,66 @@ const titleVisible = (id) => `(() => {
   return title.top >= stuck && title.bottom <= innerHeight * 0.6;
 })()`;
 
-// As figuras das derivadas são as últimas a montar: a sua altura empurra as secções seguintes.
-const figuresReady = `document.querySelectorAll(".lesson-rule").length === 12 && document.querySelectorAll(".lesson-derived").length === 7 &&document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
+// O contraexemplo é a última figura a montar: a altura das outras empurra as secções seguintes.
+const figuresReady = `document.querySelectorAll(".lesson-rule").length === 12 && document.querySelectorAll(".lesson-derived").length === 7 && document.querySelectorAll(".lesson-lab .fitch--edit").length === 3 && document.querySelector("[data-lesson-counter] .lesson-figure") !== null && document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
+
+/** Resolve os 3 laboratórios a 390px, com toques, e experimenta as ações e o outro modo. */
+async function labs({ page, evaluate, tap }, tag) {
+  const solved = (lab) => evaluate(`document.querySelector('[data-lesson-lab="${lab}"] .proof-editor__status .msg-ok') !== null`);
+  for (const [lab, steps] of Object.entries(LAB_GUIDED)) {
+    const root = `[data-lesson-lab="${lab}"]`;
+    expect(await solved(lab), false, tag(`${lab} começa por resolver`));
+    for (const { pick = [], rule } of steps) {
+      for (const line of pick) await tap(`${root} [data-pick="${line}"]`);
+      await tap(`${root} [data-rule="${rule}"]`);
+    }
+    await waitFor(() => solved(lab), tag(`${lab} resolvido`));
+    expect(await evaluate(`document.querySelector(${JSON.stringify(root)}).getBoundingClientRect().right <= 390`), true, tag(`${lab} dentro do ecrã`));
+    await evaluate(`document.querySelector(${JSON.stringify(root)}).scrollIntoView({ behavior: "instant" })`);
+    await sleep(200);
+    await writeScreenshot(page, `${tag("").slice(0, 2)}-${lab}`);
+    await tap(`${root} [data-role="restart"]`);
+    await waitFor(async () => !(await solved(lab)), tag(`${lab} recomeça`));
+    await tap(`${root} [data-role="solution"]`);
+    await waitFor(() => solved(lab), tag(`${lab} mostra a solução`));
+  }
+
+  // No modo de escrita: campos com ids próprios, e escrever chega ao verificador.
+  const root = '[data-lesson-lab="labCases"]';
+  await tap(`${root} [data-role="restart"]`);
+  await tap(`${root} [data-mode="write"]`);
+  await waitFor(() => evaluate(`document.getElementById("labCases-formula-3") !== null`), tag("os campos do laboratório"));
+  const ids = await evaluate(`[...document.querySelectorAll("[id]")].map((el) => el.id)`);
+  expect(ids.length, new Set(ids).size, tag("sem ids repetidos"));
+  await tap("#labCases-formula-3");
+  await page("Input.insertText", { text: "a" });
+  await tap("#labCases-justification-3");
+  await page("Input.insertText", { text: "FI" });
+  await waitFor(() => evaluate(`document.querySelector('${root} [data-line="3"]').dataset.state !== "pending"`), tag("o verificador responde à escrita"));
+  expect(await evaluate(`document.documentElement.scrollWidth <= 390`), true, tag("sem scroll lateral nos laboratórios"));
+}
+
+/** A prova animada: à mão muda a nota, e reproduzir avança sozinho até se pausar. */
+async function walkthrough({ evaluate, tap }, tag) {
+  const root = '[data-lesson-walkthrough="strategyCases"]';
+  const counter = () => evaluate(`document.querySelector('${root} .lesson-proof__counter').textContent`);
+  const note = () => evaluate(`document.querySelector('${root} .lesson-proof__note').textContent`);
+  const firstNote = await note();
+  expect(await evaluate(`document.querySelector('${root} .lesson-rule__sequent').textContent.includes("⊢")`), true, tag("a prova animada mostra o sequente"));
+  await tap(`${root} [data-role="next"]`);
+  expect((await note()) !== firstNote, true, tag("a nota muda com a linha"));
+  const before = await counter();
+  await tap(`${root} [data-role="play"]`);
+  expect((await counter()) !== before, true, tag("reproduzir revela logo uma linha"));
+  const playing = await counter();
+  await waitFor(async () => (await counter()) !== playing, tag("a linha seguinte, sozinha"));
+  const label = await evaluate(`document.querySelector('${root} [data-role="play"]').textContent`);
+  await tap(`${root} [data-role="play"]`);
+  expect((await evaluate(`document.querySelector('${root} [data-role="play"]').textContent`)) !== label, true, tag("o botão volta a reproduzir"));
+  const paused = await counter();
+  await sleep(4000);
+  expect(await counter(), paused, tag("pausado, não avança"));
+}
 
 async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path, lang) {
   const tag = (what) => `${lang} 390px: ${what}`;
@@ -199,6 +258,15 @@ async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path,
   await evaluate(`document.querySelector('[data-lesson-derived="deMorgan"]').scrollIntoView({ behavior: "instant" })`);
   await sleep(300);
   await writeScreenshot(page, `${lang}-derivada`);
+
+  await walkthrough({ evaluate, tap }, tag);
+  await evaluate(`document.querySelector('[data-lesson-walkthrough="strategyBackward"]').scrollIntoView({ behavior: "instant" })`);
+  await sleep(300);
+  await writeScreenshot(page, `${lang}-estrategia`);
+  await labs({ page, evaluate, tap }, tag);
+  await evaluate(`document.querySelector('[data-lesson-counter]').scrollIntoView({ behavior: "instant" })`);
+  await sleep(300);
+  await writeScreenshot(page, `${lang}-contraexemplo`);
 }
 
 async function desktop({ page, evaluate, resize }, origin, path, lang) {

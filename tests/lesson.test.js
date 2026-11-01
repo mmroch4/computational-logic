@@ -4,24 +4,31 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import {
-  LESSON_CHECKS, LESSON_DERIVED, LESSON_MISTAKES, LESSON_PROOFS, LESSON_RULES, LESSON_SECTIONS, firstRevealed, lessonDerivedForms,
-  lessonMistake, lessonProof, mistakeFindings, revealMarks, ruleSchemaLines, verifyLessonProof,
+  LESSON_CHECKS, LESSON_COUNTERS, LESSON_DERIVED, LESSON_LABS, LESSON_MISTAKES, LESSON_PROOFS, LESSON_RULES, LESSON_SECTIONS,
+  LESSON_WALKTHROUGHS, firstRevealed, lessonCounter, lessonDerivedForms, lessonLab, lessonMistake, lessonProof, mistakeFindings,
+  revealMarks, ruleSchemaLines, verifyLessonProof,
 } from "../js/core/lesson.js";
+import { createEditor, editorStatus } from "../js/core/editor.js";
+import { applyOutcome, focusObjective, guidedLines, guidedRules, toggleSelection } from "../js/core/guided.js";
+import { solve } from "../js/core/solver.js";
 import { equals, format } from "../js/core/formula.js";
 import { parseFormula } from "../js/core/parser.js";
 import { accessibleFrom } from "../js/core/proof.js";
 import { formatProof, parseProof } from "../js/core/proof-text.js";
-import { BASE_RULES, DERIVED_RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
+import { BASE_RULES, DERIVED_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
 import { checkSequent } from "../js/core/semantics.js";
 import { formatSequent, parseSequent } from "../js/core/sequent.js";
 import { verifyProof } from "../js/core/verify.js";
 import { LOCALES, setLang } from "../js/ui/i18n.js";
 import { lessonCheckFeedbackHtml, lessonCheckHtml } from "../js/ui/lesson-check.js";
+import { lessonLabHtml } from "../js/ui/lesson-lab.js";
+import { editableLineHtml } from "../js/ui/proof-editor.js";
 import { lessonFigureHtml } from "../js/ui/lesson-figure.js";
 import { lessonProofHtml } from "../js/ui/lesson-proof.js";
-import { lessonDerivedHtml, lessonMistakeHtml, lessonRuleHtml } from "../js/ui/lesson-rule.js";
+import { lessonCounterHtml, lessonDerivedHtml, lessonMistakeHtml, lessonRuleHtml } from "../js/ui/lesson-rule.js";
 import { activeSectionIndex, readingProgress, renderLessonToc } from "../js/ui/lesson-toc.js";
 import { COURSE_SEQUENTS } from "./fixtures/course-sequents.js";
+import { LAB_GUIDED } from "./fixtures/lab-guided.js";
 import { fingerprint } from "./helpers/fingerprint.js";
 
 const page = readFileSync(new URL("../aprender.html", import.meta.url), "utf8");
@@ -340,6 +347,127 @@ test("pergunta: a opção escolhida fica marcada e a explicação depende dela",
   assert.match(lessonCheckHtml("firstRule"), /data-option="andI" aria-pressed="false"/);
   assert.match(lessonCheckFeedbackHtml("firstRule", "implE"), /msg-ok/);
   assert.match(lessonCheckFeedbackHtml("firstRule", "andI"), /msg-warn/);
+});
+
+const sectionHtml = (index) => page.split('<section class="lesson-section"')[index];
+
+test("a secção 8 tem as provas animadas, com uma nota por linha nos dois idiomas", () => {
+  const used = [...page.matchAll(/data-lesson-walkthrough="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(used, [...LESSON_WALKTHROUGHS]);
+  assert.equal(sectionHtml(8).match(/data-lesson-walkthrough=/g).length, used.length);
+  for (const id of used) {
+    const { proof } = lessonProof(id);
+    const wanted = proof.lines.map((_, index) => index + 1).filter((line) => line >= firstRevealed(proof)).map((line) => `l${line}`);
+    for (const locale of Object.values(LOCALES)) {
+      assert.ok(locale.learn.figures[id], id);
+      assert.deepEqual(Object.keys(locale.learn.walkthroughs[id]), wanted, id);
+    }
+  }
+});
+
+test("prova animada: traz a nota da linha e o botão de reproduzir", () => {
+  setLang("pt");
+  const { proof } = lessonProof("strategyBackward");
+  const html = lessonProofHtml({ title: "t", proof, stepped: true, notes: (line) => `nota ${line}` });
+  assert.match(html, /data-role="play"/);
+  assert.match(html, /Reproduzir/);
+  assert.match(html, /nota 1/);
+  assert.doesNotMatch(lessonProofHtml({ title: "t", proof, stepped: true }), /data-role="play"|lesson-proof__note|lesson-rule__sequent/);
+  assert.match(lessonProofHtml({ title: "t", proof, stepped: true, sequent: "x ⊢ y" }), /lesson-rule__sequent/);
+});
+
+test("o que as notas das provas animadas dizem bate com as provas", () => {
+  const rules = (id) => lessonProof(id).proof.lines.map((line) => line.rule);
+  assert.equal(rules("strategyBackward")[6], "→I");
+  assert.equal(rules("strategyCases")[7], "∨E");
+  assert.deepEqual(rules("strategyAbsurd").slice(2), ["∨I", "∨I", "FI", "RA"]);
+  // strategyCases: a conclusão não sai de nenhum dos lados sozinho, a partir das premissas.
+  for (const side of ["b", "c"]) assert.equal(checkSequent(parseSequent(`a ∨ b, a → c ⊢ ${side}`).sequent).valid, false, side);
+  // strategyAbsurd: sem ¬E, RA ou TE não se chega a a.
+  const direct = solve(lessonProof("strategyAbsurd").goal, { rules: ruleSet({ set: "base", exclude: ["¬E"] }) });
+  assert.equal(direct.provable, false);
+});
+
+test("há pelo menos 3 laboratórios, todos na secção 8 e com texto nos dois idiomas", () => {
+  const used = [...page.matchAll(/data-lesson-lab="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(used, Object.keys(LESSON_LABS));
+  assert.ok(used.length >= 3);
+  assert.equal(sectionHtml(8).match(/data-lesson-lab=/g).length, used.length);
+  for (const id of used) for (const locale of Object.values(LOCALES)) {
+    for (const key of ["title", "task", "hint"]) assert.ok(locale.learn.labs[id][key], `${id}.${key}`);
+  }
+});
+
+test("a solução de cada laboratório passa pelo verificador, só com as regras do laboratório", () => {
+  for (const id of Object.keys(LESSON_LABS)) {
+    const { goal, rules, solution } = lessonLab(id);
+    assert.equal(verifyProof(solution, goal, rules, RULES).ok, true, id);
+  }
+});
+
+test("cada laboratório resolve-se no modo guiado, passo a passo", () => {
+  for (const id of Object.keys(LESSON_LABS)) {
+    const { goal, rules } = lessonLab(id);
+    let editor = focusObjective(createEditor(goal));
+    assert.equal(editorStatus(editor, { rules, known: RULES }).complete, false, id);
+    for (const { pick = [], rule } of LAB_GUIDED[id]) {
+      let selection = [];
+      for (const line of pick) selection = toggleSelection(selection, guidedLines(editor, selection)[line - 1].item);
+      const { outcomes } = guidedRules(editor, selection, { rules, known: RULES }).find((option) => option.id === rule);
+      assert.equal(outcomes.length, 1, `${id}: ${rule}`);
+      editor = applyOutcome(editor, outcomes[0], {});
+    }
+    assert.equal(editorStatus(editor, { rules, known: RULES }).complete, true, id);
+  }
+});
+
+test("nenhum laboratório coincide com os materiais da cadeira", () => {
+  const course = new Map(COURSE_SEQUENTS.map((text) => [fingerprint(text), text]));
+  for (const [id, { sequent }] of Object.entries({ ...LESSON_LABS, ...LESSON_COUNTERS })) {
+    assert.equal(course.get(fingerprint(sequent)), undefined, id);
+  }
+});
+
+test("figura de laboratório: sequente, tarefa, pista e as duas ações", () => {
+  setLang("pt");
+  const html = lessonLabHtml("labCases");
+  assert.match(html, /Laboratório: dois casos/);
+  assert.match(html, /Interativo/);
+  assert.match(html, /lesson-lab__editor/);
+  assert.match(html, /<details/);
+  assert.match(html, /data-role="restart"/);
+  assert.match(html, /data-role="solution"/);
+  setLang("en");
+  assert.match(lessonLabHtml("labAbsurd"), /Lab: reductio ad absurdum/);
+  setLang("pt");
+});
+
+test("cada editor tem ids próprios, e na página Provar ficam os de sempre", () => {
+  const line = { kind: "step", depth: 0 };
+  const draft = { formula: "", justification: "" };
+  setLang("pt");
+  const lab = editableLineHtml(line, 1, draft, false, "labCases");
+  for (const name of ["formula", "justification", "reading", "error"]) assert.ok(lab.includes(`id="labCases-${name}-2"`), name);
+  assert.ok(lab.includes('aria-describedby="labCases-reading-2 labCases-error-2"'));
+  assert.doesNotMatch(lab, /proof-/);
+  assert.ok(editableLineHtml(line, 1, draft, false).includes('id="proof-formula-2"'));
+});
+
+test("secção 9: o contraexemplo é verdadeiro e o que o texto afirma sobre as regras também", () => {
+  assert.match(sectionHtml(9), /data-lesson-counter="orToSide"/);
+  assert.deepEqual(lessonCounter("orToSide").valuation, [["a", false], ["b", true]]);
+  for (const locale of Object.values(LOCALES)) assert.ok(locale.learn.counters.orToSide.why);
+  setLang("pt");
+  assert.match(lessonCounterHtml("orToSide"), /a = F/);
+  assert.match(lessonCounterHtml("orToSide"), /b = V/);
+  setLang("en");
+  assert.match(lessonCounterHtml("orToSide"), /b = T/);
+  setLang("pt");
+  // «Se tirares ¬E às regras base»: a ∨ ¬a continua válida e deixa de ter prova; com ¬E, tem.
+  const goal = parseSequent("⊢ a ∨ ¬a").sequent;
+  assert.equal(checkSequent(goal).valid, true);
+  assert.equal(solve(goal, { rules: ruleSet({ set: "base", exclude: ["¬E"] }) }).provable, false);
+  assert.equal(solve(goal, { rules: ruleSet("base") }).provable, true);
 });
 
 test("índice: uma ligação por secção, a atual assinalada e as anteriores lidas", () => {

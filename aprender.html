@@ -186,12 +186,61 @@
           <h2 class="lesson-section__title" id="estrategias-title"><span class="lesson-section__num">08</span> <span data-section-title data-i18n="learn.sections.strategy">Estratégias</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.strategy.p1">A forma da conclusão e das premissas costuma dizer qual é o passo seguinte. Estas são as perguntas a fazer quando não sabes por onde continuar.</p>
+            <p data-i18n="learn.strategy.goalIntro">Começa pela conclusão. A forma dela diz como a prova costuma acabar, e isso dá-te um objetivo mais pequeno:</p>
+          </div>
+          <div class="lesson-prose">
+            <ul class="lesson-rules">
+              <li data-i18n="learn.strategy.goalAnd">Se é φ ∧ ψ, prova cada lado e junta-os com ∧I.</li>
+              <li data-i18n="learn.strategy.goalImplies">Se é φ → ψ, supõe φ e procura ψ. No fim, fecha com →I.</li>
+              <li data-i18n="learn.strategy.goalNot">Se é ¬φ, supõe φ e procura F. No fim, fecha com ¬I.</li>
+              <li data-i18n="learn.strategy.goalOr">Se é φ ∨ ψ, vê se consegues provar um dos lados e acaba com ∨I. Às vezes nenhum lado sai sozinho, e aí a resposta está nas premissas.</li>
+            </ul>
+          </div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.p2">Repete a pergunta para cada objetivo novo. Reproduz a prova abaixo, ou avança à mão, e lê a razão de cada linha.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyBackward"></div>
+          <div class="lesson-interactive" data-lesson-check="goalNegation"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.labs">Depois de cada estratégia há um laboratório, com um sequente para provares aqui mesmo. Abre no modo guiado: tocas nas linhas que queres citar e escolhes a regra. Se preferires escrever, muda de modo no topo do editor.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-lab="labBackward"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.premIntro">Quando a conclusão já não ajuda, olha para o que tens. Cada linha acessível oferece alguma coisa:</p>
+          </div>
+          <div class="lesson-prose">
+            <ul class="lesson-rules">
+              <li data-i18n="learn.strategy.premAnd">De φ ∧ ψ, tira os dois lados com ∧E. Não custa nada e dá-te mais linhas para citar.</li>
+              <li data-i18n="learn.strategy.premImplies">De φ → ψ, tenta obter φ, porque depois tens ψ com →E.</li>
+              <li data-i18n="learn.strategy.premOr">De φ ∨ ψ, abre os dois casos com ∨E e procura o mesmo objetivo em ambos. Faz isto cedo: dentro de cada caso tens mais uma linha para usar.</li>
+              <li data-i18n="learn.strategy.premNot">Com ¬φ, procura φ. Se o conseguires, FI dá-te F.</li>
+            </ul>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyCases"></div>
+          <div class="lesson-interactive" data-lesson-lab="labCases"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.absurd">Se nada disto chegar, resta a redução ao absurdo. Supõe a negação do objetivo e procura F. Ganhas uma linha para usar, e a contradição costuma sair de uma premissa negada. Fica para o fim porque a prova sai mais longa e menos direta.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-walkthrough="strategyAbsurd"></div>
+          <div class="lesson-interactive" data-lesson-lab="labAbsurd"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.stuck">Se continuares preso, pode acontecer que a prova não exista. A secção seguinte explica como o mostrar.</p>
           </div>
         </section>
         <section class="lesson-section" id="solidez" aria-labelledby="solidez-title">
           <h2 class="lesson-section__title" id="solidez-title"><span class="lesson-section__num">09</span> <span data-section-title data-i18n="learn.sections.meta">Solidez e completude</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.meta.p1">Fica a pergunta de fundo: o que consegues provar coincide com o que é verdadeiro em todas as valorações? A solidez e a completude dizem que sim.</p>
+            <p data-i18n="learn.meta.semantic">Até aqui, tudo foi sintaxe: ⊢ quer dizer que há uma prova. A outra noção vem das tabelas de verdade. Uma valoração dá verdadeiro ou falso a cada variável, e escreve-se ⊨ quando todas as valorações que tornam as premissas verdadeiras também tornam a conclusão verdadeira.</p>
+            <p data-i18n="learn.meta.soundness">A solidez diz que, se há prova, o sequente é válido: de ⊢ segue ⊨. A razão está nas regras, porque cada uma preserva a verdade. Se o que ela cita é verdadeiro, o que ela escreve também é. Dentro de uma subdedução vale o mesmo, para as valorações que tornam as hipóteses abertas verdadeiras. Como uma prova é uma cadeia destes passos, a verdade das premissas chega à conclusão.</p>
+            <p data-i18n="learn.meta.counter">Isto dá-te uma forma de mostrar que não há prova, sem as experimentar todas. Basta uma valoração com as premissas verdadeiras e a conclusão falsa, a que se chama contraexemplo.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-counter="orToSide"></div>
+          <div class="lesson-interactive" data-lesson-check="counterMeans"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.meta.completeness">A completude é o sentido contrário: se o sequente é válido, há prova. De ⊨ segue ⊢. É a parte difícil, porque diz que as regras não deixam nada de fora. A demonstração sai do âmbito desta lição, mas a ideia é esta: quando uma conclusão não se prova, consegue construir-se uma valoração que serve de contraexemplo.</p>
+            <p data-i18n="learn.meta.rules">Nenhuma das duas é automática, porque dependem das regras escolhidas. Se tirares ¬E às regras base, por exemplo, a ∨ ¬a continua verdadeira em todas as valorações e deixa de ter prova.</p>
+            <p data-i18n="learn.meta.together">Juntas, as duas dizem que ⊢ e ⊨ coincidem. Cada sequente tem uma prova ou um contraexemplo, nunca os dois. A completude diz só que a prova existe, não que seja curta nem fácil de encontrar, e é para isso que servem as estratégias.</p>
           </div>
         </section>
       </article>
