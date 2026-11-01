@@ -27,4 +27,17 @@ if ! server_up; then
   server_up || { echo "Não consegui arrancar o servidor na porta $PORT" >&2; exit 1; }
 fi
 
-node "$ROOT/scripts/check-page.mjs" "http://127.0.0.1:$PORT$PAGE_PATH" "$OUT_DIR"
+run_check() {
+  STATUS=0
+  OUTPUT="$(node "$ROOT/scripts/check-page.mjs" "http://127.0.0.1:$PORT$PAGE_PATH" "$OUT_DIR" 2>&1)" || STATUS=$?
+}
+
+run_check
+# O Chrome às vezes falha o pedido às Google Fonts ao arrancar: só esse erro, e só ele, tem nova tentativa.
+if [ "$STATUS" -ne 0 ]; then
+  case "$OUTPUT" in
+    *ERR_CERT_VERIFIER_CHANGED*) run_check ;;
+  esac
+fi
+echo "$OUTPUT"
+exit "$STATUS"
