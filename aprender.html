@@ -68,28 +68,64 @@
           <h2 class="lesson-section__title" id="prova-title"><span class="lesson-section__num">01</span> <span data-section-title data-i18n="learn.sections.proof">O que é uma prova</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.proof.p1">Uma prova parte das premissas e chega à conclusão por passos pequenos, cada um justificado por uma regra. Em notação de Fitch, cada linha diz a fórmula, a regra que a permite e as linhas em que essa regra se apoia. Se todas as linhas estiverem certas, a conclusão segue das premissas.</p>
+            <p data-i18n="learn.proof.sequent">O que queres provar escreve-se como um sequente, por exemplo a ∧ b, a → c ⊢ c ∧ b. À esquerda de ⊢ ficam as premissas, separadas por vírgulas, e à direita a conclusão. Sem nada à esquerda, como em ⊢ a → a, a fórmula tem de sair só das regras, e diz-se um teorema.</p>
+            <p data-i18n="learn.proof.reading">Para poupar parênteses, ¬ liga mais do que tudo, ∧ e ∨ ligam mais do que →, uma cadeia de ∧ agrupa à esquerda e uma de → agrupa à direita. Assim, a → b ∧ c é a → (b ∧ c), a ∧ b ∧ c é (a ∧ b) ∧ c e a → b → c é a → (b → c). O site mostra sempre a forma curta.</p>
             <p data-i18n="learn.proof.p2">Avança pela prova abaixo, linha a linha, e repara no que cada justificação cita.</p>
           </div>
           <div class="lesson-interactive" data-lesson-proof="firstProof" data-stepped></div>
           <div class="lesson-interactive" data-lesson-check="firstRule"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.proof.syntax">Nenhuma destas linhas pede que saibas o que a, b ou c querem dizer. Uma regra aplica-se se as fórmulas citadas tiverem a forma que ela exige, seja qual for o assunto. É por isso que uma prova se confere à mão ou por programa, sem discutir o significado de nada.</p>
+            <p data-i18n="learn.proof.pairs">Cada conectivo traz dois tipos de regra. A de introdução, marcada com I, diz como chegar a uma fórmula com esse conectivo. A de eliminação, marcada com E, diz o que podes tirar de uma fórmula que já o tem. Nas secções seguintes vês, para cada regra, o esquema, em que φ e ψ valem por quaisquer fórmulas, um exemplo e o engano mais frequente.</p>
+          </div>
         </section>
         <section class="lesson-section" id="conjuncao" aria-labelledby="conjuncao-title">
           <h2 class="lesson-section__title" id="conjuncao-title"><span class="lesson-section__num">02</span> <span data-section-title data-i18n="learn.sections.and">Conjunção (∧)</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.and.p1">A conjunção é o melhor sítio para começar: φ ∧ ψ afirma as duas fórmulas, por isso há uma regra para as juntar e outra para as separar.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-rule="andIntro"></div>
+          <div class="lesson-interactive" data-lesson-rule="andElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.and.p2">A regra de eliminação olha só para o conectivo principal da linha citada. Em a ∧ b ∧ c, que é (a ∧ b) ∧ c, os dois lados são a ∧ b e c. Cada ∧E retira uma camada, e o exemplo acima gasta uma linha por camada.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="andDepth"></div>
         </section>
         <section class="lesson-section" id="implicacao" aria-labelledby="implicacao-title">
           <h2 class="lesson-section__title" id="implicacao-title"><span class="lesson-section__num">03</span> <span data-section-title data-i18n="learn.sections.implies">Implicação (→)</span></h2>
           <div class="lesson-prose">
-            <p data-i18n="learn.implies.p1">Uma implicação φ → ψ é uma promessa: sempre que tiveres φ, tens ψ. Esta secção mostra como cumprir essa promessa com →E.</p>
+            <p data-i18n="learn.implies.p1">Uma implicação φ → ψ é uma promessa: sempre que tiveres φ, tens ψ. Usá-la é uma troca direta. Arranjas φ e recebes ψ, sem mais nada a fazer.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="implElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p2">Uma implicação não afirma φ nem afirma ψ. Só exclui o caso em que φ é verdadeira e ψ é falsa. Por isso, ter φ → ψ numa linha não te dá nenhuma das duas fórmulas, e é preciso obter φ por outro caminho antes de aplicar a regra.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="citeOrder"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p3">Falta saber como se chega a uma implicação. Isso pede uma ferramenta nova, a subdedução, que é o tema da secção seguinte.</p>
           </div>
         </section>
         <section class="lesson-section" id="subdeducoes" aria-labelledby="subdeducoes-title">
           <h2 class="lesson-section__title" id="subdeducoes-title"><span class="lesson-section__num">04</span> <span data-section-title data-i18n="learn.sections.scope">Subdeduções e escopo</span></h2>
           <div class="lesson-prose">
-            <p data-i18n="learn.scope.p1">Para provar φ → ψ, supões φ numa subdedução e chegas a ψ. Aqui ficas a saber quando uma linha pode ser citada e quando deixa de o poder.</p>
+            <p data-i18n="learn.scope.p1">Para provar φ → ψ, não precisas de saber se φ é verdadeira. Supões φ, só para ver no que dá, e mostras que daí se chega a ψ. A suposição abre uma subdedução: uma prova dentro da prova, com barra própria e com a hipótese na primeira linha.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-rule="implIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p2">Uma subdedução cita-se como intervalo, da hipótese até à última linha, por exemplo 3–6. Se tiver uma só linha, o intervalo começa e acaba nela, como 1–1 em ⊢ a → a, onde a hipótese a é logo a última linha.</p>
+            <p data-i18n="learn.scope.p3">Tudo o que escreves dentro de uma subdedução pode depender da hipótese, por isso só vale enquanto ela estiver em vigor. Quando a subdedução fecha, a hipótese deixa de contar, e as linhas de dentro já não se podem citar uma a uma. Resta o intervalo completo, que é o que a regra →I usa.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-mistake="closedLine"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p4">No sentido contrário não há problema: de dentro de uma subdedução podes citar diretamente as linhas exteriores que estão acima, sem as repetir. A prova só termina numa linha fora de todas as subdeduções.</p>
+            <p data-i18n="learn.scope.p5">As subdeduções também podem ficar umas dentro das outras. A mais recente é a primeira a fechar. Segue esta prova, em que cada →I fecha uma hipótese, a de dentro antes da de fora.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="nestedScopes" data-stepped></div>
+          <div class="lesson-interactive" data-lesson-check="scopeLines"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p6">Sobra um caso. A subdedução tem de acabar na fórmula que queres, e essa fórmula pode já estar escrita lá fora. Citá-la não basta, porque ela tem de aparecer como última linha. É para isso que serve R: repete uma fórmula numa linha nova.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="repeat"></div>
         </section>
         <section class="lesson-section" id="disjuncao" aria-labelledby="disjuncao-title">
           <h2 class="lesson-section__title" id="disjuncao-title"><span class="lesson-section__num">05</span> <span data-section-title data-i18n="learn.sections.or">Disjunção (∨)</span></h2>

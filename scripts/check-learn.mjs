@@ -127,7 +127,8 @@ const titleVisible = (id) => `(() => {
   return title.top >= stuck && title.bottom <= innerHeight * 0.6;
 })()`;
 
-const figuresReady = `document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
+// As figuras de regra são as últimas a montar: a sua altura empurra as secções seguintes.
+const figuresReady = `document.querySelectorAll(".lesson-rule").length === 6 && document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
 
 async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path, lang) {
   const tag = (what) => `${lang} 390px: ${what}`;
@@ -156,7 +157,7 @@ async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path,
   await waitFor(() => evaluate(`location.hash === "#solidez" && document.querySelector(".lesson-toc__current").textContent === ${JSON.stringify(text.meta)}`), tag("a última secção"));
 
   // A prova revela-se linha a linha, sem os botões mudarem de sítio.
-  const shown = () => evaluate(`document.querySelectorAll('.lesson-proof [data-line]:not([data-step-mark="future"])').length`);
+  const shown = () => evaluate(`document.querySelector(".lesson-proof").querySelectorAll('[data-line]:not([data-step-mark="future"])').length`);
   const counter = () => evaluate(`document.querySelector(".lesson-proof__counter").textContent`);
   await evaluate(`document.querySelector(".lesson-proof").scrollIntoView({ behavior: "instant" })`);
   expect(await shown(), 2, tag("começa nas premissas"));
@@ -182,6 +183,15 @@ async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path,
   expect(await evaluate(`document.querySelector(".lesson-check__feedback .msg-ok") !== null`), true, tag("resposta certa confirma"));
   expect(await evaluate(`document.querySelectorAll('.lesson-check [aria-pressed="true"]').length`), 1, tag("só uma opção escolhida"));
   await writeScreenshot(page, `${lang}-pergunta`);
+
+  // Cada figura de regra tem um erro assinalado, e as provas não alargam a página.
+  expect(await evaluate(`document.querySelectorAll('.lesson-rule [data-state="error"]').length`), 6, tag("uma linha errada por figura"));
+  expect(await evaluate(`[...document.querySelectorAll(".lesson-rule")].every((figure) => figure.querySelector(".msg-warn") !== null)`), true, tag("cada erro explicado"));
+  expect(await evaluate(`[...document.querySelectorAll(".lesson-interactive")].every((box) => box.getBoundingClientRect().right <= 390)`), true, tag("figuras dentro do ecrã"));
+  expect(await evaluate(`document.documentElement.scrollWidth <= 390`), true, tag("sem scroll lateral com as regras"));
+  await evaluate(`document.querySelector('[data-lesson-rule="implIntro"]').scrollIntoView({ behavior: "instant" })`);
+  await sleep(300);
+  await writeScreenshot(page, `${lang}-regra`);
 }
 
 async function desktop({ page, evaluate, resize }, origin, path, lang) {

@@ -69,28 +69,64 @@
           <h2 class="lesson-section__title" id="prova-title"><span class="lesson-section__num">01</span> <span data-section-title data-i18n="learn.sections.proof">What a proof is</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.proof.p1">A proof starts from the premises and reaches the conclusion in small steps, each justified by a rule. In Fitch notation, every line states the formula, the rule that allows it and the lines that rule relies on. If every line is correct, the conclusion follows from the premises.</p>
+            <p data-i18n="learn.proof.sequent">What you want to prove is written as a sequent, for example a ∧ b, a → c ⊢ c ∧ b. The premises sit to the left of ⊢, separated by commas, and the conclusion to the right. With nothing on the left, as in ⊢ a → a, the formula has to come from the rules alone, and it is called a theorem.</p>
+            <p data-i18n="learn.proof.reading">To save parentheses, ¬ binds tightest, ∧ and ∨ bind tighter than →, a chain of ∧ groups to the left and a chain of → groups to the right. So a → b ∧ c is a → (b ∧ c), a ∧ b ∧ c is (a ∧ b) ∧ c and a → b → c is a → (b → c). The site always shows the short form.</p>
             <p data-i18n="learn.proof.p2">Step through the proof below, line by line, and notice what each justification cites.</p>
           </div>
           <div class="lesson-interactive" data-lesson-proof="firstProof" data-stepped></div>
           <div class="lesson-interactive" data-lesson-check="firstRule"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.proof.syntax">None of these lines asks you to know what a, b or c mean. A rule applies if the cited formulas have the shape it requires, whatever the subject. That is why a proof can be checked by hand or by a program, without debating the meaning of anything.</p>
+            <p data-i18n="learn.proof.pairs">Each connective brings two kinds of rule. The introduction rule, marked I, says how to reach a formula with that connective. The elimination rule, marked E, says what you can take from a formula that already has it. In the next sections you see, for each rule, its schema, where φ and ψ stand for any formulas, an example and the most frequent slip.</p>
+          </div>
         </section>
         <section class="lesson-section" id="conjuncao" aria-labelledby="conjuncao-title">
           <h2 class="lesson-section__title" id="conjuncao-title"><span class="lesson-section__num">02</span> <span data-section-title data-i18n="learn.sections.and">Conjunction (∧)</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.and.p1">Conjunction is the best place to start: φ ∧ ψ asserts both formulas, so there is one rule to join them and another to split them.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-rule="andIntro"></div>
+          <div class="lesson-interactive" data-lesson-rule="andElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.and.p2">The elimination rule looks only at the main connective of the cited line. In a ∧ b ∧ c, which is (a ∧ b) ∧ c, the two sides are a ∧ b and c. Each ∧E removes one layer, and the example above spends one line per layer.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="andDepth"></div>
         </section>
         <section class="lesson-section" id="implicacao" aria-labelledby="implicacao-title">
           <h2 class="lesson-section__title" id="implicacao-title"><span class="lesson-section__num">03</span> <span data-section-title data-i18n="learn.sections.implies">Implication (→)</span></h2>
           <div class="lesson-prose">
-            <p data-i18n="learn.implies.p1">An implication φ → ψ is a promise: whenever you have φ, you have ψ. This section shows how to collect on that promise with →E.</p>
+            <p data-i18n="learn.implies.p1">An implication φ → ψ is a promise: whenever you have φ, you have ψ. Using it is a plain exchange. You bring φ and you get ψ, with nothing else to do.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="implElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p2">An implication asserts neither φ nor ψ. It only rules out the case where φ is true and ψ is false. So having φ → ψ on a line gives you neither formula, and you must obtain φ some other way before applying the rule.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="citeOrder"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p3">It remains to see how to reach an implication. That takes a new tool, the subproof, which is the topic of the next section.</p>
           </div>
         </section>
         <section class="lesson-section" id="subdeducoes" aria-labelledby="subdeducoes-title">
           <h2 class="lesson-section__title" id="subdeducoes-title"><span class="lesson-section__num">04</span> <span data-section-title data-i18n="learn.sections.scope">Subproofs and scope</span></h2>
           <div class="lesson-prose">
-            <p data-i18n="learn.scope.p1">To prove φ → ψ, you assume φ in a subproof and reach ψ. Here you learn when a line can be cited and when it no longer can.</p>
+            <p data-i18n="learn.scope.p1">To prove φ → ψ, you don&#39;t need to know whether φ is true. You assume φ, just to see where it leads, and show that ψ follows. The assumption opens a subproof: a proof inside the proof, with its own bar and with the hypothesis on its first line.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-rule="implIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p2">A subproof is cited as a range, from the hypothesis to the last line, for example 3–6. If it has a single line, the range starts and ends there, like 1–1 in ⊢ a → a, where the hypothesis a is already the last line.</p>
+            <p data-i18n="learn.scope.p3">Everything you write inside a subproof may depend on the hypothesis, so it only holds while the hypothesis is in force. When the subproof closes, the hypothesis stops counting, and the lines inside can no longer be cited one by one. What remains is the whole range, which is what the →I rule uses.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-mistake="closedLine"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p4">The other direction is no problem: from inside a subproof you can directly cite the outer lines above it, without repeating them. The proof must end on a line outside every subproof.</p>
+            <p data-i18n="learn.scope.p5">Subproofs can also sit inside one another. The most recent one closes first. Follow this proof, where each →I closes one hypothesis, the inner one before the outer one.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="nestedScopes" data-stepped></div>
+          <div class="lesson-interactive" data-lesson-check="scopeLines"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p6">One case is left. The subproof has to end on the formula you want, and that formula may already be written outside. Citing it is not enough, because it has to appear as the last line. That is what R is for: it repeats a formula on a new line.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="repeat"></div>
         </section>
         <section class="lesson-section" id="disjuncao" aria-labelledby="disjuncao-title">
           <h2 class="lesson-section__title" id="disjuncao-title"><span class="lesson-section__num">05</span> <span data-section-title data-i18n="learn.sections.or">Disjunction (∨)</span></h2>

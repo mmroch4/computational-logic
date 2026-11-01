@@ -295,16 +295,28 @@ export default {
     },
     proof: {
       p1: "Uma prova parte das premissas e chega à conclusão por passos pequenos, cada um justificado por uma regra. Em notação de Fitch, cada linha diz a fórmula, a regra que a permite e as linhas em que essa regra se apoia. Se todas as linhas estiverem certas, a conclusão segue das premissas.",
+      sequent: "O que queres provar escreve-se como um sequente, por exemplo a ∧ b, a → c ⊢ c ∧ b. À esquerda de ⊢ ficam as premissas, separadas por vírgulas, e à direita a conclusão. Sem nada à esquerda, como em ⊢ a → a, a fórmula tem de sair só das regras, e diz-se um teorema.",
+      reading: "Para poupar parênteses, ¬ liga mais do que tudo, ∧ e ∨ ligam mais do que →, uma cadeia de ∧ agrupa à esquerda e uma de → agrupa à direita. Assim, a → b ∧ c é a → (b ∧ c), a ∧ b ∧ c é (a ∧ b) ∧ c e a → b → c é a → (b → c). O site mostra sempre a forma curta.",
       p2: "Avança pela prova abaixo, linha a linha, e repara no que cada justificação cita.",
+      syntax: "Nenhuma destas linhas pede que saibas o que a, b ou c querem dizer. Uma regra aplica-se se as fórmulas citadas tiverem a forma que ela exige, seja qual for o assunto. É por isso que uma prova se confere à mão ou por programa, sem discutir o significado de nada.",
+      pairs: "Cada conectivo traz dois tipos de regra. A de introdução, marcada com I, diz como chegar a uma fórmula com esse conectivo. A de eliminação, marcada com E, diz o que podes tirar de uma fórmula que já o tem. Nas secções seguintes vês, para cada regra, o esquema, em que φ e ψ valem por quaisquer fórmulas, um exemplo e o engano mais frequente.",
     },
     and: {
       p1: "A conjunção é o melhor sítio para começar: φ ∧ ψ afirma as duas fórmulas, por isso há uma regra para as juntar e outra para as separar.",
+      p2: "A regra de eliminação olha só para o conectivo principal da linha citada. Em a ∧ b ∧ c, que é (a ∧ b) ∧ c, os dois lados são a ∧ b e c. Cada ∧E retira uma camada, e o exemplo acima gasta uma linha por camada.",
     },
     implies: {
-      p1: "Uma implicação φ → ψ é uma promessa: sempre que tiveres φ, tens ψ. Esta secção mostra como cumprir essa promessa com →E.",
+      p1: "Uma implicação φ → ψ é uma promessa: sempre que tiveres φ, tens ψ. Usá-la é uma troca direta. Arranjas φ e recebes ψ, sem mais nada a fazer.",
+      p2: "Uma implicação não afirma φ nem afirma ψ. Só exclui o caso em que φ é verdadeira e ψ é falsa. Por isso, ter φ → ψ numa linha não te dá nenhuma das duas fórmulas, e é preciso obter φ por outro caminho antes de aplicar a regra.",
+      p3: "Falta saber como se chega a uma implicação. Isso pede uma ferramenta nova, a subdedução, que é o tema da secção seguinte.",
     },
     scope: {
-      p1: "Para provar φ → ψ, supões φ numa subdedução e chegas a ψ. Aqui ficas a saber quando uma linha pode ser citada e quando deixa de o poder.",
+      p1: "Para provar φ → ψ, não precisas de saber se φ é verdadeira. Supões φ, só para ver no que dá, e mostras que daí se chega a ψ. A suposição abre uma subdedução: uma prova dentro da prova, com barra própria e com a hipótese na primeira linha.",
+      p2: "Uma subdedução cita-se como intervalo, da hipótese até à última linha, por exemplo 3–6. Se tiver uma só linha, o intervalo começa e acaba nela, como 1–1 em ⊢ a → a, onde a hipótese a é logo a última linha.",
+      p3: "Tudo o que escreves dentro de uma subdedução pode depender da hipótese, por isso só vale enquanto ela estiver em vigor. Quando a subdedução fecha, a hipótese deixa de contar, e as linhas de dentro já não se podem citar uma a uma. Resta o intervalo completo, que é o que a regra →I usa.",
+      p4: "No sentido contrário não há problema: de dentro de uma subdedução podes citar diretamente as linhas exteriores que estão acima, sem as repetir. A prova só termina numa linha fora de todas as subdeduções.",
+      p5: "As subdeduções também podem ficar umas dentro das outras. A mais recente é a primeira a fechar. Segue esta prova, em que cada →I fecha uma hipótese, a de dentro antes da de fora.",
+      p6: "Sobra um caso. A subdedução tem de acabar na fórmula que queres, e essa fórmula pode já estar escrita lá fora. Citá-la não basta, porque ela tem de aparecer como última linha. É para isso que serve R: repete uma fórmula numa linha nova.",
     },
     or: {
       p1: "Para chegar a φ ∨ ψ basta uma das fórmulas. Usar uma disjunção dá mais trabalho: não sabes qual delas é verdadeira, por isso tratas os dois casos.",
@@ -328,6 +340,43 @@ export default {
     },
     figures: {
       firstProof: "Uma prova com seis linhas",
+      nestedScopes: "Duas hipóteses, uma dentro da outra",
+      closedLine: "Erro comum: usar uma linha de uma subdedução fechada",
+    },
+    ruleFigure: {
+      example: "Exemplo",
+      mistake: "Erro comum",
+      wrongLine: "Linha {line}.",
+    },
+    rules: {
+      andIntro: {
+        name: "Introdução da conjunção",
+        when: "Se já tens φ numa linha e ψ noutra, podes escrever φ ∧ ψ. Cita as duas linhas.",
+      },
+      andElim: {
+        name: "Eliminação da conjunção",
+        when: "De φ ∧ ψ podes escrever φ ou ψ, à tua escolha. Cita só a linha da conjunção.",
+      },
+      implElim: {
+        name: "Eliminação da implicação",
+        when: "Se tens φ → ψ e também φ, podes escrever ψ. Cita as duas linhas.",
+      },
+      implIntro: {
+        name: "Introdução da implicação",
+        when: "Abre uma subdedução com a hipótese φ e chega a ψ. Fora dela, escreve φ → ψ e cita a subdedução como intervalo.",
+      },
+      repeat: {
+        name: "Repetição",
+        when: "Escreve de novo uma fórmula de uma linha acessível, sem mudar nada. Cita essa linha.",
+      },
+    },
+    mistakes: {
+      andIntroOneSide: "A regra ∧I cita uma linha por cada lado, e aqui só há a linha 1. A fórmula b não está em lado nenhum: ter um lado não chega para escrever a conjunção.",
+      andElimInside: "A linha 1 é uma implicação, porque o conectivo principal é →. A conjunção a ∧ b é só o antecedente: é uma condição, não um facto, por isso ∧E não se aplica.",
+      implElimBackwards: "A regra →E precisa do antecedente, e a linha 2 tem o consequente. Isto é ler a implicação ao contrário. O sequente nem sequer é válido: com a falsa e b verdadeira, as premissas são verdadeiras e a conclusão é falsa.",
+      implIntroSwapped: "A hipótese é a e a subdedução acaba em b, logo o que ela dá é a → b. A hipótese fica sempre à esquerda da seta, e por isso escrever b → a não é o mesmo.",
+      closedLine: "A linha 3 só vale sob a hipótese a, que fechou antes da linha 4. Da subdedução, só resta o que a linha 4 diz: que b depende de a. Se isto fosse permitido, qualquer hipótese se tornaria um facto.",
+      repeatReordered: "R copia a fórmula tal como está. Trocar os lados de a ∧ b dá outra fórmula, mesmo que queira dizer o mesmo, e chegar a ela pede uma subdedução com ∧E e ∧I.",
     },
     check: {
       title: "Antes de continuares",
@@ -342,6 +391,33 @@ export default {
           andE: "∧E tira um dos lados de uma conjunção, e c não é um dos lados de a ∧ b.",
           implE: "→E junta a → c, da linha 2, com a, da linha 3, e dá c.",
           andI: "∧I escreve uma conjunção, e c não é uma conjunção.",
+        },
+      },
+      andDepth: {
+        question: "A partir de a ∧ b ∧ c, quantas aplicações de ∧E são precisas para escrever b?",
+        options: { one: "Uma", two: "Duas", none: "Não se consegue" },
+        why: {
+          one: "Uma aplicação só dá a ∧ b ou c, os dois lados do ∧ principal. b está uma camada mais abaixo.",
+          two: "A primeira dá a ∧ b e a segunda, citando essa linha, dá b.",
+          none: "Consegue-se, desde que retires as camadas por ordem, primeiro a ∧ b e depois b.",
+        },
+      },
+      citeOrder: {
+        question: "Com a → b na linha 1 e a na linha 2, qual destas justificações de b está certa?",
+        options: { first: "→E, 1, 2", second: "→E, 2, 1", both: "As duas" },
+        why: {
+          first: "Está certa, mas não é a única: a ordem das linhas citadas é livre.",
+          second: "Está certa, mas não é a única: a ordem das linhas citadas é livre.",
+          both: "A ordem das linhas citadas é livre. Importa quais são, não por que ordem aparecem.",
+        },
+      },
+      scopeLines: {
+        question: "Na prova acima, que linhas soltas pode citar a linha 6?",
+        options: { outer: "Só a linha 1", reachable: "As linhas 1 e 2", all: "Todas, da 1 à 5" },
+        why: {
+          outer: "A hipótese da linha 2 ainda está aberta na linha 6, por isso também se pode citar.",
+          reachable: "A linha 1 está fora e a 2 é a hipótese ainda aberta. As linhas 3 a 5 já fecharam e só contam como o intervalo 3–5.",
+          all: "As linhas 3 a 5 pertencem a uma subdedução fechada, por isso só contam em conjunto, como o intervalo 3–5.",
         },
       },
     },

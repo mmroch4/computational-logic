@@ -294,16 +294,28 @@ export default {
     },
     proof: {
       p1: "A proof starts from the premises and reaches the conclusion in small steps, each justified by a rule. In Fitch notation, every line states the formula, the rule that allows it and the lines that rule relies on. If every line is correct, the conclusion follows from the premises.",
+      sequent: "What you want to prove is written as a sequent, for example a ∧ b, a → c ⊢ c ∧ b. The premises sit to the left of ⊢, separated by commas, and the conclusion to the right. With nothing on the left, as in ⊢ a → a, the formula has to come from the rules alone, and it is called a theorem.",
+      reading: "To save parentheses, ¬ binds tightest, ∧ and ∨ bind tighter than →, a chain of ∧ groups to the left and a chain of → groups to the right. So a → b ∧ c is a → (b ∧ c), a ∧ b ∧ c is (a ∧ b) ∧ c and a → b → c is a → (b → c). The site always shows the short form.",
       p2: "Step through the proof below, line by line, and notice what each justification cites.",
+      syntax: "None of these lines asks you to know what a, b or c mean. A rule applies if the cited formulas have the shape it requires, whatever the subject. That is why a proof can be checked by hand or by a program, without debating the meaning of anything.",
+      pairs: "Each connective brings two kinds of rule. The introduction rule, marked I, says how to reach a formula with that connective. The elimination rule, marked E, says what you can take from a formula that already has it. In the next sections you see, for each rule, its schema, where φ and ψ stand for any formulas, an example and the most frequent slip.",
     },
     and: {
       p1: "Conjunction is the best place to start: φ ∧ ψ asserts both formulas, so there is one rule to join them and another to split them.",
+      p2: "The elimination rule looks only at the main connective of the cited line. In a ∧ b ∧ c, which is (a ∧ b) ∧ c, the two sides are a ∧ b and c. Each ∧E removes one layer, and the example above spends one line per layer.",
     },
     implies: {
-      p1: "An implication φ → ψ is a promise: whenever you have φ, you have ψ. This section shows how to collect on that promise with →E.",
+      p1: "An implication φ → ψ is a promise: whenever you have φ, you have ψ. Using it is a plain exchange. You bring φ and you get ψ, with nothing else to do.",
+      p2: "An implication asserts neither φ nor ψ. It only rules out the case where φ is true and ψ is false. So having φ → ψ on a line gives you neither formula, and you must obtain φ some other way before applying the rule.",
+      p3: "It remains to see how to reach an implication. That takes a new tool, the subproof, which is the topic of the next section.",
     },
     scope: {
-      p1: "To prove φ → ψ, you assume φ in a subproof and reach ψ. Here you learn when a line can be cited and when it no longer can.",
+      p1: "To prove φ → ψ, you don't need to know whether φ is true. You assume φ, just to see where it leads, and show that ψ follows. The assumption opens a subproof: a proof inside the proof, with its own bar and with the hypothesis on its first line.",
+      p2: "A subproof is cited as a range, from the hypothesis to the last line, for example 3–6. If it has a single line, the range starts and ends there, like 1–1 in ⊢ a → a, where the hypothesis a is already the last line.",
+      p3: "Everything you write inside a subproof may depend on the hypothesis, so it only holds while the hypothesis is in force. When the subproof closes, the hypothesis stops counting, and the lines inside can no longer be cited one by one. What remains is the whole range, which is what the →I rule uses.",
+      p4: "The other direction is no problem: from inside a subproof you can directly cite the outer lines above it, without repeating them. The proof must end on a line outside every subproof.",
+      p5: "Subproofs can also sit inside one another. The most recent one closes first. Follow this proof, where each →I closes one hypothesis, the inner one before the outer one.",
+      p6: "One case is left. The subproof has to end on the formula you want, and that formula may already be written outside. Citing it is not enough, because it has to appear as the last line. That is what R is for: it repeats a formula on a new line.",
     },
     or: {
       p1: "To reach φ ∨ ψ, one of the formulas is enough. Using a disjunction takes more work: you don't know which one is true, so you handle both cases.",
@@ -327,6 +339,43 @@ export default {
     },
     figures: {
       firstProof: "A six-line proof",
+      nestedScopes: "Two hypotheses, one inside the other",
+      closedLine: "Common mistake: using a line from a closed subproof",
+    },
+    ruleFigure: {
+      example: "Example",
+      mistake: "Common mistake",
+      wrongLine: "Line {line}.",
+    },
+    rules: {
+      andIntro: {
+        name: "Conjunction introduction",
+        when: "If you have φ on one line and ψ on another, you can write φ ∧ ψ. Cite both lines.",
+      },
+      andElim: {
+        name: "Conjunction elimination",
+        when: "From φ ∧ ψ you can write φ or ψ, whichever you choose. Cite only the line of the conjunction.",
+      },
+      implElim: {
+        name: "Implication elimination",
+        when: "If you have φ → ψ and also φ, you can write ψ. Cite both lines.",
+      },
+      implIntro: {
+        name: "Implication introduction",
+        when: "Open a subproof with the hypothesis φ and reach ψ. Outside it, write φ → ψ and cite the subproof as a range.",
+      },
+      repeat: {
+        name: "Repetition",
+        when: "Write a formula from an accessible line again, changing nothing. Cite that line.",
+      },
+    },
+    mistakes: {
+      andIntroOneSide: "The ∧I rule cites one line for each side, and here there is only line 1. The formula b is nowhere to be found: having one side is not enough to write the conjunction.",
+      andElimInside: "Line 1 is an implication, because its main connective is →. The conjunction a ∧ b is only the antecedent: it is a condition, not a fact, so ∧E does not apply.",
+      implElimBackwards: "The →E rule needs the antecedent, and line 2 has the consequent. This reads the implication backwards. The sequent is not even valid: with a false and b true, the premises are true and the conclusion is false.",
+      implIntroSwapped: "The hypothesis is a and the subproof ends in b, so what it gives is a → b. The hypothesis always goes on the left of the arrow, so writing b → a is not the same thing.",
+      closedLine: "Line 3 only holds under the hypothesis a, which closed before line 4. All that remains of the subproof is what line 4 says: that b depends on a. If this were allowed, any hypothesis would turn into a fact.",
+      repeatReordered: "R copies the formula as it stands. Swapping the sides of a ∧ b gives a different formula, even if it means the same, and reaching it takes a subproof with ∧E and ∧I.",
     },
     check: {
       title: "Before you go on",
@@ -341,6 +390,33 @@ export default {
           andE: "∧E takes one side of a conjunction, and c is not a side of a ∧ b.",
           implE: "→E combines a → c, from line 2, with a, from line 3, and gives c.",
           andI: "∧I writes a conjunction, and c is not a conjunction.",
+        },
+      },
+      andDepth: {
+        question: "Starting from a ∧ b ∧ c, how many uses of ∧E does it take to write b?",
+        options: { one: "One", two: "Two", none: "It can't be done" },
+        why: {
+          one: "One use only gives a ∧ b or c, the two sides of the main ∧. b is one layer further down.",
+          two: "The first gives a ∧ b and the second, citing that line, gives b.",
+          none: "It can be done, as long as you remove the layers in order, first a ∧ b and then b.",
+        },
+      },
+      citeOrder: {
+        question: "With a → b on line 1 and a on line 2, which of these justifications of b is correct?",
+        options: { first: "→E, 1, 2", second: "→E, 2, 1", both: "Both" },
+        why: {
+          first: "It is correct, but not the only one: the order of the cited lines is free.",
+          second: "It is correct, but not the only one: the order of the cited lines is free.",
+          both: "The order of the cited lines is free. What matters is which lines they are, not the order they appear in.",
+        },
+      },
+      scopeLines: {
+        question: "In the proof above, which single lines can line 6 cite?",
+        options: { outer: "Only line 1", reachable: "Lines 1 and 2", all: "All of them, 1 to 5" },
+        why: {
+          outer: "The hypothesis on line 2 is still open at line 6, so it can be cited too.",
+          reachable: "Line 1 is outside and line 2 is the hypothesis that is still open. Lines 3 to 5 have closed and only count as the range 3–5.",
+          all: "Lines 3 to 5 belong to a closed subproof, so they only count together, as the range 3–5.",
         },
       },
     },

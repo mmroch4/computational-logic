@@ -1470,6 +1470,32 @@
     text-align: center;
   }
 
+  .lesson-rule__schema {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    list-style: none;
+    overflow-wrap: anywhere;
+  }
+
+  .lesson-rule__heading {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: var(--weight-semibold);
+  }
+
+  .lesson-rule__sequent {
+    color: var(--color-text-2);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
   .lesson-check__question {
     color: var(--color-text);
     font-size: 15px;

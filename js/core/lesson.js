@@ -5,8 +5,9 @@
 // hash; `key` é o nome em `learn.sections.*` e `learn.<key>.*`.
 // Uma prova é `{ sequent, text }`, com `text` no formato de `proof-text.js`, e o título em
 // `learn.figures.<id>`. Uma pergunta é `{ options, answer }`, com o texto em `learn.checks.<id>.*`.
+import { format } from "./formula.js";
 import { parseProof } from "./proof-text.js";
-import { ruleSet } from "./rules.js";
+import { RULES, ruleSet } from "./rules.js";
 import { parseSequent } from "./sequent.js";
 import { verifyProof } from "./verify.js";
 
@@ -33,10 +34,141 @@ export const LESSON_PROOFS = Object.freeze({
 5 | b       ∧E, 1
 6 | c ∧ b   ∧I, 4, 5`,
   },
+  andIntro: {
+    sequent: "a, b, c ⊢ (a ∧ b) ∧ c",
+    text: `
+1 | a             premissa
+2 | b             premissa
+3 | c             premissa
+4 | a ∧ b         ∧I, 1, 2
+5 | (a ∧ b) ∧ c   ∧I, 4, 3`,
+  },
+  andElim: {
+    sequent: "(a ∧ b) ∧ c ⊢ b",
+    text: `
+1 | (a ∧ b) ∧ c   premissa
+2 | a ∧ b         ∧E, 1
+3 | b             ∧E, 2`,
+  },
+  implElim: {
+    sequent: "a → b, b → c, a ⊢ c",
+    text: `
+1 | a → b   premissa
+2 | b → c   premissa
+3 | a       premissa
+4 | b       →E, 3, 1
+5 | c       →E, 4, 2`,
+  },
+  implIntro: {
+    sequent: "a → b, a → c ⊢ a → (b ∧ c)",
+    text: `
+1 | a → b         premissa
+2 | a → c         premissa
+3 |   a           hipótese
+4 |   b           →E, 3, 1
+5 |   c           →E, 3, 2
+6 |   b ∧ c       ∧I, 4, 5
+7 | a → (b ∧ c)   →I, 3–6`,
+  },
+  nestedScopes: {
+    sequent: "c ⊢ a → (b → (a ∧ b) ∧ c)",
+    text: `
+1 | c                       premissa
+2 |   a                     hipótese
+3 |     b                   hipótese
+4 |     a ∧ b               ∧I, 2, 3
+5 |     (a ∧ b) ∧ c         ∧I, 4, 1
+6 |   b → (a ∧ b) ∧ c       →I, 3–5
+7 | a → (b → (a ∧ b) ∧ c)   →I, 2–6`,
+  },
+  repeat: {
+    sequent: "a ∧ b ⊢ c → (a ∧ b)",
+    text: `
+1 | a ∧ b         premissa
+2 |   c           hipótese
+3 |   a ∧ b       R, 1
+4 | c → (a ∧ b)   →I, 2–3`,
+  },
+});
+
+/**
+ * Provas com um erro, para o leitor ver o que recusar. `line` e `code` dizem o que o verificador tem de
+ * apontar, e só isso: os testes exigem esse único achado. A explicação está em `learn.mistakes.<id>`.
+ */
+export const LESSON_MISTAKES = Object.freeze({
+  andIntroOneSide: {
+    sequent: "a ⊢ a ∧ b",
+    text: `
+1 | a       premissa
+2 | a ∧ b   ∧I, 1`,
+    line: 2,
+    code: "missingCitation",
+  },
+  andElimInside: {
+    sequent: "(a ∧ b) → c ⊢ a",
+    text: `
+1 | (a ∧ b) → c   premissa
+2 | a             ∧E, 1`,
+    line: 2,
+    code: "ruleNotApplicable",
+  },
+  implElimBackwards: {
+    sequent: "a → b, b ⊢ a",
+    text: `
+1 | a → b   premissa
+2 | b       premissa
+3 | a       →E, 1, 2`,
+    line: 3,
+    code: "ruleNotApplicable",
+  },
+  implIntroSwapped: {
+    sequent: "b ⊢ b → a",
+    text: `
+1 | b       premissa
+2 |   a     hipótese
+3 |   b     R, 1
+4 | b → a   →I, 2–3`,
+    line: 4,
+    code: "formulaMismatch",
+  },
+  closedLine: {
+    sequent: "a → b ⊢ b",
+    text: `
+1 | a → b   premissa
+2 |   a     hipótese
+3 |   b     →E, 2, 1
+4 | a → b   →I, 2–3
+5 | b       R, 3`,
+    line: 5,
+    code: "inaccessibleLine",
+  },
+  repeatReordered: {
+    sequent: "(a ∧ b) → c ⊢ (b ∧ a) → c",
+    text: `
+1 | (a ∧ b) → c   premissa
+2 | (b ∧ a) → c   R, 1`,
+    line: 2,
+    code: "formulaMismatch",
+  },
+});
+
+/**
+ * As regras apresentadas na lição: `rule` é o id no catálogo, `example` uma prova de `LESSON_PROOFS` que a
+ * usa e `mistake` uma entrada de `LESSON_MISTAKES`. Nome e descrição em `learn.rules.<id>`.
+ */
+export const LESSON_RULES = Object.freeze({
+  andIntro: { rule: "∧I", example: "andIntro", mistake: "andIntroOneSide" },
+  andElim: { rule: "∧E", example: "andElim", mistake: "andElimInside" },
+  implElim: { rule: "→E", example: "implElim", mistake: "implElimBackwards" },
+  implIntro: { rule: "→I", example: "implIntro", mistake: "implIntroSwapped" },
+  repeat: { rule: "R", example: "repeat", mistake: "repeatReordered" },
 });
 
 export const LESSON_CHECKS = Object.freeze({
   firstRule: { options: ["andE", "implE", "andI"], answer: "implE" },
+  andDepth: { options: ["one", "two", "none"], answer: "two" },
+  citeOrder: { options: ["first", "second", "both"], answer: "both" },
+  scopeLines: { options: ["outer", "reachable", "all"], answer: "reachable" },
 });
 
 /** A prova `id` já lida: `{ goal, proof }`. Os testes garantem que todas se leem. */
@@ -49,6 +181,34 @@ export function lessonProof(id) {
 export function verifyLessonProof(id) {
   const { goal, proof } = lessonProof(id);
   return verifyProof(proof, goal, ruleSet("completo"));
+}
+
+/** A prova errada `id` já lida: `{ goal, proof, line }`. */
+export function lessonMistake(id) {
+  const { sequent, text, line } = LESSON_MISTAKES[id];
+  return { goal: parseSequent(sequent).sequent, proof: parseProof(text.trim()).proof, line };
+}
+
+/** O que o verificador aponta à prova errada `id`: `[{ line, code }]`. */
+export function mistakeFindings(id) {
+  const { goal, proof } = lessonMistake(id);
+  const { lineErrors, extraPremises, conclusionError } = verifyProof(proof, goal, ruleSet("completo"));
+  return [
+    ...lineErrors.map(({ code, params }) => ({ line: params.line, code })),
+    ...extraPremises.map((line) => ({ line, code: "extraPremise" })),
+    ...(conclusionError ? [{ line: conclusionError.params.line ?? null, code: conclusionError.code }] : []),
+  ];
+}
+
+const premiseText = (premise) => (
+  premise.kind === "subproof" ? `[${format(premise.hypothesis)}] … ${format(premise.conclusion)}` : format(premise.schema)
+);
+
+/** O esquema de uma regra, a partir do catálogo: uma forma por conclusão, como `φ ∧ ψ ⊢ φ`. */
+export function ruleSchemaLines(ruleId) {
+  const { premises, conclusions } = RULES.find(({ id }) => id === ruleId);
+  const left = premises.map(premiseText).join(", ");
+  return conclusions.map((conclusion) => `${left} ⊢ ${format(conclusion)}`);
 }
 
 /** Quantas linhas uma prova mostra antes de se avançar: as premissas, ou a primeira linha se não as houver. */
