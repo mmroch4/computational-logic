@@ -5,10 +5,11 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createEditor, openProof } from "../js/core/editor.js";
 import { format } from "../js/core/formula.js";
+import { guidedRules } from "../js/core/guided.js";
 import { citeLine, citeRange } from "../js/core/proof.js";
 import { parseProof } from "../js/core/proof-text.js";
 import { applyPick, pickState, pickableRules } from "../js/core/rule-pick.js";
-import { ruleSet } from "../js/core/rules.js";
+import { defineRule, ruleSet } from "../js/core/rules.js";
 import { parseSequent } from "../js/core/sequent.js";
 import { verifyProof } from "../js/core/verify.js";
 
@@ -100,4 +101,19 @@ test("uma regra sem premissas fica logo pronta", () => {
 test("no Chrome: escolher a regra e as linhas com toques", { skip: !existsSync(CHROME) }, () => {
   const run = spawnSync("node", ["scripts/check-rule-pick.mjs"], { encoding: "utf8", timeout: 120000 });
   assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
+});
+
+test("uma regra própria que nunca se completa não bloqueia a página numa prova longa", () => {
+  const premises = Array.from({ length: 150 }, (_, index) => `a${index}`).join(", ");
+  const editor = createEditor(parseSequent(`${premises} ⊢ z`).sequent);
+  const line = editor.proof.lines.length;
+  const stuck = defineRule("X", ["φ", "ψ", "θ", "¬¬¬¬¬φ"], "θ");
+  const active = { rules: [stuck], known: [stuck] };
+
+  const started = performance.now();
+  const state = pickState(editor, line, "X", [], active);
+  guidedRules(editor, [], active);
+
+  assert.equal(state.status, "select");
+  assert.ok(performance.now() - started < 10000);
 });

@@ -56,12 +56,20 @@ function finished(complete) {
   return [...new Map(formulas.map((formula) => [format(formula), formula])).values()];
 }
 
-/** Se o que falta citar existe na prova: uma linha que deixa a regra a meio não se oferece. */
-function completes(start, cited, items, lines) {
+/** Tentativas por pedido. Regras próprias têm até 6 premissas, e uma prova longa daria uma procura sem fim. */
+const COMPLETION_BUDGET = 2000;
+
+/**
+ * Se o que falta citar existe na prova: uma linha que deixa a regra a meio não se oferece. Sem tentativas
+ * em `budget`, responde que sim: mostra-se uma linha a mais, e o verificador continua a julgar a prova.
+ */
+function completes(start, cited, items, lines, budget) {
+  if (budget.left <= 0) return true;
+  budget.left -= 1;
   const found = bindings(start, cited, lines);
   if (found.some(({ form, cited: used }) => used.size === form.premises.length)) return true;
   return found.length > 0 && items.some((item) => (
-    !cited.some((other) => sameCitation(other, item)) && completes(start, [...cited, item], items, lines)
+    !cited.some((other) => sameCitation(other, item)) && completes(start, [...cited, item], items, lines, budget)
   ));
 }
 
@@ -80,9 +88,10 @@ export function pickState(editor, line, id, cited, { rules }) {
 
   const available = citableFrom(editor.proof, accessibleFrom(editor.proof, line));
   const items = [...available.lines.map(citeLine), ...available.ranges.map(({ from, to }) => citeRange(from, to))];
+  const budget = { left: COMPLETION_BUDGET };
   const candidates = items.filter((item) => (
     !cited.some((other) => sameCitation(other, item))
-    && starts.some((start) => completes(start, [...cited, item], items, lines))
+    && starts.some((start) => completes(start, [...cited, item], items, lines, budget))
   ));
   const { form, substitution, cited: used } = branches[0];
   const position = form.premises.findIndex((_, index) => !used.has(index));

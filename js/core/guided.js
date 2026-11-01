@@ -29,8 +29,11 @@ import { formatJustification } from "./proof-text.js";
 import { applySubstitution, matchSchema } from "./schema.js";
 import { bindPremise } from "./verify.js";
 
-/** Passos oferecidos por regra e fórmulas candidatas para uma metavariável livre. */
-export const GUIDED_LIMITS = Object.freeze({ outcomes: 12, candidates: 8, automatic: 200 });
+/**
+ * Passos oferecidos por regra, fórmulas candidatas para uma metavariável livre e, nas citações automáticas,
+ * resultados e tentativas. As tentativas travam a procura mesmo quando nenhuma forma de citar chega ao fim.
+ */
+export const GUIDED_LIMITS = Object.freeze({ outcomes: 12, candidates: 8, automatic: 200, attempts: 20000 });
 
 const isPending = ({ kind, rule }) => kind === "step" && rule === null;
 
@@ -127,6 +130,7 @@ function* automaticAssignments(premises, { lines, available }, substitution) {
   const items = [...available.lines.map(citeLine), ...available.ranges.map(({ from, to }) => citeRange(from, to))];
   const cited = new Map();
   let yielded = 0;
+  let attempts = 0;
   function* place(position, bound) {
     if (position === premises.length) {
       yielded += 1;
@@ -134,7 +138,8 @@ function* automaticAssignments(premises, { lines, available }, substitution) {
       return;
     }
     for (const item of items) {
-      if (yielded >= GUIDED_LIMITS.automatic) return;
+      if (yielded >= GUIDED_LIMITS.automatic || attempts >= GUIDED_LIMITS.attempts) return;
+      attempts += 1;
       const next = premiseKind(premises[position]) === item.kind ? bindPremise(premises[position], item, lines, bound) : null;
       if (next) {
         cited.set(position, item);
