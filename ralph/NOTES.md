@@ -8,6 +8,11 @@
   pouco carregada (14 núcleos, carga de 4,5 no início). É compatível com a carga como causa, mas não
   ficou provado: não se correu sob carga e não há registo de que testes falharam.
 - Os testes do Chrome da dedução natural são os mais lentos (até 75 s cada). Não correr suites em paralelo.
-- `scripts/test-all.sh` já existe, com `hub` incluído, antes da M1: a M1 parte dele.
 - Os comandos compostos (`cd x && npm test`) e a escrita em `/tmp` pedem aprovação e falham sem ninguém
   a responder: faz `cd` numa chamada, `npm test` noutra, e guarda a saída em `ralph/logs/`.
+
+## M1 · Raiz do repositório
+
+- `scripts/test-all.sh` falha se faltar `sat/` ou `natural-deduction/`; o `hub` só conta quando a pasta existir, por isso a M5 só tem de criar `hub/package.json`.
+- `scripts/test-test-all.sh` testa esse script com suites falsas. Não corre no `gate()`: corre-o se alterares o `test-all.sh`.
+- Corrida completa: cerca de 102 s (SAT 4 s, dedução natural 98 s), muito abaixo dos 3600 s do `TASK_TIMEOUT`.
