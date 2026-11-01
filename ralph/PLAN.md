@@ -12,7 +12,7 @@ da carga da máquina.
 **Feito quando:** as duas suites passam numa corrida limpa. Se o SAT falhar antes de qualquer alteração,
 ou a dedução natural falhar de forma repetível, a sessão bloqueia: não corrige nada nesta tarefa.
 
-### [ ] M1 · Raiz do repositório
+### [x] M1 · Raiz do repositório
 Cria `.gitignore`, `LICENSE`, `CLAUDE.md` e `scripts/test-all.sh`. O script corre as duas suites em
 série, com saída clara e código de erro correto.
 **Feito quando:** `scripts/test-all.sh` passa, e falha se uma das suites falhar.
