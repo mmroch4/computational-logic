@@ -229,7 +229,7 @@ Quiz final com perguntas originais, explicação por resposta e reutilização d
 Apresentação, prova de exemplo a animar, ligações às 4 páginas.
 **Feito quando:** mostra o editor em ação sem imagens pesadas e passa o `check-page.sh`.
 
-### [ ] H2 · Tradução EN completa
+### [x] H2 · Tradução EN completa
 Tradução natural de todos os locales e de todo o conteúdo, com siglas EN.
 **Feito quando:** um teste garante chaves iguais em PT e EN, sem texto PT nas páginas EN.
 
