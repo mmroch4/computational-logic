@@ -210,7 +210,7 @@ estratégias, solidez e completude. Componentes de figura e interação reutiliz
 Texto PT original e exemplos verificados nos testes.
 **Feito quando:** cada regra tem exemplo e erro comum, e não há texto copiado de `conteudos/`.
 
-### [ ] G3 · Secções 5 a 7
+### [x] G3 · Secções 5 a 7
 Inclui cada derivada com a sua prova, mostrada a partir de B7.
 **Feito quando:** as provas vêm do catálogo, sem duplicação.
 
