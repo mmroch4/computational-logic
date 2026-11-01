@@ -234,6 +234,18 @@ export default {
     empty: "The exercises are not available on this page yet.",
     hints: {
       backAlongTheChain: "Start with the implication whose consequent you already know is false, and go back one link at a time.",
+      innerDoubleNegation: "Read ¬¬¬a as ¬¬ applied to ¬a: the rule only removes two outer negations.",
+      whatThePremiseAsks: "To use the premise you need its antecedent, a → b. Prove it with a subproof.",
+      denyTheOtherSide: "Start with De Morgan. To cut ¬a from the disjunction you need ¬¬a, not a.",
+      splitOnTheAntecedent: "The two implications cover a and ¬a, and excluded middle gives you those two cases.",
+      doubleNegateToCancel: "Once you have c, the last disjunction can only be cut with ¬¬c.",
+      goalThroughDoubleNegation: "Get ¬¬p first, because ¬E is the only rule that removes a negation.",
+      negateTheWholeGoal: "Assume the negation of the whole conclusion and aim for F: you will reach ¬¬ of the conclusion.",
+      refuteEachDisjunct: "Either side of ¬p ∨ ¬q is enough to contradict the hypothesis. Use that to get p and then q.",
+      reachTheGoalTwice: "You will need to build the disjunction twice, once for each side.",
+      emptyImplication: "Inside the subproof, F gives you any formula, including the consequent you are missing.",
+      casesFromTheDisjunction: "Split into cases with the second premise. In each one, the first premise rules out the other atom.",
+      recoverTheAntecedent: "Show that ¬a leads to F. With a in hand, the premise gives you a disjunction to split into cases.",
     },
   },
   notFound: {

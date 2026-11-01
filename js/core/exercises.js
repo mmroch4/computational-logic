@@ -1,4 +1,5 @@
 // Exercícios de prova e progresso. Módulo puro (sem DOM): a página guarda o progresso com `storage`.
+// A lista está em `exercise-catalog.js`, e sai daqui como `EXERCISES`.
 //
 // Um exercício tem:
 //   id        `ex-…`, em minúsculas: é a chave no progresso, por isso não muda depois de publicado
@@ -21,80 +22,17 @@
 //   isExerciseId(id)               → serve de filtro a `storage.resetProgress`, que partilha a chave
 //                                    com outras páginas
 
+import { EXERCISES } from "./exercise-catalog.js";
 import { parseProof } from "./proof-text.js";
 import { RULES, ruleSet } from "./rules.js";
 import { formatSequent, parseSequent } from "./sequent.js";
 import { activeRules, progressMark, userRulesEnabled } from "./user-rules.js";
 import { verifyProof } from "./verify.js";
 
+export { EXERCISES };
+
 const ID_PREFIX = "ex-";
 const ID_PATTERN = /^ex-[a-z0-9]+(-[a-z0-9]+)*$/;
-
-/** Exemplos originais de cada forma de conjunto. A E2 completa a lista. */
-export const EXERCISES = Object.freeze([
-  {
-    id: "ex-pick-and-pair",
-    level: 1,
-    sequent: "m ∧ n, k ⊢ k ∧ n",
-    rules: { set: "restrito", only: ["∧I", "∧E"] },
-    solution: `
-1 | m ∧ n   premissa
-2 | k       premissa
-3 | n       ∧E, 1
-4 | k ∧ n   ∧I, 2, 3`,
-  },
-  {
-    id: "ex-two-links",
-    level: 1,
-    sequent: "r → s, s → t, r ⊢ t ∧ r",
-    rules: "base",
-    solution: `
-1 | r → s   premissa
-2 | s → t   premissa
-3 | r       premissa
-4 | s       →E, 1, 3
-5 | t       →E, 2, 4
-6 | t ∧ r   ∧I, 5, 3`,
-  },
-  {
-    id: "ex-back-along-the-chain",
-    level: 2,
-    sequent: "x → y, y → z, ¬z ⊢ ¬x",
-    rules: { set: "base", plus: ["MT"] },
-    hints: ["backAlongTheChain"],
-    solution: `
-1 | x → y   premissa
-2 | y → z   premissa
-3 | ¬z      premissa
-4 | ¬y      MT, 2, 3
-5 | ¬x      MT, 1, 4`,
-  },
-  {
-    id: "ex-rule-out-a-case",
-    level: 2,
-    sequent: "g ∨ h, ¬g, h → j ⊢ j",
-    rules: "completo",
-    solution: `
-1 | g ∨ h   premissa
-2 | ¬g      premissa
-3 | h → j   premissa
-4 | h       SD, 1, 2
-5 | j       →E, 3, 4`,
-  },
-  {
-    id: "ex-prove-mt",
-    level: 3,
-    sequent: "p → q, ¬q ⊢ ¬p",
-    rules: { set: "base", exclude: ["MT"] },
-    solution: `
-1 | p → q   premissa
-2 | ¬q      premissa
-3 |   p     hipótese
-4 |   q     →E, 1, 3
-5 |   F     FI, 4, 2
-6 | ¬p      ¬I, 3–5`,
-  },
-]);
 
 /** O exercício com este id, ou null. */
 export function findExercise(id) {

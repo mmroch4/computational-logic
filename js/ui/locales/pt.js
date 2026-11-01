@@ -235,6 +235,18 @@ export default {
     empty: "Os exercícios ainda não estão disponíveis nesta página.",
     hints: {
       backAlongTheChain: "Começa pela implicação cujo consequente já sabes que é falso e recua um elo de cada vez.",
+      innerDoubleNegation: "Lê ¬¬¬a como ¬¬ aplicado a ¬a: a regra só tira duas negações de fora.",
+      whatThePremiseAsks: "Para usar a premissa precisas do seu antecedente, a → b. Prova-o com uma subdedução.",
+      denyTheOtherSide: "Começa por De Morgan. Para cortar ¬a na disjunção precisas de ¬¬a, e não de a.",
+      splitOnTheAntecedent: "As duas implicações cobrem a e ¬a, e o terceiro excluído dá-te esses dois casos.",
+      doubleNegateToCancel: "Depois de teres c, a última disjunção só se corta com ¬¬c.",
+      goalThroughDoubleNegation: "Obtém primeiro ¬¬p, porque ¬E é a única regra que tira uma negação.",
+      negateTheWholeGoal: "Assume a negação de toda a conclusão e procura F: chegarás a ¬¬ da conclusão.",
+      refuteEachDisjunct: "Basta um dos lados de ¬p ∨ ¬q para contradizer a hipótese. Usa isso para obter p e depois q.",
+      reachTheGoalTwice: "Vais precisar de construir a disjunção duas vezes, uma para cada lado.",
+      emptyImplication: "Dentro da subdedução, de F tira-se qualquer fórmula, incluindo o consequente que te faltar.",
+      casesFromTheDisjunction: "Separa os casos com a segunda premissa. Em cada um, a primeira premissa exclui o outro átomo.",
+      recoverTheAntecedent: "Mostra que ¬a dá F. Com a na mão, a premissa dá-te uma disjunção para separar em casos.",
     },
   },
   notFound: {

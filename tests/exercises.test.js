@@ -14,11 +14,13 @@ import {
   validateExercises,
 } from "../js/core/exercises.js";
 import { parseProof } from "../js/core/proof-text.js";
-import { RULES, ruleSet } from "../js/core/rules.js";
+import { DERIVED_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
+import { formatSequent, parseSequent } from "../js/core/sequent.js";
 import { createUserRule, userRulesEnabled } from "../js/core/user-rules.js";
 import { verifyProof } from "../js/core/verify.js";
 import { LOCALES } from "../js/ui/i18n.js";
 import { createStorage } from "../js/ui/storage.js";
+import { COURSE_SEQUENTS } from "./fixtures/course-sequents.js";
 
 const GOOD = Object.freeze({
   id: "ex-fixture",
@@ -88,6 +90,127 @@ test("as dicas têm texto nos dois idiomas", () => {
   assert.ok(keys.length > 0);
   for (const locale of Object.values(LOCALES)) {
     for (const key of keys) assert.ok(locale.exercises.hints[key], key);
+  }
+});
+
+const atomsOf = (formula) => (
+  formula.kind === "atom" ? [formula.name] : formula.args.flatMap(atomsOf)
+);
+
+const SIGNS = { and: "∧", or: "∨" };
+
+/** A fórmula em texto, com os nomes de `names` e os dois lados de ∧ e ∨ por ordem fixa. */
+function shape(formula, names) {
+  if (formula.kind === "atom") return names.get(formula.name);
+  if (formula.kind === "falsum") return "F";
+  if (formula.kind === "not") return `¬${shape(formula.args[0], names)}`;
+  const [left, right] = formula.args.map((arg) => shape(arg, names));
+  if (formula.kind === "implies") return `(${left}→${right})`;
+  return `(${[left, right].sort().join(SIGNS[formula.kind])})`;
+}
+
+function* orderings(items) {
+  if (items.length < 2) yield items;
+  for (const [index, item] of items.entries()) {
+    if (items.length < 2) break;
+    for (const rest of orderings(items.toSpliced(index, 1))) yield [item, ...rest];
+  }
+}
+
+/**
+ * A forma de um sequente a menos de letras, da ordem das premissas, dos lados de ∧ e ∨ e de passar um
+ * antecedente da conclusão para as premissas: A ⊢ B → C e A, B ⊢ C são o mesmo enunciado.
+ */
+function fingerprint(text) {
+  const parsed = parseSequent(text);
+  assert.ok(parsed.ok, text);
+  const premises = [...parsed.sequent.premises];
+  let { conclusion } = parsed.sequent;
+  while (conclusion.kind === "implies") {
+    premises.push(conclusion.args[0]);
+    [, conclusion] = conclusion.args;
+  }
+  const atoms = [...new Set([...premises, conclusion].flatMap(atomsOf))];
+  let best = null;
+  for (const order of orderings(atoms)) {
+    const names = new Map(order.map((name, index) => [name, `x${index}`]));
+    const text = `${premises.map((premise) => shape(premise, names)).sort().join(",")}⊢${shape(conclusion, names)}`;
+    if (best === null || text < best) best = text;
+  }
+  return best;
+}
+
+const isRuleProof = ({ rules }) => (rules.exclude ?? []).length > 0;
+
+test("a impressão digital ignora letras, ordem e antecedentes, mas não a estrutura", () => {
+  assert.equal(fingerprint("a ∧ b, c ⊢ d → b"), fingerprint("x, w, z ∧ y ⊢ z"));
+  assert.equal(fingerprint("⊢ p → (q → p)"), fingerprint("x, y ⊢ x"));
+  assert.notEqual(fingerprint("a ∧ b ⊢ a"), fingerprint("a ∨ b ⊢ a"));
+  assert.notEqual(fingerprint("a → b ⊢ a"), fingerprint("b → a ⊢ a"));
+});
+
+test("nenhum enunciado coincide com os materiais da cadeira", () => {
+  const course = new Map(COURSE_SEQUENTS.map((text) => [fingerprint(text), text]));
+  assert.ok(course.size > 90);
+  for (const exercise of EXERCISES.filter((item) => !isRuleProof(item))) {
+    const copied = course.get(fingerprint(exercise.sequent));
+    assert.equal(copied, undefined, `${exercise.id} coincide com ${copied}`);
+  }
+});
+
+test("os enunciados são todos diferentes, a menos de letras e de ordem", () => {
+  // As duas formas de SD só diferem na ordem da disjunção, e cada uma tem o seu exercício.
+  const seen = new Map();
+  for (const exercise of EXERCISES) {
+    const print = fingerprint(exercise.sequent);
+    const earlier = seen.get(print);
+    const sameRule = earlier && String(earlier.rules.exclude) === String(exercise.rules.exclude);
+    assert.ok(!earlier || (isRuleProof(exercise) && sameRule), `${exercise.id} repete ${earlier?.id}`);
+    seen.set(print, exercise);
+  }
+});
+
+test("o catálogo tem cerca de 50 exercícios em cinco níveis seguidos", () => {
+  assert.ok(EXERCISES.length >= 45 && EXERCISES.length <= 55, String(EXERCISES.length));
+  const levels = [...new Set(EXERCISES.map(({ level }) => level))].sort();
+  assert.deepEqual(levels, [1, 2, 3, 4, 5]);
+  for (const level of levels) {
+    assert.ok(EXERCISES.filter((item) => item.level === level).length >= 5, `nível ${level}`);
+  }
+});
+
+test("cada forma de cada derivada tem um exercício que a prova só com regras base", () => {
+  for (const [index, rule] of DERIVED_RULES.entries()) {
+    const goal = fingerprint(formatSequent(ruleGoal(rule)));
+    const exercise = EXERCISES.find((item) => isRuleProof(item) && fingerprint(item.sequent) === goal);
+    assert.ok(exercise, `${rule.id}, forma ${index}`);
+    assert.deepEqual(exercise.rules, { set: "base", exclude: [rule.id] });
+    assert.equal(userRulesEnabled(exercise), false, exercise.id);
+    assert.equal(ruleSet(exercise.rules).some(({ id }) => id === rule.id), false, exercise.id);
+  }
+  assert.equal(EXERCISES.filter(isRuleProof).length, DERIVED_RULES.length);
+});
+
+test("o nível 1 não precisa de subdeduções", () => {
+  for (const exercise of EXERCISES.filter(({ level }) => level === 1)) {
+    const { lines } = exerciseSolution(exercise);
+    assert.ok(lines.every(({ depth }) => depth === 0), exercise.id);
+  }
+});
+
+test("o nível 4 pratica as derivadas: as soluções usam-nas e o conjunto deixa", () => {
+  const derived = new Set(DERIVED_RULES.map(({ id }) => id));
+  for (const exercise of EXERCISES.filter(({ level }) => level === 4)) {
+    const used = exerciseSolution(exercise).lines.filter(({ rule }) => derived.has(rule));
+    assert.ok(used.length > 0, exercise.id);
+  }
+});
+
+test("as variáveis não usam nomes reservados nem as metavariáveis", () => {
+  for (const { id, sequent } of EXERCISES) {
+    const { premises, conclusion } = parseSequent(sequent).sequent;
+    const atoms = [...premises, conclusion].flatMap(atomsOf);
+    assert.ok(atoms.every((name) => /^[a-z]$/.test(name) && name !== "v"), id);
   }
 });
 
