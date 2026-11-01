@@ -195,7 +195,7 @@ Reproduz uma prova gerada por eventos com a estratégia de cada passo, usando a 
 SAT adaptados. Estado no URL: `?s=…&step=N&view=fitch|tree`.
 **Feito quando:** avançar, recuar e abrir um passo por link estão testados.
 
-### [ ] F2 · Página Passo a passo
+### [x] F2 · Página Passo a passo
 Sequente à escolha, exemplos e explicação por passo. Sequente inválido mostra o contraexemplo.
 **Feito quando:** `scripts/check-step.sh`, adaptado, passa em PT e EN.
 
