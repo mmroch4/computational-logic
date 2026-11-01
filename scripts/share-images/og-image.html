@@ -1,0 +1,72 @@
+<!doctype html>
+<!-- Modelo da imagem Open Graph (1200×630). Gerada por scripts/make-share-images.sh → /og-image.png
+     e, com ?lang=en, → /og-image-en.png. A prova passa pelo verificador no tests/meta.test.js, que a
+     lê daqui: cada linha é um .row com data-depth, um .num, uma .formula e um .why. -->
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+  <link rel="stylesheet" href="../../css/app.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html, body { width: 1200px; height: 630px; overflow: hidden; }
+    body {
+      font-family: var(--font-sans);
+      color: var(--color-text);
+      background: var(--color-bg);
+      display: grid;
+      grid-template-columns: 1fr 500px;
+      gap: 48px;
+      padding: 64px 72px;
+      border-top: 12px solid var(--color-ink);
+    }
+    .eyebrow { font-size: 24px; font-weight: 500; color: var(--color-text-muted); }
+    h1 { margin-top: 20px; font-size: 58px; line-height: 1.08; font-weight: 600; letter-spacing: -0.03em; }
+    h1 span { white-space: nowrap; }
+    .lead { margin-top: 24px; font-size: 28px; line-height: 1.4; color: var(--color-text-muted); }
+    .byline { position: absolute; left: 72px; bottom: 48px; font-size: 22px; color: var(--color-text-muted); }
+    .byline strong { color: var(--color-text); font-weight: 600; }
+    .proof { align-self: center; font-family: var(--font-mono); }
+    .sequent {
+      display: inline-block; margin-bottom: 16px; padding: 10px 16px; border-radius: 10px;
+      font-size: 24px; font-weight: 500; background: var(--color-surface-2);
+    }
+    .row { display: flex; align-items: stretch; height: 42px; font-size: 24px; line-height: 42px; }
+    .num { width: 36px; color: var(--color-text-subtle); font-size: 20px; }
+    .bars { display: flex; }
+    .bar { width: 24px; border-left: 2px solid var(--color-border-strong); }
+    .row--last-premise .bar:first-child, .row--hypothesis .bar:last-child { position: relative; }
+    .row--last-premise .bar:first-child::after, .row--hypothesis .bar:last-child::after {
+      content: ""; position: absolute; left: 0; bottom: 0; width: 22px; border-bottom: 2px solid var(--color-border-strong);
+    }
+    .formula { flex: 1; }
+    .why { color: var(--color-text-muted); font-size: 20px; }
+  </style>
+</head>
+<body>
+  <div>
+    <p class="eyebrow" data-en="Propositional logic · Fitch notation">Lógica proposicional · Notação de Fitch</p>
+    <h1>Learn <span>Natural Deduction</span></h1>
+    <p class="lead" data-en="Proofs checked line by line, with hints and step-by-step solutions.">Provas verificadas linha a linha, com dicas e soluções passo a passo.</p>
+  </div>
+  <div class="proof" aria-hidden="true">
+    <p class="sequent">a → b, c → ¬b ⊢ a → ¬c</p>
+    <div class="row" data-depth="0"><span class="num">1</span><span class="bars"><i class="bar"></i></span><span class="formula">a → b</span><span class="why" data-en="premise">premissa</span></div>
+    <div class="row row--last-premise" data-depth="0"><span class="num">2</span><span class="bars"><i class="bar"></i></span><span class="formula">c → ¬b</span><span class="why" data-en="premise">premissa</span></div>
+    <div class="row row--hypothesis" data-depth="1"><span class="num">3</span><span class="bars"><i class="bar"></i><i class="bar"></i></span><span class="formula">a</span><span class="why" data-en="hypothesis">hipótese</span></div>
+    <div class="row" data-depth="1"><span class="num">4</span><span class="bars"><i class="bar"></i><i class="bar"></i></span><span class="formula">b</span><span class="why">→E, 1, 3</span></div>
+    <div class="row row--hypothesis" data-depth="2"><span class="num">5</span><span class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i></span><span class="formula">c</span><span class="why" data-en="hypothesis">hipótese</span></div>
+    <div class="row" data-depth="2"><span class="num">6</span><span class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i></span><span class="formula">¬b</span><span class="why">→E, 2, 5</span></div>
+    <div class="row" data-depth="2"><span class="num">7</span><span class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i></span><span class="formula">F</span><span class="why">FI, 4, 6</span></div>
+    <div class="row" data-depth="1"><span class="num">8</span><span class="bars"><i class="bar"></i><i class="bar"></i></span><span class="formula">¬c</span><span class="why">¬I, 5–7</span></div>
+    <div class="row" data-depth="0"><span class="num">9</span><span class="bars"><i class="bar"></i></span><span class="formula">a → ¬c</span><span class="why">→I, 3–8</span></div>
+  </div>
+  <p class="byline"><span data-en="Developed by">Desenvolvido por</span> <strong>Miguel Rocha</strong> · miguelrocha.dev</p>
+  <script>
+    if (new URLSearchParams(location.search).get("lang") === "en") {
+      document.documentElement.lang = "en";
+      for (const el of document.querySelectorAll("[data-en]")) el.textContent = el.dataset.en;
+    }
+  </script>
+</body>
+</html>

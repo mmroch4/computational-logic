@@ -73,13 +73,8 @@ done
 expect_header / cache-control "*max-age=0*"
 expect_header /js/boot.js cache-control "*max-age=0*"
 
-# O manifest e as imagens de partilha só existem depois da H3, que tira este `if`.
-if [ -f site.webmanifest ] && [ -f og-image.png ]; then
-  expect_header /site.webmanifest content-type "application/manifest+json*"
-  expect_header /og-image.png cache-control "*max-age=86400*"
-else
-  echo "salto site.webmanifest e og-image.png: ainda não existem (H3)"
-fi
+expect_header /site.webmanifest content-type "application/manifest+json*"
+expect_header /og-image.png cache-control "*max-age=86400*"
 
 if [ "$FAILED" = 0 ]; then echo "smoke: tudo OK ($BASE)"; else echo "smoke: há falhas ($BASE)" >&2; fi
 exit "$FAILED"

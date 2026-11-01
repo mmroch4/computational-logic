@@ -1,9 +1,12 @@
 // Meta e partilha. O <head> de cada página traz o título, a descrição, o canonical, o hreflang e o Open
 // Graph no idioma dela (o que os motores de pesquisa e as pré-visualizações de links leem sem correr JS).
-// As imagens, o favicon e o manifest ainda não existem: chegam com a H3, que acrescenta aqui os testes.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { parseProof } from "../js/core/proof-text.js";
+import { ruleSet } from "../js/core/rules.js";
+import { parseSequent } from "../js/core/sequent.js";
+import { verifyProof } from "../js/core/verify.js";
 import pt from "../js/ui/locales/pt.js";
 import en from "../js/ui/locales/en.js";
 import { setLang } from "../js/ui/i18n.js";
@@ -31,6 +34,13 @@ const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf
 const unescape = (s) => s.replace(/&quot;/g, '"').replace(/&amp;/g, "&");
 const meta = (html, attr, name) =>
   unescape(html.match(new RegExp(`<meta ${attr}="${name}" content="([^"]*)">`))?.[1] ?? "");
+
+// Largura e altura de um PNG (cabeçalho IHDR).
+function pngSize(file) {
+  const bytes = readFileSync(new URL(`../${file}`, import.meta.url));
+  assert.equal(bytes.toString("ascii", 1, 4), "PNG", file);
+  return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+}
 
 test("cada página tem lang pt-PT, o título do pageTitle e a sua descrição PT", () => {
   setLang("pt", { silent: true });
@@ -74,7 +84,7 @@ test("pageDescription segue o idioma", () => {
   assert.equal(pageDescription("prove"), pt.meta.prove.description);
 });
 
-test("Open Graph completo em todas as páginas PT", () => {
+test("Open Graph completo em todas as páginas PT, com a imagem 1200×630", () => {
   for (const [file, page] of Object.entries(PAGES)) {
     const html = read(file);
     assert.equal(meta(html, "property", "og:type"), "website", file);
@@ -86,6 +96,43 @@ test("Open Graph completo em todas as páginas PT", () => {
     assert.equal(meta(html, "property", "og:image:height"), "630", file);
     assert.ok(meta(html, "property", "og:image:alt").length > 0, file);
     assert.equal(meta(html, "name", "twitter:card"), "summary_large_image", file);
+  }
+  assert.deepEqual(pngSize("og-image.png"), [1200, 630]);
+  assert.deepEqual(pngSize("og-image-en.png"), [1200, 630]);
+});
+
+test("a prova da imagem de partilha passa no verificador e as etiquetas EN são as do site", () => {
+  const html = read("scripts/share-images/og-image.html");
+  const rows = [...html.matchAll(/<div class="row[^"]*" data-depth="(\d)">(.*)<\/div>/g)];
+  assert.equal(rows.length, 9);
+  const text = rows.map(([, depth, row]) => {
+    const [, number] = row.match(/class="num">(\d+)</);
+    const [, formula] = row.match(/class="formula">([^<]+)</);
+    const [, why] = row.match(/class="why"[^>]*>([^<]+)</);
+    assert.equal(row.match(/class="bar"/g).length, Number(depth) + 1, `linha ${number}`);
+    return `${number} | ${"  ".repeat(Number(depth))}${formula}    ${why}`;
+  }).join("\n");
+  const parsed = parseProof(text);
+  assert.equal(parsed.ok, true);
+  const goal = parseSequent(html.match(/class="sequent">([^<]+)</)[1]).sequent;
+  assert.equal(verifyProof(parsed.proof, goal, ruleSet("base")).ok, true);
+  for (const key of ["premise", "hypothesis"]) {
+    assert.ok(html.includes(`data-en="${en.proofText[key]}">${pt.proofText[key]}<`), key);
+  }
+});
+
+test("o make-share-images.sh é executável e gera cada imagem a partir de um modelo que existe", () => {
+  const script = "scripts/make-share-images.sh";
+  assert.ok(statSync(new URL(`../${script}`, import.meta.url)).mode & 0o100);
+  const renders = [...read(script).matchAll(/^render "?([\w.-]+\.html)[^ ]* ([\w.-]+\.png) (\d+) (\d+)$/gm)];
+  assert.deepEqual(renders.map((match) => match[2]), ["og-image.png", "og-image-en.png", "apple-touch-icon.png"]);
+  for (const [, template, image, width, height] of renders) {
+    assert.ok(existsSync(new URL(`../scripts/share-images/${template}`, import.meta.url)), template);
+    assert.deepEqual(pngSize(image), [Number(width), Number(height)]);
+  }
+  // Uma captura em branco (Chrome sem acesso ao CSS, por exemplo) comprime para muito pouco.
+  for (const image of ["og-image.png", "og-image-en.png"]) {
+    assert.ok(statSync(new URL(`../${image}`, import.meta.url)).size > 10_000, image);
   }
 });
 
@@ -120,6 +167,31 @@ test("imagem de partilha, Twitter e theme-color em todas as páginas, com a imag
     assert.equal(meta(html, "name", "twitter:image"), image, file);
     assert.equal(meta(html, "property", "og:site_name"), APP_NAME, file);
     assert.ok(css.includes(`--color-surface: ${meta(html, "name", "theme-color")};`), file);
+  }
+});
+
+test("favicon e apple-touch-icon existem e estão ligados em todas as páginas", () => {
+  for (const { file } of [...INDEXABLE, { file: "404.html" }]) {
+    const html = read(file);
+    assert.match(html, /<link rel="icon" href="\/favicon.svg" type="image\/svg\+xml">/, file);
+    assert.match(html, /<link rel="apple-touch-icon" href="\/apple-touch-icon.png">/, file);
+  }
+  assert.ok(existsSync(new URL("../favicon.svg", import.meta.url)));
+  assert.deepEqual(pngSize("apple-touch-icon.png"), [180, 180]);
+});
+
+test("o manifest está ligado em todas as páginas, com o nome, as cores dos tokens e ícones que existem", () => {
+  for (const { file } of [...INDEXABLE, { file: "404.html" }]) {
+    assert.match(read(file), /<link rel="manifest" href="\/site.webmanifest">/, file);
+  }
+  const manifest = JSON.parse(read("site.webmanifest"));
+  const css = read("css/src/app.css");
+  assert.equal(manifest.name, APP_NAME);
+  assert.ok(manifest.short_name.length <= 12, "short_name comprido demais para o ecrã principal");
+  assert.ok(css.includes(`--color-bg: ${manifest.background_color};`));
+  assert.ok(css.includes(`--color-ink: ${manifest.theme_color};`));
+  for (const icon of manifest.icons) {
+    assert.ok(existsSync(new URL(`..${icon.src}`, import.meta.url)), icon.src);
   }
 });
 

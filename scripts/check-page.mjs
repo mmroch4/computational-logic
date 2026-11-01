@@ -32,9 +32,7 @@ const BLOCK_STORAGE = process.env.BLOCK_STORAGE === "1";
 const PRELOAD = process.env.PRELOAD || "";
 // EXPECT_404="texto": os 404 de URLs com esse texto são de propósito (ex.: abrir a página 404 num iframe).
 const EXPECT_404 = process.env.EXPECT_404 || "";
-// /favicon.ico: o Chrome pede-o enquanto as páginas não ligam um favicon. A H3 cria-o e tira esta exceção.
-const expected404 = (url = "") =>
-  (EXPECT_404 !== "" && url.includes(EXPECT_404)) || (url !== "" && new URL(url).pathname === "/favicon.ico");
+const expected404 = (url = "") => EXPECT_404 !== "" && url.includes(EXPECT_404);
 // MEASURE=1: escreve o peso transferido por tipo de recurso (HTML, CSS, JS, fontes, imagens) e as
 // fontes usadas/descarregadas (scripts/font-usage.mjs). Não falha por isso.
 const MEASURE = process.env.MEASURE === "1";
