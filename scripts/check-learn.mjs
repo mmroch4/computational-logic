@@ -8,6 +8,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { quizQuestions } from "../js/core/quiz.js";
 import { LAB_GUIDED } from "../tests/fixtures/lab-guided.js";
 
 const CHROME = process.env.CHROME_BIN || "/usr/bin/google-chrome";
@@ -128,8 +129,46 @@ const titleVisible = (id) => `(() => {
   return title.top >= stuck && title.bottom <= innerHeight * 0.6;
 })()`;
 
-// O contraexemplo é a última figura a montar: a altura das outras empurra as secções seguintes.
-const figuresReady = `document.querySelectorAll(".lesson-rule").length === 12 && document.querySelectorAll(".lesson-derived").length === 7 && document.querySelectorAll(".lesson-lab .fitch--edit").length === 3 && document.querySelector("[data-lesson-counter] .lesson-figure") !== null && document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
+// O quiz é a última figura a montar: a altura das outras empurra as secções seguintes.
+const figuresReady = `document.querySelector(".quiz__option") !== null && document.querySelectorAll(".lesson-rule").length === 12 &&document.querySelectorAll(".lesson-derived").length === 7 && document.querySelectorAll(".lesson-lab .fitch--edit").length === 3 && document.querySelector("[data-lesson-counter] .lesson-figure") !== null && document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
+
+/** Leva o quiz até ao fim com toques: a primeira resposta errada e as outras certas. Depois repete-o. */
+async function quiz({ page, evaluate, tap }, lang, tag) {
+  const questions = quizQuestions();
+  const box = "[data-lesson-quiz]";
+  const summary = `document.querySelector("${box} .quiz__summary")`;
+  const keyed = `(() => {
+    const first = document.querySelector("${box} [data-option]");
+    first.focus();
+    first.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    return document.activeElement === document.querySelectorAll("${box} [data-option]")[1];
+  })()`;
+  expect(await evaluate(keyed), true, tag("as setas mexem o foco"));
+  expect(await evaluate(`document.querySelector("${box} .quiz__feedback") === null`), true, tag("as setas não respondem"));
+  for (const [index, question] of questions.entries()) {
+    const wrong = question.options.find(({ id }) => id !== question.answer).id;
+    await tap(`${box} [data-option="${index === 0 ? wrong : question.answer}"]`);
+    await waitFor(() => evaluate(`document.querySelector("${box} .quiz__feedback") !== null`), tag(`a explicação da pergunta ${index + 1}`));
+    expect(await evaluate(`document.querySelector("${box} .quiz__feedback").classList.contains("${index === 0 ? "msg-warn" : "msg-ok"}")`), true, tag(`o veredito da pergunta ${index + 1}`));
+    expect(await evaluate(`document.documentElement.scrollWidth <= 390`), true, tag(`sem scroll lateral na pergunta ${index + 1}`));
+    if (index === 0) {
+      await sleep(400);
+      await writeScreenshot(page, `${lang}-quiz-errada`);
+    }
+    await tap(`${box} [data-next]`);
+  }
+  await waitFor(() => evaluate(`${summary} !== null`), tag("o resumo do quiz"));
+  expect(await evaluate(`${summary}.querySelector(".quiz__metric-value").textContent`), "7/8", tag("o resultado"));
+  expect(await evaluate(`${summary}.querySelectorAll(".quiz__review-item--wrong").length`), 1, tag("uma resposta a rever"));
+  expect(await evaluate(`JSON.parse(localStorage.getItem("nd:v1:progress"))["learn-quiz"].best`), 7, tag("o melhor resultado guardado"));
+  expect(await evaluate(`document.documentElement.scrollWidth <= 390`), true, tag("sem scroll lateral no resumo"));
+  await evaluate(`document.querySelector("${box}").scrollIntoView({ behavior: "instant" })`);
+  await sleep(300);
+  await writeScreenshot(page, `${lang}-quiz-resumo`);
+  await tap(`${box} [data-restart]`);
+  expect(await evaluate(`document.querySelectorAll("${box} [data-option]:not(:disabled)").length > 0`), true, tag("repetir volta ao início"));
+  expect(await evaluate(`document.querySelector("${box} .quiz__score").textContent.startsWith("0")`), true, tag("repetir limpa as respostas"));
+}
 
 /** Resolve os 3 laboratórios a 390px, com toques, e experimenta as ações e o outro modo. */
 async function labs({ page, evaluate, tap }, tag) {
@@ -267,6 +306,7 @@ async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path,
   await evaluate(`document.querySelector('[data-lesson-counter]').scrollIntoView({ behavior: "instant" })`);
   await sleep(300);
   await writeScreenshot(page, `${lang}-contraexemplo`);
+  await quiz({ page, evaluate, tap }, lang, tag);
 }
 
 async function desktop({ page, evaluate, resize }, origin, path, lang) {

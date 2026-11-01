@@ -528,6 +528,126 @@ export default {
       notElimOneNegation: "Line 1 has only one negation in front. The other is inside, in ¬a, and negates just a part. The ¬E rule requires ¬¬ at the start of the whole formula, so it does not apply.",
       falseElimNoFalse: "¬a is not F, and the FE rule only accepts a line with F. For this sequent, suppose a, write F with FI, then b with FE, and close with →I.",
     },
+    quiz: {
+      heading: "Final quiz",
+      intro: "Eight questions to confirm what you read. Each answer comes with its own explanation, and your best score stays in this browser.",
+      title: "Quiz: natural deduction",
+      count: "Question {n} of {total}",
+      score: ({ n }) => `${n} correct`,
+      kinds: {
+        line: "Which line can you write?",
+        find: "Where is the error?",
+        next: "What is the next step?",
+        choice: "Multiple choice",
+      },
+      optionsLabel: "Answer options",
+      rightTag: "correct",
+      yourTag: "your answer",
+      right: "Correct.",
+      wrong: "Not quite.",
+      next: "Next question",
+      finish: "See result",
+      summaryTitle: ({ n, total }) => `You got ${n} of ${total}`,
+      metricCorrect: "correct",
+      metricAccuracy: "accuracy",
+      best: ({ n, total }) => `Your best score: ${n} of ${total}.`,
+      allRight: "You got them all. Move on to the exercises, where you write proofs from start to finish.",
+      reviewIntro: "Review your answers and go back to the section on the rule you missed.",
+      yourAnswer: "Your answer:",
+      correctAnswer: "Correct answer:",
+      restart: "Repeat the quiz",
+      lineOption: "Line {line}",
+      noError: "There is no error",
+      actions: {
+        hypothesis: "Assume {formula}",
+        derived: "Write {formula}",
+      },
+      questions: {
+        combine: {
+          prompt: "You want to continue this proof. Which of these lines is line 4?",
+          why: {
+            right: "Line 2 is q → s and line 3 gives q, the antecedent. →E puts them together and delivers s, the conclusion.",
+            wrongRule: "Line 2 is an implication, and ∧E only applies to a conjunction. The rule that gets s out of it is →E, which also cites line 3.",
+            sameFormula: "→E delivers the consequent of the implication, not the antecedent. From q → s and q you get s, so writing q with this rule is not valid.",
+            wrongLines: "→E has to cite an implication, and line 1 is a conjunction. Neither cited line is an implication with r as its consequent.",
+          },
+        },
+        scope: {
+          prompt: "Either one of these lines cannot be written, or everything is fine. Which is it?",
+          why: {
+            line3: "Line 3 is fine: R repeats an outer formula inside the subproof, and line 1 is still accessible.",
+            line4: "Line 4 is fine: the subproof goes from the assumption s to r, and →I cites it as the range 2–3.",
+            line5: "Line 5 cites line 2, which was closed on line 4. What is inside a closed subproof can no longer be cited on its own. In fact, the sequent is not even valid: r can be true while s is false.",
+            none: "Line 5 cites line 2, which belongs to a subproof closed on line 4. Once closed, you can only cite the whole subproof, as a range.",
+          },
+        },
+        implication: {
+          prompt: "The goal is an implication. Where do you start?",
+          why: {
+            assumeLeft: "To prove an implication, assume the antecedent and try to reach the consequent. →I then closes the subproof.",
+            assumeRight: "u ∨ t is what you want to reach, not what you may assume. Assuming the consequent does not work for →I, because the assumption has to be the antecedent.",
+            writeLeft: "Nothing gives you t: it is not among the premises and does not follow from them. You can only have it as an assumption.",
+            writeGoal: "Writing the goal now would leave the line without a justification. →I needs a subproof, and there is none yet.",
+          },
+        },
+        cases: {
+          prompt: "The first premise is a disjunction. How do you use it?",
+          why: {
+            assumeCase: "With a disjunction you use ∨E: open a subproof for each side and reach the goal in both. The first case starts by assuming s.",
+            assumeResult: "u is what you want to get in each case, so you cannot assume it. The assumptions of ∨E have to be the two sides of the disjunction.",
+            writeCase: "s ∨ t does not say which side is true, so s does not follow. You can only have it as the assumption of a case.",
+            writeResult: "For now, u does not follow: the implications need s or t, and neither is available outside a case.",
+          },
+        },
+        doubleNegation: {
+          prompt: "You want to use ¬E on line 1. What can you write?",
+          why: {
+            right: "¬E removes the two negations at the start of the formula and leaves everything else. From ¬¬(s ∨ t) you get s ∨ t.",
+            oneSide: "¬E only removes the two negations and leaves the disjunction whole. To reach s you would have to use the disjunction, and on its own it does not guarantee s.",
+            oneNegation: "¬E is only ¬¬φ ⊢ φ: it removes two negations at once. Removing just one does not even preserve truth, because this formula says the opposite of the premise.",
+          },
+        },
+        derived: {
+          prompt: "You remove all the derived rules from the catalogue and keep only the base rules. What can you no longer prove?",
+          options: {
+            nothing: "Nothing: proofs just get longer",
+            negations: "Sequents with negations",
+            excludedMiddle: "a ∨ ¬a",
+          },
+          why: {
+            nothing: "Each derived rule has a proof made of base rules. Wherever you used it, you can paste that proof in. You save time, not power.",
+            negations: "The base rules already handle negation with ¬I, ¬E, FI and FE. Each derived rule is a shortcut with a proof in the base rules, so no sequent is lost.",
+            excludedMiddle: "a ∨ ¬a has a proof with the base rules, though a long one: it takes ¬I and ¬E. LEM only shortens it.",
+          },
+        },
+        invalid: {
+          prompt: "What can you say about this sequent?",
+          options: {
+            noProof: "It has no proof: there is a counterexample",
+            withDerived: "It only has a proof with derived rules",
+            longProof: "It has a proof, but a long one",
+          },
+          why: {
+            noProof: "With s false and t true, the premises are true and the conclusion is false. By soundness, a proof cannot exist.",
+            withDerived: "Derived rules add nothing to what can be proved. Besides, with s false and t true the premises hold and the conclusion does not: no rule saves this sequent.",
+            longProof: "It is not a matter of length. With s false and t true, the premises are true and the conclusion is false, so, by soundness, there is no proof at all.",
+          },
+        },
+        both: {
+          prompt: "Someone shows you a proof of a sequent, and someone else shows you a counterexample to the same sequent. What do you conclude?",
+          options: {
+            oneIsWrong: "One of the two has an error",
+            bothFine: "Both may be right",
+            rulesFail: "The rules of natural deduction fail on this sequent",
+          },
+          why: {
+            oneIsWrong: "Soundness says a sequent with a proof has no counterexample. So either the proof has a wrong line, or the valuation is not a counterexample.",
+            bothFine: "They cannot be. Each sequent has a proof or a counterexample, never both: that is what soundness guarantees.",
+            rulesFail: "The rules are sound: each one preserves truth. What fails is one of the two solutions, and it is worth checking the proof line by line.",
+          },
+        },
+      },
+    },
     check: {
       title: "Before you go on",
       right: "Correct.",

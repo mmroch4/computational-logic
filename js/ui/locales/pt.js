@@ -529,6 +529,126 @@ export default {
       notElimOneNegation: "A linha 1 tem só uma negação à frente. A outra está lá dentro, em ¬a, e nega apenas uma parte. A regra ¬E exige ¬¬ a abrir a fórmula toda, por isso não se aplica.",
       falseElimNoFalse: "¬a não é F, e a regra FE só aceita uma linha com F. Para este sequente, supõe a, escreve F com FI, depois b com FE, e fecha com →I.",
     },
+    quiz: {
+      heading: "Quiz final",
+      intro: "Oito perguntas para confirmares o que leste. Cada resposta traz a sua explicação, e o teu melhor resultado fica guardado neste browser.",
+      title: "Quiz: dedução natural",
+      count: "Pergunta {n} de {total}",
+      score: ({ n }) => `${n} ${n === 1 ? "certa" : "certas"}`,
+      kinds: {
+        line: "Que linha se pode escrever?",
+        find: "Onde está o erro?",
+        next: "Qual é o próximo passo?",
+        choice: "Escolha múltipla",
+      },
+      optionsLabel: "Opções de resposta",
+      rightTag: "certa",
+      yourTag: "a tua resposta",
+      right: "Certo.",
+      wrong: "Não é bem assim.",
+      next: "Próxima pergunta",
+      finish: "Ver resultado",
+      summaryTitle: ({ n, total }) => `Acertaste ${n} de ${total}`,
+      metricCorrect: "corretas",
+      metricAccuracy: "precisão",
+      best: ({ n, total }) => `O teu melhor resultado: ${n} de ${total}.`,
+      allRight: "Acertaste todas. Passa agora aos exercícios, onde escreves as provas do princípio ao fim.",
+      reviewIntro: "Revê as respostas e volta à secção da regra que falhou.",
+      yourAnswer: "A tua resposta:",
+      correctAnswer: "Resposta certa:",
+      restart: "Repetir o quiz",
+      lineOption: "Linha {line}",
+      noError: "Não há erro",
+      actions: {
+        hypothesis: "Supor {formula}",
+        derived: "Escrever {formula}",
+      },
+      questions: {
+        combine: {
+          prompt: "Queres continuar esta prova. Qual destas linhas é a 4?",
+          why: {
+            right: "A linha 2 é q → s e a linha 3 dá q, a antecedente. →E junta as duas e entrega s, que é a conclusão.",
+            wrongRule: "A linha 2 é uma implicação, e ∧E só se aplica a uma conjunção. A regra certa para tirar s dali é →E, que cita também a linha 3.",
+            sameFormula: "→E entrega a consequente da implicação, não a antecedente. De q → s e q sai s, por isso escrever q com esta regra não é válido.",
+            wrongLines: "→E tem de citar uma implicação, e a linha 1 é uma conjunção. Nenhuma das linhas citadas é uma implicação com r na consequente.",
+          },
+        },
+        scope: {
+          prompt: "Uma destas linhas não se pode escrever, ou então está tudo certo. Qual é a resposta?",
+          why: {
+            line3: "A linha 3 está certa: R repete dentro da subdedução uma fórmula de fora, e a linha 1 continua acessível.",
+            line4: "A linha 4 está certa: a subdedução vai da hipótese s até r, e →I cita-a como intervalo 2–3.",
+            line5: "A linha 5 cita a linha 2, que ficou fechada na linha 4. O que está dentro de uma subdedução fechada já não se pode citar sozinho. Aliás, o sequente nem sequer é válido: r pode ser verdadeiro com s falso.",
+            none: "A linha 5 cita a linha 2, e essa pertence a uma subdedução que fechou na linha 4. Depois de fechada, só se cita a subdedução inteira, como intervalo.",
+          },
+        },
+        implication: {
+          prompt: "O objetivo é uma implicação. Por onde começas?",
+          why: {
+            assumeLeft: "Para provar uma implicação, supõe-se a antecedente e tenta chegar-se à consequente. →I fecha depois a subdedução.",
+            assumeRight: "u ∨ t é o que queres alcançar, não o que podes supor. Supor a consequente não serve para →I, porque a hipótese tem de ser a antecedente.",
+            writeLeft: "Nada dá t: não está nas premissas nem se segue delas. Só o podes ter como hipótese.",
+            writeGoal: "Escrever o objetivo agora deixava a linha sem justificação. →I precisa de uma subdedução, e ainda não há nenhuma.",
+          },
+        },
+        cases: {
+          prompt: "A primeira premissa é uma disjunção. Como a aproveitas?",
+          why: {
+            assumeCase: "Com uma disjunção usa-se ∨E: abre-se uma subdedução para cada lado e chega-se ao objetivo nas duas. O primeiro caso começa por supor s.",
+            assumeResult: "u é o que queres obter em cada caso, por isso não o podes supor. As hipóteses de ∨E têm de ser os dois lados da disjunção.",
+            writeCase: "s ∨ t não diz qual dos lados é verdadeiro, por isso s não se segue. Só o podes ter como hipótese de um caso.",
+            writeResult: "Por enquanto, u não se segue: as implicações pedem s ou t, e nenhum dos dois está disponível fora de um caso.",
+          },
+        },
+        doubleNegation: {
+          prompt: "Queres usar ¬E na linha 1. O que podes escrever?",
+          why: {
+            right: "¬E tira as duas negações do início da fórmula e deixa tudo o resto. De ¬¬(s ∨ t) sai s ∨ t.",
+            oneSide: "¬E só tira as duas negações, e deixa a disjunção intacta. Para chegar a s, tinhas de usar a disjunção, e ela sozinha não o garante.",
+            oneNegation: "¬E é só ¬¬φ ⊢ φ: tira duas negações de uma vez. Tirar apenas uma nem sequer preserva a verdade, porque esta fórmula diz o contrário da premissa.",
+          },
+        },
+        derived: {
+          prompt: "Tiras do catálogo todas as regras derivadas e ficas só com as regras base. O que deixas de poder provar?",
+          options: {
+            nothing: "Nada: as provas ficam só mais longas",
+            negations: "Os sequentes com negações",
+            excludedMiddle: "a ∨ ¬a",
+          },
+          why: {
+            nothing: "Cada regra derivada tem uma prova feita com as regras base. Onde a usavas, podes colar essa prova. Ganha-se tempo, não poder.",
+            negations: "As regras base já tratam a negação com ¬I, ¬E, FI e FE. Cada derivada é um atalho com prova nas regras base, por isso não se perde nenhum sequente.",
+            excludedMiddle: "a ∨ ¬a tem prova com as regras base, embora longa: é preciso ¬I e ¬E. A regra TE só a encurta.",
+          },
+        },
+        invalid: {
+          prompt: "O que podes dizer deste sequente?",
+          options: {
+            noProof: "Não tem prova: há um contraexemplo",
+            withDerived: "Só tem prova com regras derivadas",
+            longProof: "Tem prova, mas é longa",
+          },
+          why: {
+            noProof: "Com s falso e t verdadeiro, as premissas são verdadeiras e a conclusão é falsa. Pela solidez, uma prova não pode existir.",
+            withDerived: "As derivadas não acrescentam nada ao que se prova. Além disso, com s falso e t verdadeiro as premissas valem e a conclusão não: nenhuma regra salva este sequente.",
+            longProof: "Não é questão de tamanho. Com s falso e t verdadeiro, as premissas são verdadeiras e a conclusão é falsa, por isso, pela solidez, não há prova nenhuma.",
+          },
+        },
+        both: {
+          prompt: "Alguém te mostra uma prova de um sequente, e outra pessoa mostra-te um contraexemplo do mesmo sequente. O que concluis?",
+          options: {
+            oneIsWrong: "Uma das duas tem um erro",
+            bothFine: "Podem estar as duas certas",
+            rulesFail: "As regras da dedução natural falham neste sequente",
+          },
+          why: {
+            oneIsWrong: "A solidez diz que um sequente com prova não tem contraexemplo. Logo, ou a prova tem uma linha errada, ou a valoração não é contraexemplo.",
+            bothFine: "Não podem. Cada sequente tem uma prova ou um contraexemplo, nunca os dois: é isso que a solidez garante.",
+            rulesFail: "As regras são sólidas: cada uma preserva a verdade. O que falha é uma das duas soluções, e vale a pena verificar a prova linha a linha.",
+          },
+        },
+      },
+    },
     check: {
       title: "Antes de continuares",
       right: "Certo.",

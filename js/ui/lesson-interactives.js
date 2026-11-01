@@ -7,6 +7,7 @@
 //   <div class="lesson-interactive" data-lesson-walkthrough="strategyBackward"></div>
 //   <div class="lesson-interactive" data-lesson-lab="labCases"></div>
 //   <div class="lesson-interactive" data-lesson-counter="orToSide"></div>
+//   <div class="lesson-interactive" data-lesson-quiz></div>
 // Vêm num módulo à parte porque a lição é texto: o primeiro desenho não fica à espera deles.
 import { lessonProof } from "../core/lesson.js";
 import { formatSequent } from "../core/sequent.js";
@@ -15,6 +16,8 @@ import { mountLessonCheck } from "./lesson-check.js";
 import { mountLessonLab } from "./lesson-lab.js";
 import { mountLessonProof } from "./lesson-proof.js";
 import { lessonCounterHtml, lessonDerivedHtml, lessonMistakeHtml, lessonRuleHtml } from "./lesson-rule.js";
+import { mountQuiz } from "./quiz-view.js";
+import { storage } from "./storage.js";
 
 // Dá a vez ao browser: montar tudo de seguida prendia a página numa tarefa longa.
 const nextTask = () => new Promise((resolve) => setTimeout(resolve));
@@ -41,6 +44,7 @@ const MOUNTERS = [
   ["[data-lesson-walkthrough]", mountWalkthrough],
   ["[data-lesson-lab]", (el) => mountLessonLab(el, { id: el.dataset.lessonLab })],
   ["[data-lesson-counter]", (el) => { el.innerHTML = lessonCounterHtml(el.dataset.lessonCounter); }],
+  ["[data-lesson-quiz]", (el) => mountQuiz(el, { storage })],
 ];
 
 /** Monta tudo, um lugar por tarefa. */
