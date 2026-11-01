@@ -90,13 +90,20 @@ export const closesAssumptions = (lines, index) => (
   lines[index].kind === "hypothesis" || (lines[index].kind === "premise" && lines[index + 1]?.kind !== "premise")
 );
 
+/** O número da linha; com `pick`, é um botão que escolhe a linha. */
+function numberHtml(number, pick) {
+  if (!pick) return `<span class="fitch__number">${number}</span>`;
+  return `<button type="button" class="fitch__number fitch__pick" aria-label="${escapeHtml(pick.label(number))}"`
+    + `${pick.isDisabled(number) ? " disabled" : ""}>${number}</button>`;
+}
+
 /** Uma linha só de leitura; o editor usa-a nas premissas. */
-export function lineHtml(line, index, { state, assumption }) {
+export function lineHtml(line, index, { state, assumption, pick = null }) {
   const number = index + 1;
   const formulaClasses = assumption ? "fitch__formula fitch__formula--assumption" : "fitch__formula";
   const attrs = state ? ` data-state="${state}"` : "";
   return `<li class="fitch__line" data-line="${number}"${attrs}>`
-    + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${state ? stateHtml(state) : ""}</span>`
+    + `<span class="fitch__gutter">${numberHtml(number, pick)}${state ? stateHtml(state) : ""}</span>`
     + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}<span class="${formulaClasses}">${formulaReadHtml(line.formula)}</span></span>`
     + whyHtml(justificationText(line))
     + "</li>";
@@ -105,16 +112,19 @@ export function lineHtml(line, index, { state, assumption }) {
 /**
  * HTML da prova. `states` é opcional, de `lineStates`: sem ele, não se mostra estado nenhum (uma prova
  * já verificada, numa lição). O traço horizontal fica por baixo de cada hipótese e da última premissa.
+ * `pick` é opcional, `{ label(n), isDisabled(n) }`: torna cada número num botão, para apontar a linha.
  */
-export function fitchHtml(proof, { states = null } = {}) {
+export function fitchHtml(proof, { states = null, pick = null } = {}) {
   const { lines } = proof;
   if (lines.length === 0) return `<p class="fitch-empty">${escapeHtml(t("verify.conclusion.emptyProof"))}</p>`;
   const items = lines.map((line, index) => lineHtml(line, index, {
     state: states?.[index] ?? null,
     assumption: closesAssumptions(lines, index),
+    pick,
   }));
   // tabindex: quem usa só o teclado também tem de conseguir deslocar uma prova larga.
-  return `<div class="fitch" tabindex="0" role="group" aria-label="${escapeHtml(t("fitch.label"))}">`
+  const classes = pick ? "fitch fitch--pick" : "fitch";
+  return `<div class="${classes}" tabindex="0" role="group" aria-label="${escapeHtml(t("fitch.label"))}">`
     + `<ol class="fitch__lines" role="list">${items.join("")}</ol></div>`;
 }
 

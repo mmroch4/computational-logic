@@ -56,7 +56,7 @@ export function checkAttempt(exercise, proof, userRules = []) {
   return { result, mark: progressMark(result) };
 }
 
-function ruleSetProblems(exercise) {
+export function ruleSetProblems(exercise) {
   try {
     ruleSet(exercise.rules);
   } catch {
@@ -65,7 +65,7 @@ function ruleSetProblems(exercise) {
   return exercise.userRules === true && !userRulesEnabled(exercise) ? ["userRulesConflict"] : [];
 }
 
-function sequentProblems({ sequent }) {
+export function sequentProblems({ sequent }) {
   const parsed = typeof sequent === "string" ? parseSequent(sequent) : { ok: false };
   if (!parsed.ok) return ["badSequent"];
   return formatSequent(parsed.sequent) === sequent ? [] : ["sequentNotCanonical"];

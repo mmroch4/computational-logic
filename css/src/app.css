@@ -1438,6 +1438,129 @@
     color: var(--color-text-muted);
   }
 
+  /* Encontra o passo errado: a linha toda aceita o toque, e o número é o botão para o teclado. */
+  .fitch--pick .fitch__line {
+    min-height: 44px;
+  }
+
+  .fitch--pick .fitch__line:has(.fitch__pick:enabled) {
+    cursor: pointer;
+  }
+
+  .fitch--pick .fitch__line:has(.fitch__pick:enabled):hover {
+    background: var(--color-surface);
+  }
+
+  .fitch--pick .fitch__gutter {
+    justify-content: flex-start;
+    min-width: 66px;
+    padding-inline-start: 0;
+  }
+
+  .fitch__pick {
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  .fitch__pick:enabled {
+    color: var(--color-text);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .fitch__pick:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
+  }
+
+  .find-error {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .find-error__view {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .find-error__sequent {
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    overflow-wrap: anywhere;
+  }
+
+  .find-error__rules,
+  .find-error__note {
+    color: var(--color-text-muted);
+    font-size: 13px;
+  }
+
+  .find-error__reasons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .find-error__reason {
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .find-error__reason:enabled {
+    cursor: pointer;
+  }
+
+  .find-error__reason:enabled:hover {
+    background: var(--color-surface);
+  }
+
+  .find-error__reason:disabled {
+    border-style: dashed;
+    color: var(--color-text-subtle);
+    text-decoration: line-through;
+  }
+
+  .find-error__reason:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 1px;
+  }
+
+  .find-error__done {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .find-error__done:focus {
+    outline: none;
+  }
+
+  .find-error__heading {
+    color: var(--color-text);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
   .prove-examples {
     min-height: 44px;
   }

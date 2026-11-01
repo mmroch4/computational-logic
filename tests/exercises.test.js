@@ -13,6 +13,7 @@ import {
   validateExercise,
   validateExercises,
 } from "../js/core/exercises.js";
+import { FIND_ERROR_PUZZLES } from "../js/core/find-error.js";
 import { parseProof } from "../js/core/proof-text.js";
 import { DERIVED_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
 import { formatSequent, parseSequent } from "../js/core/sequent.js";
@@ -155,6 +156,14 @@ test("nenhum enunciado coincide com os materiais da cadeira", () => {
   for (const exercise of EXERCISES.filter((item) => !isRuleProof(item))) {
     const copied = course.get(fingerprint(exercise.sequent));
     assert.equal(copied, undefined, `${exercise.id} coincide com ${copied}`);
+  }
+});
+
+test("nenhum desafio de encontrar o erro coincide com os materiais da cadeira", () => {
+  const course = new Map(COURSE_SEQUENTS.map((text) => [fingerprint(text), text]));
+  for (const { id, sequent } of FIND_ERROR_PUZZLES) {
+    const copied = course.get(fingerprint(sequent));
+    assert.equal(copied, undefined, `${id} coincide com ${copied}`);
   }
 });
 
