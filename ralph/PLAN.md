@@ -40,7 +40,7 @@ Cria `hub/`: página estática em PT (`/`) e EN (`/en`), com as duas ferramentas
 sem framework nem build, com `vercel.json`, CSP e testes `node --test`.
 **Feito quando:** os testes passam, a página valida a 390px e `hub/` entra no `scripts/test-all.sh`.
 
-### [ ] PAUSA-1 · Revisão antes de publicar
+### [x] PAUSA-1 · Revisão antes de publicar
 Revês `git log` e `git diff ac9dfe8..monorepo --stat -- sat/`. Se estiver bem, segue a etapa 6.1 e 6.2.
 O loop retoma quando os três sites estiverem no ar.
 
