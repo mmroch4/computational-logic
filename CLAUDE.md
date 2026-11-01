@@ -7,7 +7,7 @@ no `CLAUDE.md` próprio: lê-o antes de lhe tocar.
 | --- | --- |
 | `sat/` | Learn Davis-Putnam SAT |
 | `natural-deduction/` | Learn Natural Deduction |
-| `hub/` | página de entrada, quando existir |
+| `hub/` | página de entrada |
 | `ralph/` | loop da migração para monorepo |
 
 ## Regras

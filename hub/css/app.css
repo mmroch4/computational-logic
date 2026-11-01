@@ -1,0 +1,257 @@
+/* Escrito à mão, sem build. Tokens e créditos iguais aos do sat/css/src/app.css e do sat/DESIGN.md. */
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #fafafa;
+  --color-hairline: #f0f0f2;
+  --color-border: #e4e4e7;
+  --color-border-strong: #8a8a93;
+  --color-text: #18181b;
+  --color-text-2: #3f3f46;
+  --color-text-muted: #52525b;
+  --color-ink: #18181b;
+  --font-sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --radius-lg: 12px;
+  --dur-fast: 120ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --content-max: 800px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+h1,
+h2,
+p,
+ul {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+main {
+  flex: 1;
+  padding-block: 40px;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: var(--weight-semibold);
+  line-height: 40px;
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  margin-top: 12px;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 26px;
+}
+
+.lead + h1 {
+  margin-top: 40px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--color-text);
+  font-weight: var(--weight-medium);
+}
+
+/* Barra de créditos: a tinta invertida destaca-a sem gastar uma cor. */
+.credits {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 36px;
+  padding-inline: 12px;
+  background: var(--color-ink);
+  color: rgb(255 255 255 / 0.8);
+  font-size: 12px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.credits a {
+  color: #fff;
+  font-weight: var(--weight-medium);
+  text-underline-offset: 3px;
+}
+
+.credits a:focus-visible {
+  outline-color: #fff;
+}
+
+/* O ícone do GitHub: 20px à vista, 44×44 de alvo (o ::after passa a altura da barra sem a mudar). */
+.credits .credits-gh {
+  position: relative;
+  display: inline-flex;
+  padding-left: 10px;
+  border-left: 1px solid rgb(255 255 255 / 0.25);
+}
+
+.credits-gh::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 5px);
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+.credits-gh svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.tools {
+  display: grid;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 0;
+  list-style: none;
+}
+
+.tool {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  text-decoration: none;
+}
+
+.tool:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.tool h2 {
+  font-size: 18px;
+  font-weight: var(--weight-semibold);
+  line-height: 26px;
+}
+
+.tool p {
+  flex: 1;
+  color: var(--color-text-2);
+  font-size: 15px;
+}
+
+.tool__go {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: var(--weight-medium);
+}
+
+.ftr {
+  border-top: 1px solid var(--color-hairline);
+}
+
+.ftr-in {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0 16px;
+  padding-block: 16px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.ftr-repo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  text-decoration: none;
+}
+
+.ftr-repo:hover {
+  color: var(--color-text);
+}
+
+.ftr-repo svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+@media (min-width: 768px) {
+  .wrap {
+    padding-inline: 32px;
+  }
+
+  main {
+    padding-block: 72px;
+  }
+
+  h1 {
+    font-size: 40px;
+    line-height: 48px;
+  }
+
+  .credits {
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .tools {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tool {
+    transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+  }
+}

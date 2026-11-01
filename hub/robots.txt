@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://computational-logic.miguelrocha.dev/sitemap.xml

@@ -8,11 +8,14 @@ static site, with no framework and no account, and with its progress kept in the
 | Learn Davis-Putnam SAT | The Davis-Putnam (DPLL) algorithm for the Boolean satisfiability problem: every unit propagation, branch and conflict, step by step. | [`sat/`](sat/README.md) | [English](https://sat.computational-logic.miguelrocha.dev/en) · [Português](https://sat.computational-logic.miguelrocha.dev) |
 | Learn Natural Deduction | Natural deduction proofs in Fitch notation, for propositional logic: a line-by-line editor, generated proofs explained step by step, a lesson and exercises. | [`natural-deduction/`](natural-deduction/README.md) | Not published yet |
 
+The [`hub/`](hub/README.md) folder holds the entry page that presents both tools. It is not published yet.
+
 ## Repository layout
 
 ```
 sat/                  Learn Davis-Putnam SAT
 natural-deduction/    Learn Natural Deduction
+hub/                  entry page that links to the tools
 scripts/              test runner for all the tools
 ralph/                working notes and plans of the migration to this monorepo
 ```

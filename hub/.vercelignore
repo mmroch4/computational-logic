@@ -1,0 +1,10 @@
+# O que não vai para a Vercel: só as páginas, css/, o favicon e os ficheiros de SEO são o site.
+# Uma entrada por linha, sempre um caminho a partir da pasta hub/, sem padrões (o
+# scripts/serve.mjs e o tests/deploy.test.js leem este ficheiro com a mesma regra).
+/.vercelignore
+/tmp
+/scripts
+/tests
+/package.json
+/README.md
+/CLAUDE.md

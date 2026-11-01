@@ -34,3 +34,11 @@
 - Ao publicar a dedução natural (etapa 6.3), repor o «Live site» em `natural-deduction/README.md` e trocar «Not published yet» no `README.md` da raiz.
 - O `natural-deduction/tests/docs.test.js` passou a verificar os links relativos da pasta. `sat/` não tem `docs.test.js`, e os links do SAT e da raiz verificaram-se à mão.
 - O `README.md` da raiz não cita o hub: a M5 acrescenta-o à tabela e à estrutura.
+
+## M5 · Hub
+
+- O hub não tem JS (`script-src 'none'`), por isso não tem Web Analytics nem deteção de idioma; a 404 é uma só, com os dois idiomas.
+- Liga já a `nd.computational-logic.miguelrocha.dev`, que ainda não resolve: publicar o hub (6.4) só depois da dedução natural (6.3). Ao publicar, trocar «not published yet» no `README.md` da raiz.
+- Sem imagem de partilha, `apple-touch-icon` nem manifest: o plano não os pede.
+- `hub/scripts/` é uma cópia do SAT (`serve.mjs`, `check-page.*` e auditorias), porque nenhuma pasta importa de outra.
+- `hub` continua em `optional` no `test-all.sh`: entra por existir, sem alterar o script.
