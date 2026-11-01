@@ -320,12 +320,20 @@ export default {
     },
     or: {
       p1: "Para chegar a φ ∨ ψ basta uma das fórmulas. Usar uma disjunção dá mais trabalho: não sabes qual delas é verdadeira, por isso tratas os dois casos.",
+      p2: "A fórmula que acrescentas com ∨I pode ser qualquer uma, até uma que não apareça em mais lado nenhum. O preço é perder informação: de a passas a saber só que a ou b é verdadeira. Por isso, ∨I costuma ser o último passo, quando já sabes qual dos lados consegues provar.",
+      p3: "Em ∨E, cada caso é uma subdedução separada, e o que escreves num não se pode citar no outro. A conclusão pode nem falar de φ nem de ψ. Só tem de ser a mesma fórmula na última linha dos dois casos, e é essa que passa para fora.",
     },
     not: {
       p1: "Negar φ é mostrar que φ leva a uma contradição, que se escreve F. É aqui que entram ¬I, ¬E, FI e FE.",
+      p2: "F é uma fórmula como as outras, mas nunca é verdadeira. Noutros textos aparece como ⊥, e aqui também a podes escrever assim, embora o site mostre sempre F. A maneira habitual de lá chegar é a regra FI.",
+      p3: "Com F já se pode negar. A regra ¬I segue a ideia da abertura: supões φ, chegas a F e concluis que φ não pode ser verdadeira.",
+      p4: "A eliminação faz muito pouco: tira duas negações seguidas, e mais nada. Não há regra que te dê φ a partir de ¬φ, porque as duas fórmulas dizem o contrário uma da outra.",
+      p5: "Falta FE. De uma contradição podes escrever qualquer fórmula. Parece estranho, mas uma linha com F só aparece numa situação impossível, onde já nada há a distinguir. É sobretudo útil em ∨E: um caso que contradiz o resto acaba em F, e FE faz com que dê a fórmula a que o outro caso chega.",
     },
     derived: {
       p1: "Algumas provas repetem sempre o mesmo padrão. As regras derivadas dão-lhe um nome, e cada uma delas pode ser substituída por uma prova só com regras base.",
+      p2: "Uma regra derivada não te deixa provar nada de novo. Encurta o que já consegues provar. Cada figura traz o esquema, o momento certo para a usar e uma prova só com regras base. Essas provas estão escritas com p, q e r, mas valem para quaisquer fórmulas no lugar de φ, ψ e θ: basta trocar as letras.",
+      p3: "Numa prova, uma derivada usa-se como qualquer outra regra: escreves a sigla e citas as linhas. Com MT, esta prova faz em duas linhas o que, só com regras base, pediria duas subdeduções.",
     },
     strategy: {
       p1: "A forma da conclusão e das premissas costuma dizer qual é o passo seguinte. Estas são as perguntas a fazer quando não sabes por onde continuar.",
@@ -342,11 +350,13 @@ export default {
       firstProof: "Uma prova com seis linhas",
       nestedScopes: "Duas hipóteses, uma dentro da outra",
       closedLine: "Erro comum: usar uma linha de uma subdedução fechada",
+      derivedUse: "Duas aplicações de MT",
     },
     ruleFigure: {
       example: "Exemplo",
       mistake: "Erro comum",
       wrongLine: "Linha {line}.",
+      baseProof: "Prova só com regras base",
     },
     rules: {
       andIntro: {
@@ -369,6 +379,60 @@ export default {
         name: "Repetição",
         when: "Escreve de novo uma fórmula de uma linha acessível, sem mudar nada. Cita essa linha.",
       },
+      orIntro: {
+        name: "Introdução da disjunção",
+        when: "De φ podes escrever φ ∨ ψ ou ψ ∨ φ, seja ψ qual for. Cita só a linha de φ.",
+      },
+      orElim: {
+        name: "Eliminação da disjunção",
+        when: "Com φ ∨ ψ numa linha, abre uma subdedução com a hipótese φ e chega a θ. Depois abre outra com a hipótese ψ e chega à mesma θ. Fora delas, escreve θ. Cita a disjunção e os dois intervalos.",
+      },
+      falseIntro: {
+        name: "Introdução de F",
+        when: "Se tens φ numa linha e ¬φ noutra, podes escrever F. Cita as duas linhas.",
+      },
+      notIntro: {
+        name: "Introdução da negação",
+        when: "Abre uma subdedução com a hipótese φ e chega a F. Fora dela, escreve ¬φ e cita a subdedução como intervalo.",
+      },
+      notElim: {
+        name: "Eliminação da negação",
+        when: "De ¬¬φ podes escrever φ. As duas negações têm de estar à frente da fórmula toda. Cita essa linha.",
+      },
+      falseElim: {
+        name: "Eliminação de F",
+        when: "De F podes escrever qualquer fórmula φ. Cita a linha de F.",
+      },
+    },
+    derivedRules: {
+      modusTollens: {
+        name: "Modus tollens",
+        when: "Se φ implica ψ e ψ é falsa, φ também é. Usa-a quando tens uma implicação e a negação do consequente. Cita as duas linhas.",
+      },
+      doubleNegationIntro: {
+        name: "Introdução da dupla negação",
+        when: "É o inverso de ¬E: de φ escreves ¬¬φ. Serve sobretudo quando uma regra pede uma fórmula com uma negação à frente. Cita a linha de φ.",
+      },
+      reductio: {
+        name: "Redução ao absurdo",
+        when: "Para provar φ, supõe ¬φ e chega a F. Fora da subdedução, escreve φ e cita o intervalo. Na prova abaixo, a subdedução aparece como a premissa ¬p → F, porque um sequente só tem fórmulas como premissas.",
+      },
+      excludedMiddle: {
+        name: "Terceiro excluído",
+        when: "Podes escrever φ ∨ ¬φ em qualquer ponto, para qualquer φ, sem citar nada. É útil antes de ∨E, quando a prova corre melhor a separar o caso em que φ é verdadeira do caso em que é falsa.",
+      },
+      deMorgan: {
+        name: "De Morgan",
+        when: "Tem quatro formas: duas levam a negação para dentro e duas trazem-na para fora, sempre a trocar ∧ com ∨. Usa-a para deixar a negação numa forma com que as outras regras consigam trabalhar. Cita a linha que transformas.",
+      },
+      hypotheticalSyllogism: {
+        name: "Silogismo hipotético",
+        when: "Duas implicações em que o consequente de uma é o antecedente da outra juntam-se numa só. Cita as duas linhas.",
+      },
+      disjunctiveSyllogism: {
+        name: "Silogismo disjuntivo",
+        when: "Se tens uma disjunção e a negação de um dos lados, resta o outro lado. Cita as duas linhas. As duas provas mostram FE a trabalhar: o caso impossível acaba em F e dá a fórmula do outro caso.",
+      },
     },
     mistakes: {
       andIntroOneSide: "A regra ∧I cita uma linha por cada lado, e aqui só há a linha 1. A fórmula b não está em lado nenhum: ter um lado não chega para escrever a conjunção.",
@@ -377,6 +441,12 @@ export default {
       implIntroSwapped: "A hipótese é a e a subdedução acaba em b, logo o que ela dá é a → b. A hipótese fica sempre à esquerda da seta, e por isso escrever b → a não é o mesmo.",
       closedLine: "A linha 3 só vale sob a hipótese a, que fechou antes da linha 4. Da subdedução, só resta o que a linha 4 diz: que b depende de a. Se isto fosse permitido, qualquer hipótese se tornaria um facto.",
       repeatReordered: "R copia a fórmula tal como está. Trocar os lados de a ∧ b dá outra fórmula, mesmo que queira dizer o mesmo, e chegar a ela pede uma subdedução com ∧E e ∧I.",
+      orIntroNoSide: "A regra ∨I acrescenta um lado a uma fórmula que já tens, por isso a fórmula citada tem de ser um dos lados. Aqui a linha 1 é a, que não é b nem c.",
+      orElimDifferentEnds: "Os dois casos têm de acabar na mesma fórmula, e aqui um acaba em c e o outro em d. Do caso b não sai c. O que estes casos permitem concluir é c ∨ d, com ∨I no fim de cada um.",
+      falseIntroNotOpposite: "A regra FI quer φ e exatamente ¬φ. A linha 1 é a ∧ b, que não é a. Primeiro tira a com ∧E, e depois cita essa linha nova com a linha 2.",
+      notIntroNoFalse: "A subdedução tem de acabar em F. Acabar numa fórmula negada não chega, porque ¬b e a podem ser verdadeiras ao mesmo tempo. O sequente nem sequer é válido.",
+      notElimOneNegation: "A linha 1 tem só uma negação à frente. A outra está lá dentro, em ¬a, e nega apenas uma parte. A regra ¬E exige ¬¬ a abrir a fórmula toda, por isso não se aplica.",
+      falseElimNoFalse: "¬a não é F, e a regra FE só aceita uma linha com F. Para este sequente, supõe a, escreve F com FI, depois b com FE, e fecha com →I.",
     },
     check: {
       title: "Antes de continuares",
@@ -418,6 +488,33 @@ export default {
           outer: "A hipótese da linha 2 ainda está aberta na linha 6, por isso também se pode citar.",
           reachable: "A linha 1 está fora e a 2 é a hipótese ainda aberta. As linhas 3 a 5 já fecharam e só contam como o intervalo 3–5.",
           all: "As linhas 3 a 5 pertencem a uma subdedução fechada, por isso só contam em conjunto, como o intervalo 3–5.",
+        },
+      },
+      orCases: {
+        question: "Tens a ∨ b e queres chegar a c com ∨E. O que tens de mostrar?",
+        options: { oneCase: "Que c segue de a ou que c segue de b", bothCases: "Que c segue de a e que c segue de b", bothSides: "Que a e b são as duas verdadeiras" },
+        why: {
+          oneCase: "Não sabes qual dos lados é verdadeiro. Se só tratares um, o outro fica por cobrir.",
+          bothCases: "Um caso para cada lado, ambos a acabar em c. Assim, seja qual for o lado verdadeiro, c está garantida.",
+          bothSides: "Uma disjunção não afirma os dois lados. Basta um, e é por isso que cada caso se trata à parte.",
+        },
+      },
+      closeNegated: {
+        question: "Supuseste ¬a e chegaste a F. O que te dá ¬I ao fechar a subdedução?",
+        options: { plain: "a", doubled: "¬¬a", contradiction: "F" },
+        why: {
+          plain: "¬I põe uma negação à frente da hipótese. Para chegar a a falta ainda um passo com ¬E.",
+          doubled: "A regra nega a hipótese, e negar ¬a dá ¬¬a. Com ¬E tens a. São esses dois passos que a regra RA junta, na próxima secção.",
+          contradiction: "F fica dentro da subdedução. Fora dela, o que resta é a negação da hipótese.",
+        },
+      },
+      rewriteDerived: {
+        question: "Uma prova usa MT duas vezes. Consegues escrevê-la só com regras base?",
+        options: { always: "Sim, sempre", sometimes: "Depende da prova", never: "Não, MT faz o que as regras base não fazem" },
+        why: {
+          always: "Trocas as letras da prova de MT pelas fórmulas da aplicação e pões esses passos no lugar de cada linha com MT. A prova fica mais longa e continua certa.",
+          sometimes: "Não depende: cada derivada tem uma prova só com regras base, e essa prova serve para quaisquer fórmulas.",
+          never: "MT tem uma prova só com regras base. Uma derivada encurta uma prova, mas não te dá nada de novo.",
         },
       },
     },

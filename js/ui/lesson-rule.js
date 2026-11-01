@@ -1,9 +1,11 @@
 // Figuras de uma regra na lição: o esquema, quando se usa, um exemplo e o erro comum. O erro comum também
 // existe sozinho, para os enganos que não são de uma regra só.
 //
-// `lessonMistakeHtml` e `lessonRuleHtml` são puras. Marca-se no `aprender.html` com
-// `data-lesson-rule="andIntro"` ou `data-lesson-mistake="closedLine"`.
-import { LESSON_RULES, lessonMistake, lessonProof, ruleSchemaLines } from "../core/lesson.js";
+// As regras derivadas têm figura própria: o esquema, quando se usa e a prova de cada forma, lida do catálogo.
+//
+// `lessonMistakeHtml`, `lessonRuleHtml` e `lessonDerivedHtml` são puras. Marca-se no `aprender.html` com
+// `data-lesson-rule="andIntro"`, `data-lesson-mistake="closedLine"` ou `data-lesson-derived="deMorgan"`.
+import { LESSON_DERIVED, LESSON_RULES, lessonDerivedForms, lessonMistake, lessonProof, ruleSchemaLines } from "../core/lesson.js";
 import { ruleLabel } from "../core/rules.js";
 import { formatSequent } from "../core/sequent.js";
 import { fitchHtml, readAsHtml, spokenProse } from "./fitch-view.js";
@@ -45,6 +47,21 @@ export function lessonRuleHtml(id) {
     mistakeBodyHtml(mistake);
   return lessonFigureHtml({
     classes: "lesson-rule", icon: "proof", title: `${t(`learn.rules.${id}.name`)} (${label})`, body,
+  });
+}
+
+/** A figura da derivada `id` de `LESSON_DERIVED`, com a prova de cada forma. */
+export function lessonDerivedHtml(id) {
+  const { rule } = LESSON_DERIVED[id];
+  const label = ruleLabel(rule, LOCALES[getLang()].rules.labels);
+  const forms = lessonDerivedForms(id)
+    .map(({ goal, proof }) => `${sequentHtml(goal)}<div class="lesson-proof__view">${fitchHtml(proof)}</div>`)
+    .join("");
+  const body =
+    `${schemaHtml(rule)}<p class="lesson-rule__when">${proseHtml(t(`learn.derivedRules.${id}.when`))}</p>` +
+    `<h3 class="lesson-rule__heading">${escapeHtml(t("learn.ruleFigure.baseProof"))}</h3>${forms}`;
+  return lessonFigureHtml({
+    classes: "lesson-derived", icon: "proof", title: `${t(`learn.derivedRules.${id}.name`)} (${label})`, body,
   });
 }
 

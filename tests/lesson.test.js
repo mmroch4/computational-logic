@@ -4,21 +4,22 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import {
-  LESSON_CHECKS, LESSON_MISTAKES, LESSON_PROOFS, LESSON_RULES, LESSON_SECTIONS, firstRevealed, lessonMistake, lessonProof,
-  mistakeFindings, revealMarks, ruleSchemaLines, verifyLessonProof,
+  LESSON_CHECKS, LESSON_DERIVED, LESSON_MISTAKES, LESSON_PROOFS, LESSON_RULES, LESSON_SECTIONS, firstRevealed, lessonDerivedForms,
+  lessonMistake, lessonProof, mistakeFindings, revealMarks, ruleSchemaLines, verifyLessonProof,
 } from "../js/core/lesson.js";
 import { equals, format } from "../js/core/formula.js";
 import { parseFormula } from "../js/core/parser.js";
 import { accessibleFrom } from "../js/core/proof.js";
-import { parseProof } from "../js/core/proof-text.js";
+import { formatProof, parseProof } from "../js/core/proof-text.js";
+import { BASE_RULES, DERIVED_RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
 import { checkSequent } from "../js/core/semantics.js";
-import { parseSequent } from "../js/core/sequent.js";
+import { formatSequent, parseSequent } from "../js/core/sequent.js";
 import { verifyProof } from "../js/core/verify.js";
 import { LOCALES, setLang } from "../js/ui/i18n.js";
 import { lessonCheckFeedbackHtml, lessonCheckHtml } from "../js/ui/lesson-check.js";
 import { lessonFigureHtml } from "../js/ui/lesson-figure.js";
 import { lessonProofHtml } from "../js/ui/lesson-proof.js";
-import { lessonMistakeHtml, lessonRuleHtml } from "../js/ui/lesson-rule.js";
+import { lessonDerivedHtml, lessonMistakeHtml, lessonRuleHtml } from "../js/ui/lesson-rule.js";
 import { activeSectionIndex, readingProgress, renderLessonToc } from "../js/ui/lesson-toc.js";
 import { COURSE_SEQUENTS } from "./fixtures/course-sequents.js";
 import { fingerprint } from "./helpers/fingerprint.js";
@@ -92,14 +93,107 @@ test("a resposta da primeira pergunta é a regra da linha que ela refere", () =>
   assert.equal(line.rule, LOCALES.pt.learn.checks.firstRule.options[LESSON_CHECKS.firstRule.answer]);
 });
 
-test("as secções 2 a 4 apresentam ∧I, ∧E, →E, →I e R, cada uma uma vez e pela ordem da lição", () => {
+test("as secções 2 a 6 apresentam todas as regras base, cada uma uma vez e pela ordem da lição", () => {
   const used = [...page.matchAll(/data-lesson-rule="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(used, Object.keys(LESSON_RULES));
-  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule), ["∧I", "∧E", "→E", "→I", "R"]);
+  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule), ["∧I", "∧E", "→E", "→I", "R", "∨I", "∨E", "FI", "¬I", "¬E", "FE"]);
+  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule).sort(), BASE_RULES.map((rule) => rule.id).sort());
   const sections = page.split('<section class="lesson-section"');
   assert.match(sections[2], /data-lesson-rule="andElim"/);
   assert.match(sections[3], /data-lesson-rule="implElim"/);
   assert.match(sections[4], /data-lesson-rule="repeat"/);
+  assert.match(sections[5], /data-lesson-rule="orElim"/);
+  assert.match(sections[6], /data-lesson-rule="falseElim"/);
+});
+
+test("a secção 7 mostra todas as derivadas, cada uma uma vez e pela ordem do catálogo", () => {
+  const used = [...page.matchAll(/data-lesson-derived="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(used, Object.keys(LESSON_DERIVED));
+  assert.deepEqual(used.map((id) => LESSON_DERIVED[id].rule), [...new Set(DERIVED_RULES.map(({ id }) => id))]);
+  const sections = page.split('<section class="lesson-section"');
+  assert.equal(sections[7].match(/data-lesson-derived=/g).length, used.length);
+  for (const id of used) for (const locale of Object.values(LOCALES)) {
+    assert.ok(locale.learn.derivedRules[id].name, id);
+    assert.ok(locale.learn.derivedRules[id].when, id);
+  }
+});
+
+test("as provas das derivadas vêm do catálogo, uma por forma, sem cópia na lição", () => {
+  const forms = Object.keys(LESSON_DERIVED).flatMap(lessonDerivedForms);
+  assert.equal(forms.length, DERIVED_RULES.length);
+  DERIVED_RULES.forEach((rule, index) => {
+    assert.deepEqual(forms[index].proof, parseProof(rule.proof).proof, rule.id);
+    assert.deepEqual(forms[index].goal, ruleGoal(rule), rule.id);
+  });
+  // A mesma prova com outras letras também seria uma cópia: dá-se às letras o nome pela ordem em que aparecem.
+  const shape = (proof) => {
+    const names = new Map();
+    return formatProof(proof).replace(/(?<!\p{L})[a-z](?!\p{L})/gu, (name) => {
+      if (!names.has(name)) names.set(name, `x${names.size}`);
+      return names.get(name);
+    });
+  };
+  const stored = new Set(forms.map(({ proof }) => shape(proof)));
+  for (const id of Object.keys(LESSON_PROOFS)) assert.equal(stored.has(shape(lessonProof(id).proof)), false, id);
+  assert.equal(stored.has(shape(parseProof("1 | a → b   premissa\n2 | ¬b      premissa\n3 |   a     hipótese\n4 |   b     →E, 3, 1\n5 |   F     FI, 4, 2\n6 | ¬a      ¬I, 3–5").proof)), true);
+});
+
+test("figura de derivada: esquema de todas as formas e a prova de cada uma, só com regras base", () => {
+  const base = new Set(BASE_RULES.map(({ id }) => id));
+  const usedRules = (proof) => proof.lines.filter((line) => line.kind === "step").map((line) => line.rule);
+  for (const lang of ["pt", "en"]) {
+    setLang(lang);
+    for (const [id, { rule }] of Object.entries(LESSON_DERIVED)) {
+      const html = lessonDerivedHtml(id);
+      const forms = lessonDerivedForms(id);
+      assert.equal(html.match(/lesson-proof__view/g).length, forms.length, id);
+      assert.equal(html.match(/lesson-rule__sequent/g).length, forms.length, id);
+      assert.equal(html.match(/<li>/g).length, ruleSchemaLines(rule).length, id);
+      for (const { goal, proof } of forms) {
+        assert.equal(verifyProof(proof, goal, ruleSet("base")).ok, true, id);
+        assert.ok(usedRules(proof).length > 0 && usedRules(proof).every((name) => base.has(name)), id);
+      }
+    }
+  }
+  setLang("pt");
+  assert.match(lessonDerivedHtml("reductio"), /Redução ao absurdo \(RA\)/);
+  assert.match(lessonDerivedHtml("deMorgan"), /Prova só com regras base/);
+  assert.equal(lessonDerivedHtml("deMorgan").match(/data-line="1"/g).length, 4);
+  setLang("en");
+  assert.match(lessonDerivedHtml("reductio"), /Reductio ad absurdum \(RAA\)/);
+  assert.match(lessonDerivedHtml("excludedMiddle"), /\(LEM\)/);
+  assert.match(lessonDerivedHtml("hypotheticalSyllogism"), /\(HS\)/);
+  assert.match(lessonDerivedHtml("disjunctiveSyllogism"), /\(DS\)/);
+  setLang("pt");
+});
+
+test("o que as secções 5 a 7 afirmam é o que o verificador faz", () => {
+  const reads = (sequent, text) => verifyProof(parseProof(text).proof, parseSequent(sequent).sequent, ruleSet("completo"));
+  // closeNegated: ¬I sobre a hipótese ¬p dá ¬¬p, e RA são estes dois passos.
+  const reductio = lessonDerivedForms("reductio")[0];
+  assert.equal(format(reductio.proof.lines[1].formula), "¬p");
+  assert.equal(reductio.proof.lines[3].rule, "¬I");
+  assert.equal(format(reductio.proof.lines[3].formula), "¬¬p");
+  assert.equal(reductio.proof.lines[4].rule, "¬E");
+  assert.equal(formatSequent(reductio.goal), "¬p → F ⊢ p");
+  // Não há regra de ¬φ para φ; ⊥ é aceite na entrada, mas mostra-se F.
+  assert.equal(reads("¬a ⊢ a", "1 | ¬a   premissa\n2 | a    ¬E, 1").ok, false);
+  assert.equal(formatSequent(parseSequent("a, ¬a ⊢ ⊥").sequent), "a, ¬a ⊢ F");
+  // TE não cita nada.
+  assert.equal(reads("⊢ a ∨ ¬a", "1 | a ∨ ¬a   TE").ok, true);
+  // As quatro formas de DM e o FE nas duas provas de SD.
+  assert.equal(ruleSchemaLines("DM").length, 4);
+  for (const { proof } of lessonDerivedForms("disjunctiveSyllogism")) {
+    assert.ok(proof.lines.some((line) => line.rule === "FE"));
+  }
+  // As correções que as explicações propõem resultam.
+  assert.equal(reads("a ∧ b, ¬a ⊢ F", "1 | a ∧ b   premissa\n2 | ¬a      premissa\n3 | a       ∧E, 1\n4 | F       FI, 3, 2").ok, true);
+  assert.equal(reads("¬a ⊢ a → b", "1 | ¬a      premissa\n2 |   a     hipótese\n3 |   F     FI, 2, 1\n4 |   b     FE, 3\n5 | a → b   →I, 2–4").ok, true);
+  // notIntroNoFalse: o sequente é mesmo inválido.
+  assert.equal(checkSequent(lessonMistake("notIntroNoFalse").goal).valid, false);
+  // derivedUse: duas linhas com MT e nenhuma subdedução.
+  const steps = lessonProof("derivedUse").proof.lines.filter((line) => line.kind !== "premise");
+  assert.deepEqual(steps.map((line) => line.rule), ["MT", "MT"]);
 });
 
 test("cada regra tem exemplo que a usa, erro comum e texto nos dois idiomas", () => {
@@ -147,6 +241,13 @@ test("os esquemas das regras vêm do catálogo, com uma forma por conclusão", (
   assert.deepEqual(ruleSchemaLines("→E"), ["φ, φ → ψ ⊢ ψ"]);
   assert.deepEqual(ruleSchemaLines("→I"), ["[φ] … ψ ⊢ φ → ψ"]);
   assert.deepEqual(ruleSchemaLines("R"), ["φ ⊢ φ"]);
+  assert.deepEqual(ruleSchemaLines("∨I"), ["φ ⊢ φ ∨ ψ", "φ ⊢ ψ ∨ φ"]);
+  assert.deepEqual(ruleSchemaLines("∨E"), ["φ ∨ ψ, [φ] … θ, [ψ] … θ ⊢ θ"]);
+  assert.deepEqual(ruleSchemaLines("¬E"), ["¬¬φ ⊢ φ"]);
+  assert.deepEqual(ruleSchemaLines("TE"), ["⊢ φ ∨ ¬φ"]);
+  assert.deepEqual(ruleSchemaLines("RA"), ["[¬φ] … F ⊢ φ"]);
+  assert.deepEqual(ruleSchemaLines("SD"), ["φ ∨ ψ, ¬φ ⊢ ψ", "φ ∨ ψ, ¬ψ ⊢ φ"]);
+  assert.deepEqual(ruleSchemaLines("DM"), ["¬(φ ∧ ψ) ⊢ ¬φ ∨ ¬ψ", "¬φ ∨ ¬ψ ⊢ ¬(φ ∧ ψ)", "¬(φ ∨ ψ) ⊢ ¬φ ∧ ¬ψ", "¬φ ∧ ¬ψ ⊢ ¬(φ ∨ ψ)"]);
 });
 
 test("figura de regra: esquema, exemplo e erro com só a linha errada assinalada", () => {

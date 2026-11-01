@@ -133,18 +133,55 @@
           <div class="lesson-prose">
             <p data-i18n="learn.or.p1">To reach φ ∨ ψ, one of the formulas is enough. Using a disjunction takes more work: you don&#39;t know which one is true, so you handle both cases.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-rule="orIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p2">The formula you add with ∨I can be anything, even one that appears nowhere else. The price is losing information: from a you go to knowing only that a or b is true. That is why ∨I is usually the last step, once you know which side you can prove.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="orElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p3">In ∨E, each case is a separate subproof, and what you write in one cannot be cited in the other. The conclusion need not mention φ or ψ at all. It only has to be the same formula on the last line of both cases, and that is the one that moves outside.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="orCases"></div>
         </section>
         <section class="lesson-section" id="negacao" aria-labelledby="negacao-title">
           <h2 class="lesson-section__title" id="negacao-title"><span class="lesson-section__num">06</span> <span data-section-title data-i18n="learn.sections.not">Negation (¬) and F</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.not.p1">To deny φ is to show that φ leads to a contradiction, written F. This is where ¬I, ¬E, FI and FE come in.</p>
+            <p data-i18n="learn.not.p2">F is a formula like any other, except that it is never true. Other texts write it as ⊥, and you can type it that way here too, although the site always displays F. The usual way to reach it is the FI rule.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-rule="falseIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p3">With F you can now deny things. The ¬I rule follows the idea from the opening: you suppose φ, reach F and conclude that φ cannot be true.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="notIntro"></div>
+          <div class="lesson-interactive" data-lesson-check="closeNegated"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p4">Elimination does very little: it removes two negations in a row, and nothing else. No rule gives you φ from ¬φ, because those two formulas say the opposite of each other.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="notElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p5">That leaves FE. From a contradiction you can write any formula. It looks odd, but a line with F only appears in an impossible situation, where nothing is left to tell apart. It is mostly useful in ∨E: a case that contradicts the rest ends in F, and FE makes it give the formula the other case reaches.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="falseElim"></div>
         </section>
         <section class="lesson-section" id="derivadas" aria-labelledby="derivadas-title">
           <h2 class="lesson-section__title" id="derivadas-title"><span class="lesson-section__num">07</span> <span data-section-title data-i18n="learn.sections.derived">Derived rules</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.derived.p1">Some proofs repeat the same pattern every time. Derived rules give it a name, and each of them can be replaced by a proof that uses only base rules.</p>
+            <p data-i18n="learn.derived.p2">A derived rule doesn&#39;t let you prove anything new. It shortens what you can already prove. Each figure has the schema, the right moment to use the rule and a proof with base rules only. Those proofs are written with p, q and r, but they hold for any formulas in place of φ, ψ and θ: just swap the letters.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-derived="modusTollens"></div>
+          <div class="lesson-interactive" data-lesson-derived="doubleNegationIntro"></div>
+          <div class="lesson-interactive" data-lesson-derived="reductio"></div>
+          <div class="lesson-interactive" data-lesson-derived="excludedMiddle"></div>
+          <div class="lesson-interactive" data-lesson-derived="deMorgan"></div>
+          <div class="lesson-interactive" data-lesson-derived="hypotheticalSyllogism"></div>
+          <div class="lesson-interactive" data-lesson-derived="disjunctiveSyllogism"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.derived.p3">In a proof, a derived rule is used like any other: you write its abbreviation and cite the lines. With MT, this proof does in two lines what would take two subproofs with base rules only.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="derivedUse"></div>
+          <div class="lesson-interactive" data-lesson-check="rewriteDerived"></div>
         </section>
         <section class="lesson-section" id="estrategias" aria-labelledby="estrategias-title">
           <h2 class="lesson-section__title" id="estrategias-title"><span class="lesson-section__num">08</span> <span data-section-title data-i18n="learn.sections.strategy">Strategies</span></h2>

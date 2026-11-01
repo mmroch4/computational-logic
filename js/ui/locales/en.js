@@ -319,12 +319,20 @@ export default {
     },
     or: {
       p1: "To reach φ ∨ ψ, one of the formulas is enough. Using a disjunction takes more work: you don't know which one is true, so you handle both cases.",
+      p2: "The formula you add with ∨I can be anything, even one that appears nowhere else. The price is losing information: from a you go to knowing only that a or b is true. That is why ∨I is usually the last step, once you know which side you can prove.",
+      p3: "In ∨E, each case is a separate subproof, and what you write in one cannot be cited in the other. The conclusion need not mention φ or ψ at all. It only has to be the same formula on the last line of both cases, and that is the one that moves outside.",
     },
     not: {
       p1: "To deny φ is to show that φ leads to a contradiction, written F. This is where ¬I, ¬E, FI and FE come in.",
+      p2: "F is a formula like any other, except that it is never true. Other texts write it as ⊥, and you can type it that way here too, although the site always displays F. The usual way to reach it is the FI rule.",
+      p3: "With F you can now deny things. The ¬I rule follows the idea from the opening: you suppose φ, reach F and conclude that φ cannot be true.",
+      p4: "Elimination does very little: it removes two negations in a row, and nothing else. No rule gives you φ from ¬φ, because those two formulas say the opposite of each other.",
+      p5: "That leaves FE. From a contradiction you can write any formula. It looks odd, but a line with F only appears in an impossible situation, where nothing is left to tell apart. It is mostly useful in ∨E: a case that contradicts the rest ends in F, and FE makes it give the formula the other case reaches.",
     },
     derived: {
       p1: "Some proofs repeat the same pattern every time. Derived rules give it a name, and each of them can be replaced by a proof that uses only base rules.",
+      p2: "A derived rule doesn't let you prove anything new. It shortens what you can already prove. Each figure has the schema, the right moment to use the rule and a proof with base rules only. Those proofs are written with p, q and r, but they hold for any formulas in place of φ, ψ and θ: just swap the letters.",
+      p3: "In a proof, a derived rule is used like any other: you write its abbreviation and cite the lines. With MT, this proof does in two lines what would take two subproofs with base rules only.",
     },
     strategy: {
       p1: "The shape of the conclusion and the premises usually tells you the next step. These are the questions to ask when you don't know how to go on.",
@@ -341,11 +349,13 @@ export default {
       firstProof: "A six-line proof",
       nestedScopes: "Two hypotheses, one inside the other",
       closedLine: "Common mistake: using a line from a closed subproof",
+      derivedUse: "Two uses of MT",
     },
     ruleFigure: {
       example: "Example",
       mistake: "Common mistake",
       wrongLine: "Line {line}.",
+      baseProof: "Proof with base rules only",
     },
     rules: {
       andIntro: {
@@ -368,6 +378,60 @@ export default {
         name: "Repetition",
         when: "Write a formula from an accessible line again, changing nothing. Cite that line.",
       },
+      orIntro: {
+        name: "Disjunction introduction",
+        when: "From φ you can write φ ∨ ψ or ψ ∨ φ, whatever ψ is. Cite only the line of φ.",
+      },
+      orElim: {
+        name: "Disjunction elimination",
+        when: "With φ ∨ ψ on a line, open a subproof with the hypothesis φ and reach θ. Then open another with the hypothesis ψ and reach the same θ. Outside them, write θ. Cite the disjunction and both ranges.",
+      },
+      falseIntro: {
+        name: "F introduction",
+        when: "If you have φ on one line and ¬φ on another, you can write F. Cite both lines.",
+      },
+      notIntro: {
+        name: "Negation introduction",
+        when: "Open a subproof with the hypothesis φ and reach F. Outside it, write ¬φ and cite the subproof as a range.",
+      },
+      notElim: {
+        name: "Negation elimination",
+        when: "From ¬¬φ you can write φ. Both negations must stand in front of the whole formula. Cite that line.",
+      },
+      falseElim: {
+        name: "F elimination",
+        when: "From F you can write any formula φ. Cite the line of F.",
+      },
+    },
+    derivedRules: {
+      modusTollens: {
+        name: "Modus tollens",
+        when: "If φ implies ψ and ψ is false, so is φ. Use it when you have an implication and the negation of its consequent. Cite both lines.",
+      },
+      doubleNegationIntro: {
+        name: "Double negation introduction",
+        when: "It is the reverse of ¬E: from φ you write ¬¬φ. It is mostly useful when a rule asks for a formula with a negation in front. Cite the line of φ.",
+      },
+      reductio: {
+        name: "Reductio ad absurdum",
+        when: "To prove φ, suppose ¬φ and reach F. Outside the subproof, write φ and cite the range. In the proof below, the subproof appears as the premise ¬p → F, because a sequent only has formulas as premises.",
+      },
+      excludedMiddle: {
+        name: "Law of excluded middle",
+        when: "You can write φ ∨ ¬φ at any point, for any φ, citing nothing. It is useful before ∨E, when the proof goes better by splitting the case where φ is true from the case where it is false.",
+      },
+      deMorgan: {
+        name: "De Morgan",
+        when: "It has four forms: two push the negation inside and two bring it outside, always swapping ∧ with ∨. Use it to leave the negation in a form the other rules can work with. Cite the line you are transforming.",
+      },
+      hypotheticalSyllogism: {
+        name: "Hypothetical syllogism",
+        when: "Two implications where the consequent of one is the antecedent of the other join into one. Cite both lines.",
+      },
+      disjunctiveSyllogism: {
+        name: "Disjunctive syllogism",
+        when: "If you have a disjunction and the negation of one side, the other side remains. Cite both lines. Both proofs show FE at work: the impossible case ends in F and gives the formula of the other case.",
+      },
     },
     mistakes: {
       andIntroOneSide: "The ∧I rule cites one line for each side, and here there is only line 1. The formula b is nowhere to be found: having one side is not enough to write the conjunction.",
@@ -376,6 +440,12 @@ export default {
       implIntroSwapped: "The hypothesis is a and the subproof ends in b, so what it gives is a → b. The hypothesis always goes on the left of the arrow, so writing b → a is not the same thing.",
       closedLine: "Line 3 only holds under the hypothesis a, which closed before line 4. All that remains of the subproof is what line 4 says: that b depends on a. If this were allowed, any hypothesis would turn into a fact.",
       repeatReordered: "R copies the formula as it stands. Swapping the sides of a ∧ b gives a different formula, even if it means the same, and reaching it takes a subproof with ∧E and ∧I.",
+      orIntroNoSide: "The ∨I rule adds a side to a formula you already have, so the cited formula must be one of the sides. Here line 1 is a, which is neither b nor c.",
+      orElimDifferentEnds: "Both cases must end on the same formula, and here one ends in c and the other in d. The case b does not give c. What these cases do allow is c ∨ d, with ∨I at the end of each.",
+      falseIntroNotOpposite: "The FI rule wants φ and exactly ¬φ. Line 1 is a ∧ b, which is not a. First get a with ∧E, then cite that new line together with line 2.",
+      notIntroNoFalse: "The subproof must end in F. Ending on a negated formula is not enough, because ¬b and a can both be true at once. The sequent is not even valid.",
+      notElimOneNegation: "Line 1 has only one negation in front. The other is inside, in ¬a, and negates just a part. The ¬E rule requires ¬¬ at the start of the whole formula, so it does not apply.",
+      falseElimNoFalse: "¬a is not F, and the FE rule only accepts a line with F. For this sequent, suppose a, write F with FI, then b with FE, and close with →I.",
     },
     check: {
       title: "Before you go on",
@@ -417,6 +487,33 @@ export default {
           outer: "The hypothesis on line 2 is still open at line 6, so it can be cited too.",
           reachable: "Line 1 is outside and line 2 is the hypothesis that is still open. Lines 3 to 5 have closed and only count as the range 3–5.",
           all: "Lines 3 to 5 belong to a closed subproof, so they only count together, as the range 3–5.",
+        },
+      },
+      orCases: {
+        question: "You have a ∨ b and want to reach c with ∨E. What do you have to show?",
+        options: { oneCase: "That c follows from a or that c follows from b", bothCases: "That c follows from a and that c follows from b", bothSides: "That a and b are both true" },
+        why: {
+          oneCase: "You don't know which side is true. If you handle only one, the other stays uncovered.",
+          bothCases: "One case for each side, both ending in c. That way, whichever side is true, c is guaranteed.",
+          bothSides: "A disjunction doesn't claim both sides. One is enough, which is why each case is handled apart.",
+        },
+      },
+      closeNegated: {
+        question: "You supposed ¬a and reached F. What does ¬I give you when the subproof closes?",
+        options: { plain: "a", doubled: "¬¬a", contradiction: "F" },
+        why: {
+          plain: "¬I puts a negation in front of the hypothesis. Reaching a takes one more step, with ¬E.",
+          doubled: "The rule negates the hypothesis, and negating ¬a gives ¬¬a. With ¬E you get a. Those are the two steps the RAA rule joins, in the next section.",
+          contradiction: "F stays inside the subproof. Outside it, what remains is the negation of the hypothesis.",
+        },
+      },
+      rewriteDerived: {
+        question: "A proof uses MT twice. Can you write it with base rules only?",
+        options: { always: "Yes, always", sometimes: "It depends on the proof", never: "No, MT does what base rules can't" },
+        why: {
+          always: "You swap the letters in the proof of MT for the formulas of the application and put those steps in place of each MT line. The proof gets longer and stays correct.",
+          sometimes: "It doesn't depend: each derived rule has a proof with base rules only, and that proof works for any formulas.",
+          never: "MT has a proof with base rules only. A derived rule shortens a proof, but gives you nothing new.",
         },
       },
     },

@@ -127,8 +127,8 @@ const titleVisible = (id) => `(() => {
   return title.top >= stuck && title.bottom <= innerHeight * 0.6;
 })()`;
 
-// As figuras de regra são as últimas a montar: a sua altura empurra as secções seguintes.
-const figuresReady = `document.querySelectorAll(".lesson-rule").length === 6 && document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
+// As figuras das derivadas são as últimas a montar: a sua altura empurra as secções seguintes.
+const figuresReady = `document.querySelectorAll(".lesson-rule").length === 12 && document.querySelectorAll(".lesson-derived").length === 7 &&document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
 
 async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path, lang) {
   const tag = (what) => `${lang} 390px: ${what}`;
@@ -185,13 +185,20 @@ async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path,
   await writeScreenshot(page, `${lang}-pergunta`);
 
   // Cada figura de regra tem um erro assinalado, e as provas não alargam a página.
-  expect(await evaluate(`document.querySelectorAll('.lesson-rule [data-state="error"]').length`), 6, tag("uma linha errada por figura"));
+  expect(await evaluate(`document.querySelectorAll('.lesson-rule [data-state="error"]').length`), 12, tag("uma linha errada por figura"));
   expect(await evaluate(`[...document.querySelectorAll(".lesson-rule")].every((figure) => figure.querySelector(".msg-warn") !== null)`), true, tag("cada erro explicado"));
   expect(await evaluate(`[...document.querySelectorAll(".lesson-interactive")].every((box) => box.getBoundingClientRect().right <= 390)`), true, tag("figuras dentro do ecrã"));
   expect(await evaluate(`document.documentElement.scrollWidth <= 390`), true, tag("sem scroll lateral com as regras"));
   await evaluate(`document.querySelector('[data-lesson-rule="implIntro"]').scrollIntoView({ behavior: "instant" })`);
   await sleep(300);
   await writeScreenshot(page, `${lang}-regra`);
+
+  // Cada derivada mostra a prova de todas as formas, e nenhuma linha fica cortada a 390px.
+  expect(await evaluate(`[...document.querySelectorAll(".lesson-derived")].map((figure) => figure.querySelectorAll(".lesson-proof__view").length)`), [1, 1, 1, 1, 4, 1, 2], tag("uma prova por forma"));
+  expect(await evaluate(`[...document.querySelectorAll(".lesson-derived .lesson-proof__view")].every((view) => view.scrollWidth <= view.clientWidth + 1)`), true, tag("provas das derivadas sem corte"));
+  await evaluate(`document.querySelector('[data-lesson-derived="deMorgan"]').scrollIntoView({ behavior: "instant" })`);
+  await sleep(300);
+  await writeScreenshot(page, `${lang}-derivada`);
 }
 
 async function desktop({ page, evaluate, resize }, origin, path, lang) {

@@ -132,18 +132,55 @@
           <div class="lesson-prose">
             <p data-i18n="learn.or.p1">Para chegar a φ ∨ ψ basta uma das fórmulas. Usar uma disjunção dá mais trabalho: não sabes qual delas é verdadeira, por isso tratas os dois casos.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-rule="orIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p2">A fórmula que acrescentas com ∨I pode ser qualquer uma, até uma que não apareça em mais lado nenhum. O preço é perder informação: de a passas a saber só que a ou b é verdadeira. Por isso, ∨I costuma ser o último passo, quando já sabes qual dos lados consegues provar.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="orElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p3">Em ∨E, cada caso é uma subdedução separada, e o que escreves num não se pode citar no outro. A conclusão pode nem falar de φ nem de ψ. Só tem de ser a mesma fórmula na última linha dos dois casos, e é essa que passa para fora.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="orCases"></div>
         </section>
         <section class="lesson-section" id="negacao" aria-labelledby="negacao-title">
           <h2 class="lesson-section__title" id="negacao-title"><span class="lesson-section__num">06</span> <span data-section-title data-i18n="learn.sections.not">Negação (¬) e F</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.not.p1">Negar φ é mostrar que φ leva a uma contradição, que se escreve F. É aqui que entram ¬I, ¬E, FI e FE.</p>
+            <p data-i18n="learn.not.p2">F é uma fórmula como as outras, mas nunca é verdadeira. Noutros textos aparece como ⊥, e aqui também a podes escrever assim, embora o site mostre sempre F. A maneira habitual de lá chegar é a regra FI.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-rule="falseIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p3">Com F já se pode negar. A regra ¬I segue a ideia da abertura: supões φ, chegas a F e concluis que φ não pode ser verdadeira.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="notIntro"></div>
+          <div class="lesson-interactive" data-lesson-check="closeNegated"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p4">A eliminação faz muito pouco: tira duas negações seguidas, e mais nada. Não há regra que te dê φ a partir de ¬φ, porque as duas fórmulas dizem o contrário uma da outra.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="notElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p5">Falta FE. De uma contradição podes escrever qualquer fórmula. Parece estranho, mas uma linha com F só aparece numa situação impossível, onde já nada há a distinguir. É sobretudo útil em ∨E: um caso que contradiz o resto acaba em F, e FE faz com que dê a fórmula a que o outro caso chega.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="falseElim"></div>
         </section>
         <section class="lesson-section" id="derivadas" aria-labelledby="derivadas-title">
           <h2 class="lesson-section__title" id="derivadas-title"><span class="lesson-section__num">07</span> <span data-section-title data-i18n="learn.sections.derived">Regras derivadas</span></h2>
           <div class="lesson-prose">
             <p data-i18n="learn.derived.p1">Algumas provas repetem sempre o mesmo padrão. As regras derivadas dão-lhe um nome, e cada uma delas pode ser substituída por uma prova só com regras base.</p>
+            <p data-i18n="learn.derived.p2">Uma regra derivada não te deixa provar nada de novo. Encurta o que já consegues provar. Cada figura traz o esquema, o momento certo para a usar e uma prova só com regras base. Essas provas estão escritas com p, q e r, mas valem para quaisquer fórmulas no lugar de φ, ψ e θ: basta trocar as letras.</p>
           </div>
+          <div class="lesson-interactive" data-lesson-derived="modusTollens"></div>
+          <div class="lesson-interactive" data-lesson-derived="doubleNegationIntro"></div>
+          <div class="lesson-interactive" data-lesson-derived="reductio"></div>
+          <div class="lesson-interactive" data-lesson-derived="excludedMiddle"></div>
+          <div class="lesson-interactive" data-lesson-derived="deMorgan"></div>
+          <div class="lesson-interactive" data-lesson-derived="hypotheticalSyllogism"></div>
+          <div class="lesson-interactive" data-lesson-derived="disjunctiveSyllogism"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.derived.p3">Numa prova, uma derivada usa-se como qualquer outra regra: escreves a sigla e citas as linhas. Com MT, esta prova faz em duas linhas o que, só com regras base, pediria duas subdeduções.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="derivedUse"></div>
+          <div class="lesson-interactive" data-lesson-check="rewriteDerived"></div>
         </section>
         <section class="lesson-section" id="estrategias" aria-labelledby="estrategias-title">
           <h2 class="lesson-section__title" id="estrategias-title"><span class="lesson-section__num">08</span> <span data-section-title data-i18n="learn.sections.strategy">Estratégias</span></h2>
