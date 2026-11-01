@@ -63,10 +63,10 @@ run "lang-play" "/passo-a-passo" "$WAIT
 # 2) Aprender: o hash vai com a troca de idioma.
 run "lang-hash" "/aprender" "$WAIT
   $SWITCH
-  const { frame, doc } = await openFrame('/aprender#regras');
+  const { frame, doc } = await openFrame('/aprender#negacao');
   const en = await toEn(frame, doc);
   const url = frame.contentWindow.location;
-  if (url.pathname + url.hash !== '/en/learn#regras') throw new Error('foi para ' + url.pathname + url.hash);
+  if (url.pathname + url.hash !== '/en/learn#negacao') throw new Error('foi para ' + url.pathname + url.hash);
   if (en.documentElement.lang !== 'en') throw new Error('lang=' + en.documentElement.lang);"
 
 # 3) O link de idioma do rodapé faz o mesmo que o seletor, e o seletor volta ao PT.

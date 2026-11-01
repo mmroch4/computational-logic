@@ -102,12 +102,22 @@
   --header-border: 0px; /* sem linha no mobile */
   --credits-bar-height: 36px;
   --tabbar-height: 64px;
+
+  /* Lição: o que fica tapado no topo e o que a barra do índice (52px) acrescenta a isso. */
+  --lesson-sticky-top: calc(var(--header-height) + var(--header-border));
+  --lesson-toc-bar: 52px;
 }
 
 @media (min-width: 768px) {
   :root {
     --header-height: 60px;
     --header-border: 1px;
+  }
+}
+
+@media (min-width: 1080px) {
+  :root {
+    --lesson-toc-bar: 0px;
   }
 }
 
@@ -709,7 +719,8 @@
   }
 
   /* Sem a transição do Basecoat: durante ela o conteúdo ainda não recebe o foco. */
-  .dd::details-content {
+  .dd::details-content,
+  .lesson-toc__details::details-content {
     transition: none;
   }
 
@@ -1105,6 +1116,492 @@
     }
 
     .tabbar {
+      display: none;
+    }
+  }
+
+  /* A barra do índice também tapa o topo. No html, e não como scroll-margin da secção, para o foco do
+     teclado também ficar à vista. */
+  html:has(.lesson) {
+    scroll-padding-top: calc(var(--header-height) + var(--lesson-toc-bar) + 16px);
+  }
+
+  /* Aprender: índice à esquerda e artigo de 42rem. Abaixo dos 1080px, o índice é uma barra fixa que abre
+     uma folha. --lesson-progress vem do lesson-toc.js. */
+  .lesson {
+    padding-top: 0;
+    padding-inline: 20px;
+    padding-bottom: 40px;
+  }
+
+  .lesson__body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+    max-width: var(--prose-max);
+    margin-inline: auto;
+    padding-top: 28px;
+  }
+
+  .lesson__eyebrow {
+    color: var(--color-text-subtle);
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+  }
+
+  .lesson__title {
+    font-size: 32px;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  .lesson__lead,
+  .lesson-prose {
+    color: var(--color-text-2);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .lesson-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    margin-top: 32px;
+  }
+
+  /* Uma secção à espera de aparecer (js/ui/lesson-reveal.js); na impressão nunca fica escondida. */
+  @media screen {
+    .lesson-section.is-waiting {
+      opacity: 0;
+    }
+  }
+
+  .lesson-section__title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 24px;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+
+  .lesson-section__num {
+    flex: none;
+    color: var(--color-text-subtle);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: var(--weight-medium);
+    letter-spacing: 0;
+  }
+
+  .lesson-prose {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .lesson-interactive {
+    min-width: 0;
+    margin-block: 8px;
+  }
+
+  /* O índice nasce no JS: a altura da barra fica reservada, para o artigo não saltar. */
+  .lesson-toc:empty {
+    height: 52px;
+  }
+
+  .lesson-toc {
+    position: sticky;
+    top: var(--lesson-sticky-top);
+    z-index: 10;
+    margin-inline: -20px;
+    background: var(--color-bg);
+  }
+
+  .lesson-toc__summary {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 52px;
+    padding-inline: 20px;
+    border-bottom: 1px solid var(--color-hairline);
+    font-size: 14px;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .lesson-toc__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lesson-toc__position,
+  .lesson-toc__count,
+  .lesson-toc__state,
+  .lesson-toc__heading {
+    flex: none;
+    color: var(--color-text-subtle);
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+  }
+
+  .lesson-toc__current {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-weight: var(--weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .lesson-toc__line {
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 2px;
+    background: var(--color-ink);
+    transform: scaleX(var(--lesson-progress, 0));
+    transform-origin: left center;
+  }
+
+  .lesson-toc__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .lesson-toc__meter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .lesson-progress {
+    flex: 1;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--color-border);
+  }
+
+  .lesson-progress__bar {
+    height: 100%;
+    background: var(--color-ink);
+    transform: scaleX(var(--lesson-progress, 0));
+    transform-origin: left center;
+  }
+
+  .lesson-toc__count,
+  .lesson-toc__state {
+    display: none;
+  }
+
+  .lesson-toc__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .lesson-toc__link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 36px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-subtle);
+    font-size: 14px;
+    line-height: 1.3;
+    text-decoration: none;
+  }
+
+  .lesson-toc__item--done .lesson-toc__link {
+    color: var(--color-text-2);
+  }
+
+  .lesson-toc__link:hover {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .lesson-toc__link[aria-current="location"] {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+  }
+
+  .lesson-toc__num {
+    flex: none;
+    width: 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .lesson-toc__title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .lesson-toc__check {
+    width: 14px;
+    height: 14px;
+    color: var(--color-ev-ok);
+    stroke-width: 2.5;
+  }
+
+  /* Na folha: sem o rótulo (a folha já tem título), itens de 52px e o estado escrito à direita. */
+  .sheet .lesson-toc__heading {
+    display: none;
+  }
+
+  .sheet .lesson-toc__meter {
+    padding: 0 12px 10px;
+  }
+
+  .sheet .lesson-progress {
+    height: 4px;
+  }
+
+  .sheet .lesson-toc__count,
+  .sheet .lesson-toc__state {
+    display: inline;
+  }
+
+  .sheet .lesson-toc__panel,
+  .sheet .lesson-toc__list {
+    gap: 0;
+  }
+
+  .sheet .lesson-toc__link {
+    min-height: 52px;
+    padding: 8px 12px;
+    color: var(--color-text-muted);
+    font-size: 15px;
+  }
+
+  .sheet .lesson-toc__item--done .lesson-toc__link {
+    color: var(--color-text);
+  }
+
+  .sheet .lesson-toc__num {
+    width: 20px;
+    font-size: 13px;
+  }
+
+  .sheet .lesson-toc__check {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Figuras da lição: um bloco em --color-surface, mais largo do que o texto. */
+  .lesson-figure {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    margin-inline: -8px;
+    padding: 16px;
+    border-radius: 20px;
+    background: var(--color-surface);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .lesson-figure__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .lesson-figure__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .lesson-figure__icon .ic {
+    width: 14px;
+    height: 14px;
+  }
+
+  .lesson-figure__title {
+    min-width: 0;
+    font-size: 15px;
+    font-weight: var(--weight-semibold);
+  }
+
+  .lesson-figure__tag {
+    flex: none;
+    margin-left: auto;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+  }
+
+  .lesson-proof__view {
+    min-width: 0;
+  }
+
+  /* As linhas por revelar guardam o lugar. Na impressão vê-se a prova toda. */
+  @media screen {
+    .lesson-proof .fitch__line[data-step-mark="future"] {
+      visibility: hidden;
+    }
+  }
+
+  .lesson-proof__steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .lesson-proof__counter {
+    color: var(--color-text-muted);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .lesson-check__question {
+    color: var(--color-text);
+    font-size: 15px;
+  }
+
+  .lesson-check__options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lesson-check__option {
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .lesson-check__option:hover {
+    background: var(--color-surface-2);
+  }
+
+  .lesson-check__option[aria-pressed="true"] {
+    border-color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-ink);
+  }
+
+  .lesson-check__option:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 1px;
+  }
+
+  .lesson-check__feedback:empty {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .lesson {
+      padding-inline: 32px;
+      padding-bottom: 80px;
+    }
+
+    .lesson-toc {
+      margin-inline: -32px;
+    }
+
+    .lesson-toc__summary {
+      padding-inline: 32px;
+    }
+
+    .lesson__body,
+    .lesson-section,
+    .lesson-prose {
+      gap: 20px;
+    }
+
+    .lesson__body {
+      padding-top: 40px;
+    }
+
+    .lesson__eyebrow {
+      font-size: 13px;
+    }
+
+    .lesson__title {
+      font-size: 48px;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+    }
+
+    .lesson__lead,
+    .lesson-prose {
+      font-size: 18px;
+    }
+
+    .lesson-section {
+      margin-top: 48px;
+    }
+
+    .lesson-section__title {
+      font-size: 30px;
+    }
+
+    .lesson-section__num {
+      font-size: 15px;
+    }
+
+    .lesson-interactive {
+      margin-block: 12px;
+    }
+
+    .lesson-figure {
+      margin-inline: -48px;
+      padding: 24px;
+    }
+  }
+
+  /* 1080px e não 1024px: com uma barra de scroll clássica, os blocos passavam a margem da direita. */
+  @media (min-width: 1080px) {
+    .lesson {
+      padding-top: 56px;
+    }
+
+    .lesson__layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 64px;
+      align-items: start;
+    }
+
+    .lesson__body {
+      margin-inline: 0;
+      padding-top: 0;
+    }
+
+    .lesson-toc {
+      top: calc(var(--lesson-sticky-top) + 24px);
+      margin-inline: 0;
+      padding-top: 8px;
+      background: none;
+    }
+
+    .lesson-toc__summary {
       display: none;
     }
   }

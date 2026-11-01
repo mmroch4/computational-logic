@@ -45,7 +45,7 @@ test("cada entry monta o layout, que traz a barra de créditos, o cabeçalho e o
 });
 
 test("as páginas por acabar têm estado vazio, com o texto próprio de cada uma", () => {
-  const unfinished = Object.entries(PAGES).filter(([, page]) => !["notFound", "exercises"].includes(page));
+  const unfinished = Object.entries(PAGES).filter(([, page]) => !["notFound", "exercises", "learn"].includes(page));
   for (const [file, page] of unfinished) {
     const html = read(file);
     assert.match(html, /<div class="empty-state">/, file);

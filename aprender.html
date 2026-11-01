@@ -41,25 +41,87 @@
   <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
   <link rel="modulepreload" href="/js/pages/aprender.js">
   <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/lesson-toc.js">
+  <link rel="modulepreload" href="/js/ui/lesson-reveal.js">
   <link rel="modulepreload" href="/js/ui/config.js">
   <link rel="modulepreload" href="/js/ui/i18n.js">
   <link rel="modulepreload" href="/js/core/routes.js">
   <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/ui/segmented.js">
   <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
   <link rel="modulepreload" href="/js/ui/locales/pt.js">
   <link rel="modulepreload" href="/js/ui/locales/en.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/aprender.js"></script>
 </head>
 <body data-page="learn">
-  <main id="main" class="wrap page-empty">
-    <h1 class="page-empty__title" data-i18n="learn.title">Aprender dedução natural</h1>
-    <p class="page-empty__lead" data-i18n="learn.lead">Uma lição sobre as regras, as subdeduções e as estratégias para encontrar uma prova.</p>
-    <div class="empty-state">
-      <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 9l10-5 10 5-10 5zM6 11v5c3 2.5 9 2.5 12 0v-5"/></svg></span>
-      <h2 class="empty-state__heading" data-i18n="emptyState.heading">Ainda em construção</h2>
-      <p class="empty-state__hint" data-i18n="learn.empty">A lição ainda não está disponível nesta página.</p>
+  <main id="main" class="wrap lesson">
+    <div class="lesson__layout">
+      <nav class="lesson-toc" id="lesson-toc" data-i18n-attr="aria-label:learn.toc.title" aria-label="Nesta lição"></nav>
+      <article class="lesson__body">
+        <p class="lesson__eyebrow" data-i18n="learn.eyebrow">Lição · 9 secções</p>
+        <h1 class="lesson__title" data-i18n="learn.title">Aprender dedução natural</h1>
+        <p class="lesson__lead" data-i18n="learn.lead">Uma lição sobre as regras, as subdeduções e as estratégias para encontrar uma prova.</p>
+        <section class="lesson-section" id="prova" aria-labelledby="prova-title">
+          <h2 class="lesson-section__title" id="prova-title"><span class="lesson-section__num">01</span> <span data-section-title data-i18n="learn.sections.proof">O que é uma prova</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.proof.p1">Uma prova parte das premissas e chega à conclusão por passos pequenos, cada um justificado por uma regra. Em notação de Fitch, cada linha diz a fórmula, a regra que a permite e as linhas em que essa regra se apoia. Se todas as linhas estiverem certas, a conclusão segue das premissas.</p>
+            <p data-i18n="learn.proof.p2">Avança pela prova abaixo, linha a linha, e repara no que cada justificação cita.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="firstProof" data-stepped></div>
+          <div class="lesson-interactive" data-lesson-check="firstRule"></div>
+        </section>
+        <section class="lesson-section" id="conjuncao" aria-labelledby="conjuncao-title">
+          <h2 class="lesson-section__title" id="conjuncao-title"><span class="lesson-section__num">02</span> <span data-section-title data-i18n="learn.sections.and">Conjunção (∧)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.and.p1">A conjunção é o melhor sítio para começar: φ ∧ ψ afirma as duas fórmulas, por isso há uma regra para as juntar e outra para as separar.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="implicacao" aria-labelledby="implicacao-title">
+          <h2 class="lesson-section__title" id="implicacao-title"><span class="lesson-section__num">03</span> <span data-section-title data-i18n="learn.sections.implies">Implicação (→)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p1">Uma implicação φ → ψ é uma promessa: sempre que tiveres φ, tens ψ. Esta secção mostra como cumprir essa promessa com →E.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="subdeducoes" aria-labelledby="subdeducoes-title">
+          <h2 class="lesson-section__title" id="subdeducoes-title"><span class="lesson-section__num">04</span> <span data-section-title data-i18n="learn.sections.scope">Subdeduções e escopo</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p1">Para provar φ → ψ, supões φ numa subdedução e chegas a ψ. Aqui ficas a saber quando uma linha pode ser citada e quando deixa de o poder.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="disjuncao" aria-labelledby="disjuncao-title">
+          <h2 class="lesson-section__title" id="disjuncao-title"><span class="lesson-section__num">05</span> <span data-section-title data-i18n="learn.sections.or">Disjunção (∨)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p1">Para chegar a φ ∨ ψ basta uma das fórmulas. Usar uma disjunção dá mais trabalho: não sabes qual delas é verdadeira, por isso tratas os dois casos.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="negacao" aria-labelledby="negacao-title">
+          <h2 class="lesson-section__title" id="negacao-title"><span class="lesson-section__num">06</span> <span data-section-title data-i18n="learn.sections.not">Negação (¬) e F</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p1">Negar φ é mostrar que φ leva a uma contradição, que se escreve F. É aqui que entram ¬I, ¬E, FI e FE.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="derivadas" aria-labelledby="derivadas-title">
+          <h2 class="lesson-section__title" id="derivadas-title"><span class="lesson-section__num">07</span> <span data-section-title data-i18n="learn.sections.derived">Regras derivadas</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.derived.p1">Algumas provas repetem sempre o mesmo padrão. As regras derivadas dão-lhe um nome, e cada uma delas pode ser substituída por uma prova só com regras base.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="estrategias" aria-labelledby="estrategias-title">
+          <h2 class="lesson-section__title" id="estrategias-title"><span class="lesson-section__num">08</span> <span data-section-title data-i18n="learn.sections.strategy">Estratégias</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.p1">A forma da conclusão e das premissas costuma dizer qual é o passo seguinte. Estas são as perguntas a fazer quando não sabes por onde continuar.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="solidez" aria-labelledby="solidez-title">
+          <h2 class="lesson-section__title" id="solidez-title"><span class="lesson-section__num">09</span> <span data-section-title data-i18n="learn.sections.meta">Solidez e completude</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.meta.p1">Fica a pergunta de fundo: o que consegues provar coincide com o que é verdadeiro em todas as valorações? A solidez e a completude dizem que sim.</p>
+          </div>
+        </section>
+      </article>
     </div>
   </main>
   <!-- footer (gerado por scripts/build-pages.mjs) -->

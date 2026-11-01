@@ -272,7 +272,79 @@ export default {
   learn: {
     title: "Aprender dedução natural",
     lead: "Uma lição sobre as regras, as subdeduções e as estratégias para encontrar uma prova.",
-    empty: "A lição ainda não está disponível nesta página.",
+    eyebrow: "Lição · 9 secções",
+    interactive: "Interativo",
+    progressLabel: "Progresso da leitura",
+    toc: {
+      title: "Nesta lição",
+      done: "lida",
+      read: "Lida",
+      reading: "A ler",
+      count: "{n} de {total} lidas",
+    },
+    sections: {
+      proof: "O que é uma prova",
+      and: "Conjunção (∧)",
+      implies: "Implicação (→)",
+      scope: "Subdeduções e escopo",
+      or: "Disjunção (∨)",
+      not: "Negação (¬) e F",
+      derived: "Regras derivadas",
+      strategy: "Estratégias",
+      meta: "Solidez e completude",
+    },
+    proof: {
+      p1: "Uma prova parte das premissas e chega à conclusão por passos pequenos, cada um justificado por uma regra. Em notação de Fitch, cada linha diz a fórmula, a regra que a permite e as linhas em que essa regra se apoia. Se todas as linhas estiverem certas, a conclusão segue das premissas.",
+      p2: "Avança pela prova abaixo, linha a linha, e repara no que cada justificação cita.",
+    },
+    and: {
+      p1: "A conjunção é o melhor sítio para começar: φ ∧ ψ afirma as duas fórmulas, por isso há uma regra para as juntar e outra para as separar.",
+    },
+    implies: {
+      p1: "Uma implicação φ → ψ é uma promessa: sempre que tiveres φ, tens ψ. Esta secção mostra como cumprir essa promessa com →E.",
+    },
+    scope: {
+      p1: "Para provar φ → ψ, supões φ numa subdedução e chegas a ψ. Aqui ficas a saber quando uma linha pode ser citada e quando deixa de o poder.",
+    },
+    or: {
+      p1: "Para chegar a φ ∨ ψ basta uma das fórmulas. Usar uma disjunção dá mais trabalho: não sabes qual delas é verdadeira, por isso tratas os dois casos.",
+    },
+    not: {
+      p1: "Negar φ é mostrar que φ leva a uma contradição, que se escreve F. É aqui que entram ¬I, ¬E, FI e FE.",
+    },
+    derived: {
+      p1: "Algumas provas repetem sempre o mesmo padrão. As regras derivadas dão-lhe um nome, e cada uma delas pode ser substituída por uma prova só com regras base.",
+    },
+    strategy: {
+      p1: "A forma da conclusão e das premissas costuma dizer qual é o passo seguinte. Estas são as perguntas a fazer quando não sabes por onde continuar.",
+    },
+    meta: {
+      p1: "Fica a pergunta de fundo: o que consegues provar coincide com o que é verdadeiro em todas as valorações? A solidez e a completude dizem que sim.",
+    },
+    proofFigure: {
+      prev: "Anterior",
+      next: "Seguinte",
+      counter: "Linha {shown} de {total}",
+    },
+    figures: {
+      firstProof: "Uma prova com seis linhas",
+    },
+    check: {
+      title: "Antes de continuares",
+      right: "Certo.",
+      wrong: "Ainda não.",
+    },
+    checks: {
+      firstRule: {
+        question: "A linha 4 da prova acima escreve c. Que regra a justifica?",
+        options: { andE: "∧E", implE: "→E", andI: "∧I" },
+        why: {
+          andE: "∧E tira um dos lados de uma conjunção, e c não é um dos lados de a ∧ b.",
+          implE: "→E junta a → c, da linha 2, com a, da linha 3, e dá c.",
+          andI: "∧I escreve uma conjunção, e c não é uma conjunção.",
+        },
+      },
+    },
   },
   exercises: {
     title: "Exercícios de dedução natural",

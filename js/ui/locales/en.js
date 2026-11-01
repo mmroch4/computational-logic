@@ -271,7 +271,79 @@ export default {
   learn: {
     title: "Learn natural deduction",
     lead: "A lesson on the rules, subproofs and the strategies for finding a proof.",
-    empty: "The lesson is not available on this page yet.",
+    eyebrow: "Lesson · 9 sections",
+    interactive: "Interactive",
+    progressLabel: "Reading progress",
+    toc: {
+      title: "In this lesson",
+      done: "read",
+      read: "Read",
+      reading: "Reading",
+      count: "{n} of {total} read",
+    },
+    sections: {
+      proof: "What a proof is",
+      and: "Conjunction (∧)",
+      implies: "Implication (→)",
+      scope: "Subproofs and scope",
+      or: "Disjunction (∨)",
+      not: "Negation (¬) and F",
+      derived: "Derived rules",
+      strategy: "Strategies",
+      meta: "Soundness and completeness",
+    },
+    proof: {
+      p1: "A proof starts from the premises and reaches the conclusion in small steps, each justified by a rule. In Fitch notation, every line states the formula, the rule that allows it and the lines that rule relies on. If every line is correct, the conclusion follows from the premises.",
+      p2: "Step through the proof below, line by line, and notice what each justification cites.",
+    },
+    and: {
+      p1: "Conjunction is the best place to start: φ ∧ ψ asserts both formulas, so there is one rule to join them and another to split them.",
+    },
+    implies: {
+      p1: "An implication φ → ψ is a promise: whenever you have φ, you have ψ. This section shows how to collect on that promise with →E.",
+    },
+    scope: {
+      p1: "To prove φ → ψ, you assume φ in a subproof and reach ψ. Here you learn when a line can be cited and when it no longer can.",
+    },
+    or: {
+      p1: "To reach φ ∨ ψ, one of the formulas is enough. Using a disjunction takes more work: you don't know which one is true, so you handle both cases.",
+    },
+    not: {
+      p1: "To deny φ is to show that φ leads to a contradiction, written F. This is where ¬I, ¬E, FI and FE come in.",
+    },
+    derived: {
+      p1: "Some proofs repeat the same pattern every time. Derived rules give it a name, and each of them can be replaced by a proof that uses only base rules.",
+    },
+    strategy: {
+      p1: "The shape of the conclusion and the premises usually tells you the next step. These are the questions to ask when you don't know how to go on.",
+    },
+    meta: {
+      p1: "That leaves the big question: does what you can prove match what is true under every valuation? Soundness and completeness say that it does.",
+    },
+    proofFigure: {
+      prev: "Previous",
+      next: "Next",
+      counter: "Line {shown} of {total}",
+    },
+    figures: {
+      firstProof: "A six-line proof",
+    },
+    check: {
+      title: "Before you go on",
+      right: "Correct.",
+      wrong: "Not yet.",
+    },
+    checks: {
+      firstRule: {
+        question: "Line 4 of the proof above writes c. Which rule justifies it?",
+        options: { andE: "∧E", implE: "→E", andI: "∧I" },
+        why: {
+          andE: "∧E takes one side of a conjunction, and c is not a side of a ∧ b.",
+          implE: "→E combines a → c, from line 2, with a, from line 3, and gives c.",
+          andI: "∧I writes a conjunction, and c is not a conjunction.",
+        },
+      },
+    },
   },
   exercises: {
     title: "Natural deduction exercises",

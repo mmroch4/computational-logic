@@ -128,7 +128,8 @@ export function a11yAudit() {
       problems.push(`Contraste ${ratio.toFixed(2)}:1 em «${sample.trim().slice(0, 24)}»: ${describe(el)}`);
     }
   };
-  const legible = (el) => !el.closest(".sr-only, .skip-link, [hidden]") && el.checkVisibility({ visibilityProperty: true, opacityProperty: false }) && visible(el);
+  // Uma secção da lição à espera de aparecer: o check-all mede-a com movimento reduzido, em que nunca espera.
+  const legible = (el) => !el.closest(".sr-only, .skip-link, [hidden], .is-waiting") && el.checkVisibility({ visibilityProperty: true, opacityProperty: false }) && visible(el);
   const exempt = (el) => el.matches(":disabled:not(.fitch-pick), :disabled *") && !el.closest(".fitch-pick");
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {

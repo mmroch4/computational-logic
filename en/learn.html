@@ -42,25 +42,87 @@
   <!-- modulepreload (gerado por scripts/modulepreload.mjs) -->
   <link rel="modulepreload" href="/js/pages/aprender.js">
   <link rel="modulepreload" href="/js/ui/layout.js">
+  <link rel="modulepreload" href="/js/ui/lesson-toc.js">
+  <link rel="modulepreload" href="/js/ui/lesson-reveal.js">
   <link rel="modulepreload" href="/js/ui/config.js">
   <link rel="modulepreload" href="/js/ui/i18n.js">
   <link rel="modulepreload" href="/js/core/routes.js">
   <link rel="modulepreload" href="/js/ui/storage.js">
   <link rel="modulepreload" href="/js/ui/segmented.js">
   <link rel="modulepreload" href="/js/ui/analytics.js">
+  <link rel="modulepreload" href="/js/ui/sheet.js">
+  <link rel="modulepreload" href="/js/ui/motion.js">
   <link rel="modulepreload" href="/js/ui/locales/pt.js">
   <link rel="modulepreload" href="/js/ui/locales/en.js">
   <!-- /modulepreload -->
   <script type="module" src="/js/pages/aprender.js"></script>
 </head>
 <body data-page="learn">
-  <main id="main" class="wrap page-empty">
-    <h1 class="page-empty__title" data-i18n="learn.title">Learn natural deduction</h1>
-    <p class="page-empty__lead" data-i18n="learn.lead">A lesson on the rules, subproofs and the strategies for finding a proof.</p>
-    <div class="empty-state">
-      <span class="empty-state__icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 9l10-5 10 5-10 5zM6 11v5c3 2.5 9 2.5 12 0v-5"/></svg></span>
-      <h2 class="empty-state__heading" data-i18n="emptyState.heading">Still under construction</h2>
-      <p class="empty-state__hint" data-i18n="learn.empty">The lesson is not available on this page yet.</p>
+  <main id="main" class="wrap lesson">
+    <div class="lesson__layout">
+      <nav class="lesson-toc" id="lesson-toc" data-i18n-attr="aria-label:learn.toc.title" aria-label="In this lesson"></nav>
+      <article class="lesson__body">
+        <p class="lesson__eyebrow" data-i18n="learn.eyebrow">Lesson · 9 sections</p>
+        <h1 class="lesson__title" data-i18n="learn.title">Learn natural deduction</h1>
+        <p class="lesson__lead" data-i18n="learn.lead">A lesson on the rules, subproofs and the strategies for finding a proof.</p>
+        <section class="lesson-section" id="prova" aria-labelledby="prova-title">
+          <h2 class="lesson-section__title" id="prova-title"><span class="lesson-section__num">01</span> <span data-section-title data-i18n="learn.sections.proof">What a proof is</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.proof.p1">A proof starts from the premises and reaches the conclusion in small steps, each justified by a rule. In Fitch notation, every line states the formula, the rule that allows it and the lines that rule relies on. If every line is correct, the conclusion follows from the premises.</p>
+            <p data-i18n="learn.proof.p2">Step through the proof below, line by line, and notice what each justification cites.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="firstProof" data-stepped></div>
+          <div class="lesson-interactive" data-lesson-check="firstRule"></div>
+        </section>
+        <section class="lesson-section" id="conjuncao" aria-labelledby="conjuncao-title">
+          <h2 class="lesson-section__title" id="conjuncao-title"><span class="lesson-section__num">02</span> <span data-section-title data-i18n="learn.sections.and">Conjunction (∧)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.and.p1">Conjunction is the best place to start: φ ∧ ψ asserts both formulas, so there is one rule to join them and another to split them.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="implicacao" aria-labelledby="implicacao-title">
+          <h2 class="lesson-section__title" id="implicacao-title"><span class="lesson-section__num">03</span> <span data-section-title data-i18n="learn.sections.implies">Implication (→)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.implies.p1">An implication φ → ψ is a promise: whenever you have φ, you have ψ. This section shows how to collect on that promise with →E.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="subdeducoes" aria-labelledby="subdeducoes-title">
+          <h2 class="lesson-section__title" id="subdeducoes-title"><span class="lesson-section__num">04</span> <span data-section-title data-i18n="learn.sections.scope">Subproofs and scope</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.scope.p1">To prove φ → ψ, you assume φ in a subproof and reach ψ. Here you learn when a line can be cited and when it no longer can.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="disjuncao" aria-labelledby="disjuncao-title">
+          <h2 class="lesson-section__title" id="disjuncao-title"><span class="lesson-section__num">05</span> <span data-section-title data-i18n="learn.sections.or">Disjunction (∨)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.or.p1">To reach φ ∨ ψ, one of the formulas is enough. Using a disjunction takes more work: you don&#39;t know which one is true, so you handle both cases.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="negacao" aria-labelledby="negacao-title">
+          <h2 class="lesson-section__title" id="negacao-title"><span class="lesson-section__num">06</span> <span data-section-title data-i18n="learn.sections.not">Negation (¬) and F</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.not.p1">To deny φ is to show that φ leads to a contradiction, written F. This is where ¬I, ¬E, FI and FE come in.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="derivadas" aria-labelledby="derivadas-title">
+          <h2 class="lesson-section__title" id="derivadas-title"><span class="lesson-section__num">07</span> <span data-section-title data-i18n="learn.sections.derived">Derived rules</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.derived.p1">Some proofs repeat the same pattern every time. Derived rules give it a name, and each of them can be replaced by a proof that uses only base rules.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="estrategias" aria-labelledby="estrategias-title">
+          <h2 class="lesson-section__title" id="estrategias-title"><span class="lesson-section__num">08</span> <span data-section-title data-i18n="learn.sections.strategy">Strategies</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.strategy.p1">The shape of the conclusion and the premises usually tells you the next step. These are the questions to ask when you don&#39;t know how to go on.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="solidez" aria-labelledby="solidez-title">
+          <h2 class="lesson-section__title" id="solidez-title"><span class="lesson-section__num">09</span> <span data-section-title data-i18n="learn.sections.meta">Soundness and completeness</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.meta.p1">That leaves the big question: does what you can prove match what is true under every valuation? Soundness and completeness say that it does.</p>
+          </div>
+        </section>
+      </article>
     </div>
   </main>
   <!-- footer (gerado por scripts/build-pages.mjs) -->
