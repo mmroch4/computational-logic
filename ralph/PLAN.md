@@ -180,7 +180,7 @@ dicas opcionais. Regista progresso com «resolvido» e «resolvido com regras pr
 ~50 exercícios originais em níveis, incluindo provar as regras derivadas com `base`.
 **Feito quando:** todas as soluções são aceites e nenhum enunciado é copiado de `conteudos/`.
 
-### [ ] E3 · Encontra o passo errado
+### [x] E3 · Encontra o passo errado
 ~10 provas originais com um erro, e modo para apontar a linha e explicar o erro por escolha múltipla.
 **Feito quando:** o verificador confirma que cada erro está exatamente na linha indicada.
 
