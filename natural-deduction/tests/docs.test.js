@@ -17,6 +17,20 @@ test("os scripts citados existem", () => {
   }
 });
 
+test("os links relativos resolvem", () => {
+  for (const doc of [...DOCS, "SPEC.md"]) {
+    for (const [, link] of read(doc).matchAll(/\]\((?![a-z][a-z+.-]*:|#)([^)#?\s]+)/g)) {
+      assert.ok(existsSync(new URL(`../${link}`, import.meta.url)), `${doc}: ${link}`);
+    }
+  }
+});
+
+test("o README clona a partir da raiz do monorepo e entra na pasta", () => {
+  const text = read("README.md");
+  assert.ok(text.includes("git clone https://github.com/mmroch4/computational-logic.git"));
+  assert.ok(text.includes("cd computational-logic/natural-deduction"));
+});
+
 test("os comandos npm citados existem", () => {
   for (const doc of DOCS) {
     for (const [, name] of read(doc).matchAll(/npm run ([\w:]+)/g)) {

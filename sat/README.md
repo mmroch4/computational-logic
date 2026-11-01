@@ -66,7 +66,7 @@ framework. Running it needs Node but no `npm install`.
 
 ```sh
 git clone https://github.com/mmroch4/computational-logic.git
-cd computational-logic
+cd computational-logic/sat
 node scripts/serve.mjs 8765      # http://localhost:8765/
 ```
 

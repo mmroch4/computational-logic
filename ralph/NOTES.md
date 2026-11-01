@@ -28,4 +28,9 @@
 ## M3 · A referência passa a ser `../sat`
 
 - O loop antigo está em `ralph/archive/natural-deduction/`. Os testes de deploy continuam a exigir `/ralph` e `/.reference` no `.vercelignore` e o 404 em `/ralph/PLAN.md`, que agora passa também por o ficheiro não existir. O `natural-deduction/.gitignore` ficou igual.
-- Pendente para a M4: `natural-deduction/SPEC.md:83` ainda aponta para `ralph/PLAN.md`, que saiu da pasta.
+
+## M4 · Documentação
+
+- Ao publicar a dedução natural (etapa 6.3), repor o «Live site» em `natural-deduction/README.md` e trocar «Not published yet» no `README.md` da raiz.
+- O `natural-deduction/tests/docs.test.js` passou a verificar os links relativos da pasta. `sat/` não tem `docs.test.js`, e os links do SAT e da raiz verificaram-se à mão.
+- O `README.md` da raiz não cita o hub: a M5 acrescenta-o à tabela e à estrutura.

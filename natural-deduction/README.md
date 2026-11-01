@@ -4,9 +4,6 @@ A free, interactive website to learn **natural deduction** proofs in Fitch notat
 logic. Write a sequent and prove it line by line, with every line checked as you go, or watch a
 generated proof step by step, with the strategy behind each step.
 
-**Live site:** [English](https://nd.computational-logic.miguelrocha.dev/en) ·
-[Português](https://nd.computational-logic.miguelrocha.dev)
-
 ## Pages
 
 Each page has its own URL in each language: Portuguese at the root, English under `/en`.

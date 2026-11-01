@@ -69,10 +69,16 @@ Segue a base técnica do `davis-putnam-sat`: HTML estático, ES modules, `js/cor
 
 ## Publicação
 
-- Monorepo `computational-logic`: `sat/` com o site atual, sem alterar comportamento, e
-  `natural-deduction/` com projeto Vercel próprio.
+- Monorepo `computational-logic`, com `sat/` e `natural-deduction/` como pacotes independentes. Cada
+  pasta tem um projeto Vercel próprio, ligado ao GitHub, com o Root Directory nessa pasta.
+- Sem passo de build: os ficheiros gerados estão no repositório, e o `.vercelignore` deixa fora do
+  deployment tudo o que não é o site.
+- `sat/` é o site atual, sem alterar comportamento, e continua em
+  `sat.computational-logic.miguelrocha.dev`. A dedução natural publica-se em
+  `nd.computational-logic.miguelrocha.dev`.
 - Código partilhado só é extraído depois de as duas ferramentas estarem estáveis.
-- Mover o SAT exige confirmação, porque esse site já está publicado.
+- Publicar é uma etapa manual, fora do loop. Levar o monorepo a `main` exige confirmação, porque o
+  site do SAT já está publicado e tem de ter antes o Root Directory em `sat`.
 
 ## Dimensão do conteúdo
 
@@ -80,5 +86,5 @@ Lição de 9 secções e cerca de 60 exercícios, dos quais cerca de 10 são «e
 
 ## Construção
 
-A ordem das tarefas está em `ralph/PLAN.md`. A mudança para o monorepo e a publicação ficam fora do
-loop.
+A ordem das tarefas da construção está em `../ralph/archive/natural-deduction/PLAN.md`, e a da mudança
+para o monorepo em `../ralph/MONOREPO-PLAN.md`. A publicação fica fora do loop.
