@@ -23,7 +23,7 @@ Procura caminhos que assumam a raiz do repositório: `repository` nos `package.j
 de `.vercelignore`. Confirma que correr cada `npm test` numa pasta não depende da outra.
 **Feito quando:** cada pasta passa os testes sozinha, e `scripts/smoke-deploy.sh` local passa nas duas.
 
-### [ ] M3 · A referência passa a ser `../sat`
+### [x] M3 · A referência passa a ser `../sat`
 Na dedução natural, muda o `CLAUDE.md` para referir `../sat` em vez de `.reference/sat/`, mantendo a
 regra de não importar dele em runtime e a de não misturar alterações. Arquiva `natural-deduction/ralph/`
 em `ralph/archive/natural-deduction/`. Mantém as entradas do `.vercelignore` e o teste de deploy.
