@@ -52,7 +52,7 @@ SAT, autorizada nesta tarefa, com um commit próprio.
 **Feito quando:** o link aparece em todas as páginas PT e EN, a 390px, sem scroll horizontal, com as
 verificações de página a passar nas duas pastas.
 
-### [ ] M7 · Identidade e SEO do hub
+### [x] M7 · Identidade e SEO do hub
 Pedido do Miguel: o hub tem SEO, Open Graph e favicons próprios, sem copiar nada de uma das ferramentas.
 Só muda `hub/` e o `ralph/NOTES.md`. Mantém o hub sem JavaScript e sem passo de build, com os ficheiros
 gerados no repositório e PT e EN em todo o texto.
