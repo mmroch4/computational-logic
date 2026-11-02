@@ -53,7 +53,7 @@ expect_redirect "/en/index" "/en"
 # A 404 serve os dois idiomas e o JS escolhe pelo caminho (o check-edge confirma o inglês).
 expect_status /en/nao-existe 404
 expect_status /nao-existe 404
-for path in /SPEC.md /package.json /LICENSE /css/src/app.css /scripts/serve.mjs /tests/deploy.test.js /ralph/PLAN.md; do
+for path in /SPEC.md /package.json /LICENSE /css/src/app.css /scripts/serve.mjs /tests/deploy.test.js; do
   expect_status "$path" 404
 done
 

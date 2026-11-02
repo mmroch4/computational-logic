@@ -98,11 +98,11 @@ test("caminhos que não existem dão 404, e /index redireciona sem perder a quer
   assert.equal(response.headers.get("location"), "/?f=p");
 });
 
-test(".vercelignore: a referência, os materiais e o loop não chegam ao deploy", async () => {
-  for (const entry of ["/.reference", "/conteudos", "/ralph", "/SPEC.md", "/README.md", "/css/src", "/tests", "/scripts"]) {
+test(".vercelignore: a referência e os materiais não chegam ao deploy", async () => {
+  for (const entry of ["/.reference", "/conteudos", "/SPEC.md", "/README.md", "/css/src", "/tests", "/scripts"]) {
     assert.ok(ignored.includes(entry), entry);
   }
-  for (const path of ["/.reference/sat", "/.reference/sat/index", "/.reference/sat/package.json", "/SPEC.md", "/README.md", "/ralph/PLAN.md", "/package.json"]) {
+  for (const path of ["/.reference/sat", "/.reference/sat/index", "/.reference/sat/package.json", "/SPEC.md", "/README.md", "/package.json"]) {
     assert.equal((await get(path)).status, 404, path);
   }
 });

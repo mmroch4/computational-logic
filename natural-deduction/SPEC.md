@@ -77,14 +77,7 @@ Segue a base técnica do `davis-putnam-sat`: HTML estático, ES modules, `js/cor
   `sat.computational-logic.miguelrocha.dev`. A dedução natural publica-se em
   `nd.computational-logic.miguelrocha.dev`.
 - Código partilhado só é extraído depois de as duas ferramentas estarem estáveis.
-- Publicar é uma etapa manual, fora do loop. Levar o monorepo a `main` exige confirmação, porque o
-  site do SAT já está publicado e tem de ter antes o Root Directory em `sat`.
 
 ## Dimensão do conteúdo
 
 Lição de 9 secções e cerca de 60 exercícios, dos quais cerca de 10 são «encontra o passo errado».
-
-## Construção
-
-A ordem das tarefas da construção está em `../ralph/archive/natural-deduction/PLAN.md`, e a da mudança
-para o monorepo em `../ralph/MONOREPO-PLAN.md`. A publicação fica fora do loop.
