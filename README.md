@@ -18,7 +18,6 @@ sat/                  Learn Davis-Putnam SAT
 natural-deduction/    Learn Natural Deduction
 hub/                  entry page that links to the tools
 scripts/              test runner for all the tools
-ralph/                working notes and plans of the migration to this monorepo
 ```
 
 Each tool is an independent package, with its own `package.json`, `node_modules` and `vercel.json`, and
