@@ -78,5 +78,5 @@ gerados no repositório e PT e EN em todo o texto.
 **Feito quando:** os testes do hub e o `scripts/test-all.sh` passam, `sat/` e `natural-deduction/` não
 mudam, as imagens foram vistas, e as páginas validam a 390px sem erros na consola.
 
-### [ ] PAUSA-2 · Revisão final
+### [x] PAUSA-2 · Revisão final
 Revês as ligações e a identidade do hub, antes de as publicares.
