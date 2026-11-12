@@ -9,11 +9,12 @@
 //   conditions: condições declarativas (`condition.*`), vazias nas regras proposicionais
 //   proof: prova em texto (formato de `proof-text.js`) só com regras base, sobre os átomos p, q, r no
 //     lugar de φ, ψ, θ. Demonstra `ruleGoal(rule)` e vale para qualquer instância, porque o
-//     verificador nunca olha para dentro de um átomo.
+//     verificador nunca olha para dentro de um átomo. Nas derivadas de 1.ª ordem (NQ1–NQ4), φ é P(x)
+//     e a variável da caixa é v: a prova trata P(x) como um átomo, e vale para todo o φ sem v.
 // As premissas podem ser citadas por qualquer ordem. As metavariáveis são partilhadas entre as
 // premissas e a conclusão; a que só aparece na conclusão (o ψ do ∨I) fica com o que lá estiver.
 
-import { atom, implies, isPropositional } from "./formula.js";
+import { atom, implies, isPropositional, term } from "./formula.js";
 import { applySubstitution, parseSchema } from "./schema.js";
 import { sequent } from "./sequent.js";
 
@@ -229,6 +230,44 @@ export const DERIVED_RULES = Object.freeze([
     6 |   F     FI, 5, 2
     7 |   p     FE, 6
     8 | p       ∨E, 1, 3–4, 5–7`),
+  // Negação de quantificadores (Prop. 2.9), pela ordem do `SPEC.md`.
+  derived("NQ1", ["¬∀x φ"], "∃x ¬φ", `
+     1 | ¬∀x P(x)          premissa
+     2 |   ¬∃x ¬P(x)       hipótese
+       |    [v]
+     3 |       ¬P(v)       hipótese
+     4 |       ∃x ¬P(x)    ∃I, 3
+     5 |       F           FI, 4, 2
+     6 |     ¬¬P(v)        ¬I, 3–5
+     7 |     P(v)          ¬E, 6
+     8 |   ∀x P(x)         ∀I, 3–7
+     9 |   F               FI, 8, 1
+    10 | ¬¬∃x ¬P(x)        ¬I, 2–9
+    11 | ∃x ¬P(x)          ¬E, 10`),
+  derived("NQ2", ["∃x ¬φ"], "¬∀x φ", `
+    1 | ∃x ¬P(x)        premissa
+    2 |   ∀x P(x)       hipótese
+    3 |    [v] ¬P(v)    hipótese
+    4 |     P(v)        ∀E, 2
+    5 |     F           FI, 4, 3
+    6 |   F             ∃E, 1, 3–5
+    7 | ¬∀x P(x)        ¬I, 2–6`),
+  derived("NQ3", ["¬∃x φ"], "∀x ¬φ", `
+    1 | ¬∃x P(x)        premissa
+      |  [v]
+    2 |     P(v)        hipótese
+    3 |     ∃x P(x)     ∃I, 2
+    4 |     F           FI, 3, 1
+    5 |   ¬P(v)         ¬I, 2–4
+    6 | ∀x ¬P(x)        ∀I, 2–5`),
+  derived("NQ4", ["∀x ¬φ"], "¬∃x φ", `
+    1 | ∀x ¬P(x)        premissa
+    2 |   ∃x P(x)       hipótese
+    3 |    [v] P(v)     hipótese
+    4 |     ¬P(v)       ∀E, 1
+    5 |     F           FI, 3, 4
+    6 |   F             ∃E, 2, 3–5
+    7 | ¬∃x P(x)        ¬I, 2–6`),
 ]);
 
 /** Todas as regras do sistema: as formas de cada uma, com ids repetidos. */
@@ -236,13 +275,17 @@ export const RULES = Object.freeze([...BASE_RULES, ...DERIVED_RULES]);
 
 const PROOF_ATOMS = Object.freeze({ φ: atom("p"), ψ: atom("q"), θ: atom("r") });
 
-const instantiate = (schemaNode) => applySubstitution(schemaNode, PROOF_ATOMS).formula;
+/** Nas derivadas de 1.ª ordem, φ depende da variável ligada: P(x). */
+const FIRST_ORDER_PROOF_ATOMS = Object.freeze({ ...PROOF_ATOMS, φ: atom("P", [term("x")]), x: term("x") });
 
 /**
- * O sequente que a prova de uma derivada demonstra, com p, q, r no lugar de φ, ψ, θ.
- * Uma subdedução `[φ] … ψ` conta como a premissa φ → ψ.
+ * O sequente que a prova de uma derivada demonstra, com p, q, r no lugar de φ, ψ, θ (P(x) no lugar
+ * de φ, nas de 1.ª ordem). Uma subdedução `[φ] … ψ` conta como a premissa φ → ψ.
  */
-export function ruleGoal({ premises, conclusions }) {
+export function ruleGoal(rule) {
+  const { premises, conclusions } = rule;
+  const atoms = isFirstOrderRule(rule) ? FIRST_ORDER_PROOF_ATOMS : PROOF_ATOMS;
+  const instantiate = (schemaNode) => applySubstitution(schemaNode, atoms).formula;
   const asFormula = (item) => (
     item.kind === "formula" ? item.schema : implies(item.hypothesis, item.conclusion)
   );

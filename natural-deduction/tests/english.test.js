@@ -69,7 +69,10 @@ test("o locale EN não tem português nem siglas PT, fora da tabela das siglas",
 });
 
 test("as siglas EN são as do CLAUDE.md", () => {
-  assert.deepEqual(en.rules.labels, { MT: "MT", "¬¬I": "¬¬I", RA: "RAA", TE: "LEM", DM: "DM", SH: "HS", SD: "DS" });
+  assert.deepEqual(en.rules.labels, {
+    MT: "MT", "¬¬I": "¬¬I", RA: "RAA", TE: "LEM", DM: "DM", SH: "HS", SD: "DS",
+    NQ1: "QN1", NQ2: "QN2", NQ3: "QN3", NQ4: "QN4",
+  });
 });
 
 test("a terminologia EN é uma só: subproof, base rules, hypothesis", () => {

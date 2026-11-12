@@ -23,7 +23,7 @@
 import { displayName, format, metaVariable, occurs, term } from "./formula.js";
 import { accessibleFrom, subproofs } from "./proof.js";
 import { BASE_RULES } from "./rules.js";
-import { PENDING, checkCondition, matchSchema, sameFormula } from "./schema.js";
+import { PENDING, applySubstitution, checkCondition, matchSchema, sameFormula } from "./schema.js";
 
 /** Códigos de erro; todos têm o parâmetro { line }. */
 export const VERIFY_ERROR_CODES = [
@@ -191,7 +191,12 @@ function applyRule(rule, formula, citations, proof) {
   let problem = null;
 
   const concludes = (conclusion, substitution) => {
-    const match = matchSchema(conclusion, formula, substitution);
+    let match = matchSchema(conclusion, formula, substitution);
+    // A variável ligada da conclusão pode já vir da premissa (NQ1–NQ4): `∃z ¬P(z)` em vez de `∃x ¬P(x)`.
+    if (!match.ok && match.error.code !== "capture") {
+      const instance = applySubstitution(conclusion, substitution);
+      if (instance.ok && sameFormula(instance.formula, formula)) match = { ok: true, substitution };
+    }
     if (!match.ok) {
       const { code, params } = match.error;
       if (code === "capture") {

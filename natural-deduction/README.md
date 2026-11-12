@@ -35,8 +35,10 @@ subscript (`p11` → p₁₁). `v` and `F` are reserved, so they cannot be varia
 
 - **Base rules:** ∧I, ∧E, ∨I, ∨E, ¬I, ¬E, FI, FE, →I, →E, R. ¬E is only ¬¬φ ⊢ φ. First-order rules:
   ∀I, ∀E, ∃I, ∃E, =I, =E, with the fresh variable of the ∀I and ∃E boxes marked [v].
-- **Derived rules:** MT, ¬¬I, RAA, LEM, DM, HS, DS. Each one keeps a proof that uses base rules only,
-  checked by the tests and shown in the lesson. In Portuguese they are MT, ¬¬I, RA, TE, DM, SH, SD.
+- **Derived rules:** MT, ¬¬I, RAA, LEM, DM, HS, DS, and the quantifier negations QN1 (¬∀x φ ⊢ ∃x ¬φ),
+  QN2 (∃x ¬φ ⊢ ¬∀x φ), QN3 (¬∃x φ ⊢ ∀x ¬φ) and QN4 (∀x ¬φ ⊢ ¬∃x φ). Each one keeps a proof that uses
+  base rules only, checked by the tests and shown in the lesson. In Portuguese they are MT, ¬¬I, RA, TE,
+  DM, SH, SD and NQ1, NQ2, NQ3, NQ4.
 - **Citations:** earlier accessible lines are cited directly, without R. R only repeats a formula. The
   order of the cited lines is free, and a subproof is cited as a range, `2–4`.
 - **Rule sets:** the free editor uses every rule. Each exercise sets its own: `base`, `completo` (all

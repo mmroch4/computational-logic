@@ -83,6 +83,10 @@ export const RULE_ALIASES = new Map([
   ["LEM", "TE"],
   ["HS", "SH"],
   ["DS", "SD"],
+  ["QN1", "NQ1"],
+  ["QN2", "NQ2"],
+  ["QN3", "NQ3"],
+  ["QN4", "NQ4"],
 ]);
 
 const LINE_RE = /^\s*(\d+)\s*\|(.*)$/;

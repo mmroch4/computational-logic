@@ -1030,6 +1030,10 @@ export default {
       DM: "DM",
       SH: "HS",
       SD: "DS",
+      NQ1: "QN1",
+      NQ2: "QN2",
+      NQ3: "QN3",
+      NQ4: "QN4",
     },
   },
   userRules: {

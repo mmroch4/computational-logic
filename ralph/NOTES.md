@@ -103,3 +103,19 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   não conta como derivada.
 - Modo guiado: uma caixa [v] por citar não se gera (`planPremises` devolve null); fica para a E2.
   `premiseText` (guided.js, exportado) escreve `[v] … φ[v/x]` e `[v] φ[v/x] … ψ`.
+
+## V4
+
+- NQ1–NQ4 estão em `DERIVED_RULES` (são `isFirstOrderRule`); o `ruleGoal` delas põe P(x) no lugar de φ.
+  Siglas EN QN1–QN4 em `rules.labels` e `RULE_ALIASES`. A lição (secção 7) e os exercícios de regra
+  filtram-nas com `PROPOSITIONAL_DERIVED` em `lesson.test.js` e `exercises.test.js`: a C2 e a C3 tiram o filtro.
+- Verificador: se a conclusão não casa com o esquema, compara-se a instância com `sameFormula` (o `x`
+  ligado pela premissa de NQ1 aceita `∃z ¬P(z)`).
+- `tests/helpers/finite-models.js`: contramodelos por força bruta (domínio 1–3, orçamento 4096
+  estruturas), só para testes. Não é o M1: o M1 faz o do núcleo, com orçamento e para a UI.
+- Solidez: `openHypotheses` ignora as caixas do ∀I (passo ou etiqueta). Uma só mutação nunca dá um falso
+  positivo com um ∀I sem «v nova» (a variável tem de bater com a fórmula): o teste conta antes os
+  códigos `notFresh`/`variableEscapes`/`wrongBox` nos mutantes recusados.
+- Árvore: nó de inferência ganha `variable` só com caixa [v]; a caixa do ∀I não descarrega nada. LaTeX:
+  marca `\boxed{v}\ ` antes da fórmula, linha de etiqueta como linha sem número; `P(x)` sem espaço.
+  Não há `pdflatex` nesta máquina: o teste de compilação salta-se.

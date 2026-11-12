@@ -4,6 +4,7 @@ import { formatProof, parseProof } from "../js/core/proof-text.js";
 import {
   BASE_RULES,
   DERIVED_RULES,
+  isFirstOrderRule,
   localizeRuleParam,
   RULES,
   ruleGoal,
@@ -13,6 +14,7 @@ import {
 import { checkSequent } from "../js/core/semantics.js";
 import { parseSequent } from "../js/core/sequent.js";
 import { verifyLine, verifyProof } from "../js/core/verify.js";
+import { finiteCountermodel } from "./helpers/finite-models.js";
 import pt from "../js/ui/locales/pt.js";
 import en from "../js/ui/locales/en.js";
 
@@ -35,8 +37,9 @@ const lastLine = (proof, rules, known) => verifyLine(proof, proof.lines.length, 
 
 // Catálogo
 
-test("o catálogo tem as derivadas pedidas, com 4 direções de DM e 2 formas de SD", () => {
-  assert.deepEqual(ids(DERIVED_RULES), ["MT", "¬¬I", "RA", "TE", "DM", "SH", "SD"]);
+test("o catálogo tem as derivadas pedidas, com 4 direções de DM, 2 formas de SD e NQ1–NQ4", () => {
+  assert.deepEqual(ids(DERIVED_RULES), ["MT", "¬¬I", "RA", "TE", "DM", "SH", "SD", "NQ1", "NQ2", "NQ3", "NQ4"]);
+  assert.deepEqual(ids(DERIVED_RULES.filter(isFirstOrderRule)), ["NQ1", "NQ2", "NQ3", "NQ4"]);
   assert.equal(DERIVED_RULES.filter(({ id }) => id === "DM").length, 4);
   assert.equal(DERIVED_RULES.filter(({ id }) => id === "SD").length, 2);
   assert.ok(Object.isFrozen(DERIVED_RULES));
@@ -57,6 +60,10 @@ for (const [index, rule] of DERIVED_RULES.entries()) {
   });
 
   test(`${rule.id} (forma ${index}) é semanticamente válida`, () => {
+    if (isFirstOrderRule(rule)) {
+      assert.equal(finiteCountermodel(ruleGoal(rule), { maxSize: 4 }), null);
+      return;
+    }
     const result = checkSequent(ruleGoal(rule));
     assert.ok(result.ok);
     assert.equal(result.valid, true);
@@ -74,6 +81,21 @@ test("as provas guardadas continuam certas depois de impressas em inglês", () =
     const printed = formatProof(read(rule.proof), en.proofText, en.rules.labels);
     assert.ok(verifyProof(read(printed), ruleGoal(rule), BASE_RULES).ok, rule.id);
   }
+});
+
+test("ruleGoal põe P(x) no lugar de φ nas derivadas de 1.ª ordem", () => {
+  const goals = DERIVED_RULES.filter(isFirstOrderRule).map(ruleGoal);
+  assert.deepEqual(goals, [
+    goal("¬∀x P(x) ⊢ ∃x ¬P(x)"),
+    goal("∃x ¬P(x) ⊢ ¬∀x P(x)"),
+    goal("¬∃x P(x) ⊢ ∀x ¬P(x)"),
+    goal("∀x ¬P(x) ⊢ ¬∃x P(x)"),
+  ]);
+});
+
+test("as provas de NQ1–NQ4 usam as caixas [v] e as regras dos quantificadores", () => {
+  const used = new Set(DERIVED_RULES.filter(isFirstOrderRule).flatMap((rule) => read(rule.proof).lines.map(({ rule: id }) => id)));
+  for (const id of ["∀I", "∀E", "∃I", "∃E"]) assert.ok(used.has(id), id);
 });
 
 test("ruleGoal trata uma subdedução como implicação", () => {
@@ -121,6 +143,21 @@ const USES = [
     1 | a ∨ b   premissa
     2 | ¬a      premissa
     3 | b       SD, 1, 2`],
+  ["NQ1", `
+    1 | ¬∀y R(y, a)   premissa
+    2 | ∃y ¬R(y, a)   NQ1, 1`],
+  ["NQ1, com outra variável ligada na conclusão", `
+    1 | ¬∀y R(y, a)   premissa
+    2 | ∃z ¬R(z, a)   NQ1, 1`],
+  ["NQ2", `
+    1 | ∃x ¬(P(x) ∧ Q(x))   premissa
+    2 | ¬∀x(P(x) ∧ Q(x))    NQ2, 1`],
+  ["NQ3", `
+    1 | ¬∃x(x = a)   premissa
+    2 | ∀x ¬(x = a)  NQ3, 1`],
+  ["NQ4", `
+    1 | ∀x ¬∃y R(x, y)   premissa
+    2 | ¬∃x∃y R(x, y)    NQ4, 1`],
   ["SD à direita", `
     1 | a ∨ b   premissa
     2 | ¬b      premissa
@@ -156,6 +193,15 @@ const MISUSES = [
   ["RA com uma linha em vez de subdedução", `
     1 | F   premissa
     2 | a   RA, 1`, "wrongCitationKind"],
+  ["NQ1 sem trocar o quantificador", `
+    1 | ¬∀x P(x)   premissa
+    2 | ∀x ¬P(x)   NQ1, 1`, "formulaMismatch"],
+  ["NQ3 sobre um ∀", `
+    1 | ¬∀x P(x)   premissa
+    2 | ∀x ¬P(x)   NQ3, 1`, "ruleNotApplicable"],
+  ["NQ4 com a negação no sítio errado", `
+    1 | ∀x ¬P(x)   premissa
+    2 | ∃x ¬P(x)   NQ4, 1`, "formulaMismatch"],
   ["RA sem negar a conclusão", `
     1 |   a    hipótese
     2 |   F    FE, 1
@@ -258,8 +304,8 @@ test("verifyProof respeita o conjunto", () => {
 
 test("as siglas seguem o idioma", () => {
   const expected = {
-    pt: ["MT", "¬¬I", "RA", "TE", "DM", "SH", "SD"],
-    en: ["MT", "¬¬I", "RAA", "LEM", "DM", "HS", "DS"],
+    pt: ["MT", "¬¬I", "RA", "TE", "DM", "SH", "SD", "NQ1", "NQ2", "NQ3", "NQ4"],
+    en: ["MT", "¬¬I", "RAA", "LEM", "DM", "HS", "DS", "QN1", "QN2", "QN3", "QN4"],
   };
   const order = ids(DERIVED_RULES);
   assert.deepEqual(order.map((id) => ruleLabel(id, pt.rules.labels)), expected.pt);

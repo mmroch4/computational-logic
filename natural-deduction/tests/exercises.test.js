@@ -15,7 +15,7 @@ import {
 } from "../js/core/exercises.js";
 import { FIND_ERROR_PUZZLES } from "../js/core/find-error.js";
 import { parseProof } from "../js/core/proof-text.js";
-import { DERIVED_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
+import { DERIVED_RULES, isFirstOrderRule, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
 import { formatSequent, parseSequent } from "../js/core/sequent.js";
 import { createUserRule, userRulesEnabled } from "../js/core/user-rules.js";
 import { verifyProof } from "../js/core/verify.js";
@@ -142,8 +142,11 @@ test("o catálogo tem cerca de 50 exercícios em cinco níveis seguidos", () => 
   }
 });
 
+// Os exercícios de 1.ª ordem, com os que provam NQ1–NQ4, são da C3: aí sai este filtro.
+const PROPOSITIONAL_DERIVED = DERIVED_RULES.filter((rule) => !isFirstOrderRule(rule));
+
 test("cada forma de cada derivada tem um exercício que a prova só com regras base", () => {
-  for (const [index, rule] of DERIVED_RULES.entries()) {
+  for (const [index, rule] of PROPOSITIONAL_DERIVED.entries()) {
     const goal = fingerprint(formatSequent(ruleGoal(rule)));
     const exercise = EXERCISES.find((item) => isRuleProof(item) && fingerprint(item.sequent) === goal);
     assert.ok(exercise, `${rule.id}, forma ${index}`);
@@ -151,7 +154,7 @@ test("cada forma de cada derivada tem um exercício que a prova só com regras b
     assert.equal(userRulesEnabled(exercise), false, exercise.id);
     assert.equal(ruleSet(exercise.rules).some(({ id }) => id === rule.id), false, exercise.id);
   }
-  assert.equal(EXERCISES.filter(isRuleProof).length, DERIVED_RULES.length);
+  assert.equal(EXERCISES.filter(isRuleProof).length, PROPOSITIONAL_DERIVED.length);
 });
 
 test("o nível 1 não precisa de subdeduções", () => {

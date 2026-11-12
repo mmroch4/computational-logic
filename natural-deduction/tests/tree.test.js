@@ -269,6 +269,66 @@ test("a árvore da prova de cada regra derivada não tem hipóteses soltas", () 
   }
 });
 
+// Caixas com variável
+
+/** Como `outline`, com a variável da caixa [v] a seguir à regra. */
+function outlineWithVariable(node) {
+  if (node.kind === "assumption") return outline(node);
+  const marks = node.discharges.length > 0 ? `^${node.discharges.join(",")}` : "";
+  const variable = node.variable ? ` [${node.variable}]` : "";
+  const above = node.premises.map(outlineWithVariable).join("; ");
+  return `${format(node.formula)} <${node.rule}${marks}${variable}> (${above})`;
+}
+
+test("∀I mostra a variável da caixa e não descarrega nada", () => {
+  const tree = treeOf(read(`
+    1 | ∀x(P(x) → Q(x))   premissa
+    2 | ∀x P(x)           premissa
+    3 |  [v] P(v) → Q(v)  ∀E, 1
+    4 |   P(v)            ∀E, 2
+    5 |   Q(v)            →E, 4, 3
+    6 | ∀x Q(x)           ∀I, 3–5`));
+  assert.equal(
+    outlineWithVariable(tree),
+    "∀x Q(x) <∀I [v]> (Q(v) <→E> (P(v) <∀E> (∀x P(x)); P(v) → Q(v) <∀E> (∀x(P(x) → Q(x)))))",
+  );
+  assert.equal(tree.variable, "v");
+  assert.equal(Object.hasOwn(tree.premises[0], "variable"), false);
+});
+
+test("com linha de etiqueta, a hipótese é descarregada pela regra de dentro, e não pelo ∀I", () => {
+  const tree = treeOf(read(`
+      |  [v]
+    1 |     P(v)          hipótese
+    2 |   P(v) → P(v)     →I, 1–1
+    3 | ∀x(P(x) → P(x))   ∀I, 1–2`));
+  assert.equal(outlineWithVariable(tree), "∀x(P(x) → P(x)) <∀I [v]> (P(v) → P(v) <→I^1> ([P(v)]1))");
+});
+
+test("∃E descarrega a hipótese da caixa e mostra a variável", () => {
+  const tree = treeOf(read(`
+    1 | ∃x(P(x) ∧ Q(x))    premissa
+    2 |  [a] P(a) ∧ Q(a)   hipótese
+    3 |   P(a)             ∧E, 2
+    4 |   ∃x P(x)          ∃I, 3
+    5 | ∃x P(x)            ∃E, 2–4, 1`));
+  assert.equal(
+    outlineWithVariable(tree),
+    "∃x P(x) <∃E^1 [a]> (∃x(P(x) ∧ Q(x)); ∃x P(x) <∃I> (P(a) <∧E> ([P(a) ∧ Q(a)]1)))",
+  );
+});
+
+test("a vista da árvore escreve a variável da caixa a seguir à regra", () => {
+  setLang("pt");
+  const proof = read(`
+    1 | ∀x P(x)       premissa
+    2 |  [a1] P(a1)   ∀E, 1
+    3 | ∀y P(y)       ∀I, 2–2`);
+  const html = treeHtml(treeOf(proof), proof);
+  assert.match(html, /<span class="gt__rule">∀I \[a₁\]<\/span>/);
+  assert.match(html, /<span class="gt__rule">∀E<\/span>/);
+});
+
 test("citationsInRuleOrder devolve a ordem das premissas, ou null", () => {
   const proof = read(`
     1 | p → q   premissa

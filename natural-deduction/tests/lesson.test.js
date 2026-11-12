@@ -15,7 +15,7 @@ import { equals, format } from "../js/core/formula.js";
 import { parseFormula } from "../js/core/parser.js";
 import { accessibleFrom } from "../js/core/proof.js";
 import { formatProof, parseProof } from "../js/core/proof-text.js";
-import { BASE_RULES, DERIVED_RULES, PROPOSITIONAL_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
+import { BASE_RULES, DERIVED_RULES, isFirstOrderRule, PROPOSITIONAL_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
 import { checkSequent } from "../js/core/semantics.js";
 import { formatSequent, parseSequent } from "../js/core/sequent.js";
 import { verifyProof } from "../js/core/verify.js";
@@ -30,6 +30,9 @@ import { activeSectionIndex, readingProgress, renderLessonToc } from "../js/ui/l
 import { COURSE_SEQUENTS } from "./fixtures/course-sequents.js";
 import { LAB_GUIDED } from "./fixtures/lab-guided.js";
 import { fingerprint } from "./helpers/fingerprint.js";
+
+// A secção 7 tem as derivadas proposicionais; NQ1–NQ4 vão para a secção de equivalências (C2).
+const PROPOSITIONAL_DERIVED = DERIVED_RULES.filter((rule) => !isFirstOrderRule(rule));
 
 const page = readFileSync(new URL("../aprender.html", import.meta.url), "utf8");
 const english = readFileSync(new URL("../en/learn.html", import.meta.url), "utf8");
@@ -117,7 +120,7 @@ test("as secções 2 a 6 apresentam todas as regras base, cada uma uma vez e pel
 test("a secção 7 mostra todas as derivadas, cada uma uma vez e pela ordem do catálogo", () => {
   const used = [...page.matchAll(/data-lesson-derived="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(used, Object.keys(LESSON_DERIVED));
-  assert.deepEqual(used.map((id) => LESSON_DERIVED[id].rule), [...new Set(DERIVED_RULES.map(({ id }) => id))]);
+  assert.deepEqual(used.map((id) => LESSON_DERIVED[id].rule), [...new Set(PROPOSITIONAL_DERIVED.map(({ id }) => id))]);
   const sections = page.split('<section class="lesson-section"');
   assert.equal(sections[7].match(/data-lesson-derived=/g).length, used.length);
   for (const id of used) for (const locale of Object.values(LOCALES)) {
@@ -128,8 +131,8 @@ test("a secção 7 mostra todas as derivadas, cada uma uma vez e pela ordem do c
 
 test("as provas das derivadas vêm do catálogo, uma por forma, sem cópia na lição", () => {
   const forms = Object.keys(LESSON_DERIVED).flatMap(lessonDerivedForms);
-  assert.equal(forms.length, DERIVED_RULES.length);
-  DERIVED_RULES.forEach((rule, index) => {
+  assert.equal(forms.length, PROPOSITIONAL_DERIVED.length);
+  PROPOSITIONAL_DERIVED.forEach((rule, index) => {
     assert.deepEqual(forms[index].proof, parseProof(rule.proof).proof, rule.id);
     assert.deepEqual(forms[index].goal, ruleGoal(rule), rule.id);
   });
