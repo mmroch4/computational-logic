@@ -57,7 +57,7 @@ e permite escrever a prova à mão. Há testes no core e o `scripts/check-page.s
 
 ## Bloco V — Verificador
 
-### [ ] V1 · Caixas com variável
+### [x] V1 · Caixas com variável
 No `proof.js`:
 - o campo `fresh`;
 - o `scan()` abre uma subdedução numa hipótese ou num passo com `fresh`;
