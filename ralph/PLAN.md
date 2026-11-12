@@ -61,6 +61,7 @@ e permite escrever a prova à mão. Há testes no core e o `scripts/check-page.s
 No `proof.js`:
 - o campo `fresh`;
 - o `scan()` abre uma subdedução numa hipótese ou num passo com `fresh`;
+- a linha de etiqueta (`[v]` sozinho, sem número nem fórmula) quando o ∀I começa por uma hipótese;
 - a estrutura válida, `insertLine`, `editLine`, `deleteLine`, `openSubproof` (com variável) e
   `closeSubproof`;
 - `accessibleFrom` sem mudanças de semântica.
@@ -88,7 +89,8 @@ substituível, e caixa com variável onde a regra a pede. A comparação com o s
 passa a incluir as regras novas.
 **Feito quando:**
 - as provas corretas da Fig. 2.1 e das soluções dos slides, reescritas com conteúdo original, passam;
-- cada tentativa errada dá o erro certo: variável que escapa da caixa, v nas premissas, v em ψ no ∃E,
+- cada tentativa errada dá o erro certo: variável que escapa da caixa, v nas premissas, v livre em
+  ∀x φ no ∀I, v em ψ no ∃E,
   captura no ∀E, ∀I sem caixa, ∃E sem citar o ∃;
 - o `npm test` passa.
 
