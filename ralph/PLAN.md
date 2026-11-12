@@ -82,7 +82,7 @@ pelo `rule-pick` e pela lição.
 **Feito quando:** há testes de casação para ∀E, ∃I (as várias conclusões possíveis) e =E (ocorrências
 parciais), mais casos que falham por captura. O `npm test` passa.
 
-### [ ] V3 · Regras ∀, ∃ e =
+### [x] V3 · Regras ∀, ∃ e =
 Junta ∀I, ∀E, ∃I, ∃E, =I e =E a `BASE_RULES`, e as condições ao `verify.js`: v nova, v fora de ψ,
 substituível, e caixa com variável onde a regra a pede. A comparação com o sequente passa a usar
 α-equivalência. Junta códigos de erro com mensagens PT/EN. Atualiza o `ruleSet`, porque o `base`
