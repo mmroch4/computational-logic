@@ -94,7 +94,7 @@ passa a incluir as regras novas.
   captura no ∀E, ∀I sem caixa, ∃E sem citar o ∃;
 - o `npm test` passa.
 
-### [ ] V4 · Derivadas e solidez
+### [x] V4 · Derivadas e solidez
 Junta as quatro derivadas de negação de quantificadores, com prova só com regras base verificada nos
 testes. Estende o teste de solidez do verificador (`tests/soundness.test.js`) à 1.ª ordem: nenhuma prova
 aceite tem um contramodelo finito pequeno, com geração de provas mutadas. Atualiza a árvore de Gentzen
