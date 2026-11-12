@@ -119,3 +119,18 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
 - Árvore: nó de inferência ganha `variable` só com caixa [v]; a caixa do ∀I não descarrega nada. LaTeX:
   marca `\boxed{v}\ ` antes da fórmula, linha de etiqueta como linha sem número; `P(x)` sem espaço.
   Não há `pdflatex` nesta máquina: o teste de compilação salta-se.
+
+## E1
+
+- Escrita: o campo da fórmula aceita `[v]` à frente (`readFormulaField`, `formulaText` em editor.js). Num
+  passo, escrever a marca leva a linha para uma caixa do ∀I um nível mais dentro (`createProof` com a
+  linha mudada, sem mexer nas citações); apagá-la desfá-la só se a caixa tiver uma linha, senão fica com
+  `editor.errors.freshBoxNotEmpty`. Texto que não se lê nunca muda a caixa. Ctrl+Enter numa linha só com
+  `[v]` dá a linha de etiqueta + hipótese. O nome da etiqueta não se edita: apaga-se a caixa.
+- O `formulaError` pode trazer `key` (frase fora de `parser.errors`); o `writingMessage` usa-a.
+- Vista: `labelRowHtml` (li sem `data-line`, por isso `[data-line]` continua a ser só linhas numeradas),
+  `lineFreshHtml`, `opensBox`. A marca fica inline entre a barra e a fórmula; as linhas de dentro não
+  alinham com a fórmula da marca, como no texto.
+- Teclas ∀, ∃, = em `SYMBOL_KEYS` (o «atalho» é escrever `forall`/`exists`, dito no nome lido);
+  `FIRST_ORDER_KEYS` ficam fora das regras do utilizador. Grelha das teclas a 6 colunas e ⊢ sem span 2.
+- Fixtures `BOXES`/`LABEL` em `tests/fixtures/fitch-proofs.js`, usadas no check-fitch e no check-share (p=2).

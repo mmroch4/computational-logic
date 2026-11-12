@@ -117,6 +117,11 @@ export default {
     },
     shortcuts: "Enter moves on · Ctrl+Enter opens a subproof · Shift+Enter closes it · Ctrl+Shift+Backspace deletes the line · Ctrl+Z undoes · Ctrl+Y redoes",
     complete: "The proof is complete and every line is correct.",
+    boxes: "Box for ∀I or ∃E: start the formula with [v], using the fresh variable. Open subproof (Ctrl+Enter) on a line with only [v] puts an assumption inside the box.",
+    errors: {
+      badFresh: "“[{name}]” can't be the box variable: write a name, such as [v].",
+      freshBoxNotEmpty: "This line opens the box for {name}, which has more lines: keep the [{name}], or delete the box with Ctrl+Shift+Backspace.",
+    },
   },
   rulePick: {
     choose: "Choose the rule",
@@ -189,6 +194,9 @@ export default {
       or: "Disjunction",
       implies: "Implication",
       falsum: "False",
+      forall: "For all (type forall)",
+      exists: "There exists (type exists)",
+      eq: "Equals",
       open: "Open parenthesis",
       close: "Close parenthesis",
       comma: "Comma",
@@ -1114,6 +1122,8 @@ export default {
       pending: "Line {line} is unfinished.",
     },
     moreChanges: "{count} more lines changed.",
+    fresh: "Box for variable {variable}.",
+    labelLine: "Label line: box for variable {variable}, unnumbered.",
   },
   speech: {
     not: "not",

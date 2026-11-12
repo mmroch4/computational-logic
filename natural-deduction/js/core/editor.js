@@ -3,7 +3,10 @@
 //   { goal, proof, drafts, cursor, notice, past, future, group }
 //   drafts[n - 1]: o que está escrito na linha n, { formula, justification, formulaError,
 //     justificationError }. O texto manda: `proof` guarda só o que dele se conseguiu ler, e uma linha
-//     com erro de escrita fica por preencher na prova.
+//     com erro de escrita fica por preencher na prova. O campo da fórmula pode começar pela marca
+//     `[v]`, a variável da caixa que a linha abre: numa hipótese é o ∃E; num passo, escrevê-la abre a
+//     caixa do ∀I nessa linha, um nível mais dentro, e apagá-la desfá-la se a caixa só tiver essa linha.
+//     A linha de etiqueta abre-se com Ctrl+Enter numa linha só com `[v]`; não se escreve.
 //   cursor: { line, field }, com field "formula" ou "justification". Nunca está numa premissa.
 //   notice: { key, params } da última operação recusada, ou null.
 //   past, future: fotografias para desfazer e refazer. `group` junta a escrita seguida num só passo.
@@ -15,7 +18,7 @@
 //     rows[n - 1]: { state: "ok" | "error" | "pending", message: { key, params } | null }.
 // As chaves das mensagens são de `parser.errors.*`, `proofText.errors.*`, `verify.*` e `proof.errors.*`.
 
-import { format } from "./formula.js";
+import { format, isTermName } from "./formula.js";
 import { parseFormula } from "./parser.js";
 import { closeSubproof, createProof, deleteLine, editLine, insertLine, openSubproof } from "./proof.js";
 import { formatJustification, parseJustification } from "./proof-text.js";
@@ -28,6 +31,56 @@ export const UNDO_LIMIT = 200;
 export const blankDraft = () => ({ formula: "", justification: "", formulaError: null, justificationError: null });
 
 const isBlank = ({ formula, justification }) => formula.trim() === "" && justification.trim() === "";
+
+/** A marca `[v]` no início do campo da fórmula. */
+const MARK_RE = /^\s*\[([^\]]*)\]\s*/;
+
+/** O texto da marca da linha, `[v] `, ou vazio. */
+export const markText = ({ fresh = null }) => (fresh === null ? "" : `[${fresh}] `);
+
+/** O texto do campo da fórmula de uma linha da prova: a marca e a fórmula. */
+export const formulaText = (line) => markText(line) + (line.formula ? format(line.formula) : "");
+
+/**
+ * Lê o campo da fórmula: { fresh, formula, error }. `fresh` é a variável da marca `[v]`, ou null;
+ * `formula` é null se o resto estiver vazio ou não se ler, e então `error` diz porquê (com `key`, se a
+ * frase não for do parser).
+ */
+export function readFormulaField(text) {
+  const mark = MARK_RE.exec(text);
+  const fresh = mark ? mark[1].trim() : null;
+  if (fresh !== null && !isTermName(fresh)) {
+    return { fresh: null, formula: null, error: { code: "badFresh", key: "editor.errors.badFresh", params: { name: fresh } } };
+  }
+  const body = mark ? text.slice(mark[0].length) : text;
+  if (body.trim() === "") return { fresh, formula: null, error: null };
+  const read = parseFormula(body);
+  if (read.ok) return { fresh, formula: read.formula, error: null };
+  const shift = mark ? mark[0].length : 0;
+  return { fresh, formula: null, error: { ...read.error, start: read.error.start + shift, end: read.error.end + shift } };
+}
+
+/** Uma linha só com a marca, sem fórmula nem justificação. */
+const isMarkOnly = ({ formula, justification }) => (
+  MARK_RE.test(formula) && formula.replace(MARK_RE, "").trim() === "" && justification.trim() === ""
+);
+
+/**
+ * Muda a linha n de `proof` com `changes`. Um passo que ganha `fresh` passa a abrir a caixa do ∀I, um
+ * nível mais dentro; um que o perde sai dela, se a caixa só tiver essa linha. Devolve o resultado de
+ * `editLine`/`createProof`.
+ */
+function editWithBox(proof, n, changes) {
+  const current = proof.lines[n - 1];
+  const before = current.fresh ?? null;
+  const after = changes.fresh ?? null;
+  if (current.kind !== "step" || (before === null) === (after === null)) return editLine(proof, n, changes);
+  const { strategy, ...kept } = current;
+  const depth = current.depth + (after === null ? -1 : 1);
+  const edited = { ...kept, ...changes, depth };
+  if (after === null) delete edited.fresh;
+  return createProof(proof.lines.with(n - 1, edited));
+}
 
 const sameCitations = (a, b) => a.length === b.length && a.every((citation, index) => (
   citation.kind === b[index].kind && citation.line === b[index].line
@@ -80,10 +133,10 @@ export const restartEditor = (editor, goal) => commit(editor, freshProof(goal));
 export function loadProof(editor, proof, ruleLabels = {}) {
   const editable = proof.lines.some(({ kind }) => kind !== "premise");
   const filled = editable ? proof : insertLine(proof, proof.lines.length, {}).proof;
-  const drafts = filled.lines.map(({ kind, formula, rule, citations }) => ({
+  const drafts = filled.lines.map((line) => ({
     ...blankDraft(),
-    formula: formula ? format(formula) : "",
-    justification: kind === "step" && rule ? formatJustification(rule, citations, ruleLabels) : "",
+    formula: line.kind === "premise" ? format(line.formula) : formulaText(line),
+    justification: line.kind === "step" && line.rule ? formatJustification(line.rule, line.citations, ruleLabels) : "",
   }));
   return commit(editor, { proof: filled, drafts, cursor: { line: filled.lines.length, field: "formula" } });
 }
@@ -134,19 +187,28 @@ export function setText(editor, line, field, text) {
   if (!isEditable(editor.proof, line) || draft[field] === text) return editor;
 
   const next = { ...draft, [field]: text };
-  let changes;
+  let proof;
   if (field === "formula") {
-    const blank = text.trim() === "";
-    const read = blank ? null : parseFormula(text);
-    next.formulaError = blank || read.ok ? null : read.error;
-    changes = { formula: read?.ok ? read.formula : null };
+    const read = readFormulaField(text);
+    next.formulaError = read.error;
+    const current = editor.proof.lines[line - 1];
+    // Um texto que não se lê não mexe na caixa: `[v` a meio de se escrever não a desfaz.
+    const fresh = read.error ? current.fresh ?? null : read.fresh;
+    const edited = editWithBox(editor.proof, line, { formula: read.formula, fresh });
+    if (edited.ok) {
+      ({ proof } = edited);
+    } else {
+      // Sem a marca, a caixa do ∀I deixaria as outras linhas dela soltas: fica, com o aviso.
+      next.formulaError = { code: "freshBoxNotEmpty", key: "editor.errors.freshBoxNotEmpty", params: { name: current.fresh } };
+      ({ proof } = editLine(editor.proof, line, { formula: null }));
+    }
   } else {
     const read = parseJustification(text, line);
     next.justificationError = read.ok ? null : read.error;
-    changes = read.ok ? { rule: read.rule, citations: read.citations } : { rule: null, citations: [] };
+    const changes = read.ok ? { rule: read.rule, citations: read.citations } : { rule: null, citations: [] };
+    ({ proof } = editLine(editor.proof, line, changes));
   }
 
-  const { proof } = editLine(editor.proof, line, changes);
   const group = `${line}:${field}`;
   const drafts = spliced(editor.drafts, line - 1, 1, next);
   if (editor.group === group) return { ...editor, proof, drafts, notice: null, future: [] };
@@ -170,7 +232,7 @@ export function tidyField(editor, line, field, ruleLabels = {}) {
   const proofLine = editor.proof.lines[line - 1];
   if (!isEditable(editor.proof, line)) return editor;
   let text = draft[field];
-  if (field === "formula" && proofLine.formula) text = format(proofLine.formula);
+  if (field === "formula" && proofLine.formula) text = formulaText(proofLine);
   if (field === "justification" && !draft.justificationError && proofLine.kind === "step") {
     text = formatJustification(proofLine.rule, proofLine.citations, ruleLabels);
   }
@@ -203,10 +265,19 @@ export function addLine(editor) {
 /**
  * Abre uma subdedução. Numa linha vazia, é ela que passa a hipótese: é assim que se abre o segundo
  * caso de um ∨E depois de fechar o primeiro. Noutra linha, a hipótese fica por baixo, um nível acima.
+ * Num passo só com `[v]`, a caixa do ∀I passa a começar numa linha de etiqueta, com a hipótese por dentro.
  */
 export function openSubproofAtCursor(editor) {
   const { proof, drafts, cursor: { line } } = editor;
   const current = proof.lines[line - 1];
+  if (current.kind === "step" && current.fresh && isMarkOnly(drafts[line - 1])) {
+    const removed = deleteLine(proof, line);
+    // Uma caixa com mais linhas não se desfaz aqui: apagá-la levava-as.
+    if (removed.ok && removed.proof.lines.length === proof.lines.length - 1) {
+      const result = openSubproof(removed.proof, line - 1, null, current.depth, { label: current.fresh });
+      return restructure(editor, result, spliced(drafts, line - 1, 1, blankDraft()), lineAt(line));
+    }
+  }
   if (current.kind === "step" && isBlank(drafts[line - 1])) {
     const removed = deleteLine(proof, line);
     const result = removed.ok ? openSubproof(removed.proof, line - 1, null, current.depth + 1) : removed;
@@ -358,7 +429,7 @@ export function pressKey(editor, press) {
 
 /** O problema de escrita da linha: o texto não se lê, e a prova nem sequer o vê. */
 function writingMessage({ formulaError, justificationError }) {
-  if (formulaError) return { key: `parser.errors.${formulaError.code}`, params: formulaError.params };
+  if (formulaError) return { key: formulaError.key ?? `parser.errors.${formulaError.code}`, params: formulaError.params };
   if (justificationError) {
     return { key: `proofText.errors.${justificationError.code}`, params: justificationError.params };
   }

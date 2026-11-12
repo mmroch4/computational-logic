@@ -8,18 +8,27 @@ import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
 import { msgBodyHtml, msgClasses } from "./message.js";
 
-/** Teclas: o que aparece, o que é inserido e o nome em `sequentInput.symbols.*`. */
+/**
+ * Teclas: o que aparece, o que é inserido e o nome em `sequentInput.symbols.*`. O nome lido diz também
+ * como se escreve no teclado (`forall x`, `->`), que é o atalho.
+ */
 export const SYMBOL_KEYS = [
   { name: "not", label: "¬", insert: "¬" },
   { name: "and", label: "∧", insert: " ∧ " },
   { name: "or", label: "∨", insert: " ∨ " },
   { name: "implies", label: "→", insert: " → " },
   { name: "falsum", label: "F", insert: "F" },
+  { name: "forall", label: "∀", insert: "∀" },
+  { name: "exists", label: "∃", insert: "∃" },
+  { name: "eq", label: "=", insert: " = " },
   { name: "open", label: "(", insert: "(" },
   { name: "close", label: ")", insert: ")" },
   { name: "comma", label: ",", insert: ", " },
   { name: "turnstile", label: "⊢", insert: " ⊢ " },
 ];
+
+/** As teclas que só servem a 1.ª ordem: as regras do utilizador ficam proposicionais. */
+export const FIRST_ORDER_KEYS = ["forall", "exists", "eq"];
 
 /** Tempo sem escrever até o erro aparecer: `p ∧` é um erro só se o aluno parar ali. */
 export const ERROR_DELAY_MS = 700;

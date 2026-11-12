@@ -46,3 +46,27 @@ export const WIDE_GOAL = widen(NESTED_GOAL);
 
 export const CASES_GOAL = "a1 ∨ a2, a1 → b, a2 → b ⊢ b";
 export const STATES_GOAL = "¬q, p → q ⊢ ¬p";
+
+/** 1.ª ordem: uma caixa do ∀I que abre num passo, dentro da caixa do ∃E. */
+export const BOXES = `
+1 | ∃x∀y R(x, y)         premissa
+2 |  [u] ∀y R(u, y)      hipótese
+3 |    [v] R(u, v)       ∀E, 2
+4 |     ∃x R(x, v)       ∃I, 3
+5 |   ∀y∃x R(x, y)       ∀I, 3–4
+6 | ∀y∃x R(x, y)         ∃E, 1, 2–5
+`;
+
+export const BOXES_GOAL = "∃x∀y R(x, y) ⊢ ∀y∃x R(x, y)";
+
+/** 1.ª ordem: a caixa do ∀I começa numa hipótese, por isso a variável fica na linha de etiqueta. */
+export const LABEL = `
+1 | ∀x P(x)              premissa
+  |  [w]
+2 |     Q(w)             hipótese
+3 |     P(w)             ∀E, 1
+4 |   Q(w) → P(w)        →I, 2–3
+5 | ∀x(Q(x) → P(x))      ∀I, 2–4
+`;
+
+export const LABEL_GOAL = "∀x P(x) ⊢ ∀x(Q(x) → P(x))";

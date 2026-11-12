@@ -118,6 +118,11 @@ export default {
     },
     shortcuts: "Enter avança · Ctrl+Enter abre subdedução · Shift+Enter fecha · Ctrl+Shift+Backspace apaga a linha · Ctrl+Z desfaz · Ctrl+Y refaz",
     complete: "A prova está completa e todas as linhas estão certas.",
+    boxes: "Caixa do ∀I ou do ∃E: começa a fórmula por [v], com a variável nova. Abrir subdedução (Ctrl+Enter) numa linha só com [v] põe uma hipótese dentro da caixa.",
+    errors: {
+      badFresh: "«[{name}]» não serve de variável da caixa: escreve um nome, como [v].",
+      freshBoxNotEmpty: "Esta linha abre a caixa de {name}, que tem mais linhas: mantém o [{name}], ou apaga a caixa com Ctrl+Shift+Backspace.",
+    },
   },
   rulePick: {
     choose: "Escolhe a regra",
@@ -190,6 +195,9 @@ export default {
       or: "Disjunção",
       implies: "Implicação",
       falsum: "Falso",
+      forall: "Para todo (escreve forall)",
+      exists: "Existe (escreve exists)",
+      eq: "Igual",
       open: "Abrir parêntese",
       close: "Fechar parêntese",
       comma: "Vírgula",
@@ -1115,6 +1123,8 @@ export default {
       pending: "Linha {line} por acabar.",
     },
     moreChanges: "E mais {count} linhas mudaram.",
+    fresh: "Caixa da variável {variable}.",
+    labelLine: "Linha de etiqueta: caixa da variável {variable}, sem número.",
   },
   speech: {
     not: "não",

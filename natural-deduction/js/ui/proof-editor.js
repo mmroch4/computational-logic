@@ -13,10 +13,10 @@ import {
 } from "../core/guided.js";
 import { applyPick, pickState, pickableRules } from "../core/rule-pick.js";
 import { RULES, localizeRuleParam, ruleLabel, ruleSet } from "../core/rules.js";
-import { formatSequent } from "../core/sequent.js";
+import { formatSequent, isPropositionalSequent } from "../core/sequent.js";
 import {
-  barsHtml, closesAssumptions, depthHtml, formulaReadHtml, justificationText, lineHtml, readAsHtml, spokenFormula,
-  spokenProse, stateHtml, whyHtml,
+  barsHtml, closesAssumptions, depthHtml, formulaReadHtml, justificationText, labelRowHtml, lineFreshHtml, lineHtml,
+  readAsHtml, spokenFormula, spokenProse, stateHtml, whyHtml,
 } from "./fitch-view.js";
 import { LOCALES, getLang, onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -46,6 +46,9 @@ const PROOF_KEYS = SYMBOL_KEYS.filter(({ name }) => name !== "turnstile");
 const MAX_ANNOUNCED = 3;
 
 const ruleLabels = () => LOCALES[getLang()].rules.labels;
+
+/** O que conta para as barras de uma linha: a profundidade e se abre caixa com variável. */
+const boxShape = ({ depth, fresh = null }) => `${depth}:${fresh === null}`;
 
 /** A frase de uma mensagem de `editorStatus`, com as siglas do idioma. */
 export function messageText({ key, params }) {
@@ -98,7 +101,7 @@ export function editableLineHtml(line, index, draft, assumption, prefix = "proof
       placeholder: t("editor.justificationPlaceholder"),
     })
     : `<span class="fitch-edit__kind">${escapeHtml(t("proofText.hypothesis"))}</span>`;
-  return `<li class="fitch__line fitch-edit__line" data-line="${number}" data-state="pending">`
+  return `${labelRowHtml(line)}<li class="fitch__line fitch-edit__line" data-line="${number}" data-state="pending">`
     + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${stateHtml("pending")}</span>`
     + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}`
     + `<span class="fitch-edit__content"><span class="fitch-edit__fields">${formula}${justification}</span>`
@@ -128,10 +131,10 @@ export function guidedLineHtml(line, index, { row, status, assumption, target })
   const message = status.message
     ? `<span class="${msgClasses(tone)} fitch-edit__error">${msgBodyHtml(tone, escapeHtml(messageText(status.message)))}</span>`
     : "";
-  return `<li class="fitch__line fitch-pick__line" data-line="${number}" data-state="${status.state}" data-role="${row.role}">`
+  return `${labelRowHtml(line)}<li class="fitch__line fitch-pick__line" data-line="${number}" data-state="${status.state}" data-role="${row.role}">`
     + `<button type="button" class="fitch-pick" data-pick="${number}"${pressed}${current}${locked}>`
     + `<span class="fitch__gutter"><span class="fitch__number">${number}</span>${stateHtml(status.state)}</span>`
-    + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}`
+    + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}${lineFreshHtml(line)}`
     + `<span class="${formulaClasses}">${formulaReadHtml(line.formula ?? target)}</span></span>`
     + `${whyHtml(why)}</button>${message}</li>`;
 }
@@ -211,7 +214,12 @@ function modesHtml(mode) {
   return `<div class="seg" role="group" aria-label="${escapeHtml(t("editor.modesLabel"))}">${buttons}</div>`;
 }
 
-function shellHtml(mode) {
+/** A dica das caixas com variável, só quando o sequente é de 1.ª ordem. */
+export const boxesHintHtml = (goal) => (
+  isPropositionalSequent(goal) ? "" : `<p class="proof-editor__boxes">${escapeHtml(t("editor.boxes"))}</p>`
+);
+
+function shellHtml(mode, goal) {
   const guided = mode === "guided";
   const shownActions = EDITOR_ACTIONS.filter(({ name }) => !guided || GUIDED_ACTIONS.includes(name));
   const actions = shownActions.map(({ name, shortcut }) => {
@@ -223,7 +231,8 @@ function shellHtml(mode) {
     `<button type="button" data-symbol="${name}" aria-label="${escapeHtml(t(`sequentInput.symbols.${name}`))}">${escapeHtml(label)}</button>`
   )).join("");
   const writing = `<div class="keys" role="group" aria-label="${escapeHtml(t("sequentInput.symbolsLabel"))}">${keys}</div>`
-    + `<p class="proof-editor__shortcuts">${escapeHtml(t("editor.shortcuts"))}</p>`;
+    + `<p class="proof-editor__shortcuts">${escapeHtml(t("editor.shortcuts"))}</p>`
+    + boxesHintHtml(goal);
   return `<div class="proof-editor__bar">${modesHtml(mode)}</div>`
     + '<div class="fitch fitch--edit" role="group" '
     + `aria-label="${escapeHtml(t("fitch.label"))}"><ol class="fitch__lines" role="list"></ol></div>`
@@ -291,8 +300,9 @@ export function mountProofEditor(container, options = {}) {
     box.hidden = !showMessage;
     box.className = `${msgClasses(invalid ? "error" : "info")} fitch-edit__error`;
     box.innerHTML = showMessage ? msgBodyHtml(invalid ? "error" : "info", escapeHtml(messageText(message))) : "";
-    const { formula } = editor.proof.lines[line - 1];
-    const spoken = formula === null ? "" : `${spokenFormula(formula)}. `;
+    const { formula, fresh = null, label = null } = editor.proof.lines[line - 1];
+    const boxes = [label, fresh].filter((name) => name !== null).map((variable) => `${t("fitch.fresh", { variable })} `);
+    const spoken = boxes.join("") + (formula === null ? "" : `${spokenFormula(formula)}. `);
     row.querySelector(`#${idPrefix}-reading-${line}`).textContent = spoken + t(`fitch.states.${visible}`);
   }
 
@@ -526,7 +536,9 @@ export function mountProofEditor(container, options = {}) {
     editor = next;
     if (next.proof !== before.proof || next.cursor !== before.cursor) clearGuided();
     if (next.goal !== before.goal) onGoalChange?.(next.goal);
-    if (next.drafts === before.drafts) refresh();
+    // Outro sequente pode trazer ou tirar a dica das caixas, que está fora das linhas.
+    if (isPropositionalSequent(next.goal) !== isPropositionalSequent(before.goal)) build();
+    else if (next.drafts === before.drafts) refresh();
     else paintLines();
     paintPick();
     focusCursor();
@@ -549,8 +561,20 @@ export function mountProofEditor(container, options = {}) {
 
   function onInput({ target }) {
     if (!target.matches(".fitch-edit__field")) return;
-    editor = setText(editor, Number(target.closest("[data-line]").dataset.line), target.dataset.field, target.value);
-    refresh();
+    const line = Number(target.closest("[data-line]").dataset.line);
+    const before = editor.proof.lines[line - 1];
+    editor = setText(editor, line, target.dataset.field, target.value);
+    const after = editor.proof.lines[line - 1];
+    if (boxShape(before) !== boxShape(after)) {
+      // A marca `[v]` abriu ou desfez a caixa do ∀I: as barras mudam, e o cursor fica onde estava.
+      const caret = [target.selectionStart, target.selectionEnd];
+      paintLines();
+      const input = inputAt({ line, field: target.dataset.field });
+      input?.focus();
+      input?.setSelectionRange(...caret);
+    } else {
+      refresh();
+    }
     if (rulePick) closePick();
   }
 
@@ -641,7 +665,7 @@ export function mountProofEditor(container, options = {}) {
 
   function build() {
     announced = null;
-    container.innerHTML = shellHtml(mode);
+    container.innerHTML = shellHtml(mode, editor.goal);
     if (barSlot) container.querySelector(".proof-editor__bar").append(barSlot);
     container.querySelectorAll("[data-mode]").forEach((button) => {
       button.addEventListener("click", () => setMode(button.dataset.mode));
