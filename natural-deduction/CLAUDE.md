@@ -47,11 +47,19 @@ que têm gralhas. Toda a prova publicada no site passa pelo verificador nos test
 ## Convenções de DN
 
 - Mostra-se **F**; `⊥` é aceite na entrada. Valores de verdade: V/F em PT, T/F em EN.
-- Siglas PT: MT, ¬¬I, RA, TE, DM, SH, SD. Siglas EN: MT, ¬¬I, RAA, LEM, DM, HS, DS.
+- Siglas PT: MT, ¬¬I, RA, TE, DM, SH, SD, NQ1–NQ4. Siglas EN: MT, ¬¬I, RAA, LEM, DM, HS, DS,
+  QN1–QN4. ∀I, ∀E, ∃I, ∃E, =I e =E são iguais nos dois idiomas.
 - Citações como nos slides: linhas exteriores acessíveis citam-se sem R; R só repete uma fórmula; a
-  ordem das linhas citadas é livre; uma subdedução cita-se como intervalo `2–4`.
-- ¬E é só ¬¬φ ⊢ φ. Variáveis: `[A-Za-z][A-Za-z0-9_]*`; sufixo numérico em subscrito.
+  ordem das linhas citadas é livre; uma subdedução cita-se como intervalo `2–4`; o ∃E cita a linha do
+  ∃ e o intervalo, `∃E, 2, 3–9`.
+- ¬E é só ¬¬φ ⊢ φ. Nomes: `[A-Za-z][A-Za-z0-9_]*`; sufixo numérico em subscrito.
 - Negação `¬ ~ - !`, conjunção `∧ & /\ ^`, disjunção `∨ | \/ v`, implicação `→ -> =>`.
+- 1.ª ordem: `∀` ou `forall x`, `∃` ou `exists x`, igualdade `=`. `forall`, `exists` e `F` são
+  reservados. A variável de um quantificador é uma letra e dígitos opcionais (`∀xP(x)` lê-se).
+- O `v` é disjunção entre fórmulas e nome em posição de termo: argumento, variável de quantificador ou
+  etiqueta de caixa. Não pode ser átomo proposicional.
+- A variável nova do ∀I e do ∃E marca-se `[v]` à margem da primeira linha da caixa:
+  `3 |  [v] P(v) → Q(v)   ∀E, 1`. Uma caixa por linha.
 
 ## Comandos
 
