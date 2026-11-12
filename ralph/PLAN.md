@@ -45,7 +45,7 @@ PT/EN. Atualiza o `notation.js` (conversão símbolos ↔ ASCII) e o `sequent.js
 - há testes para cada caso novo e cada erro novo, `print → parse` é identidade em fórmulas geradas;
 - o `npm test` passa.
 
-### [ ] L3 · Fronteira proposicional
+### [x] L3 · Fronteira proposicional
 Junta `isPropositional(formula)`. Todos os consumidores que hoje assumem lógica proposicional
 (`semantics`, `solver`, `countermodel`, `user-rules`, `hints`, `home-demo`, `quiz`, as páginas que os
 chamam) passam a tratar um sequente de 1.ª ordem com um resultado explícito («ainda não suportado»,
