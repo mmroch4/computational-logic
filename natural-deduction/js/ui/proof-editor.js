@@ -9,7 +9,8 @@ import {
 } from "../core/editor.js";
 import { format } from "../core/formula.js";
 import {
-  applyOutcome, focusObjective, guidedAnchor, guidedLines, guidedRules, outcomeLabel, toggleSelection,
+  applyOutcome, askText, focusObjective, guidedAnchor, guidedLines, guidedRules, outcomeLabel, reviseOutcome,
+  toggleSelection,
 } from "../core/guided.js";
 import { applyPick, pickState, pickableRules } from "../core/rule-pick.js";
 import { RULES, localizeRuleParam, ruleLabel, ruleSet } from "../core/rules.js";
@@ -139,8 +140,24 @@ export function guidedLineHtml(line, index, { row, status, assumption, target })
     + `${whyHtml(why)}</button>${message}</li>`;
 }
 
+/**
+ * O campo para mudar o termo ou a variável nova que a ferramenta escolheu (`outcome.ask`), com o texto
+ * `typed`, se o utilizador já escreveu outro.
+ */
+export function askHtml(choice, prefix = "proof") {
+  const asked = choice?.outcomes.find(({ ask }) => ask);
+  if (!asked) return "";
+  const id = `${prefix}-ask`;
+  const value = choice.typed ?? askText(asked);
+  return `<form class="guided__ask" data-ask novalidate><label for="${id}">${escapeHtml(t(`guided.ask.${asked.ask.kind}`))}</label>`
+    + `<span class="guided__ask-row"><input id="${id}" class="input guided__ask-input" type="text" name="ask" `
+    + `value="${escapeHtml(value)}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">`
+    + `<button type="submit" class="btn" data-variant="outline" data-size="sm">${escapeHtml(t("guided.ask.apply"))}</button>`
+    + "</span></form>";
+}
+
 /** O painel das regras: o objetivo, um botão por regra, a escolha entre passos e o motivo pedido. */
-export function guidedPanelHtml({ anchor, rules, choice, reason, complete = false }) {
+export function guidedPanelHtml({ anchor, rules, choice, reason, complete = false, prefix = "proof" }) {
   let heading = t(complete ? "guided.noneLeft" : "guided.noObjective");
   if (!complete && anchor.target) heading = t("guided.objective", { line: anchor.line, formula: format(anchor.target) });
   const labels = ruleLabels();
@@ -156,7 +173,7 @@ export function guidedPanelHtml({ anchor, rules, choice, reason, complete = fals
     : "";
   const choices = choice
     ? `<div class="guided__choices" role="group" aria-label="${escapeHtml(t("guided.choose"))}">`
-      + `<p>${escapeHtml(t("guided.choose"))}</p>${options}</div>`
+      + `<p>${escapeHtml(t("guided.choose"))}</p>${options}</div>${askHtml(choice, prefix)}`
     : "";
   // O motivo é anunciado pelo `.proof-editor__live`: este bloco nasce de novo a cada desenho.
   return `<p class="guided__objective">${readAsHtml(escapeHtml(heading), spokenProse(heading))}</p>`
@@ -185,8 +202,10 @@ export function rulePickHtml({ ids, id, state, proof }) {
     return wrap(msgHtml("info", escapeHtml(t("rulePick.refused", { rule: ruleLabel(id, labels), conclusions: state.conclusions }))) + cancel);
   }
   if (state.status === "done") {
+    // Um null no fim (1.ª ordem, termo à escolha) deixa escrever a fórmula com outro termo.
     const options = state.results.map((formula, index) => (
-      `<button type="button" class="guided__choice" data-pick-result="${index}">${escapeHtml(format(formula))}</button>`
+      `<button type="button" class="guided__choice" data-pick-result="${index}">`
+      + `${escapeHtml(formula ? format(formula) : t("rulePick.other"))}</button>`
     )).join("");
     return wrap(`<p><b>${rule}</b> ${escapeHtml(t("rulePick.result"))}</p><div class="guided__choices">${options}</div>${cancel}`);
   }
@@ -336,6 +355,7 @@ export function mountProofEditor(container, options = {}) {
   function focusedSelector() {
     const active = document.activeElement;
     if (!active || !container.contains(active)) return null;
+    if (active.closest("[data-ask]")) return `[data-ask] ${active.matches("input") ? "input" : "button"}`;
     const name = ["pick", "rule"].find((key) => key in active.dataset);
     return name ? `[data-${name}="${CSS.escape(active.dataset[name])}"]` : null;
   }
@@ -366,6 +386,7 @@ export function mountProofEditor(container, options = {}) {
       choice,
       reason,
       complete: status.complete,
+      prefix: idPrefix,
     });
     if (focused) container.querySelector(focused)?.focus();
   }
@@ -593,10 +614,29 @@ export function mountProofEditor(container, options = {}) {
 
   function pickRule(id) {
     const { outcomes, reason: refused } = guidedRules(editor, selection, { rules, known }).find((rule) => rule.id === id);
-    choice = outcomes.length > 1 ? { id, outcomes } : null;
+    // Um termo ou uma variável nova escolhidos pela ferramenta mostram-se sempre, para se poderem mudar.
+    const asks = outcomes.some(({ ask }) => ask);
+    choice = outcomes.length > 1 || asks ? { id, outcomes } : null;
     reason = refused;
-    if (outcomes.length === 1) show(applyOutcome(editor, outcomes[0], ruleLabels()));
+    if (outcomes.length === 1 && !asks) show(applyOutcome(editor, outcomes[0], ruleLabels()));
     else refresh();
+  }
+
+  /** O termo ou a variável escritos no campo do pedido: aplica o passo, ou diz porque não serve. */
+  function onAskSubmit(event) {
+    const form = event.target.closest?.("[data-ask]");
+    if (!form || !choice) return;
+    event.preventDefault();
+    const typed = form.querySelector("input").value;
+    const result = reviseOutcome(editor, choice.outcomes.find(({ ask }) => ask), typed);
+    if (result.ok) {
+      show(applyOutcome(editor, result.outcome, ruleLabels()));
+      return;
+    }
+    choice = { ...choice, typed };
+    reason = result.reason;
+    refresh();
+    container.querySelector("[data-ask] input")?.focus();
   }
 
   function onGuidedClick({ target }) {
@@ -625,6 +665,8 @@ export function mountProofEditor(container, options = {}) {
       return;
     }
     if (mode === "guided") {
+      // No campo do termo, Ctrl+Z desfaz o texto, não a prova.
+      if (event.target.closest?.("[data-ask]")) return;
       const name = keyAction({ key: event.key, ctrl: event.ctrlKey || event.metaKey, shift: event.shiftKey, alt: event.altKey });
       if (name !== "undo" && name !== "redo") return;
       event.preventDefault();
@@ -689,6 +731,7 @@ export function mountProofEditor(container, options = {}) {
   container.addEventListener("click", onPickClick);
   container.addEventListener("mousedown", keepFieldFocus);
   container.addEventListener("input", onInput);
+  container.addEventListener("submit", onAskSubmit);
   container.addEventListener("keydown", onKeydown);
   container.addEventListener("focusin", onFocusin);
   container.addEventListener("focusout", onFocusout);

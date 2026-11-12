@@ -69,15 +69,27 @@ test("a semântica responde notPropositional em vez de lançar", () => {
   assert.equal(checkSequent(goalOf("p ⊢ p ∨ q")).valid, true);
 });
 
-test("o solver, as dicas e a solução devolvem o erro sem procurar; o countermodel devolve null", () => {
+test("o solver e a solução devolvem o erro sem procurar; o countermodel devolve null", () => {
   const rules = ruleSet("completo");
   for (const text of FIRST_ORDER_SEQUENTS) {
     const goal = goalOf(text);
     assert.deepEqual(solve(goal, { rules }), NOT_PROPOSITIONAL, text);
     assert.equal(countermodel(goal, rules), null, text);
     const proof = createEditor(goal).proof;
-    assert.deepEqual(hint(proof, goal, { rules, known: RULES }), { status: "unknown", error: NOT_PROPOSITIONAL.error });
     assert.deepEqual(completeProof(proof, goal, { rules, known: RULES }), { status: "unknown", error: NOT_PROPOSITIONAL.error });
+  }
+});
+
+// Desde a E2, as dicas têm estratégias de 1.ª ordem (testadas em hints.test.js): dão um passo ou dizem
+// que não o encontraram, mas nunca que o sequente é inválido ou que não tem prova.
+test("as dicas de 1.ª ordem dão um passo ou não encontram nenhum, sem tabela de verdade", () => {
+  const rules = ruleSet("completo");
+  for (const text of FIRST_ORDER_SEQUENTS) {
+    const goal = goalOf(text);
+    const result = hint(createEditor(goal).proof, goal, { rules, known: RULES });
+    const valid = text !== "p ⊢ p ∧ R(f(c))";
+    if (valid) assert.equal(result.status, "step", text);
+    else assert.deepEqual(result, { status: "unknown", error: { code: "searchExhausted", params: {} } }, text);
   }
 });
 

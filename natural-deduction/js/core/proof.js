@@ -275,6 +275,36 @@ export function insertLine(proof, after, line) {
 }
 
 /**
+ * Insere `line` mesmo antes da linha n, um passo que abre a caixa do ∀I (`fresh`), e passa a caixa para
+ * a linha nova: um passo fica com a marca `[v]`, à mesma profundidade; uma hipótese fica com a linha de
+ * etiqueta (`label`), um nível mais dentro, e abre a sua caixa por dentro da do ∀I. A linha n perde a
+ * marca e continua na caixa. Os intervalos que começavam em n passam a começar na linha nova.
+ */
+export function insertAtBoxStart(proof, n, line) {
+  if (!isLine(proof, n)) return failure("noSuchLine", n);
+  const { lines } = proof;
+  const opener = lines[n - 1];
+  const variable = opener.fresh ?? null;
+  if (opener.kind !== "step" || variable === null) return failure("invalidLine", n);
+  const hypothesis = line.kind === "hypothesis";
+  const inserted = hypothesis
+    ? { ...line, depth: opener.depth + 1, label: variable }
+    : { ...line, kind: "step", depth: opener.depth, fresh: variable };
+  if (!isWellFormed(inserted) || (!hypothesis && (line.fresh ?? null) !== null)) return failure("invalidLine", n);
+
+  const shift = (number) => (number >= n && number <= lines.length ? number + 1 : number);
+  const moveCitation = (citation) => {
+    if (citation.kind === "line") return citeLine(shift(citation.line));
+    return citeRange(citation.from === n ? n : shift(citation.from), shift(citation.to));
+  };
+  const unmarked = { ...opener };
+  delete unmarked.fresh;
+  const moved = [...lines.slice(0, n - 1), unmarked, ...lines.slice(n)]
+    .map((old) => ({ ...old, citations: old.citations.map(moveCitation) }));
+  return createProof([...moved.slice(0, n - 1), inserted, ...moved.slice(n - 1)]);
+}
+
+/**
  * Muda o conteúdo da linha n: `formula`, `rule`, `citations`, `fresh` e `label`, os que vierem em
  * `changes`. O tipo, a profundidade e as caixas não mudam, por isso nenhuma outra linha é afetada: a
  * variável de uma caixa pode mudar de nome e uma hipótese pode ganhar ou perder `fresh`, mas um passo

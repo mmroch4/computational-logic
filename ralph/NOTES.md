@@ -134,3 +134,20 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
 - Teclas ∀, ∃, = em `SYMBOL_KEYS` (o «atalho» é escrever `forall`/`exists`, dito no nome lido);
   `FIRST_ORDER_KEYS` ficam fora das regras do utilizador. Grelha das teclas a 6 colunas e ⊢ sem span 2.
 - Fixtures `BOXES`/`LABEL` em `tests/fixtures/fitch-proofs.js`, usadas no check-fitch e no check-share (p=2).
+
+## E2
+
+- Guiado: `completions` (guided.js) liga o que falta: só o `t` (∀E, ∃I, =I) entre os termos da prova e o
+  `v` das caixas são pedidos (`outcome.ask`, mudado com `reviseOutcome`); o ∃I/=E dão uma escolha por
+  subconjunto de ocorrências (`GUIDED_LIMITS.occurrences`). `possibleConclusions` serve o rule-pick, que
+  junta `null` («outro termo») quando há termo à escolha.
+- Caixa do ∀I num passo pendente: o que entra antes dele passa a abrir a caixa (`insertAtBoxStart`, em
+  proof.js; numa hipótese vira linha de etiqueta). Um ∀I dentro dela abriria na mesma linha: o guiado dá
+  `boxClash`; as dicas repetem um facto por R (`separateBoxes`). Rever na PAUSA-3.
+- Dicas de 1.ª ordem: `firstOrderHint` (hints.js), heurísticas sem solver nem tabela; sem passo dá
+  `unknown`/`searchExhausted`. O painel de ajuda continua com a vista `firstOrder` (não chama o Worker)
+  até à M2/M3, que ligam dicas, solução e contramodelo juntos. Estratégias novas em `STRATEGY_CODES`.
+- O `tests/helpers/corpus.js` lê as strings por regex: um template com `${…}` acrescentado a um teste
+  troca a paridade das crases e «apaga» textos do corpus. Nos testes novos, concatena.
+- Nos scripts do Chrome, esperar ~600 ms depois de aplicar um passo: o foco vai para o objetivo com
+  scroll suave e o toque seguinte cai noutro botão.

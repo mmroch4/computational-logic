@@ -6,7 +6,7 @@ import { existsSync } from "node:fs";
 import { createEditor, editorStatus, moveCursor, setText, undo } from "../js/core/editor.js";
 import { format } from "../js/core/formula.js";
 import {
-  applyOutcome, focusObjective, guidedAnchor, guidedLines, guidedRules, outcomeLabel, toggleSelection,
+  applyOutcome, focusObjective, guidedAnchor, guidedLines, guidedRules, outcomeLabel, reviseOutcome, toggleSelection,
 } from "../js/core/guided.js";
 import { citeRange, citeLine } from "../js/core/proof.js";
 import { formatProof } from "../js/core/proof-text.js";
@@ -276,4 +276,170 @@ test("sem seleção, ∧I e →E encontram sozinhos o que citar e fecham o objet
 test("sem seleção, só se oferecem fórmulas novas que já aparecem na prova", () => {
   const editor = apply(start("a ⊢ a → a"), [], "→I");
   assert.equal(ruleOf(editor, [], "∧I").outcomes.length, 0);
+});
+
+// --- 1.ª ordem -------------------------------------------------------------------------------------
+
+const textOf = (editor) => formatProof(editor.proof);
+const asked = (rule) => rule.outcomes.map((outcome) => (
+  [outcomeLabel(outcome), outcome.ask?.kind ?? null, outcome.ask ? format(outcome.ask.value) : null]
+));
+
+test("1.ª ordem: o ∀I abre a caixa [v] e o ∀E escolhe o termo, com a marca a passar para a primeira linha", () => {
+  let editor = start("∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)");
+  const box = ruleOf(editor, [], "∀I");
+  assert.deepEqual(asked(box), [["[v] … Q(v)", "variable", "v"]]);
+  editor = applyOutcome(editor, box.outcomes[0]);
+  assert.equal(editor.proof.lines[2].fresh, "v");
+  assert.equal(editor.drafts[2].formula, "[v] Q(v)");
+  assert.equal(format(guidedAnchor(editor).target), "Q(v)");
+
+  const instance = ruleOf(editor, lines(1), "∀E");
+  assert.deepEqual(asked(instance), [["P(v) → Q(v)", "term", "v"]]);
+  editor = applyOutcome(editor, instance.outcomes[0]);
+  assert.equal(editor.proof.lines[2].fresh, "v");
+  assert.equal(editor.proof.lines[3].fresh ?? null, null);
+  assert.equal(editor.drafts[2].formula, "[v] P(v) → Q(v)");
+  assert.equal(editor.drafts[3].formula, "Q(v)");
+  editor = apply(editor, lines(2), "∀E", "P(v)");
+  editor = apply(editor, [], "→E");
+  assert.equal(textOf(editor), [
+    "1 | ∀x(P(x) → Q(x))    premissa",
+    "2 | ∀x P(x)            premissa",
+    "3 |  [v] P(v) → Q(v)   ∀E, 1",
+    "4 |   P(v)             ∀E, 2",
+    "5 |   Q(v)             →E, 4, 3",
+    "6 | ∀x Q(x)            ∀I, 3–5",
+  ].join("\n"));
+  assertDone(editor);
+});
+
+test("1.ª ordem: uma hipótese no início da caixa do ∀I leva a marca para a linha de etiqueta", () => {
+  let editor = apply(start("⊢ ∀x(P(x) → P(x))"), [], "∀I", "[v] … P(v) → P(v)");
+  editor = apply(editor, [], "→I");
+  assert.equal(editor.proof.lines[0].label, "v");
+  assert.equal(editor.proof.lines[1].fresh ?? null, null);
+  editor = apply(editor, lines(1), "R");
+  assert.equal(textOf(editor), [
+    "  |  [v]",
+    "1 |     P(v)          hipótese",
+    "2 |     P(v)          R, 1",
+    "3 |   P(v) → P(v)     →I, 1–2",
+    "4 | ∀x(P(x) → P(x))   ∀I, 1–3",
+  ].join("\n"));
+  assertDone(editor);
+});
+
+test("1.ª ordem: o ∃E sugere a variável nova, que se pode mudar, e recusa uma que não é nova", () => {
+  let editor = start("∃x P(x), ∀x(P(x) → Q(x)) ⊢ ∃x Q(x)");
+  const witness = ruleOf(editor, lines(1), "∃E");
+  assert.deepEqual(asked(witness), [["[v] P(v) … ∃x Q(x)", "variable", "v"]]);
+  const [outcome] = witness.outcomes;
+  assert.deepEqual(reviseOutcome(editor, outcome, "x").reason, { key: "guided.reasons.notFresh", params: { variable: "x" } });
+  assert.equal(reviseOutcome(editor, outcome, "P(").reason.key, "guided.reasons.badVariable");
+  assert.equal(reviseOutcome(editor, outcome, "forall").reason.key, "guided.reasons.badVariable");
+  const revised = reviseOutcome(editor, outcome, " w2 ");
+  assert.equal(revised.ok, true);
+  assert.equal(outcomeLabel(revised.outcome), "[w₂] P(w₂) … ∃x Q(x)");
+  editor = applyOutcome(editor, revised.outcome);
+  assert.equal(editor.drafts[2].formula, "[w2] P(w₂)");
+
+  const exists = ruleOf(editor, [], "∃I");
+  assert.deepEqual(asked(exists), [["Q(w₂)", "term", "w₂"]]);
+  editor = applyOutcome(editor, exists.outcomes[0]);
+  editor = apply(editor, lines(2), "∀E", "P(w₂) → Q(w₂)");
+  editor = apply(editor, [], "→E");
+  assert.equal(finished(editor).ok, true);
+});
+
+test("1.ª ordem: o termo escrito à mão muda o passo, e um termo que seria capturado é recusado", () => {
+  const editor = start("∀x∃y R(x, y), Q(f(c)) ⊢ q");
+  const instance = ruleOf(editor, lines(1), "∀E");
+  assert.deepEqual(asked(instance), [
+    ["∃y R(f(c), y)", "term", "f(c)"], ["∃y R(c, y)", "term", "c"],
+  ]);
+  const typed = reviseOutcome(editor, instance.outcomes[0], "g(a, b)");
+  assert.equal(outcomeLabel(typed.outcome), "∃y R(g(a, b), y)");
+  assert.equal(format(typed.outcome.ask.value), "g(a, b)");
+  assert.deepEqual(reviseOutcome(editor, instance.outcomes[0], "y").reason, {
+    key: "guided.reasons.notSubstitutable", params: { term: "y" },
+  });
+  assert.equal(reviseOutcome(editor, instance.outcomes[0], "g(a").reason.key, "guided.reasons.badTerm");
+  assert.equal(reviseOutcome(editor, instance.outcomes[0], "P(a) ∧ q").reason.key, "guided.reasons.badTerm");
+  const next = applyOutcome(editor, typed.outcome);
+  assert.equal(format(next.proof.lines[2].formula), "∃y R(g(a, b), y)");
+  assert.deepEqual(finished(next).lineErrors.filter(({ line }) => line === 3), []);
+});
+
+test("1.ª ordem: o ∃I e o =E para a frente escolhem entre as conclusões possíveis", () => {
+  const editor = start("a = b, R(a, a) ⊢ q");
+  assert.deepEqual(ruleOf(editor, lines(2), "∃I").outcomes.map(outcomeLabel), ["∃x R(x, x)", "∃x R(x, a)", "∃x R(a, x)"]);
+  assert.deepEqual(ruleOf(editor, lines(1, 2), "=E").outcomes.map(outcomeLabel), ["R(b, b)", "R(b, a)", "R(a, b)"]);
+  assert.equal(ruleOf(editor, lines(2), "∃I").outcomes.some(({ ask }) => ask), false);
+  assert.deepEqual(asked(ruleOf(start("⊢ q"), [], "=I")), [["a = a", "term", "a"]]);
+});
+
+test("1.ª ordem: a partir do objetivo, o =E e o ∃I citam o que já existe ou deixam o que falta", () => {
+  const editor = apply(start("a = b, R(a, a) ⊢ R(b, a)"), lines(1), "=E");
+  assertDone(editor);
+  const witness = ruleOf(start("P(a, a) ⊢ ∃x P(x, a)"), [], "∃I");
+  assert.deepEqual(asked(witness), [["P(a, a)", "term", "a"]]);
+  assert.deepEqual(witness.outcomes[0].citations, lines(1));
+  assert.deepEqual(asked(ruleOf(start("∀x P(x) ⊢ ∃x P(x)"), [], "∃I")), [["P(a)", "term", "a"]]);
+});
+
+test("1.ª ordem: duas caixas do ∀I não abrem na mesma linha", () => {
+  const editor = apply(start("∀x∀y R(x, y) ⊢ ∀y∀x R(x, y)"), [], "∀I");
+  const inner = ruleOf(editor, [], "∀I");
+  assert.deepEqual(inner.outcomes, []);
+  assert.deepEqual(inner.reason, { key: "guided.reasons.boxClash", params: { variable: "v" } });
+  // Com outra linha no início da caixa de fora, a de dentro já abre.
+  const repeated = apply(editor, lines(1), "R", "∀x∀y R(x, y)");
+  const nested = ruleOf(repeated, [], "∀I");
+  assert.equal(nested.outcomes.length, 1);
+  let done = applyOutcome(repeated, nested.outcomes[0]);
+  done = apply(done, lines(2), "∀E", "∀y R(u, y)");
+  done = apply(done, [], "∀E");
+  assertDone(done);
+});
+
+test("1.ª ordem: em cada passo gerado, a linha da regra passa no verificador", () => {
+  const sequents = [
+    "∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)", "∃x P(x), ∀x(P(x) → Q(x)) ⊢ ∃x Q(x)", "a = b, R(a, a) ⊢ R(b, b)",
+    "∀x∃y R(x, y) ⊢ ∃y R(c, y)", "P(a, f(a)) ⊢ ∃x∃y P(x, y)", "∃x∀y R(x, y) ⊢ ∀y∃x R(x, y)",
+  ];
+  for (const text of sequents) {
+    const editor = start(text);
+    const selections = [[], ...editor.goal.premises.map((_, index) => [citeLine(index + 1)])];
+    for (const selection of selections) {
+      for (const { id, outcomes } of guidedRules(editor, selection, options)) {
+        for (const outcome of outcomes) {
+          const next = applyOutcome(editor, outcome);
+          const wrong = finished(next).lineErrors.filter(({ code }) => !["missingRule", "emptyFormula"].includes(code));
+          // Sem templates com interpolação: o recolhedor do corpus (tests/helpers/corpus.js) perde-se neles.
+          assert.deepEqual(wrong, [], text + " com " + id + ": " + outcomeLabel(outcome));
+        }
+      }
+    }
+  }
+});
+
+test("1.ª ordem: o campo do pedido traz a sugestão, e as mensagens novas existem nos dois idiomas", async () => {
+  const { askHtml } = await import("../js/ui/proof-editor.js");
+  const { LOCALES } = await import("../js/ui/i18n.js");
+  const editor = start("⊢ ∀x P(x)");
+  const choice = { id: "∀I", outcomes: ruleOf(editor, [], "∀I").outcomes };
+  const html = askHtml(choice, "lab");
+  assert.match(html, /id="lab-ask"/);
+  assert.match(html, /value="v"/);
+  assert.match(askHtml({ ...choice, typed: "w<" }), /value="w&lt;"/);
+  assert.equal(askHtml({ id: "∧I", outcomes: ruleOf(start("p, q ⊢ p ∧ q"), [], "∧I").outcomes }), "");
+  for (const lang of ["pt", "en"]) {
+    const { guided, rulePick } = LOCALES[lang];
+    for (const key of ["boxClash", "badTerm", "badVariable", "notFresh", "notSubstitutable"]) {
+      assert.ok(guided.reasons[key], lang + ": " + key);
+    }
+    for (const key of ["term", "variable", "apply"]) assert.ok(guided.ask[key], lang + ": ask." + key);
+    assert.ok(rulePick.other);
+  }
 });

@@ -3358,6 +3358,31 @@
     display: none;
   }
 
+  /* O termo ou a variável nova que a ferramenta escolheu, para mudar. */
+  .guided__ask {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+  }
+
+  .guided__ask-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .guided__ask-input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: 16px; /* 16px: evita o zoom automático do iOS */
+  }
+
+  .guided__ask .btn {
+    min-height: 44px;
+  }
+
   /* Partilhar e exportar a prova. */
   .proof-share {
     flex: none;

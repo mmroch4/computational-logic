@@ -11,6 +11,7 @@ import {
   deleteLine,
   editLine,
   enclosingSubproofs,
+  insertAtBoxStart,
   insertLine,
   openSubproof,
   subproofs,
@@ -538,4 +539,30 @@ test("todos os códigos de erro têm mensagem nos dois idiomas", () => {
   }
   assert.deepEqual(Object.keys(pt.proof.errors).sort(), [...PROOF_ERROR_CODES].sort());
   assert.deepEqual(Object.keys(en.proof.errors).sort(), [...PROOF_ERROR_CODES].sort());
+});
+
+test("inserir no início da caixa do ∀I passa a marca para a linha nova e mantém os intervalos", () => {
+  const boxed = build([
+    premise(),
+    { kind: "step", depth: 1, formula: b, rule: null, citations: [], fresh: "v" },
+    step(1, [citeLine(1)]),
+    { ...step(0, [citeRange(2, 3)], c), rule: "∀I" },
+  ]);
+  const withStep = insertAtBoxStart(boxed, 2, { kind: "step", formula: a, rule: "R", citations: [citeLine(1)] });
+  assert.ok(withStep.ok);
+  assert.equal(withStep.proof.lines[1].fresh, "v");
+  assert.equal(withStep.proof.lines[1].depth, 1);
+  assert.equal(withStep.proof.lines[2].fresh ?? null, null);
+  assert.deepEqual(withStep.proof.lines[4].citations, [citeRange(2, 4)]);
+  assert.deepEqual(subproofs(withStep.proof).map(({ from, to, fresh }) => [from, to, fresh]), [[2, 4, "v"]]);
+
+  const withHypothesis = insertAtBoxStart(boxed, 2, { kind: "hypothesis", formula: a, fresh: "u" });
+  assert.ok(withHypothesis.ok);
+  const [line] = withHypothesis.proof.lines.slice(1);
+  assert.deepEqual([line.depth, line.label, line.fresh], [2, "v", "u"]);
+  assert.deepEqual(withHypothesis.proof.lines[4].citations, [citeRange(2, 4)]);
+
+  // Outra caixa [v] na mesma linha, ou uma linha que não abre a caixa do ∀I, não servem.
+  assert.equal(insertAtBoxStart(boxed, 2, { kind: "step", formula: a, fresh: "u" }).ok, false);
+  assert.equal(insertAtBoxStart(boxed, 3, { kind: "step", formula: a }).ok, false);
 });

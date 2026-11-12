@@ -36,6 +36,15 @@ export const STRATEGY_CODES = [
   "excludedMiddle", // TE
   "repeatFact", // R
   "applyRule", // outra regra do conjunto ativo
+  "openForallBox", // caixa [v] do ∀I, para provar ∀x φ
+  "assumeWitness", // hipótese [v] φ[v/x] do ∃E, a partir de ∃x φ
+  "concludeForall", // ∀I
+  "concludeFromWitness", // ∃E
+  "instantiate", // ∀E com um termo que já está na prova
+  "showWitness", // ∃I
+  "rewriteEquality", // =E
+  "reflexivity", // =I
+  "separateBoxes", // R no início de uma caixa do ∀I, para a caixa de dentro abrir noutra linha
 ];
 
 const STRATEGY_OF_RULE = new Map([
@@ -51,6 +60,12 @@ const STRATEGY_OF_RULE = new Map([
   ["FI", "reachContradiction"],
   ["FE", "anythingFromAbsurd"],
   ["TE", "excludedMiddle"],
+  ["∀I", "concludeForall"],
+  ["∃E", "concludeFromWitness"],
+  ["∀E", "instantiate"],
+  ["∃I", "showWitness"],
+  ["=E", "rewriteEquality"],
+  ["=I", "reflexivity"],
 ]);
 
 /** A estratégia por omissão de um passo com esta regra. */

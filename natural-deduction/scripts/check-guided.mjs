@@ -2,6 +2,7 @@
 // Uso: node scripts/check-guided.mjs   (arranca o próprio servidor, numa porta livre)
 // Faz a prova de tests/fixtures/guided-proof.js sem escrever fórmulas, com a página em PT e em EN, e
 // confirma o motivo de uma regra desativada, a escolha entre passos, desfazer e a largura da página.
+// Faz ainda uma prova de 1.ª ordem, com a variável nova do ∃E mudada no campo do pedido.
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -97,6 +98,9 @@ const expect = (actual, wanted, what) => {
 
 const ruleSelector = (id) => `[data-rule="${id}"]`;
 
+const FIRST_ORDER_GOAL = "∃x P(x), ∀x(P(x) → Q(x)) ⊢ ∃x Q(x)";
+const SETTLE_MS = 600;
+
 async function scenario({ page, evaluate, tap }, origin, path, lang) {
   const tag = (what) => `${lang}: ${what}`;
   const lineCount = () => evaluate(`document.querySelectorAll("#proof-editor .fitch__line").length`);
@@ -180,6 +184,66 @@ async function scenario({ page, evaluate, tap }, origin, path, lang) {
   await writeScreenshot(page, `${lang}-escolha`);
   await tap('[data-choice="1"]');
   expect(await lineCount(), 3, tag("a escolha gera o passo"));
+
+  await firstOrder({ page, evaluate, tap }, origin, path, tag, lineCount, states);
+}
+
+/**
+ * Uma prova de 1.ª ordem só com toques: o ∃E sugere a variável v, que se muda para w no campo do pedido;
+ * o ∃I e o ∀E escolhem o termo entre os da prova; o →E fecha o objetivo.
+ */
+async function firstOrder({ page, evaluate, tap }, origin, path, tag, lineCount, states) {
+  await page("Page.navigate", { url: `${origin}${path}` });
+  await waitFor(() => evaluate(`document.querySelector("#sequent") !== null && document.getElementById("start-proof") !== null`));
+  await sleep(100);
+  await evaluate(`document.querySelector("#sequent").focus()`);
+  await page("Input.insertText", { text: FIRST_ORDER_GOAL });
+  await tap("#start-proof");
+  await waitFor(() => evaluate(`document.querySelector('[data-mode="guided"]') !== null`));
+  await tap('[data-mode="guided"]');
+
+  await tap('[data-pick="1"]');
+  await tap(ruleSelector("∃E"));
+  expect(await lineCount(), 3, tag("1.ª ordem: o ∃E ainda não mexeu na prova"));
+  expect(await evaluate(`document.querySelector("[data-ask] input")?.value`), "v", tag("1.ª ordem: o ∃E sugere a variável v"));
+  const askHeight = await evaluate(`document.querySelector("[data-ask] input").getBoundingClientRect().height`);
+  expect(askHeight >= 44, true, tag(`1.ª ordem: o campo da variável tem ${askHeight}px`));
+  await writeScreenshot(page, `${tag("").slice(0, 2)}-variavel`);
+
+  // Um nome que já existe é recusado, e o pedido continua aberto.
+  await tap("[data-ask] input");
+  await evaluate(`document.querySelector("[data-ask] input").select()`);
+  await page("Input.insertText", { text: "x" });
+  await tap('[data-ask] button[type="submit"]');
+  expect(await lineCount(), 3, tag("1.ª ordem: uma variável que não é nova não mexe na prova"));
+  expect((await evaluate(`document.querySelector(".guided__reason").textContent`)).includes("x"), true, tag("1.ª ordem: diz porque não serve"));
+
+  await evaluate(`document.querySelector("[data-ask] input").select()`);
+  await page("Input.insertText", { text: "w" });
+  await tap('[data-ask] button[type="submit"]');
+  expect(await lineCount(), 5, tag("1.ª ordem: o ∃E abre a caixa"));
+  expect(await evaluate(`document.querySelector('[data-pick="3"]').textContent.includes("[w]")`), true, tag("1.ª ordem: a caixa tem a variável w"));
+
+  // Depois de cada passo, o foco vai para o objetivo e a página desliza (scroll suave): espera-se que pare.
+  await sleep(SETTLE_MS);
+  await tap(ruleSelector("∃I"));
+  expect(await evaluate(`document.querySelector("[data-ask] input")?.value`), "w", tag("1.ª ordem: o ∃I sugere o termo w"));
+  await tap('[data-choice="0"]');
+  expect(await lineCount(), 6, tag("1.ª ordem: o ∃I deixa Q(w) por provar"));
+  await sleep(SETTLE_MS);
+
+  await tap('[data-pick="2"]');
+  await tap(ruleSelector("∀E"));
+  await tap('[data-choice="0"]');
+  expect(await lineCount(), 7, tag("1.ª ordem: o ∀E instancia com w"));
+  await sleep(SETTLE_MS);
+
+  await tap(ruleSelector("→E"));
+  expect(await lineCount(), 7, tag("1.ª ordem: o →E fecha o objetivo"));
+  expect(await states(), Array(7).fill("ok"), tag("1.ª ordem: todas as linhas certas"));
+  expect(await evaluate(`document.querySelector(".proof-editor__status .msg-ok") !== null`), true, tag("1.ª ordem: a prova fica completa"));
+  expect(await evaluate(`document.documentElement.scrollWidth`) <= WIDTH, true, tag("1.ª ordem: largura da página"));
+  await writeScreenshot(page, `${tag("").slice(0, 2)}-primeira-ordem`);
 }
 
 async function writeScreenshot(page, name) {
