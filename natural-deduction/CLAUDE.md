@@ -59,7 +59,10 @@ que têm gralhas. Toda a prova publicada no site passa pelo verificador nos test
 - O `v` é disjunção entre fórmulas e nome em posição de termo: argumento, variável de quantificador ou
   etiqueta de caixa. Não pode ser átomo proposicional.
 - A variável nova do ∀I e do ∃E marca-se `[v]` à margem da primeira linha da caixa:
-  `3 |  [v] P(v) → Q(v)   ∀E, 1`. Uma caixa por linha.
+  `3 |  [v] P(v) → Q(v)   ∀E, 1`. Uma caixa por linha. Se o ∀I começa por uma hipótese, o `[v]` fica
+  sozinho numa linha de etiqueta sem número (`  |  [v]`).
+- «x substituível por t em φ», pela ordem do livro. «v nova»: não ocorre em nenhuma linha acessível
+  antes da caixa; o ∀I e o ∃E exigem ainda v não livre na conclusão da regra.
 
 ## Comandos
 

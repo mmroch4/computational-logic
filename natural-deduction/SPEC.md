@@ -123,7 +123,7 @@ Acrescenta ∀, ∃ e igualdade ao sistema, sem reescrever o motor. Esta secçã
     quantificador ou etiqueta de caixa); não pode ser átomo proposicional;
   - o `F` continua reservado e `=>` continua a ser implicação.
 - Funções do núcleo: variáveis livres, substituição `φ[t/x]` só das ocorrências livres,
-  «t substituível por x em φ» e igualdade a menos de α.
+  «x substituível por t em φ» (t livre para x em φ, como no livro) e igualdade a menos de α.
 - α-equivalência: `∀y P(y)` e `∀x P(x)` contam como a mesma fórmula na conclusão, nas premissas do
   sequente e nas citações. O texto escrito pelo utilizador nunca é reescrito.
 - Compatibilidade: todo o texto proposicional que hoje se lê dá a mesma fórmula e a mesma impressão,
@@ -133,13 +133,18 @@ Acrescenta ∀, ∃ e igualdade ao sistema, sem reescrever o motor. Esta secçã
 
 | Regra | Premissas | Conclusão | Condições |
 | --- | --- | --- | --- |
-| ∀E | ∀x φ | φ[t/x] | t substituível por x em φ |
-| ∀I | caixa `[v] … φ[v/x]` | ∀x φ | v nova: não ocorre em nenhuma linha anterior nem no sequente |
-| ∃I | φ[t/x] | ∃x φ | t substituível por x em φ |
-| ∃E | ∃x φ, caixa `[v] φ[v/x] … ψ` | ψ | v nova; v não ocorre em ψ |
+| ∀E | ∀x φ | φ[t/x] | x substituível por t em φ |
+| ∀I | caixa `[v] … φ[v/x]` | ∀x φ | v nova; v não está livre em ∀x φ |
+| ∃I | φ[t/x] | ∃x φ | x substituível por t em φ |
+| ∃E | ∃x φ, caixa `[v] φ[v/x] … ψ` | ψ | v nova; v não está livre em ψ |
 | =I | nenhuma | t = t | nenhuma |
 | =E | t₁ = t₂, φ[t₁/x] | φ[t₂/x] | x substituível por t₁ e por t₂ em φ |
 
+- «v nova», como no livro («não ocorre antes»): v não ocorre em nenhuma linha acessível antes da
+  caixa, premissas incluídas. Linhas dentro de caixas já fechadas não contam, por isso duas caixas
+  irmãs podem usar o mesmo v. As linhas depois da caixa e a conclusão do sequente também não contam:
+  o que impede v de escapar é a segunda condição (v não livre em ∀x φ, ou em ψ). Esta condição falta
+  no livro e é precisa: sem ela, de ∀y P(y, y) tirava-se ∀x P(x, v).
 - As siglas são iguais em PT e EN. As citações seguem as convenções proposicionais: o ∃E cita a linha
   do ∃ e o intervalo (`∃E, 2, 3–9`), nunca só o intervalo; o =E cita as duas linhas por qualquer ordem.
 - No ∃I e no =E pode haver várias conclusões a partir das mesmas linhas: de `P(a, a)` sai
@@ -173,13 +178,27 @@ Acrescenta ∀, ∃ e igualdade ao sistema, sem reescrever o motor. Esta secçã
   6 | ∀x Q(x)            ∀I, 3–5
   ```
 
-- A caixa do ∃E abre na hipótese, que leva a etiqueta. A primeira linha de uma caixa de ∀I não é uma
-  hipótese: é um passo com a sua própria justificação, normalmente um ∀E.
+- A caixa do ∃E abre na hipótese, que leva a etiqueta. A caixa do ∀I não tem hipótese própria: a
+  etiqueta vai na primeira linha, que é um passo com a sua justificação, normalmente um ∀E.
+- Quando a primeira linha dentro da caixa do ∀I tem de ser uma hipótese (de →I, ¬I, ∨E, RA ou ∃E), a
+  etiqueta fica sozinha numa **linha de etiqueta**, sem número, sem fórmula e sem justificação. A
+  hipótese abre a sua caixa por dentro, na linha seguinte:
+
+  ```
+    |  [v]
+  1 |     P(v)             hipótese
+  2 |   P(v) → P(v)        →I, 1–1
+  3 | ∀x(P(x) → P(x))      ∀I, 1–2
+  ```
+
+  A linha de etiqueta não se cita; o intervalo do ∀I vai da primeira à última linha numerada da caixa.
+  Nos outros casos a etiqueta fica na própria linha, e a linha de etiqueta não se usa.
 - Não há duas caixas abertas na mesma linha.
 - Modelo: uma linha ganha o campo `fresh` (nome ou null). Uma subdedução abre numa hipótese ou numa
   linha com `fresh`; uma hipótese pode ter `fresh` (∃E); um passo com `fresh` abre caixa sem hipótese
-  (∀I).
-- Formato de texto: `3 |  [v] P(v) → Q(v)   ∀E, 1`, com a indentação contada como numa hipótese.
+  (∀I). A linha de etiqueta é uma entrada com `fresh` e sem fórmula, fora da numeração.
+- Formato de texto: `3 |  [v] P(v) → Q(v)   ∀E, 1`, com a indentação contada como numa hipótese. A
+  linha de etiqueta escreve-se `  |  [v]`, sem número.
 - Link partilhado: formato `p=2`, com o campo `fresh`. O `p=1` continua a ler-se.
 - LaTeX, árvore de Gentzen, Fitch e leitor de ecrã mostram a variável da caixa.
 
