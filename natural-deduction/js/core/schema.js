@@ -23,7 +23,7 @@
 // algo por resolver e passa de uma chamada de `matchSchema` para a seguinte.
 
 import {
-  VARIABLE_METAVARIABLES, equals, isFree, isSubstitutable, occurs, substitute, term,
+  VARIABLE_METAVARIABLES, alphaEquals, equals, isFree, isSubstitutable, occurs, substitute, term,
 } from "./formula.js";
 import { INPUT_LIMITS, parseFormula } from "./parser.js";
 
@@ -62,6 +62,26 @@ export function parseSchema(text) {
   return parseFormula(text, { metavariables: true });
 }
 
+// Se a fórmula tem algum quantificador, em cache: as instâncias partilham subárvores imutáveis.
+const BINDS = new WeakMap();
+
+function hasQuantifier(formula) {
+  let found = BINDS.get(formula);
+  if (found === undefined) {
+    found = isQuantifier(formula) || formula.args.some(hasQuantifier);
+    BINDS.set(formula, found);
+  }
+  return found;
+}
+
+/**
+ * A mesma fórmula a menos de α: `∀x P(x)` e `∀y P(y)`. O `equals` vem primeiro, e o `alphaEquals` só
+ * corre com quantificadores, porque não tem o atalho das subárvores partilhadas e ficava exponencial.
+ */
+export function sameFormula(a, b) {
+  return equals(a, b) || (hasQuantifier(a) && hasQuantifier(b) && alphaEquals(a, b));
+}
+
 /** Liga `name` a `value`, ou confirma que já estava ligado ao mesmo. Devolve um erro, ou null. */
 function bind(bindings, name, value) {
   const bound = bindings[name];
@@ -69,7 +89,7 @@ function bind(bindings, name, value) {
     bindings[name] = value;
     return null;
   }
-  if (equals(bound, value)) return null;
+  if (sameFormula(bound, value)) return null;
   return failure("metavariableConflict", { metavariable: name, bound, found: value });
 }
 

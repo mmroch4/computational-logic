@@ -15,7 +15,7 @@ import {
   enclosingSubproofs,
 } from "../js/core/proof.js";
 import { formatProof, parseProof } from "../js/core/proof-text.js";
-import { defineRule, RULES } from "../js/core/rules.js";
+import { defineRule, isFirstOrderRule, RULES } from "../js/core/rules.js";
 import { checkSequent } from "../js/core/semantics.js";
 import { formatSequent, parseSequent, sequent } from "../js/core/sequent.js";
 import { createUserRule } from "../js/core/user-rules.js";
@@ -36,7 +36,8 @@ const USER_RULES = [
   userRule({ name: "Refuta", premises: [{ hypothesis: "φ", conclusion: "ψ" }, "¬ψ"], conclusion: "¬φ" }),
 ];
 
-const POOL = [...RULES, ...USER_RULES];
+// O corpo e as tabelas de verdade são proposicionais: a solidez das regras de 1.ª ordem é da V4.
+const POOL = [...RULES.filter((rule) => !isFirstOrderRule(rule)), ...USER_RULES];
 
 const CORPUS = [
   ["a ∧ b ⊢ b ∧ a", `

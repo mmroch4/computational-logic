@@ -15,7 +15,7 @@ import { equals, format } from "../js/core/formula.js";
 import { parseFormula } from "../js/core/parser.js";
 import { accessibleFrom } from "../js/core/proof.js";
 import { formatProof, parseProof } from "../js/core/proof-text.js";
-import { BASE_RULES, DERIVED_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
+import { BASE_RULES, DERIVED_RULES, PROPOSITIONAL_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
 import { checkSequent } from "../js/core/semantics.js";
 import { formatSequent, parseSequent } from "../js/core/sequent.js";
 import { verifyProof } from "../js/core/verify.js";
@@ -104,7 +104,8 @@ test("as secções 2 a 6 apresentam todas as regras base, cada uma uma vez e pel
   const used = [...page.matchAll(/data-lesson-rule="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(used, Object.keys(LESSON_RULES));
   assert.deepEqual(used.map((id) => LESSON_RULES[id].rule), ["∧I", "∧E", "→E", "→I", "R", "∨I", "∨E", "FI", "¬I", "¬E", "FE"]);
-  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule).sort(), BASE_RULES.map((rule) => rule.id).sort());
+  // As regras de 1.ª ordem têm secções próprias, mais à frente.
+  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule).sort(), PROPOSITIONAL_RULES.map((rule) => rule.id).sort());
   const sections = page.split('<section class="lesson-section"');
   assert.match(sections[2], /data-lesson-rule="andElim"/);
   assert.match(sections[3], /data-lesson-rule="implElim"/);

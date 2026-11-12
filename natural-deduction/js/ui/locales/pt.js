@@ -1009,6 +1009,11 @@ export default {
       wrongCitationKind: "Linha {line}: a regra {rule} cita linhas e subdeduções de outra forma, por isso revê as citações.",
       ruleNotApplicable: "Linha {line}: o que citaste não tem a forma que a regra {rule} pede.",
       formulaMismatch: "Linha {line}: a regra {rule} aplica-se ao que citaste, mas não dá esta fórmula.",
+      missingFreshBox: "Linha {line}: a regra {rule} cita uma caixa com variável nova, marcada [v] na primeira linha, e o que citaste não a tem.",
+      wrongBox: "Linha {line}: a caixa citada não é a que a regra {rule} pede, porque o ∀I cita uma caixa [v] sem hipótese, o ∃E uma caixa [v] que abre numa hipótese e as outras regras caixas sem [v].",
+      notFresh: "Linha {line}: a variável {variable} da caixa não é nova, porque já aparece na linha {cited}.",
+      variableEscapes: "Linha {line}: a variável {variable} da caixa ficava livre na conclusão do {rule}, fora da caixa onde é nova.",
+      notSubstitutable: "Linha {line}: {variable} não é substituível por {term} nesta fórmula, porque um quantificador apanhava uma variável de {term}.",
     },
     conclusion: {
       emptyProof: "A prova ainda não tem linhas.",

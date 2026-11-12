@@ -13,7 +13,7 @@
 // As premissas podem ser citadas por qualquer ordem. As metavariáveis são partilhadas entre as
 // premissas e a conclusão; a que só aparece na conclusão (o ψ do ∨I) fica com o que lá estiver.
 
-import { atom, implies } from "./formula.js";
+import { atom, implies, isPropositional } from "./formula.js";
 import { applySubstitution, parseSchema } from "./schema.js";
 import { sequent } from "./sequent.js";
 
@@ -67,8 +67,8 @@ export function defineRule(id, premises, ...rest) {
   });
 }
 
-/** Regras base do sistema DN. */
-export const BASE_RULES = Object.freeze([
+/** Regras base proposicionais. */
+export const PROPOSITIONAL_RULES = Object.freeze([
   defineRule("∧I", ["φ", "ψ"], "φ ∧ ψ"),
   defineRule("∧E", ["φ ∧ ψ"], "φ", "ψ"),
   defineRule("∨I", ["φ"], "φ ∨ ψ", "ψ ∨ φ"),
@@ -85,9 +85,8 @@ export const BASE_RULES = Object.freeze([
 const { fresh, notFree, substitutable } = condition;
 
 /**
- * Regras de 1.ª ordem (Fig. 2.1), declaradas como as outras. Ainda não estão em BASE_RULES: a V3
- * junta-as, com as condições no verificador. No ∃I e no =E pode haver várias conclusões das mesmas
- * linhas: o `φ[t/x]` adiado aceita qualquer φ que encaixe.
+ * Regras de 1.ª ordem (Fig. 2.1), declaradas como as outras; o verificador avalia as condições. No ∃I
+ * e no =E pode haver várias conclusões das mesmas linhas: o `φ[t/x]` adiado aceita qualquer φ que encaixe.
  */
 export const FIRST_ORDER_RULES = Object.freeze([
   defineRule("∀I", [subproof(null, "φ[v/x]", { fresh: "v" })], "∀x φ", {
@@ -103,6 +102,23 @@ export const FIRST_ORDER_RULES = Object.freeze([
     conditions: [substitutable("x", "t1", "φ"), substitutable("x", "t2", "φ")],
   }),
 ]);
+
+/**
+ * Se a regra é de 1.ª ordem: tem condições, caixas [v] ou esquemas com quantificadores, termos ou `=`.
+ * O solver e os contramodelos, que são proposicionais, põem-na de parte: num sequente proposicional
+ * ela não prova nada de novo (com um domínio de um só elemento, ∀x φ e ∃x φ valem φ e t = t vale V).
+ */
+export function isFirstOrderRule({ premises, conclusions, conditions = [] }) {
+  if (conditions.length > 0) return true;
+  const schemas = premises.flatMap((item) => (
+    item.kind === "formula" ? [item.schema] : [item.hypothesis, item.conclusion]
+  ));
+  return premises.some((item) => item.kind === "subproof" && (item.fresh || item.hypothesis === null))
+    || [...schemas, ...conclusions].some((schema) => !isPropositional(schema));
+}
+
+/** Regras base do sistema DN: as proposicionais e as de 1.ª ordem. */
+export const BASE_RULES = Object.freeze([...PROPOSITIONAL_RULES, ...FIRST_ORDER_RULES]);
 
 function derived(id, premises, conclusion, proof) {
   return Object.freeze({ ...defineRule(id, premises, conclusion), proof });
@@ -237,7 +253,7 @@ const idsOf = (rules) => rules.map(({ id }) => id);
 
 /**
  * Conjunto de regras de um exercício: as formas permitidas, a passar a `verifyLine`/`verifyProof`.
- *   "base" | "completo"
+ *   "base" | "completo"                       "base" inclui as regras de 1.ª ordem
  *   { set: "base", plus: ["MT"] }             base + {…}
  *   { set: "restrito", only: ["∧I", "→E"] }   só as regras indicadas
  * `exclude`, em qualquer forma de objeto, tira regras: serve para os exercícios que pedem para provar

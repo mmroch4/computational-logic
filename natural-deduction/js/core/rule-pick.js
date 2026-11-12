@@ -15,7 +15,7 @@
 
 import { moveCursor, setText } from "./editor.js";
 import { format } from "./formula.js";
-import { assignments, citableFrom, instanceOf } from "./guided.js";
+import { assignments, citableFrom, instanceOf, premiseText } from "./guided.js";
 import { accessibleFrom, citeLine, citeRange } from "./proof.js";
 import { formatJustification } from "./proof-text.js";
 import { matchSchema } from "./schema.js";
@@ -37,9 +37,8 @@ function partly(schema, substitution) {
 }
 
 function premiseOf(premise, substitution) {
-  if (premise.kind === "formula") return { kind: "line", text: format(partly(premise.schema, substitution)) };
-  const hypothesis = format(partly(premise.hypothesis, substitution));
-  return { kind: "range", text: `[${hypothesis}] … ${format(partly(premise.conclusion, substitution))}` };
+  const text = premiseText(premise, (schema) => format(partly(schema, substitution)));
+  return { kind: premise.kind === "formula" ? "line" : "range", text };
 }
 
 const sameCitation = (a, b) => a.kind === b.kind && a.line === b.line && a.from === b.from && a.to === b.to;

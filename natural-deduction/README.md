@@ -33,7 +33,8 @@ subscript (`p11` → p₁₁). `v` and `F` are reserved, so they cannot be varia
 
 ## Proof conventions
 
-- **Base rules:** ∧I, ∧E, ∨I, ∨E, ¬I, ¬E, FI, FE, →I, →E, R. ¬E is only ¬¬φ ⊢ φ.
+- **Base rules:** ∧I, ∧E, ∨I, ∨E, ¬I, ¬E, FI, FE, →I, →E, R. ¬E is only ¬¬φ ⊢ φ. First-order rules:
+  ∀I, ∀E, ∃I, ∃E, =I, =E, with the fresh variable of the ∀I and ∃E boxes marked [v].
 - **Derived rules:** MT, ¬¬I, RAA, LEM, DM, HS, DS. Each one keeps a proof that uses base rules only,
   checked by the tests and shown in the lesson. In Portuguese they are MT, ¬¬I, RA, TE, DM, SH, SD.
 - **Citations:** earlier accessible lines are cited directly, without R. R only repeats a formula. The

@@ -85,3 +85,21 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   a caixa do ∀I tem `hypothesis` null. `FIRST_ORDER_RULES` está no `rules.js` mas fora de `BASE_RULES`
   e `RULES`: a V3 junta-as e tem de adaptar `guided` (`fillPremise`, `metasOf` vê o φ do `φ[t/x]`) e
   `rule-pick` (`premiseOf` com hipótese null). `user-rules.test.js` passou a esperar a chave `conditions`.
+
+## V3
+
+- `BASE_RULES` = `PROPOSITIONAL_RULES` + `FIRST_ORDER_RULES`. `isFirstOrderRule` (rules.js): o solver
+  (`extraRulesOf`), o `countermodel` e o `respects` põem-nas de parte (num sequente proposicional não
+  provam nada novo: domínio de 1 elemento). O corpo de `soundness.test.js` e a lição (secções 2–6) usam
+  só as proposicionais até à V4/lição de 1.ª ordem.
+- Caixas: `rangeBox(lines, range)` dá "forall" (passo com `fresh` ou etiqueta), "exists" (hipótese com
+  `fresh`) ou "plain"; tem de bater com a premissa (`missingFreshBox`/`wrongBox`). O `bindPremise` liga o
+  v antes de casar. `citationProblem` passou a escolher a caixa por `from` e `to` (a da etiqueta e a da
+  hipótese começam na mesma linha; antes, o `→I, 1–1` dentro de uma etiqueta dava `openSubproof`).
+- Erros novos: `notFresh` {variable, cited}, `variableEscapes` (∀I e ∃E), `notSubstitutable` {variable,
+  term} (vem do `capture` do `matchSchema` ou da condição). Ganham ao `formulaMismatch`.
+- α: `sameFormula` (schema.js) = `equals` ou, com quantificadores (em cache), `alphaEquals`. Serve no
+  `bind` das metavariáveis, na conclusão e nas premissas extra. Uma conclusão com `PENDING` por resolver
+  não conta como derivada.
+- Modo guiado: uma caixa [v] por citar não se gera (`planPremises` devolve null); fica para a E2.
+  `premiseText` (guided.js, exportado) escreve `[v] … φ[v/x]` e `[v] φ[v/x] … ψ`.

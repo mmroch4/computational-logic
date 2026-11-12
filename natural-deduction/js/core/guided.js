@@ -189,6 +189,9 @@ function planPremises(form, { substitution, cited }, context, allowNew) {
   for (const [position, premise] of form.premises.entries()) {
     if (cited.has(position)) {
       citations.push(cited.get(position));
+    } else if (premise.kind === "subproof" && premise.fresh) {
+      // Uma caixa [v] por citar ainda não se gera aqui: só se usa a que já estiver selecionada.
+      return null;
     } else {
       const filled = fillPremise(premise, substitution);
       if (!filled) return null;
@@ -216,7 +219,7 @@ function premiseMetas(premises) {
   const found = new Set();
   for (const premise of premises) {
     for (const schema of premise.kind === "formula" ? [premise.schema] : [premise.hypothesis, premise.conclusion]) {
-      metasOf(schema, found);
+      if (schema) metasOf(schema, found);
     }
   }
   return found;
@@ -316,11 +319,14 @@ function bestOutcomes(found) {
   return [...unique.values()].slice(0, GUIDED_LIMITS.outcomes);
 }
 
-const premiseText = (premise) => (
-  premise.kind === "formula"
-    ? format(premise.schema)
-    : `[${format(premise.hypothesis)}] … ${format(premise.conclusion)}`
-);
+/** Uma premissa em texto; uma caixa com variável leva a marca `[v]` (a do ∀I não tem hipótese). */
+export function premiseText(premise, show = format) {
+  if (premise.kind === "formula") return show(premise.schema);
+  const conclusion = show(premise.conclusion);
+  if (!premise.fresh) return `[${show(premise.hypothesis)}] … ${conclusion}`;
+  const opening = premise.hypothesis === null ? "" : ` ${show(premise.hypothesis)}`;
+  return `[${premise.fresh}]${opening} … ${conclusion}`;
+}
 
 const uniqueText = (items) => [...new Set(items)].join(" · ");
 
@@ -341,7 +347,7 @@ function automaticSteps(forms, context) {
 
 /** Porque é que nenhuma forma da regra serve. */
 function refusal(forms, selection, target) {
-  const premises = uniqueText(forms.map((form) => form.premises.map(premiseText).join(", ")));
+  const premises = uniqueText(forms.map((form) => form.premises.map((premise) => premiseText(premise)).join(", ")));
   if (selection.length > 0) return { key: "guided.reasons.selectionMismatch", params: { premises } };
   const reachable = target && forms.some((form) => form.conclusions.some((schema) => matchSchema(schema, target).ok));
   if (target && !reachable) {

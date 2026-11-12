@@ -17,6 +17,7 @@
 // que só torna a exigência mais forte.
 
 import { variablesOf } from "./semantics.js";
+import { isFirstOrderRule } from "./rules.js";
 import { isPropositionalSequent } from "./sequent.js";
 
 /** Quantas avaliações cada reticulado pode gastar antes de se desistir dele. */
@@ -226,9 +227,11 @@ function searchLattice(goal, rules, lattice) {
 export function countermodel(goal, rules) {
   // Os modelos só dão valor a conectivos: em 1.ª ordem não há nada a demonstrar aqui.
   if (!isPropositionalSequent(goal)) return null;
+  // As regras de 1.ª ordem não provam nada de novo num sequente proposicional (ver isFirstOrderRule).
+  const propositional = rules.filter((rule) => !isFirstOrderRule(rule));
   for (const lattice of LATTICES) {
     try {
-      const found = searchLattice(goal, rules, lattice);
+      const found = searchLattice(goal, propositional, lattice);
       if (found) return found;
     } catch (error) {
       if (!(error instanceof OutOfBudget)) throw error;
@@ -237,9 +240,9 @@ export function countermodel(goal, rules) {
   return null;
 }
 
-/** A regra é correta no modelo da testemunha. */
+/** A regra é correta no modelo da testemunha. As de 1.ª ordem são-no sempre (ver isFirstOrderRule). */
 export function respects({ model }, rule) {
-  return ruleHolds(rule, model, () => {});
+  return isFirstOrderRule(rule) || ruleHolds(rule, model, () => {});
 }
 
 /** A valoração da testemunha falha o sequente. */

@@ -27,7 +27,7 @@
 import { countermodel } from "./countermodel.js";
 import { assumption, node, subderivation, tidy, writeProof } from "./derivation.js";
 import { atom, equals, FALSUM, format, not, or } from "./formula.js";
-import { RULES } from "./rules.js";
+import { RULES, isFirstOrderRule } from "./rules.js";
 import { applySubstitution, matchSchema } from "./schema.js";
 import { checkSequent, variablesOf } from "./semantics.js";
 import { verifyProof } from "./verify.js";
@@ -97,8 +97,8 @@ function createTable(names) {
   return { all, intern };
 }
 
-/** As regras que `applyExtras` pode usar: só premissas simples, e não as que a procura já conhece. */
-const extraRulesOf = (rules) => rules.filter(({ id, premises }) => (
+/** As regras que `applyExtras` pode usar: proposicionais, só premissas simples, e não as que a procura já conhece. */
+const extraRulesOf = (rules) => rules.filter((rule) => !isFirstOrderRule(rule)).filter(({ id, premises }) => (
   !CORE_RULES.has(id) && premises.length > 0 && premises.every(({ kind }) => kind === "formula")
 ));
 

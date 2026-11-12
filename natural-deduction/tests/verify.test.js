@@ -44,7 +44,7 @@ function rejects(lines, code, params = {}) {
 test("o catálogo tem as regras base e está congelado", () => {
   assert.deepEqual(
     BASE_RULES.map(({ id }) => id),
-    ["∧I", "∧E", "∨I", "∨E", "¬I", "¬E", "FI", "FE", "→I", "→E", "R"],
+    ["∧I", "∧E", "∨I", "∨E", "¬I", "¬E", "FI", "FE", "→I", "→E", "R", "∀I", "∀E", "∃I", "∃E", "=I", "=E"],
   );
   assert.ok(Object.isFrozen(BASE_RULES));
   assert.ok(BASE_RULES.every(Object.isFrozen));

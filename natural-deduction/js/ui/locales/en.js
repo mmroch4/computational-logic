@@ -1008,6 +1008,11 @@ export default {
       wrongCitationKind: "Line {line}: rule {rule} cites lines and subproofs differently, so check the citations.",
       ruleNotApplicable: "Line {line}: what you cited does not have the form rule {rule} asks for.",
       formulaMismatch: "Line {line}: rule {rule} applies to what you cited, but it does not give this formula.",
+      missingFreshBox: "Line {line}: rule {rule} cites a box with a fresh variable, marked [v] on its first line, and what you cited has none.",
+      wrongBox: "Line {line}: the cited box is not the one rule {rule} asks for, because ∀I cites a [v] box with no hypothesis, ∃E a [v] box that opens with a hypothesis, and the other rules boxes without [v].",
+      notFresh: "Line {line}: the box variable {variable} is not fresh, because it already appears on line {cited}.",
+      variableEscapes: "Line {line}: the box variable {variable} would be free in the conclusion of {rule}, outside the box where it is fresh.",
+      notSubstitutable: "Line {line}: {term} is not free for {variable} in this formula, because a quantifier would capture a variable of {term}.",
     },
     conclusion: {
       emptyProof: "The proof has no lines yet.",

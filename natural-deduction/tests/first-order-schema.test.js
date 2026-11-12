@@ -4,7 +4,7 @@ import {
   equals, format, meta, metaTerm, metaVariable, substituted, term,
 } from "../js/core/formula.js";
 import { parseFormula } from "../js/core/parser.js";
-import { BASE_RULES, FIRST_ORDER_RULES, RULES, condition, defineRule, subproof } from "../js/core/rules.js";
+import { BASE_RULES, FIRST_ORDER_RULES, PROPOSITIONAL_RULES, RULES, condition, defineRule, subproof } from "../js/core/rules.js";
 import {
   CONDITION_KINDS, PENDING, applySubstitution, checkCondition, matchSchema, parseSchema,
 } from "../js/core/schema.js";
@@ -216,7 +216,7 @@ test("as condições são declarativas e avaliam-se com a substituição", () =>
   assert.deepEqual(kinds("∀E"), ["substitutable"]);
   assert.deepEqual(kinds("=E"), ["substitutable", "substitutable"]);
   assert.deepEqual(kinds("=I"), []);
-  for (const item of BASE_RULES) assert.deepEqual(item.conditions, [], item.id);
+  for (const item of PROPOSITIONAL_RULES) assert.deepEqual(item.conditions, [], item.id);
 
   const substitution = { φ: formula("∃y R(x, y)"), x: term("x"), v: term("y"), t: term("y"), ψ: formula("Q(y)") };
   assert.equal(checkCondition(condition.fresh("v"), substitution), null);
@@ -241,6 +241,6 @@ test("defineRule declara caixas com variável e condições", () => {
   const plain = defineRule("Y", [subproof("φ", "ψ")], "φ → ψ");
   assert.equal(plain.premises[0].fresh, null);
   assert.deepEqual(plain.conditions, []);
-  // A V3 junta as regras de 1.ª ordem às base; até lá, ficam fora.
-  assert.ok(FIRST_ORDER_RULES.every(({ id }) => !RULES.some((item) => item.id === id)));
+  // Desde a V3, as regras de 1.ª ordem fazem parte das base e do catálogo.
+  assert.ok(FIRST_ORDER_RULES.every((item) => BASE_RULES.includes(item) && RULES.includes(item)));
 });
