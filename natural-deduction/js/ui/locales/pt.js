@@ -1130,10 +1130,12 @@ export default {
     errors: {
       badLine: "Linha {line}: escreve o número, uma barra e a fórmula, como em «3 | p ∧ q   ∧I, 1, 2».",
       badLineNumber: "Esta linha devia ter o número {expected}, e tem {found}.",
-      badIndent: "Linha {line}: a indentação é um espaço depois da barra, mais dois por cada subdedução.",
+      badIndent: "Linha {line}: a indentação é um espaço depois da barra, mais dois por cada subdedução, ou só dois por subdedução antes de uma marca como [v].",
       missingRuleName: "Linha {line}: há citações, mas falta o nome da regra.",
       badCitation: "Linha {line}: «{token}» não é uma citação: escreve um número, como 3, ou um intervalo, como 2–4.",
       unexpectedCitation: "Linha {line}: premissas e hipóteses não citam outras linhas.",
+      badFresh: "Linha {line}: «[{name}]» não marca uma variável nova: escreve um nome que sirva de termo, como [v], e fora das premissas.",
+      orphanLabel: "Antes da linha {line}: uma linha só com [v] tem de vir logo antes de uma hipótese, um nível mais dentro.",
     },
   },
 };

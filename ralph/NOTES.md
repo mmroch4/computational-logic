@@ -51,3 +51,19 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   solver de 1.ª ordem, troca-se a guarda no `solve`, não na semântica.
 - O painel de ajuda tem a vista `firstOrder` (`assist.firstOrder`), já no estado inicial, sem chamar o
   Worker. Regras do utilizador com quantificadores, termos ou `=`: erro `firstOrder`, também ao ler links.
+
+## V1
+
+- A linha de etiqueta não é uma entrada de `lines`: é o campo `label` da hipótese seguinte (que fica a
+  `depth` da caixa + 1), para `lines[n - 1]` continuar a ser a linha n. `fresh`/`label` só existem na
+  linha quando não são null (lê `line.fresh ?? null`), como o `strategy`: os snapshots não mudam.
+- `subproofs()` dá também `fresh` e `label` (caixa da etiqueta). A caixa da etiqueta e a da hipótese
+  começam na mesma linha `from`, a da etiqueta primeiro: procura uma caixa por `from` e `label`.
+- `editLine` só muda o nome da variável (ou o `fresh` de uma hipótese); abrir ou fechar a caixa do ∀I
+  num passo, ou a linha de etiqueta, é `invalidLine`. Apagar a linha que abre uma caixa apaga-a toda.
+- Texto: a marca `[v]` fica a 2·depth espaços da barra (indentação par), a fórmula a seguir; os
+  números sem marca seguem 1 + 2·depth. As linhas de dentro do exemplo 1 do `SPEC.md` (6 espaços,
+  alinhadas com a fórmula da marca) não se leem: usa 3. Erros novos: `badFresh`, `orphanLabel`. A
+  justificação separa-se na 1.ª vírgula fora de parênteses: `R(a, b)   ∀E, 1` já se lê.
+- Links: só uma prova com `fresh`/`label` usa `p=2` (`[depth, fórmula, justificação|null, fresh, label]`);
+  as outras continuam `p=1`, byte a byte, e o `check-share.mjs` e a acessibilidade esperam `p=1`.

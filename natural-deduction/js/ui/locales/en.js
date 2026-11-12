@@ -1129,10 +1129,12 @@ export default {
     errors: {
       badLine: "Line {line}: write the number, a bar and the formula, as in “3 | p ∧ q   ∧I, 1, 2”.",
       badLineNumber: "This line should be number {expected}, and it is {found}.",
-      badIndent: "Line {line}: the indentation is one space after the bar, plus two for each subproof.",
+      badIndent: "Line {line}: the indentation is one space after the bar, plus two for each subproof, or just two per subproof before a mark like [v].",
       missingRuleName: "Line {line}: there are citations, but the rule name is missing.",
       badCitation: "Line {line}: “{token}” is not a citation: write a number, like 3, or a range, like 2–4.",
       unexpectedCitation: "Line {line}: premises and hypotheses do not cite other lines.",
+      badFresh: "Line {line}: “[{name}]” does not mark a fresh variable: write a name that works as a term, like [v], and not on a premise.",
+      orphanLabel: "Before line {line}: a line with only [v] must come right before a hypothesis, one level further in.",
     },
   },
 };

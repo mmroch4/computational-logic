@@ -541,3 +541,122 @@ test("todos os códigos têm mensagem nos dois idiomas", () => {
     assert.ok(locale.verify.extraPremise.includes("{line}"));
   }
 });
+
+// Caixas com variável (1.ª ordem)
+
+const FORALL_STEP = [
+  "1 | ∀x(P(x) → Q(x))    premissa",
+  "2 | ∀x P(x)            premissa",
+  "3 |  [v] P(v) → Q(v)   ∀E, 1",
+  "4 |   P(v)             ∀E, 2",
+  "5 |   Q(v)             →E, 3, 4",
+  "6 | ∀x Q(x)            ∀I, 3–5",
+].join("\n");
+
+const FORALL_LABEL = [
+  "  |  [v]",
+  "1 |     P(v)          hipótese",
+  "2 |   P(v) → P(v)     →I, 1–1",
+  "3 | ∀x(P(x) → P(x))   ∀I, 1–2",
+].join("\n");
+
+const EXISTS_BOX = [
+  "1 | ∃x P(x)     premissa",
+  "2 |  [u] P(u)   hipótese",
+  "3 |   ∃y P(y)   ∃I, 2",
+  "4 | ∃y P(y)     ∃E, 1, 2–3",
+].join("\n");
+
+test("a marca [v] abre a caixa do ∀I num passo, à profundidade de onde está", () => {
+  const proof = read(FORALL_STEP);
+  assert.deepEqual(proof.lines.map(({ depth }) => depth), [0, 0, 1, 1, 1, 0]);
+  assert.equal(proof.lines[2].kind, "step");
+  assert.equal(proof.lines[2].fresh, "v");
+  assert.equal(proof.lines[2].rule, "∀E");
+  assert.deepEqual(proof.lines[2].citations, [citeLine(1)]);
+  assert.deepEqual(proof.lines[2].formula, f("P(v) → Q(v)"));
+  assert.equal("fresh" in proof.lines[3], false);
+  assert.deepEqual(proof.lines[5].citations, [citeRange(3, 5)]);
+  assert.equal(formatProof(proof), FORALL_STEP);
+});
+
+test("a linha de etiqueta não tem número e fica na hipótese seguinte", () => {
+  const proof = read(FORALL_LABEL);
+  assert.equal(proof.lines.length, 3);
+  assert.deepEqual(proof.lines.map(({ depth }) => depth), [2, 1, 0]);
+  assert.equal(proof.lines[0].kind, "hypothesis");
+  assert.equal(proof.lines[0].label, "v");
+  assert.equal("fresh" in proof.lines[0], false);
+  assert.equal(formatProof(proof), FORALL_LABEL);
+  assert.deepEqual(read(formatProof(proof, en.proofText)), proof);
+});
+
+test("a hipótese do ∃E leva a marca, e pode vir depois de uma linha de etiqueta", () => {
+  const proof = read(EXISTS_BOX);
+  assert.equal(proof.lines[1].kind, "hypothesis");
+  assert.equal(proof.lines[1].fresh, "u");
+  assert.equal(proof.lines[1].depth, 1);
+  assert.equal(formatProof(proof), EXISTS_BOX);
+
+  const both = read([
+    "1 | ∃x P(x)  premissa",
+    "  |  [v]",
+    "2 |    [u] P(u)  hipótese",
+    "3 |     P(u)  R, 2",
+    "4 |   P(u)  R, 3",
+    "5 | P(u)  R, 4",
+  ].join("\n"));
+  const { kind, depth, fresh, label } = both.lines[1];
+  assert.deepEqual({ kind, depth, fresh, label }, { kind: "hypothesis", depth: 2, fresh: "u", label: "v" });
+  assert.deepEqual(read(formatProof(both)), both);
+  const printed = formatProof(both).split("\n");
+  assert.equal(printed[1], "  |  [v]");
+  assert.ok(printed[2].startsWith("2 |    [u] P(u)"), printed[2]);
+});
+
+test("a marca aceita o v, nomes com dígitos e espaços dentro dos parênteses retos", () => {
+  assert.equal(read("1 | p premissa\n2 |  [ x1 ] p  R, 1").lines[1].fresh, "x1");
+  assert.equal(read("1 | p premissa\n2 |  [v]p  R, 1").lines[1].fresh, "v");
+});
+
+test("as vírgulas dos argumentos não separam a regra das citações", () => {
+  const proof = read("1 | ∀x R(x, x)   premissa\n2 | R(a, a)   ∀E, 1\n3 | R(a, a) ∧ R(a, a)  ∧I, 2, 2");
+  assert.deepEqual(proof.lines[1].formula, f("R(a, a)"));
+  assert.equal(proof.lines[1].rule, "∀E");
+  assert.deepEqual(proof.lines[1].citations, [citeLine(1)]);
+  assert.deepEqual(proof.lines[2].citations, [citeLine(2), citeLine(2)]);
+  assert.deepEqual(read(formatProof(proof)), proof);
+  assert.equal(read("1 | R(a, b) premissa").lines[0].kind, "premise");
+});
+
+test("erros: a marca fica a dois espaços por subdedução, e não noutro sítio", () => {
+  failsWith("1 | p premissa\n2 |   [v] p  R, 1", "badIndent", { line: 2 });
+  failsWith("1 | p premissa\n2 |[v] p  R, 1", "badIndent", { line: 2 });
+  failsWith("1 | p premissa\n  |   [v]\n2 |     p  hipótese", "badIndent", { line: 2 });
+  failsWith("1 | p premissa\n  |\t[v]\n2 |     p  hipótese", "badIndent", { line: 2 });
+});
+
+test("erros: a marca tem de ser um nome de variável, e não vai numa premissa", () => {
+  const text = "1 | p premissa\n2 |  [F] p  R, 1";
+  const error = failsWith(text, "badFresh", { line: 2, name: "F" });
+  assert.equal(text.slice(error.start, error.end), "[F]");
+  failsWith("1 | p premissa\n2 |  [] p  R, 1", "badFresh", { line: 2, name: "" });
+  failsWith("1 | p premissa\n2 |  [1a] p  R, 1", "badFresh", { line: 2, name: "1a" });
+  failsWith("1 |  [v] p  premissa", "badFresh", { line: 1, name: "v" });
+  failsWith("1 | p premissa\n  |  [exists]\n2 |     p  hipótese", "badFresh", { line: 2, name: "exists" });
+});
+
+test("erros: a linha de etiqueta tem de vir logo antes de uma hipótese um nível mais dentro", () => {
+  const text = "1 | p premissa\n  |  [v]\n2 |   p  R, 1";
+  const error = failsWith(text, "orphanLabel", { line: 2 });
+  assert.equal(text.slice(error.start, error.end), "  |  [v]");
+  failsWith("1 | p premissa\n  |  [v]\n2 |   p  hipótese", "orphanLabel", { line: 2 });
+  failsWith("1 | p premissa\n  |  [v]\n  |  [u]\n2 |     p  hipótese", "orphanLabel", { line: 2 });
+  failsWith("1 | p premissa\n  |  [v]", "orphanLabel", { line: 2 });
+  failsWith("  |  [v]\n1 | p  premissa", "orphanLabel", { line: 1 });
+});
+
+test("erros: a estrutura das caixas com variável é a do modelo", () => {
+  failsWith("1 | p premissa\n2 |    [v] p  R, 1", "invalidDepth", { line: 2 });
+  failsWith("1 | p premissa\n2 |  [v] p  R, 1\n  |      [u]\n3 |         p  hipótese", "invalidDepth", { line: 3 });
+});
