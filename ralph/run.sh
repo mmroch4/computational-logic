@@ -22,7 +22,9 @@ HUB_OPEN=" P2 "
 DOCS_ONLY=" S1 "
 DOCS_ALLOWED='^(natural-deduction/(SPEC|CLAUDE|README)\.md|ralph/NOTES\.md)$'
 # Ficheiros do loop que nenhuma sessão pode mudar.
-LOOP_FILES='^ralph/(PLAN|FOL-PLAN|PROMPT)\.md$|^ralph/run\.sh$'
+LOOP_FILES='^ralph/(PLAN|FOL-PLAN|PROMPT)\.md$|^ralph/run\.sh$|^scripts/test-all\.sh$'
+# O loop faz os seus commits sem hooks, que uma sessão poderia ter instalado.
+GIT=(git -c core.hooksPath=/dev/null -c core.fsmonitor=false)
 MODEL="${MODEL:-opus}"
 MAX_ATTEMPTS="${MAX_ATTEMPTS:-3}"
 TASK_TIMEOUT="${TASK_TIMEOUT:-5400}"
@@ -50,8 +52,12 @@ DENIED_TOOLS=(
   "Bash(rm -rf*)" "Bash(sudo *)" "Bash(curl *)" "Bash(wget *)"
   "Edit(ralph/PLAN.md)" "Write(ralph/PLAN.md)" "Edit(ralph/FOL-PLAN.md)" "Write(ralph/FOL-PLAN.md)"
   "Edit(ralph/PROMPT.md)" "Write(ralph/PROMPT.md)" "Edit(ralph/run.sh)" "Write(ralph/run.sh)"
-  "Edit(sat/**)" "Write(sat/**)"
+  "Edit(sat/**)" "Write(sat/**)" "Edit(.git/**)" "Write(.git/**)"
+  "Edit(scripts/test-all.sh)" "Write(scripts/test-all.sh)"
 )
+
+# Impressão digital da configuração e dos hooks do git, para detetar alterações feitas por uma sessão.
+git_fingerprint() { cat .git/config; find .git/hooks -type f -exec sha256sum {} + 2>/dev/null | sort; }
 
 log() { printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*"; }
 
@@ -97,11 +103,12 @@ run_claude() { # prompt, ficheiro json
     < /dev/null > "$2" 2> "$2.err"
 }
 
-invariants() { # id, commit anterior: valida sem confiar na palavra da sessão
-  local id=$1 before=$2 changed tracked
+invariants() { # id, commit anterior, impressão digital do git: valida sem confiar na palavra da sessão
+  local id=$1 before=$2 fingerprint=$3 changed tracked
+  [ "$(git_fingerprint | sha256sum)" = "$fingerprint" ] || { echo "A sessão alterou .git/config ou os hooks."; return 1; }
   [ "$(git branch --show-current)" = "$BRANCH" ] || { echo "A sessão saiu do ramo $BRANCH."; return 1; }
   git merge-base --is-ancestor "$before" HEAD || { echo "A sessão reescreveu o histórico."; return 1; }
-  changed=$(git diff --name-only "$before" HEAD)
+  changed=$(git diff --no-renames --name-only "$before" HEAD)
   if grep -q '^sat/' <<<"$changed"; then
     echo "Nenhuma tarefa pode alterar sat/:"; grep '^sat/' <<<"$changed"; return 1
   fi
@@ -121,22 +128,24 @@ invariants() { # id, commit anterior: valida sem confiar na palavra da sessão
   if [ -n "$tracked" ]; then echo "Entraram no git ficheiros proibidos:"; echo "$tracked"; return 1; fi
 }
 
-gate() { # ficheiro, id, commit anterior
-  invariants "$2" "$3" > "$1" || return 1
-  scripts/test-all.sh > "$1" 2>&1 || { tail -40 "$1" > "$1.tail"; mv "$1.tail" "$1"; return 1; }
+gate() { # ficheiro, id, commit anterior, impressão digital do git
+  # A árvore limpa vem antes dos testes, para o test-all.sh que corre ser o do commit.
   if [ -n "$(git status --porcelain)" ]; then
     git status --short > "$1"
     echo "Ficaram alterações por commitar." >> "$1"
     return 1
   fi
+  invariants "$2" "$3" "$4" > "$1" || return 1
+  scripts/test-all.sh > "$1" 2>&1 || { tail -40 "$1" > "$1.tail"; mv "$1.tail" "$1"; return 1; }
   : > "$1"
 }
 
 run_task() { # linha
-  local line=$1 id block attempt=1 waits=0 before fail json result code cost
+  local line=$1 id block attempt=1 waits=0 before fingerprint fail json result code cost
   id=$(task_id "$line")
   block=$(task_block "$line")
   before=$(git rev-parse HEAD)
+  fingerprint=$(git_fingerprint | sha256sum)
   fail=$(mktemp)
 
   while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
@@ -170,10 +179,10 @@ run_task() { # linha
       { echo "A sessão terminou sem TASK_DONE (código $code):"; tail -c 1500 <<<"$result"; } > "$fail"
     elif [ "$(git rev-parse HEAD)" = "$before" ]; then
       echo "A sessão declarou TASK_DONE sem fazer commit." > "$fail"
-    elif gate "$fail" "$id" "$before"; then
+    elif gate "$fail" "$id" "$before" "$fingerprint"; then
       mark_done "$line"
       git add "$PLAN"
-      git commit -q -m "ralph: $id concluída" \
+      "${GIT[@]}" commit -q -m "ralph: $id concluída" \
         -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
       cost=$(jq -r '.total_cost_usd // 0' "$LOGS/$id".*.json 2>/dev/null | awk '{s+=$1} END {printf "%.2f", s}')
       log "$id: concluída (custo estimado \$$cost)"
@@ -204,7 +213,7 @@ case "${1:-}" in
     if [ -n "$line" ] && [[ "$(task_id "$line")" == PAUSA-* ]]; then
       id=$(task_id "$line")
       mark_done "$line"
-      git add "$PLAN" && git commit -q -m "ralph: $id aprovada" \
+      git add "$PLAN" && "${GIT[@]}" commit -q -m "ralph: $id aprovada" \
         -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
       log "$id aprovada."
     fi ;;
