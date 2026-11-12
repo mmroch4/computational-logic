@@ -34,7 +34,7 @@ O `equals` estrutural mantém-se. Só o core, sem parser.
 **Feito quando:** há testes para cada função, incluindo captura (`∀y P(x, y)` com t = `f(y)`) e
 quantificadores encaixados com o mesmo nome, e o `npm test` passa.
 
-### [ ] L2 · Parser, notação e sequentes
+### [x] L2 · Parser, notação e sequentes
 Estende o `parser.js` com termos, predicados, `=`, `∀`/`∃`/`forall`/`exists`, a variável de
 quantificador de uma letra mais dígitos e o `v` em posição de termo. Junta códigos de erro com mensagens
 PT/EN. Atualiza o `notation.js` (conversão símbolos ↔ ASCII) e o `sequent.js` (vírgulas dentro de
