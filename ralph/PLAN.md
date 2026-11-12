@@ -17,7 +17,7 @@ negação de quantificadores. Atualiza as «Convenções de DN» do `CLAUDE.md` 
 de entrada, `forall`/`exists`, `v` em posição de termo e a marca `[v]`. Sem código.
 **Feito quando:** o `SPEC.md` cobre todas as secções do `FOL-PLAN.md` e o `tests/docs.test.js` passa.
 
-### [ ] PAUSA-1 · Rever a especificação
+### [x] PAUSA-1 · Rever a especificação
 Lês o diff do `SPEC.md` e do `CLAUDE.md`. Confirmas os nomes sem tipo, a α-equivalência, as regras do
 utilizador proposicionais e as siglas novas. O que mudares no `SPEC.md` passa a mandar.
 
