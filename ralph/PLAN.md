@@ -70,7 +70,7 @@ No `proof-text.js`, a marca `[v]`. No `share.js`, o formato `p=2` com `fresh`, a
 **Feito quando:** há testes de estrutura, renumeração, texto e links, e os links `p=1` dos testes antigos
 abrem igual. O `npm test` passa.
 
-### [ ] V2 · Esquemas de 1.ª ordem
+### [x] V2 · Esquemas de 1.ª ordem
 No `schema.js` entram:
 - as metavariáveis de variável ligada e de termo;
 - o nó `φ[t/x]`, como restrição adiada em `matchSchema` e resolvida percorrendo as duas fórmulas;
