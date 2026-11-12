@@ -102,7 +102,7 @@ aceite tem um contramodelo finito pequeno, com geração de provas mutadas. Atua
 **Feito quando:** os testes de solidez cobrem as seis regras novas e as derivadas, o LaTeX compila, se
 houver `pdflatex`, e o `npm test` passa.
 
-### [ ] PAUSA-2 · Rever o motor
+### [x] PAUSA-2 · Rever o motor
 Revês o `js/core/` e experimentas provas à mão com `node`. Confirmas as mensagens de erro em PT.
 
 ## Bloco E — Editor
