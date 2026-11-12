@@ -89,7 +89,11 @@ function proofProblems(puzzle) {
 }
 
 function solutionProblems(puzzle) {
-  if (puzzle.solution === undefined) return checkSequent(puzzleGoal(puzzle)).valid ? ["missingSolution"] : [];
+  if (puzzle.solution === undefined) {
+    // Sem solução, só um sequente que a tabela prova inválido; em 1.ª ordem a tabela não decide.
+    const decided = checkSequent(puzzleGoal(puzzle));
+    return decided.ok && !decided.valid ? [] : ["missingSolution"];
+  }
   if (typeof puzzle.solution !== "string" || !parseProof(puzzle.solution.trim()).ok) return ["badSolution"];
   return verifyWith(puzzle, puzzleSolution(puzzle)).ok ? [] : ["solutionRejected"];
 }

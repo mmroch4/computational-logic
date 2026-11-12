@@ -7,6 +7,7 @@ import { displayName, format } from "../core/formula.js";
 import {
   checkForm, emptyForm, formulaPremise, subproofPremise,
 } from "../core/rule-form.js";
+import { SEMANTICS_ERROR_CODES } from "../core/semantics.js";
 import { USER_RULE_ERROR_CODES, USER_RULE_LIMITS } from "../core/user-rules.js";
 import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -24,7 +25,7 @@ export const SCHEMA_KEYS = [
 /** A frase de um erro de `checkForm`, que pode vir de `user-rules.js`, do parser ou da semântica. */
 export function ruleErrorText({ code, params }) {
   if (USER_RULE_ERROR_CODES.includes(code)) return t(`userRules.errors.${code}`, params);
-  return t(`${code === "tooManyVariables" ? "semantics" : "parser"}.errors.${code}`, params);
+  return t(`${SEMANTICS_ERROR_CODES.includes(code) ? "semantics" : "parser"}.errors.${code}`, params);
 }
 
 function premiseHtml(premise) {

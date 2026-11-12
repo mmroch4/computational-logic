@@ -42,3 +42,12 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
 - O `check-learn.mjs` leva ~75 s sozinho; o limite de 90 s em `tests/lesson.test.js` falhava sob carga
   (parser medido: tão rápido como antes). Passou a 240 s, como o `check-english`. A lição vai crescer.
 - `QUANTIFIER_WORDS` é um `Map`: com um objeto, `"constructor" in …` apanhava o protótipo.
+
+## L3
+
+- `isPropositional` (formula.js) e `isPropositionalSequent` (sequent.js). `truthTable`/`checkSequent` devolvem
+  o erro `notPropositional` (em `SEMANTICS_ERROR_CODES`); `solve`, `hint` e `completeProof` herdam-no, e o
+  `countermodel` devolve null. Quem lia só `.valid` (quiz, find-error) passou a exigir `ok`. Ao ligar o
+  solver de 1.ª ordem, troca-se a guarda no `solve`, não na semântica.
+- O painel de ajuda tem a vista `firstOrder` (`assist.firstOrder`), já no estado inicial, sem chamar o
+  Worker. Regras do utilizador com quantificadores, termos ou `=`: erro `firstOrder`, também ao ler links.

@@ -8,7 +8,8 @@
 // `rules` é o conjunto ativo, como um `ruleSet` ou o `rules` de `activeRules`.
 // `provable: false` só sai com uma demonstração: `witness` é um modelo de `countermodel.js` em que
 // todas as regras ativas são corretas e o sequente falha. Um erro nunca diz nada sobre haver prova.
-// As mensagens estão em `solver.noProof` e `solver.errors.*`; `tooManyVariables` vem da semântica.
+// As mensagens estão em `solver.noProof` e `solver.errors.*`; `tooManyVariables` e `notPropositional`
+// vêm da semântica. Um sequente de 1.ª ordem dá `notPropositional` antes de qualquer procura.
 //
 // A tabela de verdade decide a validade e depois guia a procura: só se tenta provar o que as fórmulas
 // conhecidas implicam. Cada fórmula guarda as linhas da tabela em que é verdadeira, num BigInt, por
@@ -34,7 +35,7 @@ import { verifyProof } from "./verify.js";
 /** Limite de passos da procura. */
 export const MAX_STEPS = 20000;
 
-/** Códigos de erro próprios; o outro é `tooManyVariables`. Nenhum afirma que não há prova. */
+/** Códigos de erro próprios; os outros são `tooManyVariables` e `notPropositional`. Nenhum afirma que não há prova. */
 export const SOLVER_ERROR_CODES = [
   "stepLimit", // { max }: a procura parou sem provar nem refutar que há prova
   "searchExhausted", // a procura acabou sem prova nem demonstração de que não a há

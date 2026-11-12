@@ -2,10 +2,11 @@
 // Contrato:
 //   parseSequent(text) → { ok: true, sequent: { premises, conclusion } }
 //                      | { ok: false, error: { code, params, start, end } }
+//   isPropositionalSequent(sequent) → boolean: sem quantificadores, termos nem `=`
 // As posições são índices em `text`, mesmo nos erros que vêm de `parseFormula`. As mensagens estão
 // em `parser.errors.*`, junto das do parser. O limite de tamanho aplica-se a cada fórmula.
 
-import { format } from "./formula.js";
+import { format, isPropositional } from "./formula.js";
 import { parseFormula } from "./parser.js";
 
 /** Códigos de erro próprios dos sequentes; os outros são os `ERROR_CODES` do parser. */
@@ -100,6 +101,11 @@ export function parseSequent(text) {
   const conclusion = parseSlice(text, turnstile.end, text.length);
   if (!conclusion.ok) return conclusion;
   return { ok: true, sequent: sequent(premises, conclusion.formula) };
+}
+
+/** Se o sequente é proposicional: todas as premissas e a conclusão o são. */
+export function isPropositionalSequent({ premises, conclusion }) {
+  return premises.every(isPropositional) && isPropositional(conclusion);
 }
 
 /** Imprime o sequente; `parseSequent` volta a lê-lo. */

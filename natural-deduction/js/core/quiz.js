@@ -31,6 +31,12 @@ const RULES = ruleSet("completo");
 
 const goalOf = (text) => parseSequent(text).sequent;
 
+/** «Não tem prova» só quando a tabela de verdade o demonstra; em 1.ª ordem ela não decide. */
+function invalidAnswer(text) {
+  const decided = checkSequent(goalOf(text));
+  return decided.ok && !decided.valid ? "noProof" : "longProof";
+}
+
 function proofOf(text) {
   const parsed = parseProof(text);
   if (!parsed.ok) throw new Error(`Prova inválida no quiz: ${text}`);
@@ -150,7 +156,7 @@ export function quizQuestions() {
       sequent: INVALID_SEQUENT,
       proof: null,
       options: [textOption("noProof"), textOption("withDerived"), textOption("longProof")],
-      answer: checkSequent(goalOf(INVALID_SEQUENT)).valid ? "longProof" : "noProof",
+      answer: invalidAnswer(INVALID_SEQUENT),
     },
     {
       id: "both",

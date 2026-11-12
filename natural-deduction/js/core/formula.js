@@ -136,6 +136,18 @@ export function format(formula) {
   return `${wrap(args[0], leftMinimum)} ${SYMBOLS[kind]} ${wrap(args[1], rightMinimum)}`;
 }
 
+const PROPOSITIONAL_KINDS = new Set(["atom", "meta", "falsum", "not", "and", "or", "implies"]);
+
+/**
+ * Se `formula` é proposicional: só conectivos, F, metavariáveis e átomos sem argumentos. Um
+ * quantificador, uma igualdade ou um predicado com termos tiram-na da lógica proposicional.
+ */
+export function isPropositional(formula) {
+  if (!PROPOSITIONAL_KINDS.has(formula.kind)) return false;
+  if (formula.kind === "atom") return formula.args.length === 0;
+  return formula.args.every(isPropositional);
+}
+
 /** Variáveis livres de uma fórmula ou termo: os termos sem argumentos que nenhum quantificador liga. */
 export function freeVariables(formula) {
   const free = new Set();

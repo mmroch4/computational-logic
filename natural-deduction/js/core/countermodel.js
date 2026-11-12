@@ -3,7 +3,8 @@
 //   countermodel(goal, rules) → witness | null
 //   respects(witness, rule)   → a regra é correta no modelo
 //   refutes(witness, goal)    → a valoração do modelo falha o sequente
-// null quer dizer só «não encontrei»: nunca serve de prova de que há prova.
+// null quer dizer só «não encontrei»: nunca serve de prova de que há prova. Um sequente de 1.ª ordem
+// dá sempre null.
 //
 // Um modelo é um reticulado distributivo finito L, mais uma função em L para cada conectivo, que não
 // tem de ser a habitual. Uma regra é correta em L se, para todo o contexto c e todos os valores das
@@ -16,6 +17,7 @@
 // que só torna a exigência mais forte.
 
 import { variablesOf } from "./semantics.js";
+import { isPropositionalSequent } from "./sequent.js";
 
 /** Quantas avaliações cada reticulado pode gastar antes de se desistir dele. */
 const MAX_EVALUATIONS = 3_000_000;
@@ -222,6 +224,8 @@ function searchLattice(goal, rules, lattice) {
 
 /** Procura um modelo em que todas as regras são corretas e `goal` falha. */
 export function countermodel(goal, rules) {
+  // Os modelos só dão valor a conectivos: em 1.ª ordem não há nada a demonstrar aqui.
+  if (!isPropositionalSequent(goal)) return null;
   for (const lattice of LATTICES) {
     try {
       const found = searchLattice(goal, rules, lattice);

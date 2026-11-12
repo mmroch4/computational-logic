@@ -177,6 +177,7 @@ export default {
       partial: "Esta prova mantém as tuas linhas e completa o que faltava. Foi verificada linha a linha.",
       restart: "Não deu para continuar a tua prova, por isso esta começa de novo. Foi verificada linha a linha.",
     },
+    firstOrder: "Este sequente é de 1.ª ordem. As dicas, a solução e os contraexemplos ainda não suportam quantificadores, termos nem igualdade, mas podes escrever a prova à mão.",
   },
   sequentInput: {
     label: "Sequente",
@@ -917,6 +918,7 @@ export default {
   semantics: {
     errors: {
       tooManyVariables: "Há {count} variáveis, e a tabela de verdade só aceita até {max}.",
+      notPropositional: "A lógica de 1.ª ordem ainda não é suportada aqui: a tabela de verdade não trata quantificadores, termos nem igualdade.",
     },
   },
   solver: {
@@ -1038,6 +1040,7 @@ export default {
       schemaTooLarge: "Este esquema tem {size} símbolos, e o máximo é {max}.",
       tooManyRules: "Só podes ter até {max} regras próprias.",
       unsound: "A regra não é sólida: há uma valoração em que as premissas são verdadeiras e a conclusão é falsa.",
+      firstOrder: "As regras próprias são proposicionais: usa só φ, ψ, θ, átomos e conectivos, sem quantificadores, termos nem igualdade. Mesmo assim, servem em provas de 1.ª ordem.",
     },
   },
   rulesPanel: {

@@ -229,10 +229,11 @@ test("aceita o máximo de variáveis e recusa mais um", () => {
 });
 
 test("todas as mensagens existem em PT e em EN, com os mesmos parâmetros", () => {
+  const PARAMS = { tooManyVariables: ["{count}", "{max}"], notPropositional: [] };
+  const paramsOf = (text) => (text.match(/\{\w+\}/g) ?? []).sort();
+  assert.deepEqual(Object.keys(PARAMS).sort(), [...SEMANTICS_ERROR_CODES].sort());
   for (const code of SEMANTICS_ERROR_CODES) {
-    for (const key of ["{count}", "{max}"]) {
-      assert.ok(pt.semantics.errors[code].includes(key), code);
-      assert.ok(en.semantics.errors[code].includes(key), code);
-    }
+    assert.deepEqual(paramsOf(pt.semantics.errors[code]), PARAMS[code].sort(), code);
+    assert.deepEqual(paramsOf(en.semantics.errors[code]), PARAMS[code].sort(), code);
   }
 });

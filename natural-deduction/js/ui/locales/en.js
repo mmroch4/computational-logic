@@ -176,6 +176,7 @@ export default {
       partial: "This proof keeps your lines and fills in what was missing. It was checked line by line.",
       restart: "Your proof could not be continued, so this one starts over. It was checked line by line.",
     },
+    firstOrder: "This is a first-order sequent. Hints, solutions and counterexamples do not support quantifiers, terms or equality yet, but you can write the proof by hand.",
   },
   sequentInput: {
     label: "Sequent",
@@ -916,6 +917,7 @@ export default {
   semantics: {
     errors: {
       tooManyVariables: "There are {count} variables, and the truth table only takes up to {max}.",
+      notPropositional: "First-order logic is not supported here yet: the truth table does not handle quantifiers, terms or equality.",
     },
   },
   solver: {
@@ -1037,6 +1039,7 @@ export default {
       schemaTooLarge: "This schema has {size} symbols, and the maximum is {max}.",
       tooManyRules: "You can only have up to {max} rules of your own.",
       unsound: "The rule is not sound: there is a valuation where the premises are true and the conclusion is false.",
+      firstOrder: "Your own rules are propositional: use only φ, ψ, θ, atoms and connectives, with no quantifiers, terms or equality. They still work in first-order proofs.",
     },
   },
   rulesPanel: {

@@ -22,7 +22,7 @@
 // `unsound` traz ainda `formula` e `counterexample`. As mensagens estão em `userRules.errors.*`,
 // `parser.errors.*` e `semantics.errors.*`.
 
-import { and, format, implies } from "./formula.js";
+import { and, format, implies, isPropositional } from "./formula.js";
 import { isReservedRuleWord, RULE_ALIASES } from "./proof-text.js";
 import { defineRule, RULES, ruleSet, subproof } from "./rules.js";
 import { parseSchema } from "./schema.js";
@@ -39,6 +39,7 @@ export const USER_RULE_ERROR_CODES = [
   "schemaTooLarge", // { size, max }: esquema com nós a mais
   "tooManyRules", // { max }
   "unsound", // o esquema não é tautologia: traz `formula` e `counterexample`
+  "firstOrder", // o esquema tem quantificadores, termos ou `=`: as regras próprias são proposicionais
 ];
 
 /**
@@ -60,6 +61,7 @@ function readSchema(text, details) {
   if (typeof text !== "string") return failure("malformed", {}, details);
   const result = parseSchema(text);
   if (!result.ok) return { ok: false, error: { ...result.error, ...details } };
+  if (!isPropositional(result.formula)) return failure("firstOrder", {}, details);
   const size = nodeCount(result.formula);
   const max = USER_RULE_LIMITS.maxNodes;
   return size > max ? failure("schemaTooLarge", { size, max }, details) : result;

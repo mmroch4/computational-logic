@@ -4,7 +4,7 @@
 // `createAssist` trata dos pedidos, sem DOM; `assistBodyHtml` é puro; só mountAssistPanel() mexe no DOM.
 // `source` é o editor: { getProof(), getGoal(), getRules(), useProof(proof) }.
 import {
-  IDLE, canRevealMore, errorKey, panelFromResult, revealMore, searching,
+  FIRST_ORDER, IDLE, assistSupports, canRevealMore, errorKey, idlePanel, panelFromResult, revealMore, searching,
 } from "../core/assist.js";
 import { format } from "../core/formula.js";
 import { valuationHtml } from "./counterexample.js";
@@ -66,6 +66,7 @@ const VIEWS = {
   noProof: () => msgHtml("warn", escapeHtml(t("solver.noProof"))),
   cancelled: () => msgHtml("info", escapeHtml(t("solver.errors.cancelled"))),
   failed: failedHtml,
+  firstOrder: () => msgHtml("info", escapeHtml(t("assist.firstOrder"))),
 };
 
 /** O interior do painel, para um estado de core/assist.js. */
@@ -95,6 +96,10 @@ export function createAssist({ source, worker, onChange }) {
     drop();
     const proof = source.getProof();
     const goal = source.getGoal();
+    if (!assistSupports(goal)) {
+      set(FIRST_ORDER);
+      return;
+    }
     const options = source.getRules();
     const job = task === "hint" ? worker.hint(proof, goal, options) : worker.complete(proof, goal, options);
     running = job;
@@ -121,7 +126,8 @@ export function createAssist({ source, worker, onChange }) {
     },
     reset() {
       drop();
-      if (panel !== IDLE) set(IDLE);
+      const idle = idlePanel(source.getGoal());
+      if (panel !== idle) set(idle);
     },
   };
 }
