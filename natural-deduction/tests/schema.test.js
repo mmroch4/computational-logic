@@ -193,6 +193,6 @@ test("substituições repetidas não fazem crescer a instância sem limite", () 
 test("lista de códigos de erro", () => {
   assert.deepEqual(
     [...SCHEMA_ERROR_CODES].sort(),
-    ["metavariableConflict", "mismatch", "tooLarge", "unboundMetavariable"],
+    ["capture", "metavariableConflict", "mismatch", "tooLarge", "unboundMetavariable"],
   );
 });

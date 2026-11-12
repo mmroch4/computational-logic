@@ -67,3 +67,21 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   justificação separa-se na 1.ª vírgula fora de parênteses: `R(a, b)   ∀E, 1` já se lê.
 - Links: só uma prova com `fresh`/`label` usa `p=2` (`[depth, fórmula, justificação|null, fresh, label]`);
   as outras continuam `p=1`, byte a byte, e o `check-share.mjs` e a acessibilidade esperam `p=1`.
+
+## V2
+
+- Esquemas: `t`, `t1`, `t2` são `metaTerm`; `x`, `y`, `v` são `metaVariable` (ficam com um termo sem
+  argumentos); um quantificador do esquema com esse nome liga-o (`∀x φ` dá x ↦ term("y")). `φ[t/x]` é o
+  nó `subst` (args [φ, t, x]). Só o parser de esquemas os lê; fora deles, `t`/`x` são termos e `[` é erro.
+- `φ[t/x]` por resolver fica na chave `PENDING` ("pending") da substituição, que só existe se houver
+  algo adiado. Resolve-se com φ e x ligados, ou com dois `φ[t1/x]`/`φ[t2/x]` e t1, t2 ligados (=E).
+  O verificador deve ligar o `v` da etiqueta antes de casar a caixa (`{ ...subst, v: term(label) }`).
+- Captura: `matchSchema` e `applySubstitution` dão o erro `capture`; o `notFree` (v a escapar) não é da
+  casação, avalia-se com `checkCondition` (null para `fresh` e para metavariáveis por ligar).
+- A casação compara com `equals`, não com `alphaEquals`: este não tem o atalho `a === b` e fica
+  exponencial nas fórmulas com subárvores partilhadas (o teste da prova que duplica, em `tree.test.js`,
+  pendurou a suite). Se a V3 quiser α nas metavariáveis, faz `equals(a, b) || alphaEquals(a, b)`.
+- Regras: `conditions` (sempre, vazio nas proposicionais) e `fresh` nas subdeduções (null por omissão);
+  a caixa do ∀I tem `hypothesis` null. `FIRST_ORDER_RULES` está no `rules.js` mas fora de `BASE_RULES`
+  e `RULES`: a V3 junta-as e tem de adaptar `guided` (`fillPremise`, `metasOf` vê o φ do `φ[t/x]`) e
+  `rule-pick` (`premiseOf` com hipótese null). `user-rules.test.js` passou a esperar a chave `conditions`.

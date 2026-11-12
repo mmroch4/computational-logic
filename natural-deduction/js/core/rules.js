@@ -2,8 +2,11 @@
 // Uma regra é { id, premises, conclusions }, mais `proof` nas derivadas:
 //   id: o que fica em `rule` numa linha da prova. É o nome PT e nunca muda com o idioma: a sigla
 //     mostrada sai de `ruleLabel`. Entradas com o mesmo id são formas alternativas da regra (DM, SD).
-//   premises: { kind: "formula", schema } | { kind: "subproof", hypothesis, conclusion }
+//   premises: { kind: "formula", schema } | { kind: "subproof", hypothesis, conclusion, fresh }
+//     `fresh` é null, ou a metavariável da variável nova de uma caixa `[v]` (∀I, ∃E); a caixa do ∀I
+//     tem `hypothesis` null.
 //   conclusions: esquemas alternativos, para as regras com mais do que uma forma (∧E, ∨I)
+//   conditions: condições declarativas (`condition.*`), vazias nas regras proposicionais
 //   proof: prova em texto (formato de `proof-text.js`) só com regras base, sobre os átomos p, q, r no
 //     lugar de φ, ψ, θ. Demonstra `ruleGoal(rule)` e vale para qualquer instância, porque o
 //     verificador nunca olha para dentro de um átomo.
@@ -20,24 +23,47 @@ function schema(text) {
   return result.formula;
 }
 
-/** Premissa que é uma subdedução `[hypothesis] … conclusion`. */
-export const subproof = (hypothesis, conclusion) => ({ hypothesis, conclusion });
+/**
+ * Premissa que é uma subdedução `[hypothesis] … conclusion`. Com `fresh` (uma metavariável de
+ * variável, `"v"`), é uma caixa com variável `[v]`: a do ∃E abre numa hipótese, e a do ∀I não tem
+ * hipótese própria (`hypothesis` null) e abre num passo.
+ */
+export const subproof = (hypothesis, conclusion, { fresh = null } = {}) => ({ hypothesis, conclusion, fresh });
 
 function premise(item) {
   if (typeof item === "string") return Object.freeze({ kind: "formula", schema: schema(item) });
   return Object.freeze({
     kind: "subproof",
-    hypothesis: schema(item.hypothesis),
+    hypothesis: item.hypothesis === null ? null : schema(item.hypothesis),
     conclusion: schema(item.conclusion),
+    fresh: item.fresh ?? null,
   });
 }
 
-/** Cria uma regra a partir de esquemas em texto. Uma regra tem sempre pelo menos uma conclusão. */
-export function defineRule(id, premises, ...conclusions) {
+/**
+ * Condições declarativas de uma regra (ver CONDITION_KINDS em `schema.js`). Os nomes são metavariáveis
+ * e as fórmulas, esquemas em texto. O verificador avalia-as depois de casar a regra.
+ */
+export const condition = Object.freeze({
+  fresh: (variable) => Object.freeze({ kind: "fresh", variable }),
+  notIn: (variable, formula) => Object.freeze({ kind: "notIn", variable, formula: schema(formula) }),
+  notFree: (variable, formula) => Object.freeze({ kind: "notFree", variable, formula: schema(formula) }),
+  substitutable: (variable, term, formula) => Object.freeze({
+    kind: "substitutable", variable, term, formula: schema(formula),
+  }),
+});
+
+/**
+ * Cria uma regra a partir de esquemas em texto. Uma regra tem sempre pelo menos uma conclusão. Um
+ * último argumento `{ conditions }` junta as condições; sem ele, `conditions` fica vazio.
+ */
+export function defineRule(id, premises, ...rest) {
+  const options = typeof rest.at(-1) === "object" ? rest.pop() : {};
   return Object.freeze({
     id,
     premises: Object.freeze(premises.map(premise)),
-    conclusions: Object.freeze(conclusions.map(schema)),
+    conclusions: Object.freeze(rest.map(schema)),
+    conditions: Object.freeze([...(options.conditions ?? [])]),
   });
 }
 
@@ -54,6 +80,28 @@ export const BASE_RULES = Object.freeze([
   defineRule("→I", [subproof("φ", "ψ")], "φ → ψ"),
   defineRule("→E", ["φ", "φ → ψ"], "ψ"),
   defineRule("R", ["φ"], "φ"),
+]);
+
+const { fresh, notFree, substitutable } = condition;
+
+/**
+ * Regras de 1.ª ordem (Fig. 2.1), declaradas como as outras. Ainda não estão em BASE_RULES: a V3
+ * junta-as, com as condições no verificador. No ∃I e no =E pode haver várias conclusões das mesmas
+ * linhas: o `φ[t/x]` adiado aceita qualquer φ que encaixe.
+ */
+export const FIRST_ORDER_RULES = Object.freeze([
+  defineRule("∀I", [subproof(null, "φ[v/x]", { fresh: "v" })], "∀x φ", {
+    conditions: [fresh("v"), notFree("v", "∀x φ")],
+  }),
+  defineRule("∀E", ["∀x φ"], "φ[t/x]", { conditions: [substitutable("x", "t", "φ")] }),
+  defineRule("∃I", ["φ[t/x]"], "∃x φ", { conditions: [substitutable("x", "t", "φ")] }),
+  defineRule("∃E", ["∃x φ", subproof("φ[v/x]", "ψ", { fresh: "v" })], "ψ", {
+    conditions: [fresh("v"), notFree("v", "ψ")],
+  }),
+  defineRule("=I", [], "t = t"),
+  defineRule("=E", ["t1 = t2", "φ[t1/x]"], "φ[t2/x]", {
+    conditions: [substitutable("x", "t1", "φ"), substitutable("x", "t2", "φ")],
+  }),
 ]);
 
 function derived(id, premises, conclusion, proof) {

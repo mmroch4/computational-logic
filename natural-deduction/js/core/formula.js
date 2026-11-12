@@ -17,7 +17,9 @@ export const RESERVED_NAMES = ["F", "v"];
 
 /** Força de ligação de cada conectivo: quanto maior, mais liga. */
 // Os quantificadores ligam como o ¬; `=` só junta termos e conta como atómica.
-const PRECEDENCE = { implies: 1, or: 2, and: 3, not: 4, forall: 4, exists: 4, atom: 5, eq: 5, falsum: 5, meta: 5 };
+const PRECEDENCE = {
+  implies: 1, or: 2, and: 3, not: 4, forall: 4, exists: 4, atom: 5, eq: 5, falsum: 5, meta: 5, subst: 5,
+};
 
 const SYMBOLS = { and: "∧", or: "∨", implies: "→" };
 
@@ -50,6 +52,34 @@ export function meta(name) {
   return Object.freeze({ kind: "meta", name, args: Object.freeze([]) });
 }
 
+/**
+ * Metavariáveis de 1.ª ordem dos esquemas: de termo (qualquer termo) e de variável (só um nome).
+ * Num esquema, a variável de um quantificador é sempre uma metavariável de variável (`∀x φ`).
+ */
+export const TERM_METAVARIABLES = ["t", "t1", "t2"];
+export const VARIABLE_METAVARIABLES = ["x", "y", "v"];
+
+/** Metavariável de termo: { kind: "metaTerm", name, args: [] }. */
+export function metaTerm(name) {
+  if (!TERM_METAVARIABLES.includes(name)) throw new Error(`Metavariável de termo inválida: ${name}`);
+  return Object.freeze({ kind: "metaTerm", name, args: Object.freeze([]) });
+}
+
+/** Metavariável de variável: { kind: "metaVariable", name, args: [] }. */
+export function metaVariable(name) {
+  if (!VARIABLE_METAVARIABLES.includes(name)) throw new Error(`Metavariável de variável inválida: ${name}`);
+  return Object.freeze({ kind: "metaVariable", name, args: Object.freeze([]) });
+}
+
+/** φ[t/x] num esquema: { kind: "subst", args: [φ, t, x] }, com φ e x metavariáveis. */
+export function substituted(formula, t, x) {
+  const termOk = t?.kind === "metaTerm" || t?.kind === "metaVariable";
+  if (formula?.kind !== "meta" || x?.kind !== "metaVariable" || !termOk) {
+    throw new Error("φ[t/x] leva uma metavariável de fórmula, uma de termo e uma de variável");
+  }
+  return node("subst", [formula, t, x]);
+}
+
 export const FALSUM = node("falsum", []);
 
 /** Indica se `name` pode ser o nome de um termo (variável, constante ou função). O `v` pode. */
@@ -58,17 +88,20 @@ export function isTermName(name) {
 }
 
 const isTerm = (node) => node?.kind === "term";
+/** Num esquema, uma metavariável de termo ou de variável ocupa o lugar de um termo. */
+const TERM_KINDS = new Set(["term", "metaTerm", "metaVariable"]);
+const isTermLike = (node) => TERM_KINDS.has(node?.kind);
 
 /** Termo: nome sem argumentos, ou função aplicada a termos. */
 export function term(name, args = []) {
   if (!isTermName(name)) throw new Error(`Nome de termo inválido: ${name}`);
-  if (!args.every(isTerm)) throw new Error(`Os argumentos de ${name} têm de ser termos`);
+  if (!args.every(isTermLike)) throw new Error(`Os argumentos de ${name} têm de ser termos`);
   return Object.freeze({ kind: "term", name, args: Object.freeze([...args]) });
 }
 
 /** Igualdade t₁ = t₂. */
 export function eq(left, right) {
-  if (!isTerm(left) || !isTerm(right)) throw new Error("A igualdade só junta termos");
+  if (!isTermLike(left) || !isTermLike(right)) throw new Error("A igualdade só junta termos");
   return node("eq", [left, right]);
 }
 
@@ -115,6 +148,8 @@ export function format(formula) {
   }
   if (kind === "eq") return `${format(args[0])} = ${format(args[1])}`;
   if (kind === "meta") return name;
+  if (kind === "metaTerm" || kind === "metaVariable") return displayName(name);
+  if (kind === "subst") return `${format(args[0])}[${format(args[1])}/${format(args[2])}]`;
   if (kind === "falsum") return "F";
 
   const strength = PRECEDENCE[kind];
@@ -161,6 +196,12 @@ export function freeVariables(formula) {
   };
   visit(formula, new Set());
   return free;
+}
+
+/** Indica se o nome `x` ocorre em `formula`, livre ou ligado: num termo, numa função ou num quantificador. */
+export function occurs(formula, x) {
+  if ((isTerm(formula) || isQuantifier(formula)) && formula.name === x) return true;
+  return formula.args.some((arg) => occurs(arg, x));
 }
 
 /** Indica se a variável `x` está livre em `formula`. */

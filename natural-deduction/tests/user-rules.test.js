@@ -354,8 +354,10 @@ test("campos forjados não contam: a regra é sempre reconstruída do esquema", 
     validated: true,
   };
   assert.equal(loadUserRules([forged]).rejected[0].error.code, "unsound");
-  const clean = loadUserRules([{ ...CONTRA, id: "MT", user: false, proof: "x" }]).rules[0];
-  assert.deepEqual(Object.keys(clean).sort(), ["conclusions", "id", "premises", "user"]);
+  const forgedConditions = [{ kind: "fresh", variable: "v" }];
+  const clean = loadUserRules([{ ...CONTRA, id: "MT", user: false, proof: "x", conditions: forgedConditions }]).rules[0];
+  assert.deepEqual(Object.keys(clean).sort(), ["conclusions", "conditions", "id", "premises", "user"]);
+  assert.deepEqual(clean.conditions, []);
   assert.equal(clean.id, "Contra");
   assert.equal(clean.user, true);
 });

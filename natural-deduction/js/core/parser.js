@@ -15,9 +15,13 @@
 // Q é ∀, ∃, `forall` ou `exists`, e a variável x é uma letra com dígitos opcionais, por isso
 // `∀xP(x)` lê-se. Os nomes não têm tipo: `P(a)` é predicado, ou função se vier um `=` a seguir.
 // O `v` é disjunção entre fórmulas e nome em posição de termo: argumento, lado de `=` ou variável de
-// um quantificador. Com `metavariables`, φ, ψ e θ também são operandos.
+// um quantificador. Com `metavariables`, φ, ψ e θ também são operandos; em posição de termo, t, t1 e
+// t2 são metavariáveis de termo e x, y e v de variável; e `φ[t/x]` é a substituição de um esquema.
 
-import { FALSUM, METAVARIABLES, and, atom, eq, exists, forall, implies, meta, not, or, term } from "./formula.js";
+import {
+  FALSUM, METAVARIABLES, TERM_METAVARIABLES, VARIABLE_METAVARIABLES, and, atom, eq, exists, forall, implies, meta,
+  metaTerm, metaVariable, not, or, substituted, term,
+} from "./formula.js";
 
 /** Códigos de erro. */
 export const ERROR_CODES = [
@@ -104,6 +108,23 @@ function readQuantifier(text, token) {
   return { ...token, name: plainDigits(match[1]), text: text.slice(token.start, end), end };
 }
 
+/** `[t/x]` logo a seguir a uma metavariável de fórmula, só nos esquemas: junta-se ao token. */
+const SUBSTITUTION_RE = /\s*\[\s*([A-Za-z][0-9₀-₉]*)\s*\/\s*([A-Za-z][0-9₀-₉]*)\s*\]/y;
+
+function readSubstitution(text, token) {
+  if (!text.slice(token.end).trimStart().startsWith("[")) return token;
+  SUBSTITUTION_RE.lastIndex = token.end;
+  const match = SUBSTITUTION_RE.exec(text);
+  const [replacement, variable] = match ? [plainDigits(match[1]), plainDigits(match[2])] : [];
+  const termOk = TERM_METAVARIABLES.includes(replacement) || VARIABLE_METAVARIABLES.includes(replacement);
+  if (!termOk || !VARIABLE_METAVARIABLES.includes(variable)) {
+    const at = text.indexOf("[", token.end);
+    throw new ParseFailure("unexpectedChar", at, at + 1, { char: "[" });
+  }
+  const end = SUBSTITUTION_RE.lastIndex;
+  return { ...token, substitution: { replacement, variable }, text: text.slice(token.start, end), end };
+}
+
 function tokenize(text, metavariables) {
   const tokens = [];
   let pos = 0;
@@ -124,7 +145,7 @@ function tokenize(text, metavariables) {
       continue;
     }
     if (metavariables && METAVARIABLES.includes(text[pos])) {
-      push({ type: "meta", name: text[pos], text: text[pos], start: pos, end: pos + 1 });
+      push(readSubstitution(text, { type: "meta", name: text[pos], text: text[pos], start: pos, end: pos + 1 }));
       continue;
     }
     WORD_RE.lastIndex = pos;
@@ -142,7 +163,22 @@ function tokenize(text, metavariables) {
 /** O `v` escrito como palavra, que em posição de termo é um nome. */
 const isNameV = (token) => token?.type === "or" && token.text === "v";
 
-function parseTokens(tokens) {
+/** Nos esquemas, um nome sem argumentos pode ser uma metavariável de termo ou de variável. */
+function schemaTerm(name, args) {
+  if (args.length === 0 && TERM_METAVARIABLES.includes(name)) return metaTerm(name);
+  if (args.length === 0 && VARIABLE_METAVARIABLES.includes(name)) return metaVariable(name);
+  return term(name, args);
+}
+
+/** O nó de uma metavariável de fórmula, com a substituição `[t/x]` se a tiver. */
+function metaOf(token) {
+  if (!token.substitution) return meta(token.name);
+  const { replacement, variable } = token.substitution;
+  return substituted(meta(token.name), schemaTerm(replacement, []), metaVariable(variable));
+}
+
+function parseTokens(tokens, metavariables) {
+  const termOf = metavariables ? schemaTerm : term;
   let pos = 0;
   const open = [];
   const peek = () => tokens[pos];
@@ -195,7 +231,7 @@ function parseTokens(tokens) {
     if (!token) throw missingAtEnd(missingTerm);
     if (token.type === "name" || isNameV(token)) {
       const { name, args } = parseApplication(token);
-      return term(name, args);
+      return termOf(name, args);
     }
     if (["close", "comma", "eq"].includes(token.type)) throw missingTerm(token);
     throw notATerm(token);
@@ -208,7 +244,7 @@ function parseTokens(tokens) {
       if (isNameV(token)) throw missingOperand(token);
       return atom(name, args);
     }
-    return eq(term(name, args), parseTerm());
+    return eq(termOf(name, args), parseTerm());
   }
 
   function parseOperand() {
@@ -218,7 +254,7 @@ function parseTokens(tokens) {
       case "name":
         return parseAtomic(token);
       case "meta":
-        return meta(token.name);
+        return metaOf(token);
       case "falsum":
         return FALSUM;
       case "not":
@@ -277,7 +313,7 @@ export function parseFormula(text, { metavariables = false } = {}) {
     if (length > maxChars) throw new ParseFailure("tooLong", 0, text.length, { length, max: maxChars });
     const tokens = tokenize(text, metavariables);
     if (tokens.length === 0) throw new ParseFailure("emptyInput", 0, text.length);
-    return { ok: true, formula: parseTokens(tokens) };
+    return { ok: true, formula: parseTokens(tokens, metavariables) };
   } catch (failure) {
     if (failure instanceof ParseFailure) return { ok: false, error: failure.details };
     throw failure;
