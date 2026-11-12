@@ -107,7 +107,7 @@ Revês o `js/core/` e experimentas provas à mão com `node`. Confirmas as mensa
 
 ## Bloco E — Editor
 
-### [ ] E1 · Entrada e vista de Fitch
+### [x] E1 · Entrada e vista de Fitch
 No Provar:
 - botões e atalhos para ∀, ∃ e =, na entrada do sequente e no editor;
 - o interruptor de notação com `forall`/`exists`;
