@@ -17,3 +17,13 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   ¬∀⊢∃¬, ∃¬⊢¬∀, ¬∃⊢∀¬, ∀¬⊢¬∃ (tabela no `SPEC.md`).
 - A dimensão nova fixada no `SPEC.md`: lição de 14 secções, cerca de 90 exercícios (15 de passo errado).
 - O teste Chrome de `tests/lesson.test.js:499` deu timeout (90 s) no `npm test` e passou sozinho: carga.
+
+## L1
+
+- `formula.js`: `term(name, args)`, `eq`, `forall(name, φ)`, `exists`; `freeVariables` devolve um `Set`
+  (só termos sem argumentos; nomes de função não contam). `substitute` é literal (não renomeia) e
+  devolve o mesmo nó se nada mudar: chama `isSubstitutable` antes.
+- `RESERVED_TERM_NAMES` = F, forall, exists (o `v` pode ser termo). `RESERVED_NAMES` dos átomos ficou
+  F e v: acrescentar `forall`/`exists` aos átomos fica para o parser.
+- `format`: espaço depois de `∀x` exceto antes de `(` ou de outro quantificador (`∀x∀y R(x, y)`).
+  `¬a = b` lê-se `¬(a = b)`, porque `=` liga mais do que tudo.
