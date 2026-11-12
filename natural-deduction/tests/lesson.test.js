@@ -497,6 +497,6 @@ test("progresso da leitura: entre 0 e 1, e 1 se a página couber no ecrã", () =
 });
 
 test("no Chrome: índice, links diretos e figuras, a 390px e a 1280px", { skip: !existsSync(process.env.CHROME_BIN || "/usr/bin/google-chrome") }, () => {
-  const run = spawnSync("node", ["scripts/check-learn.mjs"], { encoding: "utf8", timeout: 90000 });
+  const run = spawnSync("node", ["scripts/check-learn.mjs"], { encoding: "utf8", timeout: 240000 });
   assert.equal(run.status, 0, run.stderr || run.stdout);
 });

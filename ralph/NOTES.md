@@ -39,4 +39,6 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   Fica para quem ler provas de 1.ª ordem (V1/E1).
 - `tests/fixtures/propositional-corpus.json` é a base proposicional de antes da L2 (todas as strings de
   `js/` e `tests/` que se liam). Nunca a regeneres: o teste compara a leitura atual com ela.
+- O `check-learn.mjs` leva ~75 s sozinho; o limite de 90 s em `tests/lesson.test.js` falhava sob carga
+  (parser medido: tão rápido como antes). Passou a 240 s, como o `check-english`. A lição vai crescer.
 - `QUANTIFIER_WORDS` é um `Map`: com um objeto, `"constructor" in …` apanhava o protótipo.
