@@ -119,7 +119,7 @@ Tudo com strings nos locales PT/EN e acessível por teclado e leitor de ecrã.
 **Feito quando:** os `scripts/check-*.mjs` relevantes e o `scripts/check-page.sh /provar` passam a
 390px e a 1280px, com uma prova de 1.ª ordem aberta, e o `npm test` passa.
 
-### [ ] E2 · Modo guiado e dicas
+### [x] E2 · Modo guiado e dicas
 - No modo guiado, o ∀E, o ∃I e o =E pedem o termo ou escolhem entre as conclusões possíveis.
 - O ∀I e o ∃E sugerem uma variável nova e deixam mudá-la.
 - As dicas ganham as estratégias de 1.ª ordem: objetivo ∀ → abrir caixa; premissa ∃ → ∃E; instanciar
