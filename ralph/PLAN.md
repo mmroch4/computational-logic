@@ -23,7 +23,7 @@ utilizador proposicionais e as siglas novas. O que mudares no `SPEC.md` passa a 
 
 ## Bloco L — Linguagem
 
-### [ ] L1 · AST de 1.ª ordem
+### [x] L1 · AST de 1.ª ordem
 Em `js/core/formula.js`:
 - os nós de termo, átomo com argumentos, `eq`, `forall` e `exists`;
 - construtores e `format` com a precedência nova;
