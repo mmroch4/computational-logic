@@ -9,7 +9,7 @@ sem os reescrever. Uma tarefa que precise de mudar um snapshot explica porquê n
 
 ## Bloco S — Especificação
 
-### [ ] S1 · SPEC da 1.ª ordem
+### [x] S1 · SPEC da 1.ª ordem
 Escreve no `SPEC.md` a secção da 1.ª ordem a partir do `ralph/FOL-PLAN.md`: linguagem, regras,
 condições, caixas, semântica e solver com o resultado «não encontrei», conteúdo e dimensão nova.
 Corrige a frase das regras do utilizador em 1.ª ordem. Fixa as siglas PT e EN das quatro derivadas de
