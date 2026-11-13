@@ -128,7 +128,7 @@ Tudo com strings nos locales PT/EN e acessível por teclado e leitor de ecrã.
 **Feito quando:** há testes no core (`guided`, `rule-pick`, `hints`), e os `scripts/check-guided.mjs`,
 `check-rule-pick.mjs` e `scripts/check-keyboard.sh` passam com uma prova de 1.ª ordem. O `npm test` passa.
 
-### [ ] PAUSA-3 · Rever o editor
+### [x] PAUSA-3 · Rever o editor
 Abres o Provar localmente (`node scripts/serve.mjs 8765`), em telemóvel e desktop, e fazes provas de
 1.ª ordem nos dois modos.
 
