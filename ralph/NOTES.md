@@ -151,3 +151,17 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   troca a paridade das crases e «apaga» textos do corpus. Nos testes novos, concatena.
 - Nos scripts do Chrome, esperar ~600 ms depois de aplicar um passo: o foco vai para o objetivo com
   scroll suave e o toque seguinte cai noutro botão.
+
+## M1
+
+- `js/core/structures.js`: `evaluateIn`, `isCountermodel`, `findCountermodel` e `firstOrderVerdict`. Estrutura
+  legível: `{ size, constants: [{name, value}], functions: [{name, arity, table: [{args, value}]}],
+  predicates: [{name, arity, extension: [tuplos]}] }`; átomo 0-ário verdadeiro se a extensão tiver `[]`.
+- `COUNTERMODEL_LIMITS` = domínio até 4, 2 000 000 passos (um por estrutura e um por elemento percorrido
+  num quantificador, para o tempo não crescer com o encaixe). Esgotar mede ~150 ms.
+- `firstOrderVerdict(goal, { prove })` procura primeiro o contramodelo (orçamento fixo) e só depois
+  chama o `prove` (a M3 liga o solver); sem nenhum dos dois, "unknown".
+- Casas das variáveis ligadas por profundidade, não por `scope.size`: com `∃x∃x∃y`, o tamanho do âmbito
+  não cresce e o y pisava o x.
+- Corpus: o template com `${…}` em `budgets.test.js:29` deixa uma crase ímpar; uma crase num comentário
+  mais abaixo engolia o TEXTBOOK. Nada de crases nesse ficheiro.
