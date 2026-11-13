@@ -165,7 +165,7 @@ igual. As provas saem verificadas e legíveis, com estratégias novas em `solver
 - nenhum sequente inválido dá prova;
 - os testes de desempenho e o `npm test` passam.
 
-### [ ] M4 · Passo a passo e exemplos
+### [x] M4 · Passo a passo e exemplos
 - O Passo a passo explica os passos de 1.ª ordem: caixa, variável nova, instanciação.
 - O menu de exemplos ganha sequentes de 1.ª ordem.
 - A demo da página inicial continua proposicional, salvo se o `SPEC.md` disser o contrário.
