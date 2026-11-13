@@ -165,3 +165,16 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   não cresce e o y pisava o x.
 - Corpus: o template com `${…}` em `budgets.test.js:29` deixa uma crase ímpar; uma crase num comentário
   mais abaixo engolia o TEXTBOOK. Nada de crases nesse ficheiro.
+
+## M2
+
+- `solve` de 1.ª ordem: `solveFirstOrder` (solver.js) dá `{ ok, valid: false, structure }` ou o erro
+  `undecided` {maxSize}; a M3 liga ali a procura de provas. `completeProof` passa a `structure`; `hint`
+  procura o contramodelo antes de `firstOrderHint` (cada dica custa até ~200 ms no pior caso).
+- Saíram `FIRST_ORDER`, `assistSupports`, `idlePanel` e `assist.firstOrder`: o painel chama sempre o Worker.
+  O painel `invalid` tem `structure` ou `valuation`; `counterexampleHtml` (counterexample.js) escolhe.
+- Elementos mostram-se de 1 a n (na estrutura vão de 0 a n − 1); extensão vazia é `∅`; 0-ário é V/F.
+- Sequente que esgota o orçamento (só modelos infinitos, nunca terá prova): `∀x ¬R(x, x),
+  ∀x∀y∀z(R(x, y) ∧ R(y, z) → R(x, z)), ∀x∃y R(x, y), S(a, b) ⊢ F`. Sem o `S(a, b)` só esgota o domínio.
+- check-page do Provar: `CLICK='[data-assist="solve"]'` chega (o resultado sai antes da screenshot). Um
+  `FULL_PAGE=1 CLICK=… EVAL=…` com três variáveis pediu aprovação; com duas passou.

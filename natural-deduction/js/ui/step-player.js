@@ -8,7 +8,7 @@ import { clampStep, proofAt, proofTrace, stepOfLine } from "../core/proof-trace.
 import { formatSequent } from "../core/sequent.js";
 import { STEP_VIEWS } from "../core/step-link.js";
 import { MAX_TREE_NODES, treeAt } from "../core/tree.js";
-import { valuationHtml } from "./counterexample.js";
+import { counterexampleHtml } from "./counterexample.js";
 import { fitchHtml, readAsHtml, spokenProse } from "./fitch-view.js";
 import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -24,7 +24,11 @@ const proseHtml = (text) => readAsHtml(escapeHtml(text), spokenProse(text));
 
 /** O que dizer em vez de reproduzir o resultado `result` de `solve`, ou null se houver prova. */
 export function solveOutcome(result) {
-  if (!result.ok) return { kind: "error", key: errorKey(result.error), params: result.error.params };
+  if (!result.ok) {
+    // Em 1.ª ordem, não decidir não é um erro: a validade é indecidível.
+    const kind = result.error.code === "undecided" ? "warn" : "error";
+    return { kind, key: errorKey(result.error), params: result.error.params };
+  }
   if (!result.valid) return { kind: "warn", key: "player.invalid", params: {} };
   if (!result.provable) return { kind: "warn", key: "solver.noProof", params: {} };
   return null;
@@ -36,9 +40,11 @@ export function outcomeHtml(result, goal) {
   if (!outcome) return "";
   const text = msgHtml(outcome.kind, escapeHtml(t(outcome.key, outcome.params)));
   if (!result.ok || result.valid) return text;
-  const panel = panelFromResult({ status: "invalid", counterexample: result.counterexample }, goal);
-  const lead = panel.valuation.length === 0 ? "" : `<p class="assist__note">${escapeHtml(t(panel.hasPremises ? "player.counterexample" : "player.counterexampleNoPremises"))}</p>`;
-  return `<div class="step-outcome">${text}${lead}${valuationHtml(panel)}</div>`;
+  const { counterexample, structure } = result;
+  const panel = panelFromResult({ status: "invalid", counterexample, structure }, goal);
+  const leadKey = `player.${structure ? "countermodel" : "counterexample"}${panel.hasPremises ? "" : "NoPremises"}`;
+  const lead = panel.valuation?.length === 0 ? "" : `<p class="assist__note">${escapeHtml(t(leadKey))}</p>`;
+  return `<div class="step-outcome">${text}${lead}${counterexampleHtml(panel)}</div>`;
 }
 
 /** As linhas a destacar no passo `index`: a dele e as que ele cita. */

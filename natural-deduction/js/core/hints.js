@@ -4,14 +4,16 @@
 //     → { status: "step", target, strategy, step, levels }      o próximo passo; target: objetivo atual
 //     | { status: "fixLine", line, error, levels }              uma linha tem de ser corrigida primeiro
 //     | { status: "deadEnd", line, reason, step, levels }       a subdedução da linha não leva ao objetivo
-//     | { status: "done" | "invalid" | "noProof" | "unknown" }  sem passo: prova acabada, `counterexample`,
-//                                                               `witness` (como no `solve`) ou `error`
+//     | { status: "done" | "invalid" | "noProof" | "unknown" }  sem passo: prova acabada, `counterexample`
+//                                                               (`structure` em 1.ª ordem), `witness`
+//                                                               (como no `solve`) ou `error`
 //   step: { action: "write", line, replaces, kind, depth, formula, rule, citations, strategy, viaRule, fresh? }
 //       | { action: "deleteSubproof", line }
 //     `replaces`: a linha `line` fica substituída; sem isso, insere-se ali. `viaRule`: numa hipótese,
 //     a regra que a vai fechar. `fresh`: a variável nova de uma caixa [v] que a linha abre (um passo por
 //     justificar, no ∀I, ou a hipótese do ∃E).
-// Num sequente de 1.ª ordem não há tabela de verdade nem solver: ver `firstOrderHint`, mais abaixo.
+// Num sequente de 1.ª ordem não há tabela de verdade: procura-se um contramodelo finito e, sem ele, as
+// heurísticas de `firstOrderHint`, mais abaixo.
 //   levels: [estratégia, regra, passo exato], cada um { key, params }, com `key` em `solver.strategies.*`,
 //     `hints.*` ou `verify.*`. Passa `params` por `localizeRuleParam` antes de `t()`.
 //   applyHint(proof, step) → { ok, proof | error }, como as operações de `proof.js`.
@@ -39,6 +41,7 @@ import { sameFormula } from "./schema.js";
 import { checkSequent } from "./semantics.js";
 import { isPropositionalSequent, sequent } from "./sequent.js";
 import { solve } from "./solver.js";
+import { findCountermodel } from "./structures.js";
 import { verifyLine, verifyProof } from "./verify.js";
 
 /** Códigos de `fixLine` que não vêm do verificador; os outros são `VERIFY_ERROR_CODES`. */
@@ -403,7 +406,11 @@ export function isFinished(proof, goal, rules, known = rules) {
 
 /** Sugere o próximo passo de `proof` para demonstrar `goal`. */
 export function hint(proof, goal, { rules = RULES, known = rules, maxSteps } = {}) {
-  if (!isPropositionalSequent(goal)) return firstOrderHint(proof, goal, { rules, known });
+  if (!isPropositionalSequent(goal)) {
+    const search = findCountermodel(goal);
+    if (search.status === "found") return { status: "invalid", structure: search.structure };
+    return firstOrderHint(proof, goal, { rules, known });
+  }
   const decided = checkSequent(goal);
   if (!decided.ok) return { status: "unknown", error: decided.error };
   if (!decided.valid) return { status: "invalid", counterexample: decided.counterexample };

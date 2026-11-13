@@ -183,6 +183,15 @@ export default {
     anyValuation: "Any valuation is a counterexample.",
     otherValues: "The other variables can take any value.",
     valuationLabel: "Counterexample valuation",
+    invalidStructure: "This sequent has no proof, because it is invalid. Countermodel: in this structure, the premises are true and the conclusion is false.",
+    invalidStructureNoPremises: "This sequent has no proof, because it is invalid. Countermodel: in this structure, the conclusion is false.",
+    structure: {
+      label: "Countermodel structure",
+      domain: "Domain",
+      constants: "Constants",
+      functions: "Functions",
+      predicates: "Predicates",
+    },
     values: {
       true: "T",
       false: "F",
@@ -192,7 +201,6 @@ export default {
       partial: "This proof keeps your lines and fills in what was missing. It was checked line by line.",
       restart: "Your proof could not be continued, so this one starts over. It was checked line by line.",
     },
-    firstOrder: "This is a first-order sequent. Hints, solutions and counterexamples do not support quantifiers, terms or equality yet, but you can write the proof by hand.",
   },
   sequentInput: {
     label: "Sequent",
@@ -306,6 +314,8 @@ export default {
     invalid: "This sequent is not valid, so there is no proof to play.",
     counterexample: "Counterexample: with these values, the premises are true and the conclusion is false.",
     counterexampleNoPremises: "Counterexample: with these values, the conclusion is false.",
+    countermodel: "Countermodel: in this structure, the premises are true and the conclusion is false.",
+    countermodelNoPremises: "Countermodel: in this structure, the conclusion is false.",
     noLines: "There are no lines yet: this sequent has no premises.",
     start: "You start with only the premises. Each step adds one line to the proof.",
     startEmpty: "There are no premises, so the proof starts with nothing proved. Each step adds one line.",
@@ -944,6 +954,7 @@ export default {
     errors: {
       stepLimit: "The search stopped after {max} steps. This does not mean there is no proof.",
       searchExhausted: "The search found no proof with these rules. This does not mean there is no proof.",
+      undecided: "I found neither a proof nor a countermodel: the search only looks at structures with up to {maxSize} elements and has a step limit. This does not mean the sequent is valid, nor that it is invalid.",
       unverifiedProof: "The generated proof did not pass the checker, so it is not shown.",
       timeout: "The search stopped after {seconds} s. This does not mean there is no proof.",
       cancelled: "You cancelled the search.",

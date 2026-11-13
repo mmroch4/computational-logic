@@ -184,6 +184,15 @@ export default {
     anyValuation: "Qualquer valoração serve de contraexemplo.",
     otherValues: "As outras variáveis podem ter qualquer valor.",
     valuationLabel: "Valoração do contraexemplo",
+    invalidStructure: "Este sequente não tem prova, porque é inválido. Contramodelo: nesta estrutura, as premissas são verdadeiras e a conclusão é falsa.",
+    invalidStructureNoPremises: "Este sequente não tem prova, porque é inválido. Contramodelo: nesta estrutura, a conclusão é falsa.",
+    structure: {
+      label: "Estrutura do contramodelo",
+      domain: "Domínio",
+      constants: "Constantes",
+      functions: "Funções",
+      predicates: "Predicados",
+    },
     values: {
       true: "V",
       false: "F",
@@ -193,7 +202,6 @@ export default {
       partial: "Esta prova mantém as tuas linhas e completa o que faltava. Foi verificada linha a linha.",
       restart: "Não deu para continuar a tua prova, por isso esta começa de novo. Foi verificada linha a linha.",
     },
-    firstOrder: "Este sequente é de 1.ª ordem. As dicas, a solução e os contraexemplos ainda não suportam quantificadores, termos nem igualdade, mas podes escrever a prova à mão.",
   },
   sequentInput: {
     label: "Sequente",
@@ -307,6 +315,8 @@ export default {
     invalid: "Este sequente não é válido, por isso não há prova para reproduzir.",
     counterexample: "Contraexemplo: com estes valores, as premissas são verdadeiras e a conclusão é falsa.",
     counterexampleNoPremises: "Contraexemplo: com estes valores, a conclusão é falsa.",
+    countermodel: "Contramodelo: nesta estrutura, as premissas são verdadeiras e a conclusão é falsa.",
+    countermodelNoPremises: "Contramodelo: nesta estrutura, a conclusão é falsa.",
     noLines: "Ainda não há linhas: este sequente não tem premissas.",
     start: "Começas só com as premissas. Cada passo acrescenta uma linha à prova.",
     startEmpty: "Não há premissas, por isso a prova começa sem nada provado. Cada passo acrescenta uma linha.",
@@ -945,6 +955,7 @@ export default {
     errors: {
       stepLimit: "A procura parou ao fim de {max} passos. Isto não quer dizer que não haja prova.",
       searchExhausted: "A procura não encontrou prova com estas regras. Isto não quer dizer que não haja prova.",
+      undecided: "Não encontrei prova nem contramodelo: a procura só vê estruturas com até {maxSize} elementos e tem um limite de passos. Isto não quer dizer que o sequente seja válido nem que seja inválido.",
       unverifiedProof: "A prova gerada não passou no verificador, por isso não é mostrada.",
       timeout: "A procura parou ao fim de {seconds} s. Isto não quer dizer que não haja prova.",
       cancelled: "Cancelaste a procura.",

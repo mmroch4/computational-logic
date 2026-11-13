@@ -47,7 +47,9 @@ function followHints(proof, goal, options) {
 export function completeProof(proof, goal, { rules = RULES, known = rules, maxSteps } = {}) {
   const whole = solve(goal, { rules, maxSteps });
   if (!whole.ok) return { status: "unknown", error: whole.error };
-  if (!whole.valid) return { status: "invalid", counterexample: whole.counterexample };
+  if (!whole.valid) {
+    return whole.structure ? { status: "invalid", structure: whole.structure } : { status: "invalid", counterexample: whole.counterexample };
+  }
   if (!whole.provable) return { status: "noProof", witness: whole.witness };
   if (isFinished(proof, goal, rules, known)) return { status: "done" };
 

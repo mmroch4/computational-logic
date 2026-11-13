@@ -4,12 +4,14 @@
 //     → { ok: true, valid: true, provable: true, proof, steps }
 //     | { ok: true, valid: true, provable: false, witness }
 //     | { ok: true, valid: false, counterexample }
+//     | { ok: true, valid: false, structure }                 1.ª ordem: contramodelo finito (structures.js)
 //     | { ok: false, error: { code, params } }
 // `rules` é o conjunto ativo, como um `ruleSet` ou o `rules` de `activeRules`.
 // `provable: false` só sai com uma demonstração: `witness` é um modelo de `countermodel.js` em que
 // todas as regras ativas são corretas e o sequente falha. Um erro nunca diz nada sobre haver prova.
-// As mensagens estão em `solver.noProof` e `solver.errors.*`; `tooManyVariables` e `notPropositional`
-// vêm da semântica. Um sequente de 1.ª ordem dá `notPropositional` antes de qualquer procura.
+// As mensagens estão em `solver.noProof` e `solver.errors.*`; `tooManyVariables` vem da semântica.
+// Um sequente de 1.ª ordem não tem tabela de verdade: `firstOrderVerdict` procura um contramodelo finito
+// e, sem ele nem prova, dá `undecided` («não encontrei prova nem contramodelo»).
 //
 // A tabela de verdade decide a validade e depois guia a procura: só se tenta provar o que as fórmulas
 // conhecidas implicam. Cada fórmula guarda as linhas da tabela em que é verdadeira, num BigInt, por
@@ -30,13 +32,16 @@ import { atom, equals, FALSUM, format, not, or } from "./formula.js";
 import { RULES, isFirstOrderRule } from "./rules.js";
 import { applySubstitution, matchSchema } from "./schema.js";
 import { checkSequent, variablesOf } from "./semantics.js";
+import { isPropositionalSequent } from "./sequent.js";
+import { COUNTERMODEL_LIMITS, firstOrderVerdict } from "./structures.js";
 import { verifyProof } from "./verify.js";
 
 /** Limite de passos da procura. */
 export const MAX_STEPS = 20000;
 
-/** Códigos de erro próprios; os outros são `tooManyVariables` e `notPropositional`. Nenhum afirma que não há prova. */
+/** Códigos de erro próprios; o outro é `tooManyVariables`. Nenhum afirma que não há prova. */
 export const SOLVER_ERROR_CODES = [
+  "undecided", // { maxSize }: 1.ª ordem, sem prova nem contramodelo com até maxSize elementos
   "stepLimit", // { max }: a procura parou sem provar nem refutar que há prova
   "searchExhausted", // a procura acabou sem prova nem demonstração de que não a há
   "unverifiedProof", // a prova gerada não passou no verificador: é um erro do solver
@@ -418,8 +423,16 @@ function attempt(goal, maxSteps, rules, extraRules) {
   return { ok: true, valid: true, provable: true, proof, steps: found.stepsUsed() };
 }
 
+/** Um sequente de 1.ª ordem: o contramodelo ou, sem ele, `undecided`. A M3 liga aqui a procura de provas. */
+function solveFirstOrder(goal) {
+  const verdict = firstOrderVerdict(goal);
+  if (verdict.status === "invalid") return { ok: true, valid: false, structure: verdict.structure };
+  return { ok: false, error: { code: "undecided", params: { maxSize: COUNTERMODEL_LIMITS.maxSize } } };
+}
+
 /** Decide `goal` e, se for válido, procura uma prova, que passa pelo verificador antes de sair. */
 export function solve(goal, { rules = RULES, maxSteps = MAX_STEPS } = {}) {
+  if (!isPropositionalSequent(goal)) return solveFirstOrder(goal);
   const decided = checkSequent(goal);
   if (!decided.ok) return decided;
   if (!decided.valid) return { ok: true, valid: false, counterexample: decided.counterexample };

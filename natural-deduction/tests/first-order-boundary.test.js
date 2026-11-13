@@ -1,9 +1,9 @@
 // A fronteira proposicional: o que só sabe lógica proposicional responde a um sequente de 1.ª ordem com
-// um resultado explícito, sem lançar. No Chrome, a página Provar com um link de 1.ª ordem:
-// scripts/check-page.sh "/provar?s=…".
+// um resultado explícito, sem lançar; o solver, as dicas e as páginas mostram o contramodelo finito ou
+// «não encontrei prova nem contramodelo». No Chrome: scripts/check-page.sh "/passo-a-passo?s=…".
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FIRST_ORDER, IDLE, assistSupports, errorKey, idlePanel, panelFromResult } from "../js/core/assist.js";
+import { IDLE, errorKey, panelFromResult } from "../js/core/assist.js";
 import { completeProof } from "../js/core/complete.js";
 import { countermodel } from "../js/core/countermodel.js";
 import { createEditor } from "../js/core/editor.js";
@@ -17,9 +17,13 @@ import { RULES, ruleSet } from "../js/core/rules.js";
 import { checkSequent, checkTautology, SEMANTICS_ERROR_CODES, truthTable } from "../js/core/semantics.js";
 import { isPropositionalSequent, parseSequent } from "../js/core/sequent.js";
 import { solve } from "../js/core/solver.js";
+import { runSolverTask } from "../js/core/solver-task.js";
+import { COUNTERMODEL_LIMITS, findCountermodel, isCountermodel } from "../js/core/structures.js";
 import { verifyProof } from "../js/core/verify.js";
 import { createUserRule, loadUserRules } from "../js/core/user-rules.js";
 import { assistBodyHtml, createAssist } from "../js/ui/assist-panel.js";
+import { structureHtml } from "../js/ui/counterexample.js";
+import { outcomeHtml, solveOutcome } from "../js/ui/step-player.js";
 import { setLang, t } from "../js/ui/i18n.js";
 import { ruleErrorText } from "../js/ui/user-rules-panel.js";
 
@@ -42,6 +46,8 @@ const FIRST_ORDER_SEQUENTS = [
   "p ⊢ p ∧ R(f(c))",
 ];
 const NOT_PROPOSITIONAL = { ok: false, error: { code: "notPropositional", params: {} } };
+// Inválido (só tem modelos infinitos: R é uma ordem estrita sem máximo) e esgota o orçamento.
+const EXHAUSTING = "∀x ¬R(x, x), ∀x∀y∀z(R(x, y) ∧ R(y, z) → R(x, z)), ∀x∃y R(x, y), S(a, b) ⊢ F";
 
 test("isPropositional: só conectivos, F, metavariáveis e átomos sem argumentos", () => {
   for (const text of ["p", "F", "¬p ∧ (q ∨ r) → s", "φ → ψ", "constructor"]) {
@@ -69,27 +75,50 @@ test("a semântica responde notPropositional em vez de lançar", () => {
   assert.equal(checkSequent(goalOf("p ⊢ p ∨ q")).valid, true);
 });
 
-test("o solver e a solução devolvem o erro sem procurar; o countermodel devolve null", () => {
+// Desde a M2, o solver, a solução e as dicas procuram um contramodelo finito (structures.js). Sem ele, o
+// solver dá `undecided` (até a M3 dar provas) e as dicas seguem as heurísticas da E2.
+const INVALID_FIRST_ORDER = "p ⊢ p ∧ R(f(c))";
+const UNDECIDED = { ok: false, error: { code: "undecided", params: { maxSize: COUNTERMODEL_LIMITS.maxSize } } };
+
+test("o solver e a solução dão o contramodelo ou, sem ele, nunca dizem que não há prova", () => {
   const rules = ruleSet("completo");
   for (const text of FIRST_ORDER_SEQUENTS) {
     const goal = goalOf(text);
-    assert.deepEqual(solve(goal, { rules }), NOT_PROPOSITIONAL, text);
-    assert.equal(countermodel(goal, rules), null, text);
+    const result = solve(goal, { rules });
     const proof = createEditor(goal).proof;
-    assert.deepEqual(completeProof(proof, goal, { rules, known: RULES }), { status: "unknown", error: NOT_PROPOSITIONAL.error });
+    const completed = completeProof(proof, goal, { rules, known: RULES });
+    assert.equal(countermodel(goal, rules), null, text);
+    if (text === INVALID_FIRST_ORDER) {
+      assert.equal(result.ok && result.valid, false, text);
+      assert.equal(isCountermodel(goal, result.structure), true, text);
+      assert.deepEqual(completed, { status: "invalid", structure: result.structure });
+    } else if (!result.ok) {
+      assert.deepEqual(result, UNDECIDED, text);
+      assert.deepEqual(completed, { status: "unknown", error: UNDECIDED.error });
+    } else {
+      assert.equal(result.provable, true, text);
+    }
   }
 });
 
+test("um sequente sem contramodelo pequeno, que esgota o orçamento, fica por decidir", () => {
+  const goal = goalOf(EXHAUSTING);
+  assert.equal(findCountermodel(goal).steps > COUNTERMODEL_LIMITS.budget, true);
+  assert.deepEqual(solve(goal, { rules: ruleSet("completo") }), UNDECIDED);
+});
+
 // Desde a E2, as dicas têm estratégias de 1.ª ordem (testadas em hints.test.js): dão um passo ou dizem
-// que não o encontraram, mas nunca que o sequente é inválido ou que não tem prova.
-test("as dicas de 1.ª ordem dão um passo ou não encontram nenhum, sem tabela de verdade", () => {
+// que não o encontraram. Desde a M2, um sequente com contramodelo finito é inválido.
+test("as dicas de 1.ª ordem dão o contramodelo, um passo, ou não encontram nenhum", () => {
   const rules = ruleSet("completo");
   for (const text of FIRST_ORDER_SEQUENTS) {
     const goal = goalOf(text);
     const result = hint(createEditor(goal).proof, goal, { rules, known: RULES });
-    const valid = text !== "p ⊢ p ∧ R(f(c))";
-    if (valid) assert.equal(result.status, "step", text);
-    else assert.deepEqual(result, { status: "unknown", error: { code: "searchExhausted", params: {} } }, text);
+    if (text !== INVALID_FIRST_ORDER) assert.equal(result.status, "step", text);
+    else {
+      assert.equal(result.status, "invalid", text);
+      assert.equal(isCountermodel(goal, result.structure), true, text);
+    }
   }
 });
 
@@ -100,43 +129,118 @@ test("uma prova de 1.ª ordem escrita à mão com regras proposicionais é verif
   assert.equal(verifyProof(read.proof, goal, ruleSet("completo")).ok, true);
 });
 
-test("o painel de ajuda mostra a 1.ª ordem como ainda não suportada, em PT e em EN", () => {
-  const goal = goalOf(FIRST_ORDER_SEQUENTS[0]);
-  assert.equal(assistSupports(goal), false);
-  assert.equal(assistSupports(goalOf("p ⊢ p")), true);
-  assert.equal(idlePanel(goal), FIRST_ORDER);
-  assert.equal(idlePanel(goalOf("p ⊢ p")), IDLE);
-  assert.equal(idlePanel(null), IDLE);
-  assert.equal(panelFromResult({ status: "unknown", error: NOT_PROPOSITIONAL.error }, goal), FIRST_ORDER);
-  assert.equal(errorKey(NOT_PROPOSITIONAL.error), "semantics.errors.notPropositional");
+const STRUCTURE = {
+  size: 3,
+  constants: [{ name: "a1", value: 0 }],
+  functions: [{ name: "f", arity: 1, table: [{ args: [0], value: 1 }, { args: [1], value: 2 }, { args: [2], value: 0 }] }],
+  predicates: [
+    { name: "p", arity: 0, extension: [[]] },
+    { name: "P", arity: 1, extension: [] },
+    { name: "R", arity: 2, extension: [[0, 1], [2, 2]] },
+  ],
+};
+
+test("o painel de ajuda mostra a estrutura do contramodelo, em PT e em EN", () => {
+  const goal = goalOf(INVALID_FIRST_ORDER);
+  const panel = panelFromResult({ status: "invalid", structure: STRUCTURE }, goal);
+  assert.deepEqual(panel, { view: "invalid", structure: STRUCTURE, hasPremises: true });
+  const noPremises = panelFromResult({ status: "invalid", structure: STRUCTURE }, goalOf("⊢ ∀x P(x)"));
+  assert.equal(noPremises.hasPremises, false);
   const texts = {};
   for (const lang of ["pt", "en"]) {
     setLang(lang, { silent: true });
     try {
-      const html = assistBodyHtml(FIRST_ORDER);
-      assert.doesNotMatch(html, /assist\.firstOrder/);
+      const html = assistBodyHtml(panel);
+      assert.doesNotMatch(html + assistBodyHtml(noPremises), /assist\.|undefined/);
+      for (const part of ["D = {1, 2, 3}", "a₁ = 1", "f(1) = 2", "f(3) = 1", "P = ∅", "R = {(1, 2), (3, 3)}"]) {
+        assert.ok(html.includes(part), lang + ": " + part);
+      }
+      assert.ok(html.includes("p = " + t("assist.values.true")), lang);
+      assert.ok(html.includes(t("assist.structure.label")), lang);
+      assert.notEqual(assistBodyHtml(noPremises), html);
       texts[lang] = html;
-      assert.doesNotMatch(t("semantics.errors.notPropositional"), /\.errors\./);
     } finally {
       setLang("pt", { silent: true });
     }
   }
   assert.notEqual(texts.pt, texts.en);
+  assert.match(texts.pt, /Contramodelo/);
+  assert.match(texts.en, /Countermodel/);
 });
 
-test("o painel de 1.ª ordem não chama o Worker e volta ao estado inicial com reset", () => {
+test("uma estrutura sem constantes nem funções só mostra o domínio e os predicados", () => {
+  const html = structureHtml({ size: 1, constants: [], functions: [], predicates: [{ name: "P", arity: 1, extension: [[0]] }] });
+  assert.ok(html.includes("D = {1}"));
+  assert.ok(html.includes("P = {1}"));
+  assert.doesNotMatch(html, new RegExp(t("assist.structure.constants") + "|" + t("assist.structure.functions")));
+});
+
+test("«não encontrei prova nem contramodelo» diz o limite e não decide, em PT e em EN", () => {
+  assert.equal(errorKey(UNDECIDED.error), "solver.errors.undecided");
+  const texts = {};
+  for (const lang of ["pt", "en"]) {
+    setLang(lang, { silent: true });
+    try {
+      const html = assistBodyHtml(panelFromResult({ status: "unknown", error: UNDECIDED.error }, goalOf(EXHAUSTING)));
+      assert.ok(html.includes(String(COUNTERMODEL_LIMITS.maxSize)), lang);
+      assert.doesNotMatch(html, /\{maxSize\}|solver\.errors/);
+      texts[lang] = html;
+    } finally {
+      setLang("pt", { silent: true });
+    }
+  }
+  assert.match(texts.pt, /Não encontrei prova nem contramodelo/);
+  assert.match(texts.en, /neither a proof nor a countermodel/);
+});
+
+test("o painel de 1.ª ordem chama o Worker e mostra o resultado; reset volta ao estado inicial", async () => {
   const goal = goalOf("P(a) ⊢ ∃x P(x)");
   const calls = [];
-  const worker = { hint: () => calls.push("hint"), complete: () => calls.push("complete") };
-  const views = [];
+  const answer = (type) => {
+    calls.push(type);
+    return { promise: Promise.resolve({ status: "invalid", structure: STRUCTURE }), cancel() {} };
+  };
+  const worker = { hint: () => answer("hint"), complete: () => answer("complete") };
   const source = { getProof: () => createEditor(goal).proof, getGoal: () => goal, getRules: () => ({}), useProof() {} };
-  const assist = createAssist({ source, worker, onChange: ({ view }) => views.push(view) });
+  const assist = createAssist({ source, worker, onChange() {} });
   assist.reset();
-  assert.equal(assist.getPanel(), FIRST_ORDER);
-  assist.askHint();
+  assert.equal(assist.getPanel(), IDLE);
   assist.askSolution();
-  assert.deepEqual(calls, []);
-  assert.equal(assist.getPanel().view, "firstOrder");
+  assert.deepEqual(assist.getPanel(), { view: "searching", task: "solve" });
+  await Promise.resolve();
+  assert.deepEqual(assist.getPanel(), { view: "invalid", structure: STRUCTURE, hasPremises: true });
+  assist.askHint();
+  assert.deepEqual(calls, ["complete", "hint"]);
+  assist.reset();
+  assert.equal(assist.getPanel(), IDLE);
+});
+
+test("o Passo a passo mostra a estrutura ou a mensagem sem veredicto", () => {
+  const goal = goalOf("∃x P(x) ⊢ ∀x P(x)");
+  const invalid = solve(goal, { rules: ruleSet("completo") });
+  const html = outcomeHtml(invalid, goal);
+  assert.ok(html.includes(t("player.invalid")));
+  assert.ok(html.includes(t("player.countermodel")));
+  assert.ok(html.includes("assist__structure"));
+  assert.ok(html.includes("D = {1, 2}"));
+  assert.ok(outcomeHtml(solve(goalOf("⊢ ∀x P(x)")), goalOf("⊢ ∀x P(x)")).includes(t("player.countermodelNoPremises")));
+  assert.deepEqual(solveOutcome(UNDECIDED), { kind: "warn", key: "solver.errors.undecided", params: UNDECIDED.error.params });
+  assert.match(outcomeHtml(UNDECIDED, goalOf(EXHAUSTING)), /Não encontrei prova nem contramodelo/);
+});
+
+test("o Worker leva a estrutura e o undecided sem mudar o contrato", () => {
+  const rules = ruleSet("completo");
+  const goal = goalOf("∀x∃y R(x, y) ⊢ ∃y∀x R(x, y)");
+  const solved = structuredClone(runSolverTask({ type: "solve", goal, options: { rules } }));
+  assert.equal(solved.valid, false);
+  assert.equal(isCountermodel(goal, solved.structure), true);
+  const proof = createEditor(goal).proof;
+  for (const type of ["hint", "complete"]) {
+    const result = structuredClone(runSolverTask({ type, goal, proof, options: { rules, known: RULES } }));
+    assert.deepEqual(result, { status: "invalid", structure: solved.structure }, type);
+  }
+  const undecided = structuredClone(runSolverTask({ type: "solve", goal: goalOf(EXHAUSTING), options: { rules } }));
+  assert.deepEqual(undecided, UNDECIDED);
 });
 
 test("as regras do utilizador recusam esquemas com quantificadores, termos ou =", () => {

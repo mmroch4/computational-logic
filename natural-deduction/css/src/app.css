@@ -3723,6 +3723,25 @@
     overflow-wrap: anywhere;
   }
 
+  /* Contramodelo de 1.ª ordem: uma linha por parte da estrutura, com os valores em fichas. */
+  .assist__structure {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .assist__structure dt {
+    margin-bottom: 4px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .assist__structure dd {
+    margin: 0;
+  }
+
   .assist__body .fitch {
     width: 100%;
   }

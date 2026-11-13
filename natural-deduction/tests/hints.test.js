@@ -10,6 +10,7 @@ import { parseFormula } from "../js/core/parser.js";
 import { RULES, ruleSet } from "../js/core/rules.js";
 import { parseSequent, sequent } from "../js/core/sequent.js";
 import { solve } from "../js/core/solver.js";
+import { isCountermodel } from "../js/core/structures.js";
 import { verifyLine, verifyProof } from "../js/core/verify.js";
 import pt from "../js/ui/locales/pt.js";
 import en from "../js/ui/locales/en.js";
@@ -521,10 +522,15 @@ test("1.ª ordem: a dica respeita a linha já escrita e entra na caixa que acaba
   assert.equal(current.lines[6].rule, "∃E");
 });
 
-test("1.ª ordem: sem passo conhecido, a dica diz que não encontrou, e não que o sequente é inválido", () => {
+// Desde a M2, «inválido» só sai com um contramodelo finito, reavaliado; sem ele nem passo, a dica diz
+// que não encontrou. O segundo sequente só tem modelos infinitos e esgota o orçamento dos contramodelos.
+test("1.ª ordem: sem passo conhecido, a dica diz que não encontrou; inválido só com contramodelo", () => {
   const goal = goalOf("P(a) ⊢ ∀x P(x)");
-  const proof = applyHint(premisesOf(goal), hint(premisesOf(goal), goal).step).proof;
-  assert.deepEqual(hint(proof, goal), { status: "unknown", error: { code: "searchExhausted", params: {} } });
+  const invalid = hint(premisesOf(goal), goal);
+  assert.equal(invalid.status, "invalid");
+  assert.equal(isCountermodel(goal, invalid.structure), true);
+  const infinite = goalOf("∀x ¬R(x, x), ∀x∀y∀z(R(x, y) ∧ R(y, z) → R(x, z)), ∀x∃y R(x, y), S(a, b) ⊢ F");
+  assert.deepEqual(hint(premisesOf(infinite), infinite), { status: "unknown", error: { code: "searchExhausted", params: {} } });
   const finishedGoal = goalOf("∀x P(x) ⊢ P(a)");
   assert.deepEqual(hint(proofOf("1 | ∀x P(x)   premissa\n2 | P(a)   ∀E, 1"), finishedGoal), { status: "done" });
   const broken = hint(proofOf("1 | ∀x P(x)   premissa\n2 | P(a)   ∃I, 1\n3 | ?"), finishedGoal);
