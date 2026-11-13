@@ -147,7 +147,7 @@ Fixa N e o orçamento pelos testes de desempenho (`tests/performance/`).
   dentro do orçamento;
 - o `npm test` passa.
 
-### [ ] M2 · Vista do contramodelo
+### [x] M2 · Vista do contramodelo
 No Provar e no Passo a passo:
 - a estrutura (domínio, constantes, funções e extensões) em vez da valoração, em PT e EN;
 - a mensagem «não encontrei prova nem contramodelo»;
