@@ -75,7 +75,9 @@ test("o texto livre de uma regra não mexe no documento", () => {
 
 const KNOWN_COMMANDS = ["documentclass", "usepackage", "newcommand", "fitchbar", "rule", "normalbaselineskip", "hspace",
   "renewcommand", "arraystretch", "begin", "end", "section", "bigskip", "quad", "qquad", "noindent", "vfill", "footnotesize", "lnot", "land",
-  "lor", "to", "vdash", "underline", "mathrm", "mathit", "_"];
+  "lor", "to", "vdash", "underline", "mathrm", "mathit", "_",
+  // 1.ª ordem: os exemplos do menu já têm quantificadores e caixas [v].
+  "forall", "exists", "boxed"];
 
 test("todas as chavetas fecham, e só se usam comandos conhecidos", () => {
   const known = new Set(KNOWN_COMMANDS);

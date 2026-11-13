@@ -234,6 +234,7 @@ export default {
       direct: "No subproof",
       subproofs: "With a subproof",
       classical: "No premises",
+      firstOrder: "First-order",
       invalid: "Invalid sequent",
     },
     items: {
@@ -244,7 +245,13 @@ export default {
       contrapositive: "Contrapositive",
       peirce: "Peirce's law",
       excludedMiddle: "Excluded middle",
+      forallBox: "The ∀I box",
+      existsBox: "The ∃E box",
+      swapQuantifiers: "Swapping ∃ and ∀",
+      negateExists: "Negating a ∃",
+      symmetry: "Symmetry of equality",
       converse: "Affirming the consequent",
+      someToAll: "From ∃ to ∀",
     },
   },
   share: {
@@ -323,6 +330,15 @@ export default {
     treeStart: "The tree appears at the first step: it shows where that step's line comes from.",
     treeHint: "The tree of this step's line. Select a formula to see where it came from, or press it to go to the step that wrote it. Lines with R do not appear, because they only repeat a formula.",
     views: { label: "Proof view", fitch: "Fitch", tree: "Tree" },
+    firstOrder: {
+      labelBox: "The ∀I box opens on a line with only [{variable}], because the first line inside it is a hypothesis, which opens another box.",
+      forallBox: "The [{variable}] opens the ∀I box: {variable} is a new variable, which does not appear on any accessible line before the box.",
+      existsBox: "The [{variable}] opens the ∃E box: {variable} is a new variable that names the object that exists, and it cannot leave the box.",
+      instantiate: "Instantiation: drop the ∀ from {formula} and {variable} becomes the term {term}.",
+      witness: "The term {term} is the witness: the ∃ puts {variable} in its place.",
+      closeForall: "The box closes and {variable} gives way to the {bound} of the ∀: {variable} is no longer free in the conclusion.",
+      closeExists: "The box closes: the conclusion does not mention {variable}, so it can leave the box.",
+    },
     keys: {
       label: "Keyboard shortcuts",
       step: "Previous or next step",

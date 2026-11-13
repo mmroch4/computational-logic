@@ -194,3 +194,11 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   MAX_STEPS gastos mede ~900 ms. As dicas de 1.ª ordem continuam as heurísticas da E2.
 - check-page com sequente: URL entre aspas duplas e com `(`, `)`, `|`, `>` codificados (`%28`, `%29`,
   `%7C`, `%3E`); com `(` cru ou `FULL_PAGE=1` junto, a chamada pediu aprovação.
+
+## M4
+
+- Passo a passo: `stepNotes(proof, event)` (proof-trace.js) dá `{ key, params }` de `player.firstOrder.*` (caixa do
+  ∀I/∃E, linha de etiqueta, termo do ∀E/∃I, caixa a fechar); o cartão põe-nas em `p.step-card__why[data-note]`,
+  depois da estratégia. Os `solver.strategies.*` ficam sem parâmetros, porque as dicas os usam com `{}`.
+- Menu de exemplos: grupo `firstOrder` (só válidos) e `someToAll` no `invalid`, que mostra contramodelo
+  (`structure`). A demo da página inicial continua proposicional. O `latex.test.js` aceita `forall`, `exists`, `boxed`.

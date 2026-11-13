@@ -235,6 +235,7 @@ export default {
       direct: "Sem subdedução",
       subproofs: "Com subdedução",
       classical: "Sem premissas",
+      firstOrder: "1.ª ordem",
       invalid: "Sequente inválido",
     },
     items: {
@@ -245,7 +246,13 @@ export default {
       contrapositive: "Contrarrecíproca",
       peirce: "Lei de Peirce",
       excludedMiddle: "Terceiro excluído",
+      forallBox: "Caixa do ∀I",
+      existsBox: "Caixa do ∃E",
+      swapQuantifiers: "Trocar ∃ e ∀",
+      negateExists: "Negar um ∃",
+      symmetry: "Simetria da igualdade",
       converse: "Afirmar o consequente",
+      someToAll: "Do ∃ ao ∀",
     },
   },
   share: {
@@ -324,6 +331,15 @@ export default {
     treeStart: "A árvore aparece no primeiro passo: mostra de onde vem a linha desse passo.",
     treeHint: "A árvore da linha deste passo. Seleciona uma fórmula para ver de onde veio, ou carrega nela para ir ao passo que a escreveu. As linhas com R não aparecem, porque só repetem uma fórmula.",
     views: { label: "Vista da prova", fitch: "Fitch", tree: "Árvore" },
+    firstOrder: {
+      labelBox: "A caixa do ∀I abre numa linha só com [{variable}], porque a primeira linha dentro dela é uma hipótese, que abre outra caixa.",
+      forallBox: "O [{variable}] abre a caixa do ∀I: {variable} é uma variável nova, que não aparece em nenhuma linha acessível antes da caixa.",
+      existsBox: "O [{variable}] abre a caixa do ∃E: {variable} é uma variável nova que dá nome ao objeto que existe, e não pode sair da caixa.",
+      instantiate: "Instanciação: tira-se o ∀ de {formula} e o {variable} passa a ser o termo {term}.",
+      witness: "O termo {term} é a testemunha: o ∃ põe {variable} no lugar dele.",
+      closeForall: "A caixa fecha e {variable} dá lugar ao {bound} do ∀: {variable} já não está livre na conclusão.",
+      closeExists: "A caixa fecha: a conclusão não fala de {variable}, por isso pode sair da caixa.",
+    },
     keys: {
       label: "Atalhos de teclado",
       step: "Passo anterior ou seguinte",

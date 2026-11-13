@@ -25,9 +25,20 @@ export const EXAMPLE_GROUPS = Object.freeze([
     ],
   },
   {
+    id: "firstOrder",
+    examples: [
+      { id: "forallBox", sequent: "∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)" },
+      { id: "existsBox", sequent: "∀x(P(x) → Q(x)), ∃x P(x) ⊢ ∃x Q(x)" },
+      { id: "swapQuantifiers", sequent: "∃x∀y R(x, y) ⊢ ∀y∃x R(x, y)" },
+      { id: "negateExists", sequent: "¬∃x P(x) ⊢ ∀x ¬P(x)" },
+      { id: "symmetry", sequent: "a = b ⊢ b = a" },
+    ],
+  },
+  {
     id: "invalid",
     examples: [
       { id: "converse", sequent: "a → b, b ⊢ a" },
+      { id: "someToAll", sequent: "∃x P(x) ⊢ ∀x P(x)" },
     ],
   },
 ]);

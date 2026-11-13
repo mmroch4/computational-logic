@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { format } from "../js/core/formula.js";
-import { clampStep, proofAt, proofTrace, stepOfLine } from "../js/core/proof-trace.js";
+import { clampStep, proofAt, proofTrace, stepNotes, stepOfLine } from "../js/core/proof-trace.js";
 import { STRATEGY_CODES } from "../js/core/derivation.js";
 import { parseSequent } from "../js/core/sequent.js";
 import { ruleSet } from "../js/core/rules.js";
@@ -213,6 +213,72 @@ test("o cartão diz a linha e a estratégia, e só o último passo diz que acabo
   assert.match(stepCardHtml(proof, trace, 0), /só com as premissas/);
   setLang("en");
   assert.ok(stepCardHtml(proof, trace, 1).includes(`Line ${event.line}`));
+  setLang("pt");
+});
+
+// As notas de 1.ª ordem, por linha da prova gerada: [chave, parâmetros formatados].
+const notesByLine = (text) => {
+  const { proof: generated } = solve(goalOf(text));
+  const steps = proofTrace(generated);
+  return Object.fromEntries(steps.slice(1).map((event) => [event.line, stepNotes(generated, event).map(({ key, params }) => [
+    key, Object.fromEntries(Object.entries(params).map(([name, value]) => [name, typeof value === "string" ? value : format(value)])),
+  ])]));
+};
+
+test("notas de 1.ª ordem: caixa do ∀I, instanciação e a variável que dá lugar ao x", () => {
+  const notes = notesByLine("∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)");
+  assert.deepEqual(notes[3], [["forallBox", { variable: "u" }], ["instantiate", { variable: "x", term: "u", formula: "∀x P(x)" }]]);
+  assert.deepEqual(notes[4], [["instantiate", { variable: "x", term: "u", formula: "∀x(P(x) → Q(x))" }]]);
+  assert.deepEqual(notes[5], []);
+  assert.deepEqual(notes[6], [["closeForall", { variable: "u", bound: "x" }]]);
+});
+
+test("notas de 1.ª ordem: caixa do ∃E, testemunha e caixa a fechar", () => {
+  const notes = notesByLine("∀x(P(x) → Q(x)), ∃x P(x) ⊢ ∃x Q(x)");
+  assert.deepEqual(notes[3], [["existsBox", { variable: "u" }]]);
+  assert.deepEqual(notes[6], [["witness", { variable: "x", term: "u" }]]);
+  assert.deepEqual(notes[7], [["closeExists", { variable: "u" }]]);
+});
+
+test("notas de 1.ª ordem: a linha de etiqueta, e um termo com função", () => {
+  const notes = notesByLine("¬∃x P(x) ⊢ ∀x ¬P(x)");
+  assert.deepEqual(notes[2], [["labelBox", { variable: "u" }]]);
+  assert.deepEqual(notes[6], [["closeForall", { variable: "u", bound: "x" }]]);
+  const general = parseSequent("∀x P(x) ⊢ P(f(a))").sequent.premises[0];
+  const proofWithFunction = { lines: [
+    { kind: "premise", depth: 0, formula: general },
+    { kind: "step", depth: 0, formula: parseSequent("⊢ P(f(a))").sequent.conclusion, rule: "∀E", citations: [{ kind: "line", line: 1 }] },
+  ] };
+  const [note] = stepNotes(proofWithFunction, { type: "conclude", line: 2 });
+  assert.equal(format(note.params.term), "f(a)");
+});
+
+test("notas de 1.ª ordem: um ∀E vácuo e as provas proposicionais não têm notas", () => {
+  const vacuous = { lines: [
+    { kind: "premise", depth: 0, formula: parseSequent("∀x p ⊢ p").sequent.premises[0] },
+    { kind: "step", depth: 0, formula: parseSequent("⊢ p").sequent.conclusion, rule: "∀E", citations: [{ kind: "line", line: 1 }] },
+  ] };
+  assert.deepEqual(stepNotes(vacuous, { type: "conclude", line: 2 }), []);
+  for (const event of trace) assert.deepEqual(stepNotes(proof, event), []);
+});
+
+test("o cartão e o anúncio de 1.ª ordem trazem as notas nas duas línguas, sem chaves por traduzir", () => {
+  const { proof: generated } = solve(goalOf("∃x∀y R(x, y) ⊢ ∀y∃x R(x, y)"));
+  const steps = proofTrace(generated);
+  for (const lang of ["pt", "en"]) {
+    setLang(lang);
+    for (let index = 1; index < steps.length; index += 1) {
+      const card = stepCardHtml(generated, steps, index);
+      assert.doesNotMatch(card, /player\.|\{\w+\}/, lang + " " + index);
+      assert.equal((card.match(/data-note/g) ?? []).length, stepNotes(generated, steps[index]).length);
+      assert.doesNotMatch(stepAnnouncement(generated, steps, index), /\.\./);
+    }
+  }
+  setLang("pt");
+  assert.match(stepCardHtml(generated, steps, 2), /\[v\] abre a caixa do ∀I/);
+  assert.match(stepCardHtml(generated, steps, 1), /\[u\] abre a caixa do ∃E/);
+  setLang("en");
+  assert.match(stepCardHtml(generated, steps, 2), /the term v/);
   setLang("pt");
 });
 
