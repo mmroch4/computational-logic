@@ -178,3 +178,19 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   ∀x∀y∀z(R(x, y) ∧ R(y, z) → R(x, z)), ∀x∃y R(x, y), S(a, b) ⊢ F`. Sem o `S(a, b)` só esgota o domínio.
 - check-page do Provar: `CLICK='[data-assist="solve"]'` chega (o resultado sai antes da screenshot). Um
   `FULL_PAGE=1 CLICK=… EVAL=…` com três variáveis pediu aprovação; com duas passou.
+
+## M3
+
+- Procura de 1.ª ordem em `js/core/first-order-search.js` (`searchFirstOrder`), que é o `prove` do
+  `firstOrderVerdict` no `solve`: aprofundamento iterativo, sem tabela de verdade, só regras base ativas.
+  O caminho proposicional não lhe toca (snapshots iguais). O fim do `attempt` passou a `verifiedProof`.
+- `derivation.js`: `subderivation(…, fresh)`; `boxVariable(v)` faz de hipótese do ∀I; `uses` num nó
+  (caixas das variáveis da fórmula) conta nas dependências, para o `tidy`/`share` nunca tirarem uma
+  linha com v da caixa. 1.ª linha da caixa: `[v]` + `openForallBox` num passo, `label` numa hipótese;
+  caixa do ∀I logo a abrir outra: R do último facto acessível (ou =I) com `separateBoxes`.
+- Variáveis novas: u, v, w, s, r, fora do sequente e das caixas abertas (caixas irmãs repetem o nome).
+  Sem termos no sequente, o ∀E/∃I usa a constante `a`. Lista fixa em `tests/fixtures/first-order-sequents.js`.
+- Cada válido custa ~150 ms, quase tudo no contramodelo que esgota antes da prova; `undecided` com os
+  MAX_STEPS gastos mede ~900 ms. As dicas de 1.ª ordem continuam as heurísticas da E2.
+- check-page com sequente: URL entre aspas duplas e com `(`, `)`, `|`, `>` codificados (`%28`, `%29`,
+  `%7C`, `%3E`); com `(` cru ou `FULL_PAGE=1` junto, a chamada pediu aprovação.

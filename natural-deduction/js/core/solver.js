@@ -11,7 +11,10 @@
 // todas as regras ativas são corretas e o sequente falha. Um erro nunca diz nada sobre haver prova.
 // As mensagens estão em `solver.noProof` e `solver.errors.*`; `tooManyVariables` vem da semântica.
 // Um sequente de 1.ª ordem não tem tabela de verdade: `firstOrderVerdict` procura um contramodelo finito
-// e, sem ele nem prova, dá `undecided` («não encontrei prova nem contramodelo»).
+// e depois uma prova, com a procura de `first-order-search.js` (só as regras base, as que estiverem
+// ativas); sem nenhum dos dois, dá `undecided` («não encontrei prova nem contramodelo»). A prova passa
+// pela mesma arrumação, escrita e verificação que a proposicional. Um sequente proposicional nunca
+// chega lá.
 //
 // A tabela de verdade decide a validade e depois guia a procura: só se tenta provar o que as fórmulas
 // conhecidas implicam. Cada fórmula guarda as linhas da tabela em que é verdadeira, num BigInt, por
@@ -27,6 +30,7 @@
 // só entram numa segunda procura, se a primeira falhar: nela, tudo o que derem é um facto de partida.
 
 import { countermodel } from "./countermodel.js";
+import { searchFirstOrder } from "./first-order-search.js";
 import { assumption, node, subderivation, tidy, writeProof } from "./derivation.js";
 import { atom, equals, FALSUM, format, not, or } from "./formula.js";
 import { RULES, isFirstOrderRule } from "./rules.js";
@@ -405,8 +409,12 @@ function attempt(goal, maxSteps, rules, extraRules) {
     throw error;
   }
   if (!found.derivation) return failure("searchExhausted");
+  return verifiedProof(found.derivation, found.premises, goal, rules, found.stepsUsed());
+}
 
-  const { derivation, premises } = found;
+/** A versão escrita mais curta da derivação que passa no verificador. */
+function verifiedProof(derivation, premises, goal, rules, steps) {
+  const failure = (code, params = {}) => ({ ok: false, error: { code, params } });
   const tidied = tidy(derivation);
   const drafts = [
     writeProof(tidied, premises),
@@ -420,19 +428,32 @@ function attempt(goal, maxSteps, rules, extraRules) {
   if (usable.length === 0) return failure("searchExhausted");
   const proof = usable.find((draft) => verifyProof(draft, goal, rules).ok);
   if (!proof) return failure("unverifiedProof");
-  return { ok: true, valid: true, provable: true, proof, steps: found.stepsUsed() };
+  return { ok: true, valid: true, provable: true, proof, steps };
 }
 
-/** Um sequente de 1.ª ordem: o contramodelo ou, sem ele, `undecided`. A M3 liga aqui a procura de provas. */
-function solveFirstOrder(goal) {
-  const verdict = firstOrderVerdict(goal);
+/**
+ * Um sequente de 1.ª ordem: primeiro o contramodelo, depois a procura de `first-order-search.js`. Sem
+ * nenhum dos dois, `undecided`; uma prova que o verificador recusa dá `unverifiedProof`.
+ */
+function solveFirstOrder(goal, rules, maxSteps) {
+  let failure = null;
+  const prove = () => {
+    const found = searchFirstOrder(goal, { rules, maxSteps });
+    if (found.status !== "found") return null;
+    const result = verifiedProof(found.derivation, found.premises, goal, rules, found.steps);
+    if (!result.ok) failure = result;
+    return result.ok ? result : null;
+  };
+  const verdict = firstOrderVerdict(goal, { prove });
   if (verdict.status === "invalid") return { ok: true, valid: false, structure: verdict.structure };
+  if (verdict.status === "valid") return verdict.proof;
+  if (failure?.error.code === "unverifiedProof") return failure;
   return { ok: false, error: { code: "undecided", params: { maxSize: COUNTERMODEL_LIMITS.maxSize } } };
 }
 
 /** Decide `goal` e, se for válido, procura uma prova, que passa pelo verificador antes de sair. */
 export function solve(goal, { rules = RULES, maxSteps = MAX_STEPS } = {}) {
-  if (!isPropositionalSequent(goal)) return solveFirstOrder(goal);
+  if (!isPropositionalSequent(goal)) return solveFirstOrder(goal, rules, maxSteps);
   const decided = checkSequent(goal);
   if (!decided.ok) return decided;
   if (!decided.valid) return { ok: true, valid: false, counterexample: decided.counterexample };

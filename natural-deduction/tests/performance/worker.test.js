@@ -44,6 +44,16 @@ test("resolve um sequente fácil e uma dica, e reutiliza o Worker", async () => 
   worker.dispose();
 });
 
+test("uma prova de 1.ª ordem atravessa o Worker com as caixas [v]", async () => {
+  const worker = createSolverWorker({ start: startNodeThread });
+  const goal = goalOf("∀x(P(x) → Q(x)), ∃x P(x) ⊢ ∃x Q(x)");
+  const solved = await worker.solve(goal, { rules: ruleSet("completo") }).promise;
+  assert.ok(solved.provable);
+  assert.ok(solved.proof.lines.some(({ fresh }) => fresh === "u"));
+  assert.ok(verifyProof(solved.proof, goal, ruleSet("completo")).ok);
+  worker.dispose();
+});
+
 test("cancelar para uma procura sem fim, sem prender a página, e o Worker seguinte funciona", async () => {
   const worker = createSolverWorker({ start: startNodeThread });
   const { value: outcome, pause } = await largestPause(async () => {

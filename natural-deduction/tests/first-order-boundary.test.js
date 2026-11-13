@@ -76,7 +76,7 @@ test("a semântica responde notPropositional em vez de lançar", () => {
 });
 
 // Desde a M2, o solver, a solução e as dicas procuram um contramodelo finito (structures.js). Sem ele, o
-// solver dá `undecided` (até a M3 dar provas) e as dicas seguem as heurísticas da E2.
+// solver procura uma prova (M3) e, sem nenhum dos dois, dá `undecided`; as dicas seguem as heurísticas da E2.
 const INVALID_FIRST_ORDER = "p ⊢ p ∧ R(f(c))";
 const UNDECIDED = { ok: false, error: { code: "undecided", params: { maxSize: COUNTERMODEL_LIMITS.maxSize } } };
 
@@ -92,11 +92,12 @@ test("o solver e a solução dão o contramodelo ou, sem ele, nunca dizem que n�
       assert.equal(result.ok && result.valid, false, text);
       assert.equal(isCountermodel(goal, result.structure), true, text);
       assert.deepEqual(completed, { status: "invalid", structure: result.structure });
-    } else if (!result.ok) {
-      assert.deepEqual(result, UNDECIDED, text);
-      assert.deepEqual(completed, { status: "unknown", error: UNDECIDED.error });
     } else {
+      // Desde a M3, os válidos daqui têm prova, e a solução a partir do zero é a do solver.
       assert.equal(result.provable, true, text);
+      assert.equal(verifyProof(result.proof, goal, rules).ok, true, text);
+      assert.equal(completed.status, "solved", text);
+      assert.equal(verifyProof(completed.proof, goal, rules, RULES).ok, true, text);
     }
   }
 });
