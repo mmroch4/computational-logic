@@ -134,7 +134,7 @@ Abres o Provar localmente (`node scripts/serve.mjs 8765`), em telemóvel e deskt
 
 ## Bloco M — Semântica e solver
 
-### [ ] M1 · Contramodelos finitos
+### [x] M1 · Contramodelos finitos
 Novo módulo do core:
 - avaliação numa estrutura finita;
 - procura de contramodelos com domínio de 1 a N e orçamento;
