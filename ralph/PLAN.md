@@ -156,7 +156,7 @@ No Provar e no Passo a passo:
 **Feito quando:** o `scripts/check-page.sh` passa com um sequente inválido de 1.ª ordem, e com um que
 esgota o orçamento, nas duas páginas e a 390px. O `npm test` passa.
 
-### [ ] M3 · Solver de 1.ª ordem
+### [x] M3 · Solver de 1.ª ordem
 Estende o `solver.js` e o `derivation.js` com a procura de `FOL-PLAN.md`. O caminho proposicional fica
 igual. As provas saem verificadas e legíveis, com estratégias novas em `solver.strategies.*`.
 **Feito quando:**
