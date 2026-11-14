@@ -173,7 +173,7 @@ igual. As provas saem verificadas e legíveis, com estratégias novas em `solver
 **Feito quando:** o `scripts/check-step.sh` passa com um exemplo de 1.ª ordem nas duas línguas e o
 `npm test` passa.
 
-### [ ] PAUSA-4 · Rever o solver
+### [x] PAUSA-4 · Rever o solver
 Experimentas sequentes teus no Provar e no Passo a passo. Confirmas os limites e as mensagens.
 
 ## Bloco C — Conteúdo
