@@ -185,7 +185,7 @@ em PT e EN.
 **Feito quando:** os testes da lição (`lesson`, `pages`, `english`) e o `scripts/check-page.sh /aprender`
 passam. Toda a prova da lição passa no verificador.
 
-### [ ] C2 · Lição: igualdade, equivalências e quiz
+### [x] C2 · Lição: igualdade, equivalências e quiz
 Secções de igualdade e de equivalências e estratégias (as derivadas novas, com a prova). Perguntas de
 1.ª ordem no quiz. O índice da lição e os hashes das secções existentes não mudam.
 **Feito quando:** os testes da lição e do quiz, e o `scripts/check-page.sh /aprender`, passam.
