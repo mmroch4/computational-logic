@@ -190,7 +190,7 @@ Secções de igualdade e de equivalências e estratégias (as derivadas novas, c
 1.ª ordem no quiz. O índice da lição e os hashes das secções existentes não mudam.
 **Feito quando:** os testes da lição e do quiz, e o `scripts/check-page.sh /aprender`, passam.
 
-### [ ] C3 · Exercícios de prova
+### [x] C3 · Exercícios de prova
 Cerca de 25 exercícios novos em níveis novos, com ids `ex-…` estáveis, conjunto de regras, solução
 guardada e dicas PT/EN. Os ids existentes não mudam, nem o progresso guardado.
 **Feito quando:** o `validateExercises` não dá problemas, todas as soluções passam no verificador com o
