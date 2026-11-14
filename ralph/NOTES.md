@@ -237,3 +237,8 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
 - 5 desafios de 1.ª ordem no fim do catálogo (níveis 6, 7 e 9), com 5 explicações novas em `REASONS`
   (duas com `variableEscapes`: ∀I e ∃E). O `notFresh` da caixa repetida aponta o ∃E que a fecha, não a
   hipótese. Sem solução, um sequente de 1.ª ordem precisa de contramodelo do `findCountermodel`.
+
+## P1
+
+- Descrições SEO entre 120 e 160 caracteres (`meta.test.js`). O eyebrow da imagem de partilha perdeu «Notação de
+  Fitch»: com «e de 1.ª ordem» partia em duas linhas. Verifica o PNG depois de mudar o modelo.

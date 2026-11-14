@@ -2,28 +2,28 @@
 export default {
   meta: {
     langName: "English",
-    ogImageAlt: "Learn Natural Deduction: Fitch-style proofs, checked line by line.",
+    ogImageAlt: "Learn Natural Deduction: Fitch-style proofs in propositional and first-order logic, checked line by line.",
     home: {
       title: "Learn natural deduction",
-      description: "Learn to write natural deduction proofs in Fitch notation, with every line checked, strategy hints and step-by-step solutions.",
+      description: "Learn natural deduction proofs in Fitch notation, for propositional and first-order logic, with every line checked, hints and step-by-step solutions.",
     },
     prove: {
       title: "Natural deduction proof checker",
-      description: "Enter a sequent and build the proof in Fitch notation: every line is checked, with hints, automatic solutions and counterexamples.",
+      description: "Enter a sequent, with or without quantifiers, and build the proof in Fitch notation: every line is checked, with hints, automatic solutions and counterexamples.",
     },
     step: {
       title: "Natural deduction step by step",
-      description: "Follow a natural deduction proof step by step, in Fitch notation, with the strategy that explains each line up to the conclusion.",
+      description: "Follow a natural deduction proof step by step, propositional or first-order, in Fitch notation, with the strategy that explains each line.",
     },
     learn: {
       title: "Natural deduction explained",
-      description: "An interactive natural deduction lesson: introduction and elimination rules, subproofs, derived rules and proof strategies.",
+      description: "An interactive natural deduction lesson: introduction and elimination rules, subproofs, derived rules, quantifiers, equality and proof strategies.",
       level: "Beginner",
-      teaches: "Introduction and elimination rules · Subproofs · Derived rules · Proof strategies",
+      teaches: "Introduction and elimination rules · Subproofs · Derived rules · Quantifiers and equality · Proof strategies",
     },
     exercises: {
       title: "Natural deduction exercises",
-      description: "Practise natural deduction with graded exercises: write the proofs in Fitch notation, with instant feedback and saved progress.",
+      description: "Practise propositional and first-order natural deduction with graded exercises: proofs in Fitch notation, instant feedback and saved progress.",
     },
     notFound: {
       title: "Page not found",

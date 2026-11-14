@@ -1,6 +1,7 @@
 # Learn Natural Deduction
 
-Site público para aprender provas no sistema DN em notação de Fitch. A especificação é o `SPEC.md`.
+Site público para aprender provas no sistema DN em notação de Fitch, na lógica proposicional e na de
+1.ª ordem com igualdade. A especificação é o `SPEC.md`.
 Em caso de conflito, a ordem é: `SPEC.md`, depois este ficheiro, depois `../sat`.
 O sistema visual está no `DESIGN.md`, e a documentação pública, em inglês, no `README.md`.
 
@@ -63,6 +64,10 @@ que têm gralhas. Toda a prova publicada no site passa pelo verificador nos test
   sozinho numa linha de etiqueta sem número (`  |  [v]`).
 - «x substituível por t em φ», pela ordem do livro. «v nova»: não ocorre em nenhuma linha acessível
   antes da caixa; o ∀I e o ∃E exigem ainda v não livre na conclusão da regra.
+- Um sequente proposicional segue sempre o caminho proposicional (tabela de verdade, snapshots
+  inalterados). A 1.ª ordem usa `js/core/structures.js` (contramodelos finitos) e
+  `js/core/first-order-search.js` (provas), com orçamento: «não sei» é um resultado válido.
+- As regras do utilizador ficam proposicionais, mas servem em provas de 1.ª ordem.
 
 ## Comandos
 

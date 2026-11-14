@@ -3,28 +3,28 @@
 export default {
   meta: {
     langName: "Português",
-    ogImageAlt: "Learn Natural Deduction: provas em notação de Fitch, verificadas linha a linha.",
+    ogImageAlt: "Learn Natural Deduction: provas em notação de Fitch, na lógica proposicional e de 1.ª ordem, verificadas linha a linha.",
     home: {
       title: "Aprender dedução natural",
-      description: "Aprende a fazer provas de dedução natural em notação de Fitch, com verificação de cada linha, dicas e soluções passo a passo.",
+      description: "Aprende a fazer provas de dedução natural em notação de Fitch, na lógica proposicional e de 1.ª ordem, com cada linha verificada, dicas e soluções.",
     },
     prove: {
       title: "Provar em dedução natural online",
-      description: "Escreve um sequente e faz a prova em notação de Fitch: cada linha é verificada, e tens dicas, solução automática e contraexemplos.",
+      description: "Escreve um sequente, com ou sem quantificadores, e faz a prova em notação de Fitch: cada linha é verificada, com dicas, solução automática e contraexemplos.",
     },
     step: {
       title: "Dedução natural passo a passo",
-      description: "Acompanha uma prova de dedução natural passo a passo, em notação de Fitch, com a estratégia que explica cada linha até à conclusão.",
+      description: "Acompanha uma prova de dedução natural passo a passo, proposicional ou de 1.ª ordem, em notação de Fitch, com a estratégia que explica cada linha.",
     },
     learn: {
       title: "Dedução natural explicada",
-      description: "Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas e estratégias de prova.",
+      description: "Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas, quantificadores, igualdade e estratégias de prova.",
       level: "Iniciante",
-      teaches: "Regras de introdução e eliminação · Subdeduções · Regras derivadas · Estratégias de prova",
+      teaches: "Regras de introdução e eliminação · Subdeduções · Regras derivadas · Quantificadores e igualdade · Estratégias de prova",
     },
     exercises: {
       title: "Exercícios de dedução natural",
-      description: "Treina dedução natural com exercícios graduados: faz as provas em notação de Fitch, com correção imediata e progresso guardado.",
+      description: "Treina dedução natural proposicional e de 1.ª ordem com exercícios graduados: provas em notação de Fitch, com correção imediata e progresso guardado.",
     },
     notFound: {
       title: "Página não encontrada",
