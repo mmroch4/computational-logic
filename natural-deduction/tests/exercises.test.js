@@ -15,14 +15,15 @@ import {
 } from "../js/core/exercises.js";
 import { FIND_ERROR_PUZZLES } from "../js/core/find-error.js";
 import { parseProof } from "../js/core/proof-text.js";
-import { DERIVED_RULES, isFirstOrderRule, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
-import { formatSequent, parseSequent } from "../js/core/sequent.js";
+import { DERIVED_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
+import { formatSequent, isPropositionalSequent, parseSequent } from "../js/core/sequent.js";
+import { solve } from "../js/core/solver.js";
 import { createUserRule, userRulesEnabled } from "../js/core/user-rules.js";
 import { verifyProof } from "../js/core/verify.js";
 import { LOCALES } from "../js/ui/i18n.js";
 import { createStorage } from "../js/ui/storage.js";
 import { COURSE_SEQUENTS } from "./fixtures/course-sequents.js";
-import { atomsOf, fingerprint } from "./helpers/fingerprint.js";
+import { fingerprint } from "./helpers/fingerprint.js";
 
 const GOOD = Object.freeze({
   id: "ex-fixture",
@@ -97,6 +98,14 @@ test("as dicas têm texto nos dois idiomas", () => {
 
 const isRuleProof = ({ rules }) => (rules.exclude ?? []).length > 0;
 
+test("a impressão digital de 1.ª ordem ignora nomes e variáveis ligadas, mas não a estrutura", () => {
+  assert.equal(fingerprint("∀x(P(x) → Q(a)) ⊢ ∃y R(y, b)"), fingerprint("∀z(S(z) → T(c)) ⊢ ∃x U(x, d)"));
+  assert.equal(fingerprint("a = b ⊢ P(f(a))"), fingerprint("c = d ⊢ Q(g(d))"));
+  assert.notEqual(fingerprint("∀x P(x) ⊢ ∃x P(x)"), fingerprint("∃x P(x) ⊢ ∀x P(x)"));
+  assert.notEqual(fingerprint("∀x∃y R(x, y) ⊢ F"), fingerprint("∀x∃y R(y, x) ⊢ F"));
+  assert.notEqual(fingerprint("∀x R(x, a) ⊢ F"), fingerprint("∀x R(x, x) ⊢ F"));
+});
+
 test("a impressão digital ignora letras, ordem e antecedentes, mas não a estrutura", () => {
   assert.equal(fingerprint("a ∧ b, c ⊢ d → b"), fingerprint("x, w, z ∧ y ⊢ z"));
   assert.equal(fingerprint("⊢ p → (q → p)"), fingerprint("x, y ⊢ x"));
@@ -133,20 +142,17 @@ test("os enunciados são todos diferentes, a menos de letras e de ordem", () => 
   }
 });
 
-test("o catálogo tem cerca de 50 exercícios em cinco níveis seguidos", () => {
-  assert.ok(EXERCISES.length >= 45 && EXERCISES.length <= 55, String(EXERCISES.length));
-  const levels = [...new Set(EXERCISES.map(({ level }) => level))].sort();
-  assert.deepEqual(levels, [1, 2, 3, 4, 5]);
+test("o catálogo tem cerca de 75 exercícios em nove níveis seguidos", () => {
+  assert.ok(EXERCISES.length >= 70 && EXERCISES.length <= 85, String(EXERCISES.length));
+  const levels = [...new Set(EXERCISES.map(({ level }) => level))].sort((a, b) => a - b);
+  assert.deepEqual(levels, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
   for (const level of levels) {
     assert.ok(EXERCISES.filter((item) => item.level === level).length >= 5, `nível ${level}`);
   }
 });
 
-// Os exercícios de 1.ª ordem, com os que provam NQ1–NQ4, são da C3: aí sai este filtro.
-const PROPOSITIONAL_DERIVED = DERIVED_RULES.filter((rule) => !isFirstOrderRule(rule));
-
 test("cada forma de cada derivada tem um exercício que a prova só com regras base", () => {
-  for (const [index, rule] of PROPOSITIONAL_DERIVED.entries()) {
+  for (const [index, rule] of DERIVED_RULES.entries()) {
     const goal = fingerprint(formatSequent(ruleGoal(rule)));
     const exercise = EXERCISES.find((item) => isRuleProof(item) && fingerprint(item.sequent) === goal);
     assert.ok(exercise, `${rule.id}, forma ${index}`);
@@ -154,7 +160,7 @@ test("cada forma de cada derivada tem um exercício que a prova só com regras b
     assert.equal(userRulesEnabled(exercise), false, exercise.id);
     assert.equal(ruleSet(exercise.rules).some(({ id }) => id === rule.id), false, exercise.id);
   }
-  assert.equal(EXERCISES.filter(isRuleProof).length, PROPOSITIONAL_DERIVED.length);
+  assert.equal(EXERCISES.filter(isRuleProof).length, DERIVED_RULES.length);
 });
 
 test("o nível 1 não precisa de subdeduções", () => {
@@ -172,12 +178,70 @@ test("o nível 4 pratica as derivadas: as soluções usam-nas e o conjunto deixa
   }
 });
 
+const predicatesOf = (formula) => (
+  formula.kind === "atom" ? [formula] : formula.args.filter(({ kind }) => kind !== "term").flatMap(predicatesOf)
+);
+
 test("as variáveis não usam nomes reservados nem as metavariáveis", () => {
+  // Átomos proposicionais numa minúscula que não é v; predicados com argumentos numa maiúscula.
   for (const { id, sequent } of EXERCISES) {
     const { premises, conclusion } = parseSequent(sequent).sequent;
-    const atoms = [...premises, conclusion].flatMap(atomsOf);
-    assert.ok(atoms.every((name) => /^[a-z]$/.test(name) && name !== "v"), id);
+    for (const { name, args } of [...premises, conclusion].flatMap(predicatesOf)) {
+      const ok = args.length === 0 ? /^[a-z]$/.test(name) && name !== "v" : /^[A-Z]$/.test(name);
+      assert.ok(ok, id + ": " + name);
+    }
   }
+});
+
+// Os níveis de antes da 1.ª ordem. Os ids são chaves do progresso guardado: não mudam nem saem daqui.
+const PROPOSITIONAL_LEVELS = [1, 2, 3, 4, 5];
+const PROPOSITIONAL_COUNT = 52;
+
+test("a 1.ª ordem só entra nos níveis novos, e os proposicionais continuam à frente", () => {
+  for (const exercise of EXERCISES) {
+    const firstOrder = !isPropositionalSequent(exerciseGoal(exercise));
+    assert.equal(firstOrder, !PROPOSITIONAL_LEVELS.includes(exercise.level), exercise.id);
+  }
+  const propositional = EXERCISES.filter(({ level }) => PROPOSITIONAL_LEVELS.includes(level));
+  assert.equal(propositional.length, PROPOSITIONAL_COUNT);
+  assert.deepEqual(EXERCISES.slice(0, PROPOSITIONAL_COUNT), propositional);
+  assert.ok(EXERCISES.length - PROPOSITIONAL_COUNT >= 25);
+});
+
+test("o nível 6 instancia sem caixas", () => {
+  for (const exercise of EXERCISES.filter(({ level }) => level === 6)) {
+    const { lines } = exerciseSolution(exercise);
+    assert.ok(lines.every((line) => line.depth === 0 && !line.fresh), exercise.id);
+  }
+});
+
+test("os níveis 7 a 9 praticam as caixas [v], e o nível 9 a igualdade", () => {
+  for (const level of [7, 8, 9]) {
+    const boxed = EXERCISES.filter((item) => item.level === level)
+      .filter((item) => exerciseSolution(item).lines.some((line) => line.fresh || line.label));
+    assert.ok(boxed.length >= 3, "nível " + level);
+  }
+  const equality = EXERCISES.filter(({ level }) => level === 9)
+    .filter((item) => exerciseSolution(item).lines.some(({ rule }) => rule === "=E"));
+  assert.ok(equality.length >= 4);
+});
+
+// Exercícios de 1.ª ordem que o solver não resolve com o conjunto deles. Hoje resolve todos.
+const SOLVER_UNSOLVED = [];
+
+test("o solver resolve os exercícios de 1.ª ordem com o conjunto de cada um", () => {
+  const unsolved = [];
+  for (const exercise of EXERCISES.filter(({ level }) => !PROPOSITIONAL_LEVELS.includes(level))) {
+    const goal = exerciseGoal(exercise);
+    const rules = ruleSet(exercise.rules);
+    const result = solve(goal, { rules });
+    if (result.ok && result.provable) {
+      assert.equal(verifyProof(result.proof, goal, rules).ok, true, exercise.id);
+    } else {
+      unsolved.push(exercise.id);
+    }
+  }
+  assert.deepEqual(unsolved, SOLVER_UNSOLVED);
 });
 
 test("findExercise encontra pelo id", () => {

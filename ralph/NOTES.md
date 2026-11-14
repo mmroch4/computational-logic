@@ -220,3 +220,14 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   quantifierNegation). O check-learn tira o total do `quizQuestions()` e as formas do `lessonDerivedForms`.
 - Cada `.fitch` tem tabindex="0": uma prova de uma só linha fica com menos de 44px e o a11y do check-page
   falha (só se vê depois de as figuras montarem: `EVAL` com espera de ~4 s). Há um teste que o impede.
+
+## C3
+
+- 28 exercícios de 1.ª ordem nos níveis 6–9 (instanciar, caixas, NQ, igualdade/encaixados), depois dos
+  52 proposicionais, que ficam à frente e iguais (há um teste). Ids de NQ: `ex-prove-nq1`…`nq4`. O filtro
+  `PROPOSITIONAL_DERIVED` saiu dos exercícios. O solver resolve os 28 (`SOLVER_UNSOLVED` vazio).
+- `tests/helpers/fingerprint.js` trata a 1.ª ordem (predicados, funções e termos livres renomeados; ligadas
+  pela profundidade; lados de = ordenados). `course-sequents.js` tem os sequentes de 1.ª ordem do LPLPO-2,
+  exceto o Ex. 2.13 (simetria/transitividade de =): a pergunta `equalityLine` do quiz da C2 coincide com
+  ele. Rever na pausa se o quiz deve mudar.
+- Os enunciados de 1.ª ordem usam predicados com uma maiúscula e átomos 0-ários com uma minúscula sem v.

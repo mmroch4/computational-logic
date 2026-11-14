@@ -96,8 +96,9 @@ run "lista" "/exercicios" "$HELPERS
   $(cat <<'JS'
   clean();
   await until(() => $(".exercise-item"), "a lista");
-  if (document.querySelectorAll(".exercise-item").length < 50) throw new Error("faltam exercícios");
-  if (document.querySelectorAll(".exercise-group").length !== 5) throw new Error("faltam níveis");
+  if (document.querySelectorAll(".exercise-item").length < 75) throw new Error("faltam exercícios");
+  if (document.querySelectorAll(".exercise-group").length !== 9) throw new Error("faltam níveis");
+  if (!$("#exercise-level-9 ~ ul a.exercise-item[href*='ex-at-most-one']")) throw new Error("falta a 1.ª ordem");
   if (!$(".exercise-progress__bar[role=progressbar]")) throw new Error("sem barra de progresso");
   $("[data-filter=done]").click();
   if (!$("[data-filter=done]").matches(":focus")) throw new Error("o filtro perdeu o foco");
@@ -151,6 +152,22 @@ run "guiado" "/exercicios?ex=ex-two-links" "$HELPERS
   await pick(5, 3); await rule("∧I"); await choose();
   await until(() => $(".exercise-result a.btn"), "o resultado do modo guiado");
   if (!$('.exercise-detail__eyebrow [data-status="solved"]')) throw new Error("o estado não mudou");
+  clean();
+JS
+)"
+
+# 3b) Um exercício de 1.ª ordem (a = b, R(a, a) ⊢ R(a, b)), a escrever, com a regra proibida recusada.
+run "primeira-ordem" "/exercicios?ex=ex-equal-neighbours" "$HELPERS
+  $(cat <<'JS'
+  clean();
+  await until(() => line(3), "o editor");
+  await write(3, "R(a, b)", "∀E, 1");
+  await wait(300);
+  if ($(".exercise-result a.btn")) throw new Error("uma regra proibida resolveu o exercício");
+  await write(3, "R(a, b)", "=E, 1, 2");
+  await until(() => $(".exercise-result a.btn"), "o resultado da prova");
+  if (!$('.exercise-detail__eyebrow [data-status="solved"]')) throw new Error("o estado não mudou");
+  if (!JSON.parse(localStorage.getItem("nd:v1:progress"))["ex-equal-neighbours"]) throw new Error("não ficou guardado");
   clean();
 JS
 )"
