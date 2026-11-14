@@ -178,7 +178,7 @@ Experimentas sequentes teus no Provar e no Passo a passo. Confirmas os limites e
 
 ## Bloco C — Conteúdo
 
-### [ ] C1 · Lição: linguagem, ∀ e ∃
+### [x] C1 · Lição: linguagem, ∀ e ∃
 Secções novas no fim de Aprender: linguagem (termos, predicados, livre e ligada, substituição), ∀ e ∃,
 com figuras das regras, provas verificadas e laboratórios, no formato das secções atuais. Texto original
 em PT e EN.
