@@ -107,9 +107,22 @@ const SCOPE_PROOF = proofOf(`
 
 const INVALID_SEQUENT = "s → t, t ⊢ s";
 
+const FORALL_SHOWN = `
+1 | ∀x(P(x) → Q(x))   premissa
+2 | P(c)              premissa`.trim();
+
+const ESCAPE_SEQUENT = "∃x(P(x) ∧ Q(x)) ⊢ ∃x P(x)";
+const ESCAPE_PROOF = proofOf(`
+1 | ∃x(P(x) ∧ Q(x))    premissa
+2 |  [u] P(u) ∧ Q(u)   hipótese
+3 |   P(u)             ∧E, 2
+4 | P(u)               ∃E, 1, 2–3
+5 | ∃x P(x)            ∃I, 4`.trim());
+
 /** As perguntas, pela ordem do quiz: seguem a ordem da lição. */
 export function quizQuestions() {
   const scopeOptions = [findOption("line3", 3), findOption("line4", 4), findOption("line5", 5), findOption("none", null)];
+  const escapeOptions = [findOption("line3", 3), findOption("line4", 4), findOption("line5", 5), findOption("none", null)];
   return [
     lineQuestion("combine", "q ∧ r, q → s ⊢ s", COMBINE_SHOWN, [
       ["right", "4 | s   →E, 2, 3"],
@@ -165,6 +178,35 @@ export function quizQuestions() {
       proof: null,
       options: [textOption("oneIsWrong"), textOption("bothFine"), textOption("rulesFail")],
       answer: "oneIsWrong",
+    },
+    // 1.ª ordem: as secções 11 a 14.
+    lineQuestion("forallLine", "∀x(P(x) → Q(x)), P(c) ⊢ Q(c)", FORALL_SHOWN, [
+      ["right", "3 | P(c) → Q(c)   ∀E, 1"],
+      ["twoTerms", "3 | P(c) → Q(d)   ∀E, 1"],
+      ["skipStep", "3 | Q(c)   ∀E, 1, 2"],
+      ["wrongRule", "3 | ∀x Q(x)   →E, 1, 2"],
+    ]),
+    {
+      id: "escapedName",
+      kind: "find",
+      sequent: ESCAPE_SEQUENT,
+      proof: ESCAPE_PROOF,
+      options: escapeOptions,
+      answer: answerByFinding(escapeOptions, ESCAPE_PROOF, ESCAPE_SEQUENT),
+    },
+    lineQuestion("equalityLine", "a = b, b = c ⊢ a = c", "1 | a = b   premissa\n2 | b = c   premissa", [
+      ["right", "3 | a = c   =E, 1, 2"],
+      ["reflexive", "3 | a = c   =I"],
+      ["flipped", "3 | c = a   =E, 1, 2"],
+      ["wrongRule", "3 | a = c   →E, 1, 2"],
+    ]),
+    {
+      id: "quantifierNegation",
+      kind: "choice",
+      sequent: null,
+      proof: null,
+      options: [textOption("someCounter"), textOption("allCounter"), textOption("negateParts")],
+      answer: "someCounter",
     },
   ];
 }

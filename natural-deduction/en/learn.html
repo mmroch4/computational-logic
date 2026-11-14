@@ -310,6 +310,42 @@
           </div>
           <div class="lesson-interactive" data-lesson-lab="labExists"></div>
         </section>
+        <section class="lesson-section" id="igualdade" aria-labelledby="igualdade-title">
+          <h2 class="lesson-section__title" id="igualdade-title"><span class="lesson-section__num">13</span> <span data-section-title data-i18n="learn.sections.equality">Equality (=)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equality.p1">t₁ = t₂ says that both terms name the same object. Unlike other predicates, equality has a fixed meaning, and two rules say what you can do with it. The first is the simplest in the system: every term is equal to itself, with no premises.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="equalityIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equality.p2">The second replaces equals with equals: if t₁ = t₂, whatever holds for t₁ holds for t₂. As with ∃I, you choose which occurrences to replace, and in the example the same line R(a, a) gives both R(a, b) and R(b, b).</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="equalityElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equality.p3">=E has a direction. With the line t₁ = t₂, t₁ is replaced by t₂, never the other way round. To go the other way, first prove t₂ = t₁. The two rules are enough: =I gives c = c, and =E replaces the first c with d.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="equalitySymmetry"></div>
+          <div class="lesson-interactive" data-lesson-check="equalityDirection"></div>
+        </section>
+        <section class="lesson-section" id="equivalencias" aria-labelledby="equivalencias-title">
+          <h2 class="lesson-section__title" id="equivalencias-title"><span class="lesson-section__num">14</span> <span data-section-title data-i18n="learn.sections.equivalences">Equivalences and strategies</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equivalences.p1">In propositional logic, De Morgan&#39;s laws move a negation inside an ∧ or an ∨. Quantifiers have similar laws. Denying that everything has φ is saying that something lacks it, and denying that something has φ is saying that nothing has it. These are four derived rules, one per direction, and each has a proof using only the base rules.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-derived="notForall"></div>
+          <div class="lesson-interactive" data-lesson-derived="existsNot"></div>
+          <div class="lesson-interactive" data-lesson-derived="notExists"></div>
+          <div class="lesson-interactive" data-lesson-derived="forallNot"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equivalences.p2">Together, they say that ¬∀x φ and ∃x ¬φ are equivalent, and so are ¬∃x φ and ∀x ¬φ. In practice, a premise with a negated quantifier stops being a problem: the derived rule moves the negation inside, and the quantifier left in front already has an elimination rule.</p>
+            <p data-i18n="learn.equivalences.p3">There are more equivalences. ∀ distributes over ∧, and ∃ over ∨: ∀x(P(x) ∧ Q(x)) says the same as ∀x P(x) ∧ ∀x Q(x). Swapped, they do not: ∀x P(x) ∨ ∀x Q(x) does not follow from ∀x(P(x) ∨ Q(x)), because each object may have only one of the two. Two equal quantifiers in a row can swap places without changing anything, but a ∀ and an ∃ cannot. The next proof goes in one direction, with a ∀I box inside the ∃E box.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="strategyExistsFirst"></div>
+          <div class="lesson-interactive" data-lesson-check="swapQuantifiers"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equivalences.p4">To find a first-order proof, open the boxes before instantiating: the ∀I box when the goal is a ∀, and the ∃E box when a premise is an ∃, with a fresh name. Only then use ∀E and ∃I, with the terms already in the proof. Usually, they are the names of the boxes, like u and v in the example.</p>
+            <p data-i18n="learn.equivalences.p5">If a premise has a negated quantifier, the derived rules of this section move the negation inside. If nothing works, reductio ad absurdum is left, as in propositional logic. In Prove, the help follows these same ideas and, when the sequent is invalid, looks for a countermodel.</p>
+          </div>
+        </section>
         <section class="lesson-quiz" id="quiz" aria-labelledby="quiz-title">
           <h2 class="lesson-section__title" id="quiz-title"><span data-i18n="learn.quiz.heading">Final quiz</span></h2>
           <div class="lesson-prose">

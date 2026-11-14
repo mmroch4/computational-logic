@@ -26,6 +26,8 @@ export const LESSON_SECTIONS = Object.freeze([
   { id: "linguagem", key: "language" },
   { id: "universal", key: "forall" },
   { id: "existencial", key: "exists" },
+  { id: "igualdade", key: "equality" },
+  { id: "equivalencias", key: "equivalences" },
 ]);
 
 export const LESSON_PROOFS = Object.freeze({
@@ -236,6 +238,40 @@ export const LESSON_PROOFS = Object.freeze({
 3 |   ∃y R(v, y)        ∃I, 2
 4 |   ∃x∃y R(x, y)      ∃I, 3
 5 | ∃x∃y R(x, y)        ∃E, 1, 2–4`,
+  },
+  equalityIntro: {
+    sequent: "P(a) ⊢ ∃x(x = a ∧ P(x))",
+    text: `
+1 | P(a)               premissa
+2 | a = a              =I
+3 | a = a ∧ P(a)       ∧I, 2, 1
+4 | ∃x(x = a ∧ P(x))   ∃I, 3`,
+  },
+  equalityElim: {
+    sequent: "a = b, R(a, a) ⊢ R(a, b) ∧ R(b, b)",
+    text: `
+1 | a = b               premissa
+2 | R(a, a)             premissa
+3 | R(a, b)             =E, 1, 2
+4 | R(b, b)             =E, 1, 2
+5 | R(a, b) ∧ R(b, b)   ∧I, 3, 4`,
+  },
+  equalitySymmetry: {
+    sequent: "c = d ⊢ d = c",
+    text: `
+1 | c = d   premissa
+2 | c = c   =I
+3 | d = c   =E, 1, 2`,
+  },
+  strategyExistsFirst: {
+    sequent: "∃x∀y R(x, y) ⊢ ∀y∃x R(x, y)",
+    text: `
+1 | ∃x∀y R(x, y)       premissa
+2 |  [u] ∀y R(u, y)    hipótese
+3 |    [v] R(u, v)     ∀E, 2
+4 |     ∃x R(x, v)     ∃I, 3
+5 |   ∀y∃x R(x, y)     ∀I, 3–4
+6 | ∀y∃x R(x, y)       ∃E, 1, 2–5`,
   },
 });
 
@@ -480,6 +516,24 @@ export const LESSON_MISTAKES = Object.freeze({
     line: 6,
     code: "notFresh",
   },
+  equalityIntroDifferent: {
+    sequent: "P(a), P(b) ⊢ a = b",
+    text: `
+1 | P(a)    premissa
+2 | P(b)    premissa
+3 | a = b   =I`,
+    line: 3,
+    code: "formulaMismatch",
+  },
+  equalityElimBackwards: {
+    sequent: "b = a, P(a) ⊢ P(b)",
+    text: `
+1 | b = a   premissa
+2 | P(a)    premissa
+3 | P(b)    =E, 1, 2`,
+    line: 3,
+    code: "formulaMismatch",
+  },
 });
 
 /**
@@ -502,6 +556,8 @@ export const LESSON_RULES = Object.freeze({
   forallIntro: { rule: "∀I", example: "forallIntro", mistake: "forallIntroNotFresh" },
   existsIntro: { rule: "∃I", example: "existsIntro", mistake: "existsIntroMixed" },
   existsElim: { rule: "∃E", example: "existsElim", mistake: "existsElimEscapes" },
+  equalityIntro: { rule: "=I", example: "equalityIntro", mistake: "equalityIntroDifferent" },
+  equalityElim: { rule: "=E", example: "equalityElim", mistake: "equalityElimBackwards" },
 });
 
 /**
@@ -516,6 +572,10 @@ export const LESSON_DERIVED = Object.freeze({
   deMorgan: { rule: "DM" },
   hypotheticalSyllogism: { rule: "SH" },
   disjunctiveSyllogism: { rule: "SD" },
+  notForall: { rule: "NQ1" },
+  existsNot: { rule: "NQ2" },
+  notExists: { rule: "NQ3" },
+  forallNot: { rule: "NQ4" },
 });
 
 export const LESSON_CHECKS = Object.freeze({
@@ -532,6 +592,8 @@ export const LESSON_CHECKS = Object.freeze({
   captureCheck: { options: ["yes", "captured", "bound"], answer: "captured" },
   freshName: { options: ["any", "unused", "constant"], answer: "unused" },
   witnessName: { options: ["known", "fresh", "same"], answer: "fresh" },
+  equalityDirection: { options: ["before", "flipped", "none"], answer: "before" },
+  swapQuantifiers: { options: ["valid", "invalid", "unknown"], answer: "invalid" },
 });
 
 /** A prova `id` já lida: `{ goal, proof }`. Os testes garantem que todas se leem. */

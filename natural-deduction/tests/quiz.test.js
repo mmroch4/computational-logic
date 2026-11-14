@@ -11,6 +11,8 @@ import { parseProof } from "../js/core/proof-text.js";
 import { hint } from "../js/core/hints.js";
 import { BASE_RULES, DERIVED_RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
 import { verifyProof } from "../js/core/verify.js";
+import { solve } from "../js/core/solver.js";
+import { findCountermodel } from "../js/core/structures.js";
 import { renderQuiz } from "../js/ui/quiz-view.js";
 import { LOCALES, setLang } from "../js/ui/i18n.js";
 import { createStorage } from "../js/ui/storage.js";
@@ -23,9 +25,9 @@ const count = (html, re) => (html.match(re) ?? []).length;
 const goalOf = ({ sequent }) => parseSequent(sequent).sequent;
 const COMPLETE = ruleSet("completo");
 
-test("8 perguntas com ids únicos e uma só resposta certa entre as opções", () => {
-  assert.equal(questions.length, 8);
-  assert.equal(new Set(questions.map(({ id }) => id)).size, 8);
+test("12 perguntas com ids únicos e uma só resposta certa entre as opções", () => {
+  assert.equal(questions.length, 12);
+  assert.equal(new Set(questions.map(({ id }) => id)).size, 12);
   for (const { id, options, answer } of questions) {
     const ids = options.map((option) => option.id);
     assert.ok(ids.length >= 3, id);
@@ -49,6 +51,40 @@ test("a pergunta do erro aponta a linha que o verificador rejeita", () => {
   const { lineErrors } = verifyProof(proof, goalOf(byId.scope), COMPLETE);
   assert.deepEqual(lineErrors.map(({ params }) => params.line), [5]);
   assert.equal(options.find(({ id }) => id === answer).line, 5);
+});
+
+test("as perguntas de 1.ª ordem vêm no fim, pela ordem das secções 11 a 14", () => {
+  assert.deepEqual(questions.slice(-4).map(({ id }) => id), ["forallLine", "escapedName", "equalityLine", "quantifierNegation"]);
+  assert.deepEqual(questions.slice(-4).map(({ kind }) => kind), ["line", "find", "line", "choice"]);
+  // As perguntas proposicionais ficam como estavam.
+  assert.deepEqual(questions.slice(0, 8).map(({ id }) => id), ["combine", "scope", "implication", "cases", "doubleNegation", "derived", "invalid", "both"]);
+});
+
+test("a pergunta da variável que escapa: o sequente é válido e só a linha 4 está errada", () => {
+  const { proof, answer, options } = byId.escapedName;
+  const { lineErrors } = verifyProof(proof, goalOf(byId.escapedName), COMPLETE);
+  assert.deepEqual(lineErrors.map(({ code, params }) => [params.line, code]), [[4, "variableEscapes"]]);
+  assert.equal(options.find(({ id }) => id === answer).line, 4);
+  assert.equal(solve(goalOf(byId.escapedName), { rules: ruleSet("base") }).provable, true);
+});
+
+test("a negação do ∀: só a resposta certa é equivalente, com prova nos dois sentidos", () => {
+  const negated = "¬∀x(P(x) → Q(x))";
+  const forms = { someCounter: "∃x(P(x) ∧ ¬Q(x))", allCounter: "∀x(P(x) ∧ ¬Q(x))", negateParts: "∃x(¬P(x) → ¬Q(x))" };
+  const options = byId.quantifierNegation.options.map(({ id }) => id);
+  assert.deepEqual(options.sort(), Object.keys(forms).sort());
+  for (const lang of ["pt", "en"]) {
+    for (const [id, formula] of Object.entries(forms)) assert.equal(LOCALES[lang].learn.quiz.questions.quantifierNegation.options[id], formula);
+  }
+  const goal = (text) => parseSequent(text).sequent;
+  const right = forms[byId.quantifierNegation.answer];
+  assert.equal(solve(goal(`${negated} ⊢ ${right}`), { rules: ruleSet("base") }).provable, true);
+  assert.equal(solve(goal(`${right} ⊢ ${negated}`), { rules: ruleSet("base") }).provable, true);
+  for (const [id, formula] of Object.entries(forms).filter(([id]) => id !== byId.quantifierNegation.answer)) {
+    const oneWay = findCountermodel(goal(`${negated} ⊢ ${formula}`)).status === "found";
+    const otherWay = findCountermodel(goal(`${formula} ⊢ ${negated}`)).status === "found";
+    assert.ok(oneWay || otherWay, id);
+  }
 });
 
 test("nas perguntas de próximo passo, a resposta é o passo que a dica daria", () => {
@@ -108,14 +144,14 @@ test("as perguntas e a sua ordem não dependem do idioma", () => {
 test("primeira pergunta: contador, prova, opções por responder e um só ponto de entrada com Tab", () => {
   setLang("pt");
   const html = renderQuiz(questions, initialQuizState());
-  assert.match(html, /Pergunta 1 de 8/);
+  assert.match(html, /Pergunta 1 de 12/);
   assert.match(html, /class="fitch/);
   assert.equal(count(html, /role="radio"/g), 4);
   assert.equal(count(html.slice(html.indexOf("quiz__options")), /tabindex="0"/g), 1);
   assert.doesNotMatch(html, /disabled/);
   assert.doesNotMatch(html, /quiz__feedback/);
   assert.match(html, /0 certas/);
-  assert.match(html, /width:12\.5%/);
+  assert.match(html, /width:8\.33/);
 });
 
 test("resposta errada: bloqueia as opções, marca a certa e a escolhida e explica essa resposta", () => {
@@ -135,7 +171,7 @@ test("resposta errada: bloqueia as opções, marca a certa e a escolhida e expli
 test("a resposta certa confirma, e a última pergunta leva ao resultado", () => {
   setLang("en");
   const last = questions.at(-1);
-  const html = renderQuiz(questions, { index: 7, answers: { [last.id]: last.answer }, finished: false });
+  const html = renderQuiz(questions, { index: questions.length - 1, answers: { [last.id]: last.answer }, finished: false });
   assert.match(html, /msg msg-ok quiz__feedback/);
   assert.match(html, /See result/);
   assert.match(html, /1 correct/);
@@ -146,13 +182,13 @@ test("resumo: corretas, precisão, revisão e melhor resultado", () => {
   setLang("pt");
   const answers = Object.fromEntries(questions.map(({ id, answer }) => [id, answer]));
   answers.both = "bothFine";
-  const html = renderQuiz(questions, { index: 7, answers, finished: true }, { best: { best: 8, total: 8 } });
-  assert.match(html, /Acertaste 7 de 8/);
-  assert.match(html, /7\/8/);
-  assert.match(html, /88%/);
-  assert.match(html, /O teu melhor resultado: 8 de 8\./);
+  const html = renderQuiz(questions, { index: questions.length - 1, answers, finished: true }, { best: { best: 12, total: 12 } });
+  assert.match(html, /Acertaste 11 de 12/);
+  assert.match(html, /11\/12/);
+  assert.match(html, /92%/);
+  assert.match(html, /O teu melhor resultado: 12 de 12\./);
   assert.equal(count(html, /quiz__review-item--wrong/g), 1);
-  assert.equal(count(html, /quiz__review-item--right/g), 7);
+  assert.equal(count(html, /quiz__review-item--right/g), 11);
   assert.match(html, /Resposta certa:/);
   assert.match(html, /data-restart/);
 });
@@ -174,8 +210,8 @@ test("nenhuma chave em bruto, em nenhuma resposta de nenhuma pergunta", () => {
 
 test("quizScore conta as certas e ignora as não respondidas", () => {
   const all = Object.fromEntries(questions.map(({ id, answer }) => [id, answer]));
-  assert.deepEqual(quizScore(questions, all), { correct: 8, total: 8 });
-  assert.deepEqual(quizScore(questions, {}), { correct: 0, total: 8 });
+  assert.deepEqual(quizScore(questions, all), { correct: 12, total: 12 });
+  assert.deepEqual(quizScore(questions, {}), { correct: 0, total: 12 });
   assert.equal(isCorrect(byId.both, "bothFine"), false);
 });
 
@@ -190,9 +226,10 @@ test("quizRecord guarda o último e o melhor, e repor os exercícios não apaga 
   assert.equal(storage.getProgress(QUIZ_PROGRESS_ID).best, 6);
 });
 
-test("o quiz fecha a lição, fora das 9 secções", () => {
+test("o quiz fecha a lição, fora das secções", () => {
   const page = readFileSync("aprender.html", "utf8");
   assert.ok(page.indexOf('id="quiz"') > page.indexOf('id="solidez"'));
+  assert.ok(page.indexOf('id="quiz"') > page.indexOf('id="equivalencias"'));
   assert.doesNotMatch(page, /class="lesson-section" id="quiz"/);
   assert.match(page, /data-lesson-quiz/);
   assert.ok(page.includes(`>${LOCALES.pt.learn.quiz.intro}<`));

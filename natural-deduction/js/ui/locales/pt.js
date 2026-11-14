@@ -351,7 +351,7 @@ export default {
   learn: {
     title: "Aprender dedução natural",
     lead: "Uma lição sobre as regras, as subdeduções e as estratégias para encontrar uma prova.",
-    eyebrow: "Lição · 12 secções",
+    eyebrow: "Lição · 14 secções",
     interactive: "Interativo",
     progressLabel: "Progresso da leitura",
     toc: {
@@ -374,6 +374,8 @@ export default {
       language: "Linguagem de 1.ª ordem",
       forall: "Quantificador universal (∀)",
       exists: "Quantificador existencial (∃)",
+      equality: "Igualdade (=)",
+      equivalences: "Equivalências e estratégias",
     },
     proof: {
       p1: "Uma prova parte das premissas e chega à conclusão por passos pequenos, cada um justificado por uma regra. Em notação de Fitch, cada linha diz a fórmula, a regra que a permite e as linhas em que essa regra se apoia. Se todas as linhas estiverem certas, a conclusão segue das premissas.",
@@ -467,6 +469,18 @@ export default {
       p3: "A ideia do ∃E é dar um nome provisório ao objeto que existe. Como não sabes qual é, o nome tem de ser novo, para nada do que já sabes falar dele. E o nome só vale dentro da caixa: cá fora não se sabe a que objeto se refere, por isso a conclusão não o pode ter livre.",
       lab: "Quando uma premissa é um ∃, abre a caixa do ∃E cedo, como no ∨E: dentro dela tens mais uma linha para usar. O objetivo da caixa é o mesmo que o de fora.",
     },
+    equality: {
+      p1: "t₁ = t₂ diz que os dois termos nomeiam o mesmo objeto. Ao contrário dos outros predicados, a igualdade tem um sentido fixo, e duas regras dizem o que podes fazer com ela. A primeira é a mais simples do sistema: qualquer termo é igual a si próprio, sem premissas.",
+      p2: "A segunda troca iguais por iguais: se t₁ = t₂, o que vale para t₁ vale para t₂. Como no ∃I, escolhes que ocorrências trocas, e no exemplo a mesma linha R(a, a) dá R(a, b) e R(b, b).",
+      p3: "O =E tem sentido. Com a linha t₁ = t₂, troca-se t₁ por t₂, e nunca ao contrário. Para ir no outro sentido, prova primeiro t₂ = t₁. Bastam as duas regras: o =I dá c = c, e o =E troca o primeiro c por d.",
+    },
+    equivalences: {
+      p1: "Na lógica proposicional, as leis de De Morgan levam a negação para dentro de um ∧ ou de um ∨. Os quantificadores têm leis parecidas. Negar que todos têm φ é dizer que algum não tem, e negar que algum tem φ é dizer que nenhum tem. São quatro regras derivadas, uma por sentido, e cada uma tem uma prova só com as regras base.",
+      p2: "Juntas, dizem que ¬∀x φ e ∃x ¬φ são equivalentes, e que ¬∃x φ e ∀x ¬φ também. Na prática, uma premissa com um quantificador negado deixa de ser um problema: a derivada leva a negação para dentro, e o quantificador que fica à frente já tem regra de eliminação.",
+      p3: "Há mais equivalências. O ∀ distribui sobre o ∧, e o ∃ sobre o ∨: ∀x(P(x) ∧ Q(x)) diz o mesmo que ∀x P(x) ∧ ∀x Q(x). Trocados, já não: de ∀x(P(x) ∨ Q(x)) não sai ∀x P(x) ∨ ∀x Q(x), porque cada objeto pode ter só uma das duas. Dois quantificadores iguais seguidos trocam de ordem sem mudar nada, mas um ∀ e um ∃ não. A prova seguinte vai num dos sentidos, com uma caixa do ∀I dentro da caixa do ∃E.",
+      p4: "Para encontrar uma prova de 1.ª ordem, abre as caixas antes de instanciar: a do ∀I quando o objetivo é um ∀, e a do ∃E quando uma premissa é um ∃, com um nome novo. Só depois usa ∀E e ∃I, com os termos que já estão na prova. Normalmente, são os nomes das caixas, como u e v no exemplo.",
+      p5: "Se uma premissa tem um quantificador negado, as derivadas desta secção levam a negação para dentro. Se nada avança, resta a redução ao absurdo, como na lógica proposicional. No Provar, a ajuda segue estas mesmas ideias e, quando o sequente é inválido, procura um contramodelo.",
+    },
     proofFigure: {
       prev: "Anterior",
       next: "Seguinte",
@@ -484,6 +498,8 @@ export default {
       strategyAbsurd: "Redução ao absurdo",
       forallLabel: "Uma caixa [v] que começa por uma hipótese",
       existsNotFresh: "Erro comum: dar ao objeto do ∃E um nome que já existe",
+      equalitySymmetry: "A igualdade nos dois sentidos",
+      strategyExistsFirst: "Um ∃ antes de um ∀",
     },
     walkthroughs: {
       strategyBackward: {
@@ -618,6 +634,14 @@ export default {
         name: "Eliminação do existencial",
         when: "Com ∃x φ numa linha, abre uma caixa [v], com v nova e a hipótese φ[v/x], e chega a ψ. Fora dela, escreve ψ, que não pode ter v livre. Cita a linha do ∃ e o intervalo da caixa.",
       },
+      equalityIntro: {
+        name: "Introdução da igualdade",
+        when: "Em qualquer ponto da prova podes escrever t = t, com o mesmo termo t dos dois lados. Não cita nenhuma linha.",
+      },
+      equalityElim: {
+        name: "Eliminação da igualdade",
+        when: "De t₁ = t₂ e de φ[t₁/x] podes escrever φ[t₂/x], desde que x seja substituível por t₁ e por t₂ em φ. Escolhes que ocorrências de t₁ passam a t₂. Cita as duas linhas, por qualquer ordem.",
+      },
     },
     derivedRules: {
       modusTollens: {
@@ -648,6 +672,22 @@ export default {
         name: "Silogismo disjuntivo",
         when: "Se tens uma disjunção e a negação de um dos lados, resta o outro lado. Cita as duas linhas. As duas provas mostram FE a trabalhar: o caso impossível acaba em F e dá a fórmula do outro caso.",
       },
+      notForall: {
+        name: "Do ¬∀ ao ∃¬",
+        when: "De ¬∀x φ podes escrever ∃x ¬φ. É a única das quatro que precisa de uma volta pelo absurdo: ¬∀x φ não diz qual é o objeto sem φ, por isso a prova supõe que não há nenhum e chega a F. Cita a linha do ¬∀.",
+      },
+      existsNot: {
+        name: "Do ∃¬ ao ¬∀",
+        when: "De ∃x ¬φ podes escrever ¬∀x φ: um objeto sem φ chega para negar que todos o têm. Cita a linha do ∃.",
+      },
+      notExists: {
+        name: "Do ¬∃ ao ∀¬",
+        when: "De ¬∃x φ podes escrever ∀x ¬φ. Serve para pôr um ∀ à frente e depois usar ∀E com o termo que precisares. Cita a linha do ¬∃.",
+      },
+      forallNot: {
+        name: "Do ∀¬ ao ¬∃",
+        when: "De ∀x ¬φ podes escrever ¬∃x φ. Usa-a quando o objetivo é um ∃ negado e já sabes que nenhum objeto tem φ. Cita a linha do ∀.",
+      },
     },
     mistakes: {
       andIntroOneSide: "A regra ∧I cita uma linha por cada lado, e aqui só há a linha 1. A fórmula b não está em lado nenhum: ter um lado não chega para escrever a conjunção.",
@@ -667,10 +707,12 @@ export default {
       existsIntroMixed: "O ∃I troca por x ocorrências de um só termo. Aqui era preciso trocar a e b pelo mesmo x, e a linha 1 não é P(t) ∧ Q(t) para nenhum t. De facto, a pode ter P e b ter Q sem haver um objeto com as duas.",
       existsElimEscapes: "A conclusão P(v) tem livre o nome da caixa, e o ∃E não deixa v sair dela. Cá fora, v não é nenhum objeto em particular: a premissa diz que algum objeto tem P, mas não diz qual.",
       existsNotFresh: "A caixa usa a, que já aparece na linha 2, por isso a não é nova. O objeto com P pode não ser o que tem Q, e as premissas não dizem que são o mesmo. A conclusão não se segue.",
+      equalityIntroDifferent: "O =I só escreve t = t, com o mesmo termo dos dois lados. Ter a mesma propriedade não faz de a e b o mesmo objeto, e o sequente nem sequer é válido: num domínio com dois objetos, ambos com P, a e b podem nomear objetos diferentes.",
+      equalityElimBackwards: "Com b = a, o =E troca b por a, e a linha 2 não tem nenhum b para trocar. Para ir de P(a) a P(b), precisas de a = b. O sequente é válido, mas falta um passo: tira a = b da linha 1, como na figura da simetria, e só depois aplica o =E.",
     },
     quiz: {
       heading: "Quiz final",
-      intro: "Oito perguntas para confirmares o que leste. Cada resposta traz a sua explicação, e o teu melhor resultado fica guardado neste browser.",
+      intro: "Doze perguntas para confirmares o que leste. Cada resposta traz a sua explicação, e o teu melhor resultado fica guardado neste browser.",
       title: "Quiz: dedução natural",
       count: "Pergunta {n} de {total}",
       score: ({ n }) => `${n} ${n === 1 ? "certa" : "certas"}`,
@@ -784,6 +826,46 @@ export default {
             oneIsWrong: "A solidez diz que um sequente com prova não tem contraexemplo. Logo, ou a prova tem uma linha errada, ou a valoração não é contraexemplo.",
             bothFine: "Não podem. Cada sequente tem uma prova ou um contraexemplo, nunca os dois: é isso que a solidez garante.",
             rulesFail: "As regras são sólidas: cada uma preserva a verdade. O que falha é uma das duas soluções, e vale a pena verificar a prova linha a linha.",
+          },
+        },
+        forallLine: {
+          prompt: "Queres usar o ∀ da linha 1. Qual destas linhas é a 3?",
+          why: {
+            right: "O ∀E tira o ∀x e põe um só termo no lugar de todas as ocorrências livres de x. Com c, que é o termo da linha 2, a linha seguinte já pode ser Q(c), por →E.",
+            twoTerms: "O ∀E põe o mesmo termo em todas as ocorrências de x. Trocar uma por c e outra por d dá uma fórmula que a linha 1 não garante.",
+            skipStep: "O ∀E cita só a linha do ∀ e não aplica a implicação. Primeiro escreves P(c) → Q(c) com ∀E, e depois Q(c) com →E, que cita a linha 2.",
+            wrongRule: "A linha 1 não é uma implicação: o conectivo principal é o ∀. O →E só se aplica depois de o ∀E tirar o quantificador.",
+          },
+        },
+        escapedName: {
+          prompt: "O sequente é válido, mas esta prova tem uma linha errada, ou então está tudo certo. Qual é a resposta?",
+          why: {
+            line3: "A linha 3 está certa: dentro da caixa, a hipótese P(u) ∧ Q(u) dá P(u) por ∧E.",
+            line4: "A linha 4 tira u da caixa, e o ∃E não deixa a conclusão ter livre o nome da caixa. Cá fora, u não é nenhum objeto em particular. O ∃I devia ficar dentro da caixa, e o ∃E dava então ∃x P(x).",
+            line5: "Se a linha 4 estivesse certa, a linha 5 também estaria, porque o ∃I troca u por x. O problema vem antes: a linha 4 tira u da caixa do ∃E.",
+            none: "A linha 4 tem livre u, o nome da caixa, e o ∃E não o deixa sair. A conclusão só pode falar de objetos que existem fora da caixa.",
+          },
+        },
+        equalityLine: {
+          prompt: "Queres juntar as duas igualdades. Qual destas linhas é a 3?",
+          why: {
+            right: "Em a = b, troca-se b por c com a linha 2, b = c. O =E dá a = c, e as duas linhas citam-se por qualquer ordem.",
+            reflexive: "O =I só dá um termo igual a si próprio, como a = a. a = c precisa das premissas.",
+            flipped: "Trocar b por c em a = b dá a = c, não c = a. Para virar a igualdade, era precisa mais uma linha, como na prova da simetria.",
+            wrongRule: "Nenhuma das linhas é uma implicação. Para usar uma igualdade, a regra é o =E.",
+          },
+        },
+        quantifierNegation: {
+          prompt: "Qual destas fórmulas diz o mesmo que ¬∀x(P(x) → Q(x))?",
+          options: {
+            someCounter: "∃x(P(x) ∧ ¬Q(x))",
+            allCounter: "∀x(P(x) ∧ ¬Q(x))",
+            negateParts: "∃x(¬P(x) → ¬Q(x))",
+          },
+          why: {
+            someCounter: "Pela NQ1, a negação de um ∀ é um ∃ da negação: ∃x ¬(P(x) → Q(x)). E uma implicação é falsa só com o antecedente verdadeiro e o consequente falso, ou seja, P(x) ∧ ¬Q(x).",
+            allCounter: "Negar um ∀ não dá outro ∀. Basta um objeto que falhe a implicação, não é preciso que falhem todos.",
+            negateParts: "Negar a implicação não é negar cada lado. ¬(P(x) → Q(x)) diz que P(x) vale e Q(x) não, e ¬P(x) → ¬Q(x) é outra coisa.",
           },
         },
       },
@@ -917,6 +999,24 @@ export default {
           known: "Nada diz que o objeto com P é a. Se o chamasses a, juntavas o que sabes de a a um objeto que pode ser outro.",
           fresh: "O objeto com P pode ser qualquer um, por isso tem de ter um nome de que nada se sabe.",
           same: "x aparece na linha do ∃, por isso também não é novo. Usa um nome que não esteja em nenhuma linha acima.",
+        },
+      },
+      equalityDirection: {
+        question: "Tens c = d numa linha. Para escrever Q(d) com =E, que outra linha citas?",
+        options: { before: "Q(c)", flipped: "d = c", none: "Nenhuma: c = d chega" },
+        why: {
+          before: "O =E troca c por d numa fórmula que fala de c. De c = d e Q(c) sai Q(d).",
+          flipped: "d = c é a mesma igualdade, ao contrário, e não diz nada sobre Q. O =E precisa da fórmula onde faz a troca: Q(c).",
+          none: "c = d só diz que os dois nomes são o mesmo objeto. Para concluir Q(d), tens de saber Q desse objeto, numa linha Q(c).",
+        },
+      },
+      swapQuantifiers: {
+        question: "E no outro sentido? ∀y∃x R(x, y) ⊢ ∃x∀y R(x, y) tem prova?",
+        options: { valid: "Sim, com a mesma prova às avessas", invalid: "Não: há um contramodelo", unknown: "Não se sabe, porque a 1.ª ordem é indecidível" },
+        why: {
+          valid: "A prova não se inverte. Num domínio {1, 2}, com R só em (1, 1) e (2, 2), cada y está relacionado com algum x, o próprio y, mas nenhum x está relacionado com os dois.",
+          invalid: "Num domínio {1, 2}, com R só em (1, 1) e (2, 2), cada y tem um x com R(x, y), o próprio y, mas nenhum x tem R com os dois. A premissa vale e a conclusão não, por isso não há prova.",
+          unknown: "A indecidibilidade diz que não há um método que responda sempre, não que nunca se saiba. Aqui há um contramodelo pequeno: domínio {1, 2}, com R só em (1, 1) e (2, 2).",
         },
       },
     },

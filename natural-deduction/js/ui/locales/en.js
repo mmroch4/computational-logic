@@ -373,6 +373,8 @@ export default {
       language: "First-order language",
       forall: "Universal quantifier (∀)",
       exists: "Existential quantifier (∃)",
+      equality: "Equality (=)",
+      equivalences: "Equivalences and strategies",
     },
     proof: {
       p1: "A proof starts from the premises and reaches the conclusion in small steps, each justified by a rule. In Fitch notation, every line states the formula, the rule that allows it and the lines that rule relies on. If every line is correct, the conclusion follows from the premises.",
@@ -466,6 +468,18 @@ export default {
       p3: "The idea of ∃E is to give the object that exists a temporary name. Since you do not know which object it is, the name has to be new, so that nothing you already know talks about it. And the name only means something inside the box: outside, nobody knows which object it refers to, so the conclusion cannot have it free.",
       lab: "When a premise is an ∃, open the ∃E box early, as with ∨E: inside it you have one more line to use. The goal of the box is the same as the goal outside.",
     },
+    equality: {
+      p1: "t₁ = t₂ says that both terms name the same object. Unlike other predicates, equality has a fixed meaning, and two rules say what you can do with it. The first is the simplest in the system: every term is equal to itself, with no premises.",
+      p2: "The second replaces equals with equals: if t₁ = t₂, whatever holds for t₁ holds for t₂. As with ∃I, you choose which occurrences to replace, and in the example the same line R(a, a) gives both R(a, b) and R(b, b).",
+      p3: "=E has a direction. With the line t₁ = t₂, t₁ is replaced by t₂, never the other way round. To go the other way, first prove t₂ = t₁. The two rules are enough: =I gives c = c, and =E replaces the first c with d.",
+    },
+    equivalences: {
+      p1: "In propositional logic, De Morgan's laws move a negation inside an ∧ or an ∨. Quantifiers have similar laws. Denying that everything has φ is saying that something lacks it, and denying that something has φ is saying that nothing has it. These are four derived rules, one per direction, and each has a proof using only the base rules.",
+      p2: "Together, they say that ¬∀x φ and ∃x ¬φ are equivalent, and so are ¬∃x φ and ∀x ¬φ. In practice, a premise with a negated quantifier stops being a problem: the derived rule moves the negation inside, and the quantifier left in front already has an elimination rule.",
+      p3: "There are more equivalences. ∀ distributes over ∧, and ∃ over ∨: ∀x(P(x) ∧ Q(x)) says the same as ∀x P(x) ∧ ∀x Q(x). Swapped, they do not: ∀x P(x) ∨ ∀x Q(x) does not follow from ∀x(P(x) ∨ Q(x)), because each object may have only one of the two. Two equal quantifiers in a row can swap places without changing anything, but a ∀ and an ∃ cannot. The next proof goes in one direction, with a ∀I box inside the ∃E box.",
+      p4: "To find a first-order proof, open the boxes before instantiating: the ∀I box when the goal is a ∀, and the ∃E box when a premise is an ∃, with a fresh name. Only then use ∀E and ∃I, with the terms already in the proof. Usually, they are the names of the boxes, like u and v in the example.",
+      p5: "If a premise has a negated quantifier, the derived rules of this section move the negation inside. If nothing works, reductio ad absurdum is left, as in propositional logic. In Prove, the help follows these same ideas and, when the sequent is invalid, looks for a countermodel.",
+    },
     proofFigure: {
       prev: "Previous",
       next: "Next",
@@ -483,6 +497,8 @@ export default {
       strategyAbsurd: "Reductio ad absurdum",
       forallLabel: "A [v] box that starts with a hypothesis",
       existsNotFresh: "Common mistake: giving the ∃E object a name that is already in use",
+      equalitySymmetry: "Equality both ways",
+      strategyExistsFirst: "An ∃ before a ∀",
     },
     walkthroughs: {
       strategyBackward: {
@@ -617,6 +633,14 @@ export default {
         name: "Existential elimination",
         when: "With ∃x φ on a line, open a [v] box, with v fresh and the hypothesis φ[v/x], and reach ψ. Outside it, write ψ, which cannot have v free. Cite the line of the ∃ and the range of the box.",
       },
+      equalityIntro: {
+        name: "Equality introduction",
+        when: "At any point in the proof you can write t = t, with the same term t on both sides. It cites no line.",
+      },
+      equalityElim: {
+        name: "Equality elimination",
+        when: "From t₁ = t₂ and φ[t₁/x] you can write φ[t₂/x], as long as x is substitutable by t₁ and by t₂ in φ. You choose which occurrences of t₁ become t₂. Cite both lines, in any order.",
+      },
     },
     derivedRules: {
       modusTollens: {
@@ -647,6 +671,22 @@ export default {
         name: "Disjunctive syllogism",
         when: "If you have a disjunction and the negation of one side, the other side remains. Cite both lines. Both proofs show FE at work: the impossible case ends in F and gives the formula of the other case.",
       },
+      notForall: {
+        name: "From ¬∀ to ∃¬",
+        when: "From ¬∀x φ you can write ∃x ¬φ. It is the only one of the four that needs a detour through absurdity: ¬∀x φ does not say which object lacks φ, so the proof assumes there is none and reaches F. Cite the line of the ¬∀.",
+      },
+      existsNot: {
+        name: "From ∃¬ to ¬∀",
+        when: "From ∃x ¬φ you can write ¬∀x φ: one object without φ is enough to deny that all have it. Cite the line of the ∃.",
+      },
+      notExists: {
+        name: "From ¬∃ to ∀¬",
+        when: "From ¬∃x φ you can write ∀x ¬φ. It puts a ∀ in front, so you can then use ∀E with whatever term you need. Cite the line of the ¬∃.",
+      },
+      forallNot: {
+        name: "From ∀¬ to ¬∃",
+        when: "From ∀x ¬φ you can write ¬∃x φ. Use it when the goal is a negated ∃ and you already know that no object has φ. Cite the line of the ∀.",
+      },
     },
     mistakes: {
       andIntroOneSide: "The ∧I rule cites one line for each side, and here there is only line 1. The formula b is nowhere to be found: having one side is not enough to write the conjunction.",
@@ -666,6 +706,8 @@ export default {
       existsIntroMixed: "∃I swaps occurrences of a single term for x. Here a and b would both have to become the same x, and line 1 is not P(t) ∧ Q(t) for any t. Indeed, a can have P and b have Q without any object having both.",
       existsElimEscapes: "The conclusion P(v) has the box's name free, and ∃E does not let v out of the box. Outside, v is no object in particular: the premise says that some object has P, but not which one.",
       existsNotFresh: "The box uses a, which already appears on line 2, so a is not fresh. The object with P may not be the one with Q, and the premises do not say they are the same. The conclusion does not follow.",
+      equalityIntroDifferent: "=I only writes t = t, with the same term on both sides. Sharing a property does not make a and b the same object, and the sequent is not even valid: in a domain with two objects, both with P, a and b can name different objects.",
+      equalityElimBackwards: "With b = a, =E replaces b with a, and line 2 has no b to replace. To go from P(a) to P(b), you need a = b. The sequent is valid, but a step is missing: get a = b from line 1, as in the symmetry figure, and only then apply =E.",
     },
     quiz: {
       heading: "Final quiz",
@@ -783,6 +825,46 @@ export default {
             oneIsWrong: "Soundness says a sequent with a proof has no counterexample. So either the proof has a wrong line, or the valuation is not a counterexample.",
             bothFine: "They cannot be. Each sequent has a proof or a counterexample, never both: that is what soundness guarantees.",
             rulesFail: "The rules are sound: each one preserves truth. What fails is one of the two solutions, and it is worth checking the proof line by line.",
+          },
+        },
+        forallLine: {
+          prompt: "You want to use the ∀ on line 1. Which of these lines is line 3?",
+          why: {
+            right: "∀E removes the ∀x and puts a single term in place of every free occurrence of x. With c, the term of line 2, the next line can already be Q(c), by →E.",
+            twoTerms: "∀E puts the same term in every occurrence of x. Replacing one with c and another with d gives a formula that line 1 does not guarantee.",
+            skipStep: "∀E cites only the line of the ∀ and does not apply the implication. First write P(c) → Q(c) with ∀E, then Q(c) with →E, citing line 2.",
+            wrongRule: "Line 1 is not an implication: its main connective is the ∀. →E only applies once ∀E has removed the quantifier.",
+          },
+        },
+        escapedName: {
+          prompt: "The sequent is valid, but this proof has a wrong line, or else everything is fine. Which is it?",
+          why: {
+            line3: "Line 3 is fine: inside the box, the hypothesis P(u) ∧ Q(u) gives P(u) by ∧E.",
+            line4: "Line 4 takes u out of the box, and ∃E does not let the conclusion have the box name free. Outside, u is no object in particular. The ∃I should stay inside the box, and ∃E would then give ∃x P(x).",
+            line5: "If line 4 were right, line 5 would be too, because ∃I replaces u with x. The problem comes earlier: line 4 takes u out of the ∃E box.",
+            none: "Line 4 has u, the box name, free, and ∃E does not let it out. The conclusion can only talk about objects that exist outside the box.",
+          },
+        },
+        equalityLine: {
+          prompt: "You want to combine the two equalities. Which of these lines is line 3?",
+          why: {
+            right: "In a = b, b is replaced with c using line 2, b = c. =E gives a = c, and the two lines can be cited in any order.",
+            reflexive: "=I only gives a term equal to itself, like a = a. a = c needs the premises.",
+            flipped: "Replacing b with c in a = b gives a = c, not c = a. Turning the equality around would take one more line, as in the symmetry proof.",
+            wrongRule: "Neither line is an implication. To use an equality, the rule is =E.",
+          },
+        },
+        quantifierNegation: {
+          prompt: "Which of these formulas says the same as ¬∀x(P(x) → Q(x))?",
+          options: {
+            someCounter: "∃x(P(x) ∧ ¬Q(x))",
+            allCounter: "∀x(P(x) ∧ ¬Q(x))",
+            negateParts: "∃x(¬P(x) → ¬Q(x))",
+          },
+          why: {
+            someCounter: "By QN1, the negation of a ∀ is an ∃ of the negation: ∃x ¬(P(x) → Q(x)). And an implication is false only with a true antecedent and a false consequent, that is, P(x) ∧ ¬Q(x).",
+            allCounter: "Negating a ∀ does not give another ∀. One object that breaks the implication is enough; they do not all have to.",
+            negateParts: "Negating the implication is not negating each side. ¬(P(x) → Q(x)) says that P(x) holds and Q(x) does not, and ¬P(x) → ¬Q(x) is something else.",
           },
         },
       },
@@ -916,6 +998,24 @@ export default {
           known: "Nothing says that the object with P is a. If you called it a, you would merge what you know about a with an object that may be a different one.",
           fresh: "The object with P could be any object, so it needs a name nothing is known about.",
           same: "x appears on the line of the ∃, so it is not fresh either. Use a name that is on no line above.",
+        },
+      },
+      equalityDirection: {
+        question: "You have c = d on a line. To write Q(d) with =E, which other line do you cite?",
+        options: { before: "Q(c)", flipped: "d = c", none: "None: c = d is enough" },
+        why: {
+          before: "=E replaces c with d in a formula about c. From c = d and Q(c) you get Q(d).",
+          flipped: "d = c is the same equality, turned around, and says nothing about Q. =E needs the formula where it makes the replacement: Q(c).",
+          none: "c = d only says that both names are the same object. To conclude Q(d), you need to know Q of that object, on a line Q(c).",
+        },
+      },
+      swapQuantifiers: {
+        question: "And the other way? Does ∀y∃x R(x, y) ⊢ ∃x∀y R(x, y) have a proof?",
+        options: { valid: "Yes, with the same proof backwards", invalid: "No: there is a countermodel", unknown: "Nobody knows, because first-order logic is undecidable" },
+        why: {
+          valid: "The proof does not reverse. In a domain {1, 2}, with R only at (1, 1) and (2, 2), each y is related to some x, y itself, but no x is related to both.",
+          invalid: "In a domain {1, 2}, with R only at (1, 1) and (2, 2), each y has an x with R(x, y), y itself, but no x has R with both. The premise holds and the conclusion does not, so there is no proof.",
+          unknown: "Undecidability means there is no method that always answers, not that we never know. Here there is a small countermodel: domain {1, 2}, with R only at (1, 1) and (2, 2).",
         },
       },
     },

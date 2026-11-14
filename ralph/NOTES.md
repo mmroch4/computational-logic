@@ -210,3 +210,13 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
 - `ruleSchemaLines` usa o `premiseText` do guided.js (caixas [v]). Cada regra de `LESSON_RULES` tem um erro.
 - `LAB_GUIDED`: `ask: true` nos passos em que o guiado propõe termo ou variável; o teste exige que bata com
   `outcome.ask`, e o `check-learn.mjs` toca em `[data-choice="0"]`. Contagens do check-learn vêm do `lesson.js`.
+
+## C2
+
+- Secções 13–14: `igualdade` (equality), `equivalencias` (equivalences); NQ1–NQ4 em `LESSON_DERIVED` como
+  notForall, existsNot, notExists, forallNot. O filtro `PROPOSITIONAL_DERIVED` saiu do `lesson.test.js`; o dos
+  exercícios fica para a C3.
+- Quiz com 12 perguntas: as 4 de 1.ª ordem vão no fim (forallLine, escapedName, equalityLine,
+  quantifierNegation). O check-learn tira o total do `quizQuestions()` e as formas do `lessonDerivedForms`.
+- Cada `.fitch` tem tabindex="0": uma prova de uma só linha fica com menos de 44px e o a11y do check-page
+  falha (só se vê depois de as figuras montarem: `EVAL` com espera de ~4 s). Há um teste que o impede.
