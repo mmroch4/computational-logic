@@ -213,7 +213,7 @@ variável que escapa, v não nova, captura, ∃E com v na conclusão, =E mal apl
 **Feito quando:** o `tests/docs.test.js`, o `scripts/check-all.sh` e o `scripts/smoke-deploy.sh` local
 passam.
 
-### [ ] P2 · Hub
+### [x] P2 · Hub
 Atualiza o texto da dedução natural no `hub/` para mencionar a 1.ª ordem, em PT e EN. Só altera `hub/`,
 num commit próprio.
 **Feito quando:** os testes do hub passam e a página valida a 390px.
