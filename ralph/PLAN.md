@@ -197,7 +197,7 @@ guardada e dicas PT/EN. Os ids existentes não mudam, nem o progresso guardado.
 seu conjunto, o solver resolve-as todas ou o teste regista as que não resolve, e o
 `scripts/check-exercises.sh` passa.
 
-### [ ] C4 · Encontra o passo errado
+### [x] C4 · Encontra o passo errado
 Cerca de 5 desafios de 1.ª ordem no catálogo (`find-error-catalog.js`), cada um com um erro típico:
 variável que escapa, v não nova, captura, ∃E com v na conclusão, =E mal aplicado.
 **Feito quando:** o verificador assinala exatamente a linha errada de cada desafio, e os testes e o
