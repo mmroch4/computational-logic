@@ -182,6 +182,13 @@ function layoutOf({ constants, functions, predicates }, size) {
   return { offsets, ranges };
 }
 
+/** Número de casas de `layoutOf(signature, size)`, sem as criar. */
+function cellCountOf({ constants, functions, predicates }, size) {
+  let cells = constants.length;
+  for (const { arity } of [...predicates, ...functions]) cells += size ** arity;
+  return cells;
+}
+
 /** Os tuplos de `arity` elementos de {0, …, size − 1}, pela ordem do índice em base `size`. */
 function tuples(size, arity) {
   const result = [];
@@ -288,6 +295,9 @@ export function findCountermodel(goal, { maxSize = COUNTERMODEL_LIMITS.maxSize, 
   const exhausted = () => ({ status: "exhausted", checked, steps: meter.steps });
 
   for (let size = 1; size <= maxSize; size += 1) {
+    // Uma aridade alta faria uma tabela enorme antes de o orçamento contar: com mais casas do que
+    // passos, a procura não ia longe, e os domínios maiores só têm mais casas.
+    if (cellCountOf(signature, size) > budget) return exhausted();
     const { offsets, ranges } = layoutOf(signature, size);
     const [refutes, ...holds] = formulas.map((formula) => compile(formula, offsets, size, new Map(), meter));
     const values = new Int32Array(ranges.length);

@@ -212,6 +212,12 @@ test("a procura respeita o domínio máximo e o orçamento", () => {
   // Para na primeira estrutura que passa o orçamento: no máximo uma avaliação a mais.
   assert.ok(small.steps >= 50 && small.steps < 50 + 64, String(small.steps));
 
+  // Uma aridade alta não cria a tabela: 2³⁰ casas no domínio de 2 passam o orçamento antes de alocar.
+  const wide = `P(${Array(30).fill("a").join(", ")})`;
+  const huge = findCountermodel(goalOf(`${wide} ⊢ ${wide}`));
+  assert.equal(huge.status, "exhausted");
+  assert.equal(huge.checked, 2);
+
   const valid = findCountermodel(goalOf("⊢ ∀x∀y∀z(R(x, y) ∧ R(y, z) → R(x, z)) ∨ ¬∀x∀y∀z(R(x, y) ∧ R(y, z) → R(x, z))"));
   assert.equal(valid.status, "exhausted");
   assert.ok(valid.steps >= COUNTERMODEL_LIMITS.budget, String(valid.steps));
