@@ -11,7 +11,8 @@ import {
 import { createEditor, editorStatus } from "../js/core/editor.js";
 import { applyOutcome, focusObjective, guidedLines, guidedRules, toggleSelection } from "../js/core/guided.js";
 import { solve } from "../js/core/solver.js";
-import { equals, format } from "../js/core/formula.js";
+import { equals, format, freeVariables, isSubstitutable, substitute, term } from "../js/core/formula.js";
+import { findCountermodel } from "../js/core/structures.js";
 import { parseFormula } from "../js/core/parser.js";
 import { accessibleFrom } from "../js/core/proof.js";
 import { formatProof, parseProof } from "../js/core/proof-text.js";
@@ -38,8 +39,13 @@ const page = readFileSync(new URL("../aprender.html", import.meta.url), "utf8");
 const english = readFileSync(new URL("../en/learn.html", import.meta.url), "utf8");
 const SECTIONS = LESSON_SECTIONS.map(({ id, key }, index) => ({ id, number: String(index + 1), title: LOCALES.pt.learn.sections[key] }));
 
-test("a lição tem as 9 secções, por ordem, com âncora e título", () => {
-  assert.equal(LESSON_SECTIONS.length, 9);
+test("a lição tem as 12 secções, por ordem, com âncora e título", () => {
+  assert.equal(LESSON_SECTIONS.length, 12);
+  // As secções de 1.ª ordem vêm no fim: as âncoras das proposicionais não mudam.
+  assert.deepEqual(LESSON_SECTIONS.slice(0, 9).map(({ id }) => id), [
+    "prova", "conjuncao", "implicacao", "subdeducoes", "disjuncao", "negacao", "derivadas", "estrategias", "solidez",
+  ]);
+  assert.match(page, new RegExp(`learn\\.eyebrow">[^<]*${LESSON_SECTIONS.length}`));
   const ids = [...page.matchAll(/<section class="lesson-section" id="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(ids, LESSON_SECTIONS.map(({ id }) => id));
   for (const { id, key } of LESSON_SECTIONS) {
@@ -103,18 +109,24 @@ test("a resposta da primeira pergunta é a regra da linha que ela refere", () =>
   assert.equal(line.rule, LOCALES.pt.learn.checks.firstRule.options[LESSON_CHECKS.firstRule.answer]);
 });
 
-test("as secções 2 a 6 apresentam todas as regras base, cada uma uma vez e pela ordem da lição", () => {
+test("as secções 2 a 6, 11 e 12 apresentam as regras base, cada uma uma vez e pela ordem da lição", () => {
   const used = [...page.matchAll(/data-lesson-rule="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(used, Object.keys(LESSON_RULES));
-  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule), ["∧I", "∧E", "→E", "→I", "R", "∨I", "∨E", "FI", "¬I", "¬E", "FE"]);
-  // As regras de 1.ª ordem têm secções próprias, mais à frente.
-  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule).sort(), PROPOSITIONAL_RULES.map((rule) => rule.id).sort());
+  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule), ["∧I", "∧E", "→E", "→I", "R", "∨I", "∨E", "FI", "¬I", "¬E", "FE", "∀E", "∀I", "∃I", "∃E"]);
+  // A igualdade (=I, =E) tem secção própria, mais à frente.
+  assert.deepEqual(
+    used.map((id) => LESSON_RULES[id].rule).sort(),
+    [...PROPOSITIONAL_RULES.map((rule) => rule.id), "∀E", "∀I", "∃I", "∃E"].sort(),
+  );
+  for (const id of ["∀E", "∀I", "∃I", "∃E"]) assert.ok(BASE_RULES.some((rule) => rule.id === id), id);
   const sections = page.split('<section class="lesson-section"');
   assert.match(sections[2], /data-lesson-rule="andElim"/);
   assert.match(sections[3], /data-lesson-rule="implElim"/);
   assert.match(sections[4], /data-lesson-rule="repeat"/);
   assert.match(sections[5], /data-lesson-rule="orElim"/);
   assert.match(sections[6], /data-lesson-rule="falseElim"/);
+  assert.match(sections[11], /data-lesson-rule="forallElim"[\s\S]*data-lesson-rule="forallIntro"/);
+  assert.match(sections[12], /data-lesson-rule="existsIntro"[\s\S]*data-lesson-rule="existsElim"/);
 });
 
 test("a secção 7 mostra todas as derivadas, cada uma uma vez e pela ordem do catálogo", () => {
@@ -392,11 +404,12 @@ test("o que as notas das provas animadas dizem bate com as provas", () => {
   assert.equal(direct.provable, false);
 });
 
-test("há pelo menos 3 laboratórios, todos na secção 8 e com texto nos dois idiomas", () => {
+test("há 3 laboratórios na secção 8 e um em cada secção de quantificador, com texto nos dois idiomas", () => {
   const used = [...page.matchAll(/data-lesson-lab="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(used, Object.keys(LESSON_LABS));
-  assert.ok(used.length >= 3);
-  assert.equal(sectionHtml(8).match(/data-lesson-lab=/g).length, used.length);
+  assert.equal(sectionHtml(8).match(/data-lesson-lab=/g).length, 3);
+  assert.deepEqual(sectionHtml(11).match(/data-lesson-lab="[^"]+"/g), ['data-lesson-lab="labForall"']);
+  assert.deepEqual(sectionHtml(12).match(/data-lesson-lab="[^"]+"/g), ['data-lesson-lab="labExists"']);
   for (const id of used) for (const locale of Object.values(LOCALES)) {
     for (const key of ["title", "task", "hint"]) assert.ok(locale.learn.labs[id][key], `${id}.${key}`);
   }
@@ -414,11 +427,13 @@ test("cada laboratório resolve-se no modo guiado, passo a passo", () => {
     const { goal, rules } = lessonLab(id);
     let editor = focusObjective(createEditor(goal));
     assert.equal(editorStatus(editor, { rules, known: RULES }).complete, false, id);
-    for (const { pick = [], rule } of LAB_GUIDED[id]) {
+    for (const { pick = [], rule, ask = false } of LAB_GUIDED[id]) {
       let selection = [];
       for (const line of pick) selection = toggleSelection(selection, guidedLines(editor, selection)[line - 1].item);
       const { outcomes } = guidedRules(editor, selection, { rules, known: RULES }).find((option) => option.id === rule);
       assert.equal(outcomes.length, 1, `${id}: ${rule}`);
+      // O Chrome só espera por uma escolha nos passos marcados com `ask`.
+      assert.equal(Boolean(outcomes[0].ask), ask, `${id}: ${rule} ask`);
       editor = applyOutcome(editor, outcomes[0], {});
     }
     assert.equal(editorStatus(editor, { rules, known: RULES }).complete, true, id);
@@ -474,6 +489,79 @@ test("secção 9: o contraexemplo é verdadeiro e o que o texto afirma sobre as 
   assert.equal(solve(goal, { rules: ruleSet("base") }).provable, true);
 });
 
+test("os esquemas das regras de 1.ª ordem mostram a caixa [v] e a substituição", () => {
+  assert.deepEqual(ruleSchemaLines("∀E"), ["∀x φ ⊢ φ[t/x]"]);
+  assert.deepEqual(ruleSchemaLines("∀I"), ["[v] … φ[v/x] ⊢ ∀x φ"]);
+  assert.deepEqual(ruleSchemaLines("∃I"), ["φ[t/x] ⊢ ∃x φ"]);
+  assert.deepEqual(ruleSchemaLines("∃E"), ["∃x φ, [v] φ[v/x] … ψ ⊢ ψ"]);
+  setLang("pt");
+  assert.match(lessonRuleHtml("forallIntro"), /Introdução do universal \(∀I\)/);
+  assert.match(lessonRuleHtml("forallIntro"), /\[v\]/);
+  setLang("en");
+  assert.match(lessonRuleHtml("existsElim"), /Existential elimination \(∃E\)/);
+  setLang("pt");
+});
+
+test("secção 10: o que o texto e as perguntas dizem da linguagem é o que o núcleo faz", () => {
+  const formula = (text) => parseFormula(text).formula;
+  // Os quantificadores ligam como o ¬.
+  assert.ok(equals(formula("∀x P(x) → Q(a)"), formula("(∀x P(x)) → Q(a)")));
+  assert.equal(format(formula("∀x(P(x) → Q(x))")), "∀x(P(x) → Q(x))");
+  // free: em ∀x R(x, y) → P(x), x e y estão livres, e o x de R(x, y) está ligado.
+  const mixed = formula("∀x R(x, y) → P(x)");
+  assert.deepEqual([...freeVariables(mixed)].sort(), ["x", "y"]);
+  assert.deepEqual([...freeVariables(mixed.args[0])], ["y"]);
+  // freeOccurrence: só o x de Q(x) está livre.
+  const free = formula("∃x P(x) ∧ Q(x)");
+  assert.equal(free.kind, "and");
+  assert.deepEqual([...freeVariables(free.args[0])], []);
+  assert.deepEqual([...freeVariables(free.args[1])], ["x"]);
+  // substitution: só as ocorrências livres mudam.
+  assert.equal(format(substitute(formula("P(x) ∧ ∀x Q(x)"), "x", term("a"))), "P(a) ∧ ∀x Q(x)");
+  // capture e captureCheck: y em ∃y R(x, y) e z em ∀z(P(z) → R(x, z)) seriam capturados; a não.
+  assert.equal(isSubstitutable(formula("∃y R(x, y)"), "x", term("y")), false);
+  assert.equal(format(substitute(formula("∃y R(x, y)"), "x", term("y"))), "∃y R(y, y)");
+  assert.equal(isSubstitutable(formula("∀z(P(z) → R(x, z))"), "x", term("z")), false);
+  assert.equal(isSubstitutable(formula("∀z(P(z) → R(x, z))"), "x", term("a")), true);
+  // alpha: ∀y P(y) cita-se como ∀x P(x).
+  const alpha = "1 | ∀x P(x)   premissa\n2 | P(a)      ∀E, 1";
+  assert.equal(verifyProof(parseProof(alpha).proof, parseSequent("∀y P(y) ⊢ P(a)").sequent, ruleSet("completo")).ok, true);
+});
+
+test("secções 11 e 12: o que o texto e as perguntas dizem das regras é o que o verificador faz", () => {
+  const reads = (sequent, text) => verifyProof(parseProof(text).proof, parseSequent(sequent).sequent, ruleSet("completo"));
+  const codes = (result) => result.lineErrors.map(({ code }) => code);
+  const invalid = (sequent) => findCountermodel(parseSequent(sequent).sequent).status === "found";
+  // forallElim: dois ∀E, um por quantificador, com termos diferentes.
+  assert.deepEqual(lessonProof("forallElim").proof.lines.map((line) => line.rule).slice(2, 4), ["∀E", "∀E"]);
+  // forallElimCapture: com a, a regra aplica-se; o sequente do erro é inválido.
+  assert.equal(reads("∀x∃y R(x, y) ⊢ ∃y R(a, y)", "1 | ∀x∃y R(x, y)   premissa\n2 | ∃y R(a, y)     ∀E, 1").ok, true);
+  for (const id of ["forallElimCapture", "forallIntroNotFresh", "existsIntroMixed", "existsElimEscapes", "existsNotFresh"]) {
+    assert.equal(invalid(LESSON_MISTAKES[id].sequent), true, id);
+  }
+  // forallLabel: a caixa do ∀I começa numa linha de etiqueta, e o intervalo na primeira linha numerada.
+  const label = lessonProof("forallLabel").proof;
+  assert.equal(label.lines[0].label, "v");
+  assert.equal(label.lines[0].kind, "hypothesis");
+  assert.equal(label.lines.at(-1).rule, "∀I");
+  // forallIntro: a caixa do ∀I não tem hipótese, a primeira linha é um ∀E.
+  const intro = lessonProof("forallIntro").proof;
+  assert.equal(intro.lines[2].fresh, "v");
+  assert.equal(intro.lines[2].kind, "step");
+  assert.equal(intro.lines[2].rule, "∀E");
+  // freshName: a caixa do ∀I podia chamar-se a (não está antes dela), mas não um nome das premissas.
+  const fresh = (name) => reads("∀x P(x), ∀x Q(x) ⊢ ∀x(P(x) ∧ Q(x))", formatProof(lessonProof("forallIntro").proof).replaceAll("(v)", `(${name})`).replace("[v]", `[${name}]`));
+  assert.equal(fresh("a").ok, true);
+  assert.equal(reads("P(b), ∀x Q(x) ⊢ ∀x Q(x)", "1 | P(b)       premissa\n2 | ∀x Q(x)    premissa\n3 |  [b] Q(b)  ∀E, 2\n4 | ∀x Q(x)    ∀I, 3–3").ok, false);
+  // existsIntro: as duas conclusões saem da mesma linha.
+  assert.equal(formatProof(lessonProof("existsIntro").proof).match(/∃I, 1$/gm).length, 2);
+  // witnessName: com a premissa Q(a), nem a nem x servem de nome à caixa do ∃E; v serve.
+  const witness = (name) => reads("∃x P(x), Q(a) ⊢ ∃y P(y)", `1 | ∃x P(x)   premissa\n2 | Q(a)      premissa\n3 |  [${name}] P(${name})   hipótese\n4 |   ∃y P(y)   ∃I, 3\n5 | ∃y P(y)   ∃E, 1, 3–4`);
+  assert.equal(witness("v").ok, true);
+  assert.deepEqual(codes(witness("a")), ["notFresh"]);
+  assert.deepEqual(codes(witness("x")), ["notFresh"]);
+});
+
 test("índice: uma ligação por secção, a atual assinalada e as anteriores lidas", () => {
   setLang("pt");
   const html = renderLessonToc(SECTIONS, 3, { progress: 0.4 });
@@ -481,9 +569,9 @@ test("índice: uma ligação por secção, a atual assinalada e as anteriores li
   assert.equal(html.match(/aria-current="location"/g).length, 1);
   assert.match(html, /href="#subdeducoes" data-toc-index="3" aria-current="location"/);
   assert.equal(html.match(/lesson-toc__item--done/g).length, 3);
-  assert.match(html, /4\/9/);
+  assert.match(html, /4\/12/);
   assert.match(html, /aria-valuenow="40"/);
-  assert.match(html, /3 de 9 lidas/);
+  assert.match(html, /3 de 12 lidas/);
 });
 
 test("scroll-spy: a última secção que passou a linha; no fim da página, a última", () => {

@@ -202,3 +202,11 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   depois da estratégia. Os `solver.strategies.*` ficam sem parâmetros, porque as dicas os usam com `{}`.
 - Menu de exemplos: grupo `firstOrder` (só válidos) e `someToAll` no `invalid`, que mostra contramodelo
   (`structure`). A demo da página inicial continua proposicional. O `latex.test.js` aceita `forall`, `exists`, `boxed`.
+
+## C1
+
+- Secções 10–12: `linguagem` (language), `universal` (forall), `existencial` (exists). A C2 junta as suas
+  depois destas, sobe o `learn.eyebrow` (o teste exige o número) e acrescenta =I/=E à lista do teste das regras.
+- `ruleSchemaLines` usa o `premiseText` do guided.js (caixas [v]). Cada regra de `LESSON_RULES` tem um erro.
+- `LAB_GUIDED`: `ask: true` nos passos em que o guiado propõe termo ou variável; o teste exige que bata com
+  `outcome.ask`, e o `check-learn.mjs` toca em `[data-choice="0"]`. Contagens do check-learn vêm do `lesson.js`.

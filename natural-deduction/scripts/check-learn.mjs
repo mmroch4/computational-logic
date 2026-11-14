@@ -8,8 +8,15 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { LESSON_LABS, LESSON_MISTAKES, LESSON_RULES, LESSON_SECTIONS } from "../js/core/lesson.js";
 import { quizQuestions } from "../js/core/quiz.js";
 import { LAB_GUIDED } from "../tests/fixtures/lab-guided.js";
+
+// Uma figura `.lesson-rule` por regra e por erro mostrado sozinho, cada uma com uma linha errada.
+const SECTION_COUNT = LESSON_SECTIONS.length;
+const RULE_FIGURES = Object.keys(LESSON_MISTAKES).length;
+const LAB_COUNT = Object.keys(LESSON_LABS).length;
+if (RULE_FIGURES < Object.keys(LESSON_RULES).length) throw new Error("há regras sem erro comum");
 
 const CHROME = process.env.CHROME_BIN || "/usr/bin/google-chrome";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -140,7 +147,7 @@ const titleVisible = (id) => `(() => {
 })()`;
 
 // O quiz é a última figura a montar: a altura das outras empurra as secções seguintes.
-const figuresReady = `document.querySelector(".quiz__option") !== null && document.querySelectorAll(".lesson-rule").length === 12 &&document.querySelectorAll(".lesson-derived").length === 7 && document.querySelectorAll(".lesson-lab .fitch--edit").length === 3 && document.querySelector("[data-lesson-counter] .lesson-figure") !== null && document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
+const figuresReady = `document.querySelector(".quiz__option") !== null && document.querySelectorAll(".lesson-rule").length === ${RULE_FIGURES} && document.querySelectorAll(".lesson-derived").length === 7 && document.querySelectorAll(".lesson-lab .fitch--edit").length === ${LAB_COUNT} && document.querySelector("[data-lesson-counter] .lesson-figure") !== null && document.querySelector(".lesson-check__option") !== null && document.querySelector(".lesson-toc__link") !== null`;
 
 /** Leva o quiz até ao fim com toques: a primeira resposta errada e as outras certas. Depois repete-o. */
 async function quiz({ page, evaluate, tap }, lang, tag) {
@@ -180,15 +187,21 @@ async function quiz({ page, evaluate, tap }, lang, tag) {
   expect(await evaluate(`document.querySelector("${box} .quiz__score").textContent.startsWith("0")`), true, tag("repetir limpa as respostas"));
 }
 
-/** Resolve os 3 laboratórios a 390px, com toques, e experimenta as ações e o outro modo. */
+/**
+ * Resolve os laboratórios a 390px, com toques, e experimenta as ações e o outro modo. Num passo com `ask`, a
+ * ferramenta propõe o termo ou a variável e espera por um toque na escolha.
+ */
 async function labs({ page, evaluate, tap }, tag) {
   const solved = (lab) => evaluate(`document.querySelector('[data-lesson-lab="${lab}"] .proof-editor__status .msg-ok') !== null`);
   for (const [lab, steps] of Object.entries(LAB_GUIDED)) {
     const root = `[data-lesson-lab="${lab}"]`;
     expect(await solved(lab), false, tag(`${lab} começa por resolver`));
-    for (const { pick = [], rule } of steps) {
+    for (const { pick = [], rule, ask = false } of steps) {
       for (const line of pick) await tap(`${root} [data-pick="${line}"]`);
       await tap(`${root} [data-rule="${rule}"]`);
+      if (!ask) continue;
+      await waitFor(() => evaluate(`document.querySelector('${root} [data-ask] input') !== null`), tag(`${lab}: o pedido do ${rule}`));
+      await tap(`${root} [data-choice="0"]`);
     }
     await waitFor(() => solved(lab), tag(`${lab} resolvido`));
     expect(await evaluate(`document.querySelector(${JSON.stringify(root)}).getBoundingClientRect().right <= 390`), true, tag(`${lab} dentro do ecrã`));
@@ -248,16 +261,16 @@ async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path,
   await waitFor(() => evaluate(figuresReady), tag("a lição"));
   await sleep(800); // um scroll a meio tem de acabar: o que conta é onde a página fica
   await waitFor(() => evaluate(titleVisible("negacao")), tag("o título da secção do link direto"));
-  await waitFor(() => evaluate(`document.querySelector(".lesson-toc__position").textContent === "6/9"`), tag("a posição 6/9"));
+  await waitFor(() => evaluate(`document.querySelector(".lesson-toc__position").textContent === "6/${SECTION_COUNT}"`), tag(`a posição 6/${SECTION_COUNT}`));
   expect(await evaluate(`document.querySelector(".lesson-toc__current").textContent`), text.negation, tag("o índice diz a secção"));
   expect(await evaluate(`location.hash`), "#negacao", tag("o endereço mantém a secção"));
   expect(await evaluate(`document.documentElement.scrollWidth <= 390`), true, tag("sem scroll lateral"));
   await writeScreenshot(page, `${lang}-link-direto`);
 
-  // A folha do índice tem as 9 secções, e escolher uma fecha-a e vai lá ter.
+  // A folha do índice tem todas as secções, e escolher uma fecha-a e vai lá ter.
   await tapInPlace(".lesson-toc__summary");
   await waitFor(() => evaluate(`document.querySelector("dialog.sheet[open]") !== null`), tag("a folha do índice"));
-  expect(await evaluate(`document.querySelectorAll("dialog.sheet [data-toc-index]").length`), 9, tag("9 ligações na folha"));
+  expect(await evaluate(`document.querySelectorAll("dialog.sheet [data-toc-index]").length`), SECTION_COUNT, tag("uma ligação por secção na folha"));
   await sleep(300);
   await writeScreenshot(page, `${lang}-folha`);
   await tapInPlace('dialog.sheet [href="#solidez"]');
@@ -293,7 +306,7 @@ async function mobile({ page, evaluate, tap, tapInPlace, resize }, origin, path,
   await writeScreenshot(page, `${lang}-pergunta`);
 
   // Cada figura de regra tem um erro assinalado, e as provas não alargam a página.
-  expect(await evaluate(`document.querySelectorAll('.lesson-rule [data-state="error"]').length`), 12, tag("uma linha errada por figura"));
+  expect(await evaluate(`document.querySelectorAll('.lesson-rule [data-state="error"]').length`), RULE_FIGURES, tag("uma linha errada por figura"));
   expect(await evaluate(`[...document.querySelectorAll(".lesson-rule")].every((figure) => figure.querySelector(".msg-warn") !== null)`), true, tag("cada erro explicado"));
   expect(await evaluate(`[...document.querySelectorAll(".lesson-interactive")].every((box) => box.getBoundingClientRect().right <= 390)`), true, tag("figuras dentro do ecrã"));
   expect(await evaluate(`document.documentElement.scrollWidth <= 390`), true, tag("sem scroll lateral com as regras"));
@@ -324,7 +337,7 @@ async function desktop({ page, evaluate, resize }, origin, path, lang) {
   await resize(1280, 800, false);
   await page("Page.navigate", { url: `${origin}${path}` });
   await waitFor(() => evaluate(figuresReady), tag("a lição"));
-  expect(await evaluate(`document.querySelectorAll(".lesson-toc__link").length`), 9, tag("9 ligações no índice"));
+  expect(await evaluate(`document.querySelectorAll(".lesson-toc__link").length`), SECTION_COUNT, tag("uma ligação por secção no índice"));
   expect(await evaluate(`document.querySelector(".lesson-toc__link").getBoundingClientRect().width > 100`), true, tag("índice visível"));
   expect(await evaluate(`document.querySelector(".lesson-toc__summary").getBoundingClientRect().height`), 0, tag("sem barra do índice"));
   await evaluate(`document.querySelector('.lesson-toc [href="#subdeducoes"]').click()`);

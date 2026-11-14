@@ -351,7 +351,7 @@ export default {
   learn: {
     title: "Aprender dedução natural",
     lead: "Uma lição sobre as regras, as subdeduções e as estratégias para encontrar uma prova.",
-    eyebrow: "Lição · 9 secções",
+    eyebrow: "Lição · 12 secções",
     interactive: "Interativo",
     progressLabel: "Progresso da leitura",
     toc: {
@@ -371,6 +371,9 @@ export default {
       derived: "Regras derivadas",
       strategy: "Estratégias",
       meta: "Solidez e completude",
+      language: "Linguagem de 1.ª ordem",
+      forall: "Quantificador universal (∀)",
+      exists: "Quantificador existencial (∃)",
     },
     proof: {
       p1: "Uma prova parte das premissas e chega à conclusão por passos pequenos, cada um justificado por uma regra. Em notação de Fitch, cada linha diz a fórmula, a regra que a permite e as linhas em que essa regra se apoia. Se todas as linhas estiverem certas, a conclusão segue das premissas.",
@@ -440,6 +443,30 @@ export default {
       rules: "Nenhuma das duas é automática, porque dependem das regras escolhidas. Se tirares ¬E às regras base, por exemplo, a ∨ ¬a continua verdadeira em todas as valorações e deixa de ter prova.",
       together: "Juntas, as duas dizem que ⊢ e ⊨ coincidem. Cada sequente tem uma prova ou um contraexemplo, nunca os dois. A completude diz só que a prova existe, não que seja curta nem fácil de encontrar, e é para isso que servem as estratégias.",
     },
+    language: {
+      p1: "Até aqui, cada variável era um bloco fechado: a é verdadeira ou falsa, e não há como olhar para dentro dela. A lógica de 1.ª ordem abre esses blocos. Fala de objetos, das propriedades que têm e das relações entre eles, e deixa dizer «todos» e «algum».",
+      terms: "Os objetos nomeiam-se com termos. Um termo é um nome, como a, b ou x, ou uma função aplicada a termos, como f(a) ou g(x, b). Aqui, o nome não diz se é constante ou variável: um nome é variável onde um quantificador o liga, e livre fica a valer por um objeto concreto de que nada se sabe.",
+      predicates: "Uma fórmula atómica aplica um predicado a termos. P(a) diz que a tem a propriedade P, e R(a, b) diz que a está na relação R com b. Um predicado sem argumentos, como p, é uma variável como as das secções anteriores, por isso tudo o que viste continua a valer. Há ainda a igualdade, t₁ = t₂, que tem regras próprias.",
+      quantifiers: "Há dois quantificadores. ∀x φ diz que φ vale para todos os objetos, e ∃x φ diz que vale para pelo menos um. Escrevem-se com ∀ e ∃, ou com forall x e exists x. Ligam como o ¬, mais do que qualquer conectivo, e por isso ∀x P(x) → Q(a) é (∀x P(x)) → Q(a). Para o quantificador abranger a implicação toda, usa parênteses: ∀x(P(x) → Q(x)).",
+      free: "Uma ocorrência de x está ligada quando fica dentro de um ∀x ou de um ∃x, e livre quando não fica. A mesma variável pode ter ocorrências dos dois tipos na mesma fórmula. Em ∀x R(x, y) → P(x), o x de R(x, y) está ligado, o x de P(x) está livre, e y está livre.",
+      substitution: "As regras dos quantificadores trocam uma variável por um termo. φ[t/x] é a fórmula φ com t no lugar de cada ocorrência livre de x. As ligadas ficam como estão: (P(x) ∧ ∀x Q(x))[a/x] é P(a) ∧ ∀x Q(x).",
+      capture: "Há uma armadilha. Se t tiver uma variável que um quantificador de φ liga, a troca muda o sentido da fórmula. ∃y R(x, y) diz que x está relacionado com algum objeto, e pôr y no lugar de x dá ∃y R(y, y), que diz que algum objeto está relacionado consigo próprio. O y do termo ficou capturado. Por isso, as regras só trocam x por t quando x é substituível por t em φ: nenhuma ocorrência livre de x pode estar dentro de um quantificador que ligue uma variável de t.",
+      alpha: "Por fim, o nome de uma variável ligada não conta. ∀x P(x) e ∀y P(y) dizem o mesmo, e o verificador aceita uma no lugar da outra, ao citar e ao comparar com a conclusão.",
+    },
+    forall: {
+      p1: "Uma linha com ∀x φ é uma garantia geral: φ vale para qualquer objeto. Para a usares, escolhes o objeto.",
+      p2: "O ∀E tira só o quantificador de fora. Com dois, como no exemplo, são dois passos, e cada um escolhe o seu termo. O termo nem precisa de aparecer antes na prova.",
+      p3: "Provar ∀x φ pede mais. Não dá para ver os objetos um a um, por isso mostras φ para um objeto genérico, de que não sabes nada em especial. Esse objeto é um nome novo, v, e o raciocínio fica numa caixa com a marca [v] à margem da primeira linha.",
+      p4: "A caixa do ∀I não tem hipótese. A primeira linha é um passo normal, com a sua regra, e a marca [v] só diz qual é o objeto genérico. Se a primeira linha tiver de ser uma hipótese, para um →I ou um ¬I, a marca fica sozinha numa linha sem número, e a hipótese abre a sua caixa por dentro. O intervalo do ∀I começa na primeira linha numerada.",
+      p5: "A condição «v nova» é o que torna o objeto genérico. Se v já aparecesse numa linha acessível, saberias alguma coisa sobre ele, e o que provasses podia valer só para ele.",
+      lab: "No laboratório, aplicar ∀I ao objetivo abre a caixa e propõe o nome v. Podes trocá-lo por outro antes de confirmar.",
+    },
+    exists: {
+      p1: "∃x φ diz que há pelo menos um objeto com φ, sem dizer qual. Chegar lá é fácil, porque basta um exemplo. Usá-lo pede mais cuidado.",
+      p2: "No exemplo, a mesma linha R(a, a) dá duas conclusões diferentes, conforme as ocorrências de a que passam a x. O erro comum é o contrário: juntar dois objetos diferentes na mesma variável.",
+      p3: "A ideia do ∃E é dar um nome provisório ao objeto que existe. Como não sabes qual é, o nome tem de ser novo, para nada do que já sabes falar dele. E o nome só vale dentro da caixa: cá fora não se sabe a que objeto se refere, por isso a conclusão não o pode ter livre.",
+      lab: "Quando uma premissa é um ∃, abre a caixa do ∃E cedo, como no ∨E: dentro dela tens mais uma linha para usar. O objetivo da caixa é o mesmo que o de fora.",
+    },
     proofFigure: {
       prev: "Anterior",
       next: "Seguinte",
@@ -455,6 +482,8 @@ export default {
       strategyBackward: "Da conclusão para trás",
       strategyCases: "Uma disjunção nas premissas",
       strategyAbsurd: "Redução ao absurdo",
+      forallLabel: "Uma caixa [v] que começa por uma hipótese",
+      existsNotFresh: "Erro comum: dar ao objeto do ∃E um nome que já existe",
     },
     walkthroughs: {
       strategyBackward: {
@@ -504,6 +533,16 @@ export default {
         title: "Laboratório: redução ao absurdo",
         task: "Nenhuma premissa dá a diretamente. Tens as regras base e RA.",
         hint: "Aplica RA ao objetivo. Dentro da subdedução, a hipótese ¬a serve de antecedente à linha 1, e o resultado contradiz a linha 2.",
+      },
+      labForall: {
+        title: "Laboratório: uma caixa [v]",
+        task: "A conclusão é um ∀, por isso a prova acaba com ∀I. Dentro da caixa, o objetivo é uma implicação. Tens as regras base.",
+        hint: "Aplica ∀I e depois →I ao objetivo. Toca na linha 1 e escolhe ∀E, com o termo v. A partir daí, →E e ∧E chegam a R(v).",
+      },
+      labExists: {
+        title: "Laboratório: um exemplo sem nome",
+        task: "A primeira premissa só diz que algum objeto tem P e Q. Usa-a com ∃E. Tens as regras base.",
+        hint: "Toca na linha 1 e escolhe ∃E. Dentro da caixa, aplica ∃I ao objetivo com o termo v. Falta R(v): a linha 2 dá Q(v) → R(v) com ∀E, e a hipótese dá Q(v) com ∧E.",
       },
     },
     counters: {
@@ -563,6 +602,22 @@ export default {
         name: "Eliminação de F",
         when: "De F podes escrever qualquer fórmula φ. Cita a linha de F.",
       },
+      forallElim: {
+        name: "Eliminação do universal",
+        when: "De ∀x φ podes escrever φ[t/x], com qualquer termo t, desde que x seja substituível por t em φ. Cita a linha do ∀.",
+      },
+      forallIntro: {
+        name: "Introdução do universal",
+        when: "Abre uma caixa [v], com v nova, e chega a φ[v/x] na última linha. Fora dela, escreve ∀x φ e cita a caixa como intervalo. v é nova se não aparecer em nenhuma linha acessível antes da caixa, premissas incluídas, e também não pode estar livre em ∀x φ.",
+      },
+      existsIntro: {
+        name: "Introdução do existencial",
+        when: "De φ[t/x] podes escrever ∃x φ, desde que x seja substituível por t em φ. Escolhes que ocorrências de t passam a x: não têm de ser todas. Cita a linha do exemplo.",
+      },
+      existsElim: {
+        name: "Eliminação do existencial",
+        when: "Com ∃x φ numa linha, abre uma caixa [v], com v nova e a hipótese φ[v/x], e chega a ψ. Fora dela, escreve ψ, que não pode ter v livre. Cita a linha do ∃ e o intervalo da caixa.",
+      },
     },
     derivedRules: {
       modusTollens: {
@@ -607,6 +662,11 @@ export default {
       notIntroNoFalse: "A subdedução tem de acabar em F. Acabar numa fórmula negada não chega, porque ¬b e a podem ser verdadeiras ao mesmo tempo. O sequente nem sequer é válido.",
       notElimOneNegation: "A linha 1 tem só uma negação à frente. A outra está lá dentro, em ¬a, e nega apenas uma parte. A regra ¬E exige ¬¬ a abrir a fórmula toda, por isso não se aplica.",
       falseElimNoFalse: "¬a não é F, e a regra FE só aceita uma linha com F. Para este sequente, supõe a, escreve F com FI, depois b com FE, e fecha com →I.",
+      forallElimCapture: "O termo é y, e o x da linha 1 está dentro de ∃y: o y novo ficava ligado, por isso x não é substituível por y em ∃y R(x, y). A premissa diz que cada objeto está relacionado com algum, e a linha 2 diria que algum está relacionado consigo próprio, o que não se segue. Com um termo sem y, como a, a regra dá ∃y R(a, y).",
+      forallIntroNotFresh: "A caixa usa a, que já aparece na linha 1, por isso a não é nova. Saber P(a) diz alguma coisa sobre a, não sobre um objeto qualquer. O sequente nem sequer é válido: num domínio com dois objetos, um pode ter P e o outro não.",
+      existsIntroMixed: "O ∃I troca por x ocorrências de um só termo. Aqui era preciso trocar a e b pelo mesmo x, e a linha 1 não é P(t) ∧ Q(t) para nenhum t. De facto, a pode ter P e b ter Q sem haver um objeto com as duas.",
+      existsElimEscapes: "A conclusão P(v) tem livre o nome da caixa, e o ∃E não deixa v sair dela. Cá fora, v não é nenhum objeto em particular: a premissa diz que algum objeto tem P, mas não diz qual.",
+      existsNotFresh: "A caixa usa a, que já aparece na linha 2, por isso a não é nova. O objeto com P pode não ser o que tem Q, e as premissas não dizem que são o mesmo. A conclusão não se segue.",
     },
     quiz: {
       heading: "Quiz final",
@@ -821,6 +881,42 @@ export default {
           always: "Trocas as letras da prova de MT pelas fórmulas da aplicação e pões esses passos no lugar de cada linha com MT. A prova fica mais longa e continua certa.",
           sometimes: "Não depende: cada derivada tem uma prova só com regras base, e essa prova serve para quaisquer fórmulas.",
           never: "MT tem uma prova só com regras base. Uma derivada encurta uma prova, mas não te dá nada de novo.",
+        },
+      },
+      freeOccurrence: {
+        question: "Em ∃x P(x) ∧ Q(x), que ocorrências de x estão livres?",
+        options: { none: "Nenhuma: o ∃x liga as duas", last: "Só a de Q(x)", all: "As duas" },
+        why: {
+          none: "O ∃x liga como o ¬, só até ao fim de P(x). A fórmula é (∃x P(x)) ∧ Q(x), e Q(x) fica de fora.",
+          last: "O ∃x só abrange P(x), porque liga mais do que o ∧. O x de Q(x) está livre. Para o ∃x apanhar as duas, escreve ∃x(P(x) ∧ Q(x)).",
+          all: "O x de P(x) está dentro do ∃x, por isso está ligado. Só o de Q(x) fica de fora.",
+        },
+      },
+      captureCheck: {
+        question: "Em ∀z(P(z) → R(x, z)), x é substituível por z?",
+        options: { yes: "Sim, porque x está livre", captured: "Não: o z ficava ligado pelo ∀z", bound: "Não, porque x está ligado" },
+        why: {
+          yes: "x está livre, mas está dentro do ∀z. Trocá-lo por z dava R(z, z), e esse z novo passava a ser o do quantificador.",
+          captured: "A ocorrência de x está dentro do ∀z, e o termo é z. Depois da troca, o ∀z ligava-o, e a fórmula diria outra coisa. Com a, por exemplo, a troca já se pode fazer.",
+          bound: "Nenhum quantificador liga x: o único é ∀z. O problema está no termo, porque z ficaria ligado.",
+        },
+      },
+      freshName: {
+        question: "Numa caixa [v] do ∀I, que nome pode ter v?",
+        options: { any: "Qualquer nome, porque a caixa o isola", unused: "Um nome que não apareça em nenhuma linha acessível antes da caixa", constant: "Só um nome que já esteja nas premissas" },
+        why: {
+          any: "A caixa não basta. Se v já estivesse numa premissa, o que provasses sobre ele podia depender dessa premissa e não valer para todos.",
+          unused: "É a condição «v nova». Assim, v não tem nada de especial, e o que se prova sobre ele vale para qualquer objeto.",
+          constant: "É ao contrário: um nome das premissas é um objeto de que já sabes alguma coisa. O nome da caixa tem de ser novo.",
+        },
+      },
+      witnessName: {
+        question: "As premissas são ∃x P(x) e Q(a). Que nome dás ao objeto da caixa do ∃E?",
+        options: { known: "a, que já aparece nas premissas", fresh: "Um nome novo, como v", same: "x, a variável do ∃" },
+        why: {
+          known: "Nada diz que o objeto com P é a. Se o chamasses a, juntavas o que sabes de a a um objeto que pode ser outro.",
+          fresh: "O objeto com P pode ser qualquer um, por isso tem de ter um nome de que nada se sabe.",
+          same: "x aparece na linha do ∃, por isso também não é novo. Usa um nome que não esteja em nenhuma linha acima.",
         },
       },
     },

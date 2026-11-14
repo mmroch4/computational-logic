@@ -350,7 +350,7 @@ export default {
   learn: {
     title: "Learn natural deduction",
     lead: "A lesson on the rules, subproofs and the strategies for finding a proof.",
-    eyebrow: "Lesson · 9 sections",
+    eyebrow: "Lesson · 12 sections",
     interactive: "Interactive",
     progressLabel: "Reading progress",
     toc: {
@@ -370,6 +370,9 @@ export default {
       derived: "Derived rules",
       strategy: "Strategies",
       meta: "Soundness and completeness",
+      language: "First-order language",
+      forall: "Universal quantifier (∀)",
+      exists: "Existential quantifier (∃)",
     },
     proof: {
       p1: "A proof starts from the premises and reaches the conclusion in small steps, each justified by a rule. In Fitch notation, every line states the formula, the rule that allows it and the lines that rule relies on. If every line is correct, the conclusion follows from the premises.",
@@ -439,6 +442,30 @@ export default {
       rules: "Neither result is automatic, because both depend on the chosen rules. If you remove ¬E from the base rules, for example, a ∨ ¬a stays true under every valuation and no longer has a proof.",
       together: "Together, they say that ⊢ and ⊨ coincide. Every sequent has either a proof or a counterexample, never both. Completeness only says that the proof exists, not that it is short or easy to find, and that is what strategies are for.",
     },
+    language: {
+      p1: "So far, each variable was a closed block: a is true or false, and there is no way to look inside it. First-order logic opens those blocks. It talks about objects, the properties they have and the relations between them, and lets you say “all” and “some”.",
+      terms: "Objects are named by terms. A term is a name, like a, b or x, or a function applied to terms, like f(a) or g(x, b). Here, a name does not tell you whether it is a constant or a variable: a name is a variable where a quantifier binds it, and when free it stands for a concrete object you know nothing about.",
+      predicates: "An atomic formula applies a predicate to terms. P(a) says that a has the property P, and R(a, b) says that a is in the relation R with b. A predicate with no arguments, like p, is a variable like the ones in the earlier sections, so everything you have seen still holds. There is also equality, t₁ = t₂, which has rules of its own.",
+      quantifiers: "There are two quantifiers. ∀x φ says that φ holds for every object, and ∃x φ says that it holds for at least one. You write them with ∀ and ∃, or with forall x and exists x. They bind like ¬, tighter than any connective, so ∀x P(x) → Q(a) is (∀x P(x)) → Q(a). For the quantifier to cover the whole implication, use parentheses: ∀x(P(x) → Q(x)).",
+      free: "An occurrence of x is bound when it sits inside a ∀x or an ∃x, and free when it does not. The same variable can have occurrences of both kinds in one formula. In ∀x R(x, y) → P(x), the x of R(x, y) is bound, the x of P(x) is free, and y is free.",
+      substitution: "The quantifier rules swap a variable for a term. φ[t/x] is the formula φ with t in place of every free occurrence of x. Bound ones stay as they are: (P(x) ∧ ∀x Q(x))[a/x] is P(a) ∧ ∀x Q(x).",
+      capture: "There is a trap. If t has a variable that a quantifier of φ binds, the swap changes what the formula means. ∃y R(x, y) says that x is related to some object, and putting y in place of x gives ∃y R(y, y), which says that some object is related to itself. The y of the term has been captured. That is why the rules only swap x for t when x is substitutable by t in φ: no free occurrence of x may sit inside a quantifier that binds a variable of t.",
+      alpha: "Finally, the name of a bound variable does not matter. ∀x P(x) and ∀y P(y) say the same thing, and the checker accepts one in place of the other, when citing and when comparing with the conclusion.",
+    },
+    forall: {
+      p1: "A line with ∀x φ is a general guarantee: φ holds for any object. To use it, you pick the object.",
+      p2: "∀E removes only the outermost quantifier. With two, as in the example, it takes two steps, and each one picks its own term. The term does not even need to appear earlier in the proof.",
+      p3: "Proving ∀x φ asks for more. You cannot check the objects one by one, so you show φ for a generic object, one you know nothing special about. That object is a new name, v, and the reasoning goes in a box marked [v] in the margin of its first line.",
+      p4: "The ∀I box has no hypothesis. Its first line is an ordinary step, with its own rule, and the [v] mark only says which object is the generic one. If the first line has to be a hypothesis, for an →I or a ¬I, the mark sits alone on a line with no number, and the hypothesis opens its own box inside. The ∀I range starts at the first numbered line.",
+      p5: "The “v fresh” condition is what makes the object generic. If v already appeared on an accessible line, you would know something about it, and what you proved might hold only for it.",
+      lab: "In the lab, applying ∀I to the goal opens the box and suggests the name v. You can change it before confirming.",
+    },
+    exists: {
+      p1: "∃x φ says that at least one object has φ, without saying which. Getting there is easy, because one example is enough. Using it takes more care.",
+      p2: "In the example, the same line R(a, a) gives two different conclusions, depending on which occurrences of a become x. The common mistake is the opposite: merging two different objects into one variable.",
+      p3: "The idea of ∃E is to give the object that exists a temporary name. Since you do not know which object it is, the name has to be new, so that nothing you already know talks about it. And the name only means something inside the box: outside, nobody knows which object it refers to, so the conclusion cannot have it free.",
+      lab: "When a premise is an ∃, open the ∃E box early, as with ∨E: inside it you have one more line to use. The goal of the box is the same as the goal outside.",
+    },
     proofFigure: {
       prev: "Previous",
       next: "Next",
@@ -454,6 +481,8 @@ export default {
       strategyBackward: "Working back from the conclusion",
       strategyCases: "A disjunction in the premises",
       strategyAbsurd: "Reductio ad absurdum",
+      forallLabel: "A [v] box that starts with a hypothesis",
+      existsNotFresh: "Common mistake: giving the ∃E object a name that is already in use",
     },
     walkthroughs: {
       strategyBackward: {
@@ -503,6 +532,16 @@ export default {
         title: "Lab: reductio ad absurdum",
         task: "No premise gives a directly. You have the base rules and RAA.",
         hint: "Apply RAA to the goal. Inside the subproof, the hypothesis ¬a is the antecedent of line 1, and the result contradicts line 2.",
+      },
+      labForall: {
+        title: "Lab: a [v] box",
+        task: "The conclusion is a ∀, so the proof ends with ∀I. Inside the box, the goal is an implication. You have the base rules.",
+        hint: "Apply ∀I and then →I to the goal. Tap line 1 and pick ∀E, with the term v. From there, →E and ∧E reach R(v).",
+      },
+      labExists: {
+        title: "Lab: an example without a name",
+        task: "The first premise only says that some object has P and Q. Use it with ∃E. You have the base rules.",
+        hint: "Tap line 1 and pick ∃E. Inside the box, apply ∃I to the goal with the term v. R(v) is left: line 2 gives Q(v) → R(v) with ∀E, and the hypothesis gives Q(v) with ∧E.",
       },
     },
     counters: {
@@ -562,6 +601,22 @@ export default {
         name: "F elimination",
         when: "From F you can write any formula φ. Cite the line of F.",
       },
+      forallElim: {
+        name: "Universal elimination",
+        when: "From ∀x φ you can write φ[t/x], with any term t, as long as x is substitutable by t in φ. Cite the line of the ∀.",
+      },
+      forallIntro: {
+        name: "Universal introduction",
+        when: "Open a [v] box, with v fresh, and reach φ[v/x] on its last line. Outside it, write ∀x φ and cite the box as a range. v is fresh if it does not appear on any accessible line before the box, premises included, and it also cannot be free in ∀x φ.",
+      },
+      existsIntro: {
+        name: "Existential introduction",
+        when: "From φ[t/x] you can write ∃x φ, as long as x is substitutable by t in φ. You choose which occurrences of t become x: they need not be all of them. Cite the line of the example.",
+      },
+      existsElim: {
+        name: "Existential elimination",
+        when: "With ∃x φ on a line, open a [v] box, with v fresh and the hypothesis φ[v/x], and reach ψ. Outside it, write ψ, which cannot have v free. Cite the line of the ∃ and the range of the box.",
+      },
     },
     derivedRules: {
       modusTollens: {
@@ -606,6 +661,11 @@ export default {
       notIntroNoFalse: "The subproof must end in F. Ending on a negated formula is not enough, because ¬b and a can both be true at once. The sequent is not even valid.",
       notElimOneNegation: "Line 1 has only one negation in front. The other is inside, in ¬a, and negates just a part. The ¬E rule requires ¬¬ at the start of the whole formula, so it does not apply.",
       falseElimNoFalse: "¬a is not F, and the FE rule only accepts a line with F. For this sequent, suppose a, write F with FI, then b with FE, and close with →I.",
+      forallElimCapture: "The term is y, and the x of line 1 sits inside ∃y: the new y would be bound, so x is not substitutable by y in ∃y R(x, y). The premise says that every object is related to some object, and line 2 would say that some object is related to itself, which does not follow. With a term without y, like a, the rule gives ∃y R(a, y).",
+      forallIntroNotFresh: "The box uses a, which already appears on line 1, so a is not fresh. Knowing P(a) tells you something about a, not about an arbitrary object. The sequent is not even valid: in a domain with two objects, one can have P and the other not.",
+      existsIntroMixed: "∃I swaps occurrences of a single term for x. Here a and b would both have to become the same x, and line 1 is not P(t) ∧ Q(t) for any t. Indeed, a can have P and b have Q without any object having both.",
+      existsElimEscapes: "The conclusion P(v) has the box's name free, and ∃E does not let v out of the box. Outside, v is no object in particular: the premise says that some object has P, but not which one.",
+      existsNotFresh: "The box uses a, which already appears on line 2, so a is not fresh. The object with P may not be the one with Q, and the premises do not say they are the same. The conclusion does not follow.",
     },
     quiz: {
       heading: "Final quiz",
@@ -820,6 +880,42 @@ export default {
           always: "You swap the letters in the proof of MT for the formulas of the application and put those steps in place of each MT line. The proof gets longer and stays correct.",
           sometimes: "It doesn't depend: each derived rule has a proof with base rules only, and that proof works for any formulas.",
           never: "MT has a proof with base rules only. A derived rule shortens a proof, but gives you nothing new.",
+        },
+      },
+      freeOccurrence: {
+        question: "In ∃x P(x) ∧ Q(x), which occurrences of x are free?",
+        options: { none: "None: ∃x binds both", last: "Only the one in Q(x)", all: "Both" },
+        why: {
+          none: "∃x binds like ¬, only up to the end of P(x). The formula is (∃x P(x)) ∧ Q(x), and Q(x) is left out.",
+          last: "∃x only covers P(x), because it binds tighter than ∧. The x of Q(x) is free. For ∃x to cover both, write ∃x(P(x) ∧ Q(x)).",
+          all: "The x of P(x) is inside ∃x, so it is bound. Only the one in Q(x) is left out.",
+        },
+      },
+      captureCheck: {
+        question: "In ∀z(P(z) → R(x, z)), is x substitutable by z?",
+        options: { yes: "Yes, because x is free", captured: "No: z would be bound by ∀z", bound: "No, because x is bound" },
+        why: {
+          yes: "x is free, but it sits inside ∀z. Swapping it for z would give R(z, z), and that new z would become the quantifier's.",
+          captured: "The occurrence of x is inside ∀z, and the term is z. After the swap, ∀z would bind it, and the formula would say something else. With a, for example, the swap is fine.",
+          bound: "No quantifier binds x: the only one is ∀z. The problem is the term, because z would become bound.",
+        },
+      },
+      freshName: {
+        question: "In a [v] box of ∀I, what name can v have?",
+        options: { any: "Any name, because the box isolates it", unused: "A name that does not appear on any accessible line before the box", constant: "Only a name that is already in the premises" },
+        why: {
+          any: "The box is not enough. If v were already in a premise, what you proved about it could depend on that premise and not hold for everything.",
+          unused: "That is the “v fresh” condition. That way v has nothing special, and what you prove about it holds for any object.",
+          constant: "It is the other way round: a name from the premises is an object you already know something about. The box's name has to be new.",
+        },
+      },
+      witnessName: {
+        question: "The premises are ∃x P(x) and Q(a). What name do you give the object of the ∃E box?",
+        options: { known: "a, which already appears in the premises", fresh: "A new name, like v", same: "x, the variable of the ∃" },
+        why: {
+          known: "Nothing says that the object with P is a. If you called it a, you would merge what you know about a with an object that may be a different one.",
+          fresh: "The object with P could be any object, so it needs a name nothing is known about.",
+          same: "x appears on the line of the ∃, so it is not fresh either. Use a name that is on no line above.",
         },
       },
     },
