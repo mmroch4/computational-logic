@@ -7,24 +7,25 @@ import { displayName, format } from "../core/formula.js";
 import {
   checkForm, emptyForm, formulaPremise, subproofPremise,
 } from "../core/rule-form.js";
+import { SEMANTICS_ERROR_CODES } from "../core/semantics.js";
 import { USER_RULE_ERROR_CODES, USER_RULE_LIMITS } from "../core/user-rules.js";
 import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
 import { msgHtml } from "./message.js";
-import { ERROR_DELAY_MS, SYMBOL_KEYS, insertSymbol } from "./sequent-input.js";
+import { ERROR_DELAY_MS, FIRST_ORDER_KEYS, SYMBOL_KEYS, insertSymbol } from "./sequent-input.js";
 
 /** As teclas do esquema: as metavariáveis primeiro, porque é com elas que se escreve uma regra. */
 export const SCHEMA_KEYS = [
   { name: "phi", label: "φ", insert: "φ" },
   { name: "psi", label: "ψ", insert: "ψ" },
   { name: "theta", label: "θ", insert: "θ" },
-  ...SYMBOL_KEYS.filter(({ name }) => !["comma", "turnstile"].includes(name)),
+  ...SYMBOL_KEYS.filter(({ name }) => !["comma", "turnstile", ...FIRST_ORDER_KEYS].includes(name)),
 ];
 
 /** A frase de um erro de `checkForm`, que pode vir de `user-rules.js`, do parser ou da semântica. */
 export function ruleErrorText({ code, params }) {
   if (USER_RULE_ERROR_CODES.includes(code)) return t(`userRules.errors.${code}`, params);
-  return t(`${code === "tooManyVariables" ? "semantics" : "parser"}.errors.${code}`, params);
+  return t(`${SEMANTICS_ERROR_CODES.includes(code) ? "semantics" : "parser"}.errors.${code}`, params);
 }
 
 function premiseHtml(premise) {

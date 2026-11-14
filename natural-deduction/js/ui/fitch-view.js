@@ -43,13 +43,44 @@ export function formulaHtml(formula) {
   });
 }
 
-export function barsHtml({ kind, depth }) {
+/** Se a linha abre a caixa da sua profundidade: uma hipótese ou um passo com variável (∀I). */
+export const opensBox = ({ kind, fresh = null }) => kind === "hypothesis" || (kind === "step" && fresh !== null);
+
+export function barsHtml(line) {
+  const { depth } = line;
   const bars = Array.from({ length: depth + 1 }, (_, index) => {
-    const opens = kind === "hypothesis" && index === depth;
+    const opens = opensBox(line) && index === depth;
     return `<span class="${opens ? "fitch__bar fitch__bar--open" : "fitch__bar"}"></span>`;
   });
   return `<span class="fitch__bars" aria-hidden="true">${bars.join("")}</span>`;
 }
+
+/** Um nome de variável, com o sufixo numérico em subscrito, como nas fórmulas. */
+export const nameHtml = (name) => escapeHtml(name).replace(/\d+$/, (digits) => `<sub>${digits}</sub>`);
+
+/** A marca `[v]` da caixa com variável, à margem da primeira linha; lê-se «caixa da variável v». */
+export const freshHtml = (name) => (
+  `<span class="fitch__fresh">${readAsHtml(`[${nameHtml(name)}]`, t("fitch.fresh", { variable: name }))}</span>`
+);
+
+/**
+ * A linha de etiqueta antes de uma hipótese com `label` (a caixa do ∀I que começa numa hipótese): sem
+ * número, sem fórmula e sem justificação, só a barra da caixa que abre e a marca. Vazia nas outras linhas.
+ */
+export function labelRowHtml({ depth, label = null }) {
+  if (label === null) return "";
+  const bars = Array.from({ length: depth }, (_, index) => (
+    `<span class="${index === depth - 1 ? "fitch__bar fitch__bar--open" : "fitch__bar"}"></span>`
+  ));
+  return '<li class="fitch__line fitch__line--label">'
+    + '<span class="fitch__gutter"></span>'
+    + `<span class="fitch__body"><span class="fitch__bars" aria-hidden="true">${bars.join("")}</span>`
+    + `<span class="fitch__fresh">${readAsHtml(`[${nameHtml(label)}]`, t("fitch.labelLine", { variable: label }))}</span></span>`
+    + '<span class="fitch__why"></span></li>';
+}
+
+/** A marca da linha, se ela abre uma caixa com variável, antes da fórmula. */
+export const lineFreshHtml = ({ fresh = null }) => (fresh === null ? "" : freshHtml(fresh));
 
 const speechWords = () => LOCALES[getLang()].speech;
 
@@ -102,9 +133,10 @@ export function lineHtml(line, index, { state, assumption, pick = null, mark = n
   const number = index + 1;
   const formulaClasses = assumption ? "fitch__formula fitch__formula--assumption" : "fitch__formula";
   const attrs = (state ? ` data-state="${state}"` : "") + (mark ? ` data-step-mark="${mark}"` : "");
-  return `<li class="fitch__line" data-line="${number}"${attrs}>`
+  return `${labelRowHtml(line)}<li class="fitch__line" data-line="${number}"${attrs}>`
     + `<span class="fitch__gutter">${numberHtml(number, pick)}${state ? stateHtml(state) : ""}</span>`
-    + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}<span class="${formulaClasses}">${formulaReadHtml(line.formula)}</span></span>`
+    + `<span class="fitch__body">${barsHtml(line)}${depthHtml(line)}${lineFreshHtml(line)}`
+    + `<span class="${formulaClasses}">${formulaReadHtml(line.formula)}</span></span>`
     + whyHtml(justificationText(line))
     + "</li>";
 }

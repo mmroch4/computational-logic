@@ -2357,10 +2357,10 @@
     color: var(--color-text);
   }
 
-  /* Teclas: a 390px, 5 por linha para terem 44px, com o ⊢ a ocupar duas. */
+  /* Teclas: a 390px, 6 por linha, com pelo menos 44px; as 12 do sequente enchem duas linhas. */
   .keys {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 6px;
   }
 
@@ -2380,10 +2380,6 @@
     .keys button:hover {
       background: var(--color-border);
     }
-  }
-
-  .keys [data-symbol="turnstile"] {
-    grid-column: span 2;
   }
 
   .preview {
@@ -2504,9 +2500,26 @@
     white-space: pre;
   }
 
-  .fitch__formula sub {
+  .fitch__formula sub,
+  .fitch__fresh sub {
     font-size: 0.75em;
     line-height: 0;
+  }
+
+  /* A variável da caixa do ∀I ou do ∃E, à margem, logo a seguir à barra que a caixa abre. */
+  .fitch__fresh {
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding-inline: 2px 4px;
+    color: var(--color-text-2);
+    font-weight: 600;
+    white-space: pre;
+  }
+
+  /* A linha de etiqueta não tem número: só a barra da caixa e a marca. */
+  .fitch__line--label {
+    min-height: 28px;
   }
 
   .fitch__formula--assumption {
@@ -3140,7 +3153,8 @@
     gap: 6px;
   }
 
-  .proof-editor__shortcuts {
+  .proof-editor__shortcuts,
+  .proof-editor__boxes {
     color: var(--color-text-muted);
     font-size: 13px;
     line-height: 1.5;
@@ -3342,6 +3356,31 @@
 
   .guided__reason:empty {
     display: none;
+  }
+
+  /* O termo ou a variável nova que a ferramenta escolheu, para mudar. */
+  .guided__ask {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+  }
+
+  .guided__ask-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .guided__ask-input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: 16px; /* 16px: evita o zoom automático do iOS */
+  }
+
+  .guided__ask .btn {
+    min-height: 44px;
   }
 
   /* Partilhar e exportar a prova. */
@@ -3682,6 +3721,25 @@
     font-family: var(--font-mono);
     font-size: 15px;
     overflow-wrap: anywhere;
+  }
+
+  /* Contramodelo de 1.ª ordem: uma linha por parte da estrutura, com os valores em fichas. */
+  .assist__structure {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .assist__structure dt {
+    margin-bottom: 4px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .assist__structure dd {
+    margin: 0;
   }
 
   .assist__body .fitch {

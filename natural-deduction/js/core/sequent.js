@@ -2,10 +2,11 @@
 // Contrato:
 //   parseSequent(text) → { ok: true, sequent: { premises, conclusion } }
 //                      | { ok: false, error: { code, params, start, end } }
+//   isPropositionalSequent(sequent) → boolean: sem quantificadores, termos nem `=`
 // As posições são índices em `text`, mesmo nos erros que vêm de `parseFormula`. As mensagens estão
 // em `parser.errors.*`, junto das do parser. O limite de tamanho aplica-se a cada fórmula.
 
-import { format } from "./formula.js";
+import { format, isPropositional } from "./formula.js";
 import { parseFormula } from "./parser.js";
 
 /** Códigos de erro próprios dos sequentes; os outros são os `ERROR_CODES` do parser. */
@@ -19,9 +20,31 @@ export const SEQUENT_ERROR_CODES = [
 
 /**
  * `|-` é sempre o ⊢, mesmo que pudesse ler-se como `| -`. Para escrever p ∨ ¬q com estes símbolos,
- * usa-se um espaço: `p | -q`.
+ * usa-se um espaço: `p | -q`. As vírgulas entre os argumentos de `P(a, b)` não separam premissas: são
+ * as que estão dentro de um parêntese aberto logo a seguir a um nome. Nos outros parênteses separam,
+ * para `p, (q, r) ⊢ s` dar o mesmo erro que antes da 1.ª ordem.
  */
-const SEPARATOR_RE = /⊢|\|-|,/g;
+const SEPARATOR_RE = /⊢|\|-|,|\(|\)/g;
+const WORD_END_RE = /([A-Za-z0-9_₀-₉]+)\s*$/;
+
+/** Indica se o texto acaba num nome, que não `v` nem `F`: um `(` a seguir abre argumentos. */
+const endsInName = (text) => !["v", "F", undefined].includes(WORD_END_RE.exec(text)?.[1]);
+
+/** Os ⊢ e as vírgulas que separam, com a posição de cada um. */
+function separatorsOf(text) {
+  const separators = [];
+  const open = []; // true para os parênteses de argumentos
+  for (const { 0: written, index } of text.matchAll(SEPARATOR_RE)) {
+    if (written === "(") open.push(endsInName(text.slice(0, index)));
+    else if (written === ")") open.pop();
+    else {
+      if (written !== ",") open.length = 0;
+      else if (open[open.length - 1]) continue;
+      separators.push({ written, start: index, end: index + written.length });
+    }
+  }
+  return separators;
+}
 
 const failure = (code, start, end, params = {}) => ({ ok: false, error: { code, params, start, end } });
 
@@ -42,11 +65,7 @@ function parseSlice(text, start, end) {
 export function parseSequent(text) {
   if (text.trim() === "") return failure("emptyInput", 0, text.length);
 
-  const separators = [...text.matchAll(SEPARATOR_RE)].map(({ 0: written, index }) => ({
-    written,
-    start: index,
-    end: index + written.length,
-  }));
+  const separators = separatorsOf(text);
   const [turnstile, secondTurnstile] = separators.filter(({ written }) => written !== ",");
   if (!turnstile) return failure("missingTurnstile", 0, text.length);
   if (secondTurnstile) {
@@ -82,6 +101,11 @@ export function parseSequent(text) {
   const conclusion = parseSlice(text, turnstile.end, text.length);
   if (!conclusion.ok) return conclusion;
   return { ok: true, sequent: sequent(premises, conclusion.formula) };
+}
+
+/** Se o sequente é proposicional: todas as premissas e a conclusão o são. */
+export function isPropositionalSequent({ premises, conclusion }) {
+  return premises.every(isPropositional) && isPropositional(conclusion);
 }
 
 /** Imprime o sequente; `parseSequent` volta a lê-lo. */

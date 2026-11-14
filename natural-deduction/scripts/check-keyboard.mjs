@@ -332,6 +332,46 @@ async function guiding(cdp, vp) {
   await open.close();
 }
 
+// 1.ª ordem no modo guiado, só com teclas: o ∀I sugere a variável nova, o Tab chega ao campo dela com
+// foco visível, e o Enter aplica-a mudada; o →I e o R acabam a prova.
+async function guidingFirstOrder(cdp, vp) {
+  const tag = `/provar guiado 1.ª ordem @${vp.width}`;
+  const page = await openPage(cdp, `/provar?s=${encodeURIComponent("⊢ ∀x(P(x) → P(x))")}`, vp);
+  await page.evaluate(`document.querySelector("#start-proof")?.click()`);
+  await sleep(100);
+  await page.evaluate(`document.querySelector("[data-mode=guided]").click()`);
+  await sleep(100);
+  await page.evaluate(`document.querySelector("[data-rule='∀I']").focus()`);
+  await page.enter();
+  await sleep(100);
+  const suggested = await page.evaluate(`document.querySelector("[data-ask] input")?.value ?? null`);
+  if (suggested !== "v") problems.push(`${tag}: o ∀I sugeriu «${suggested}»`);
+  await page.evaluate(`document.querySelector("[data-choice]").focus()`);
+  await page.tab();
+  const state = await page.evaluate(FOCUS_STATE);
+  if (!(await page.evaluate(`document.activeElement.matches("[data-ask] input")`))) {
+    problems.push(`${tag}: o Tab depois da escolha foi para ${state?.label}`);
+  } else if (!state.focusVisible || !state.indicator) {
+    problems.push(`${tag}: o campo da variável não mostra o foco`);
+  }
+  await page.evaluate(`document.activeElement.select()`);
+  await page.type("u");
+  await page.enter();
+  await sleep(100);
+  const marked = await page.evaluate(`[...document.querySelectorAll(".fitch-pick")].some((line) => line.textContent.includes("[u]"))`);
+  if (!marked) problems.push(`${tag}: o Enter no campo não abriu a caixa [u]`);
+  if (await page.evaluate(`document.activeElement === document.body`)) problems.push(`${tag}: o foco perdeu-se depois do ∀I`);
+  for (const rule of ["→I", "R"]) {
+    await page.evaluate(`document.querySelector("[data-rule='${rule}']").focus()`);
+    await page.enter();
+    await sleep(100);
+  }
+  if (!(await page.evaluate(`document.querySelector(".proof-editor__status .msg-ok") !== null`))) {
+    problems.push(`${tag}: a prova não ficou completa`);
+  }
+  await page.close();
+}
+
 // Na árvore, um Tab chega à conclusão, as setas andam entre as fórmulas e o Tab seguinte sai dela.
 async function treeKeys(cdp, vp) {
   const tag = `/provar árvore @${vp.width}`;
@@ -366,6 +406,7 @@ try {
     await timelineKeys(cdp, vp);
     await writing(cdp, vp);
     await guiding(cdp, vp);
+    await guidingFirstOrder(cdp, vp);
     await treeKeys(cdp, vp);
   }
 } finally {

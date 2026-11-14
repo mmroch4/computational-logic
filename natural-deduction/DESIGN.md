@@ -162,12 +162,12 @@ campos; o tema (`css/src/basecoat-vega.css`) é uma parte do original, com esses
 | Botão | `.btn` + `data-variant`, `data-size` | Primário a tinta; `secondary`, `outline`, `ghost`. Alturas 32/40/48px; 44px no mobile. |
 | Segmented | `.seg`, `.seg.sm` | Fundo `surface-2`, opção ativa em branco com sombra; setas movem a seleção. |
 | Mensagem | `.msg`, `.msg-info`… | Ícone + texto com veredito a negrito. |
-| Vista de Fitch | `.fitch` | Número e estado presos à esquerda, barras de escopo, fórmula em mono e justificação. Estados: certa (`ev-ok`, visto), erro (`ev-conflict`, triângulo e fundo suave), por acabar (`text-muted`, círculo). Scroll horizontal só dentro do bloco. |
+| Vista de Fitch | `.fitch` | Número e estado presos à esquerda, barras de escopo, fórmula em mono e justificação. Estados: certa (`ev-ok`, visto), erro (`ev-conflict`, triângulo e fundo suave), por acabar (`text-muted`, círculo). Scroll horizontal só dentro do bloco. A variável nova do ∀I e do ∃E é a marca `.fitch__fresh`, a negrito em `text-2`, entre a barra que a caixa abre e a fórmula; a linha de etiqueta `.fitch__line--label` não tem número, só a barra e a marca. |
 | Editor de prova | `.proof-editor`, `.fitch--edit` | A vista de Fitch com campos de fórmula e justificação; sem scroll horizontal, cada campo desloca o próprio texto. |
 | Modo guiado | `.guided`, `.fitch-pick` | Cada linha é um botão com toda a largura; escolhem-se as linhas e depois a regra. |
 | Árvore de Gentzen | `.tree-panel`, `.gentzen`, `.gt` | Só de leitura, com scroll horizontal próprio; as setas andam entre fórmulas. |
-| Campo de sequente | `.sequent-input`, `.field-box`, `.keys`, `.preview` | Textarea sobre um espelho, teclas de símbolos e pré-visualização. A 390px, 5 teclas por linha. |
-| Ajuda | `.assist` | Dicas por níveis, solução e contraexemplo. |
+| Campo de sequente | `.sequent-input`, `.field-box`, `.keys`, `.preview` | Textarea sobre um espelho, teclas de símbolos e pré-visualização. A 390px, 6 teclas por linha (com ∀, ∃ e =), de 44px. |
+| Ajuda | `.assist` | Dicas por níveis, solução e contraexemplo: valoração na lógica proposicional e, na de 1.ª ordem, estrutura `.assist__structure` (domínio, constantes, funções e predicados, uma linha cada). |
 | Regras próprias | `.rules-panel`, `.rules-form`, `.rule-scheme` | Painel de uma linha, fechado, entre o sequente e a prova. |
 | Player | `.step-player`, `.step-card`, `.timeline`, `.play` | Explicação do passo, linha atual a tinta e citadas a azul; timeline fixa, com pontos coloridos por tipo de passo. |
 | Lição | `.lesson`, `.lesson-toc`, `.lesson-figure`, `.quiz` | Índice, artigo de 42rem e figuras em `surface`, mais largas do que o texto. |

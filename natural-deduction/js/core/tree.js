@@ -6,10 +6,12 @@
 //     | { status: "ready", tree, size } | { status: "tooLarge", limit }
 //     a árvore de uma prova acabada, da última linha.
 //   Nó: { kind: "assumption", formula, line, source: "premise" | "hypothesis", label }
-//       { kind: "inference", formula, line, rule, discharges, premises }
+//       { kind: "inference", formula, line, rule, discharges, premises, variable? }
 //     line: a linha de Fitch de onde o nó veio.
 //     label: número da regra que descarrega a hipótese, ou null se ninguém a descarrega.
-//     discharges: os números das hipóteses que a regra descarrega, um por subdedução citada.
+//     discharges: os números das hipóteses que a regra descarrega, um por subdedução citada que tenha
+//       hipótese. A caixa [v] do ∀I não descarrega nada; a do ∃E descarrega a hipótese, como as outras.
+//     variable: a variável nova da caixa [v] citada (∀I, ∃E); só existe quando há caixa [v].
 //     premises: os nós de cima, pela ordem das premissas da regra, e não pela das citações. Com TE
 //       fica vazio. Uma subdedução citada dá a árvore da última linha dela.
 // Cada subdedução citada tem um número próprio, de baixo para cima e da esquerda para a direita.
@@ -17,7 +19,7 @@
 // duas vezes, e a árvore pode crescer exponencialmente com a prova: daí MAX_TREE_NODES.
 
 import { RULES } from "./rules.js";
-import { citationsInRuleOrder, verifyLine, verifyProof } from "./verify.js";
+import { citationsInRuleOrder, rangeBox, verifyLine, verifyProof } from "./verify.js";
 
 /** Códigos de erro de `treeAt`. */
 export const TREE_ERROR_CODES = [
@@ -80,21 +82,28 @@ function build({ lines }, root, orders) {
     if (line.rule === "R") return node(citedLine(order[0]), scope);
 
     const discharges = [];
+    let variable = null;
     const premises = order.map((citation) => {
       if (citation.kind === "line") return node(citation.line, scope);
+      const box = rangeBox(lines, citation);
+      variable ??= box.variable;
+      // A caixa do ∀I não tem hipótese a descarregar: a da linha de etiqueta é da caixa de dentro.
+      if (box.kind === "forall") return node(citation.to, scope);
       const label = nextLabel;
       nextLabel += 1;
       discharges.push(label);
       return node(citation.to, new Map(scope).set(citation.from, label));
     });
-    return Object.freeze({
+    const inference = {
       kind: "inference",
       formula: line.formula,
       line: n,
       rule: line.rule,
       discharges: Object.freeze(discharges),
       premises: Object.freeze(premises),
-    });
+    };
+    if (variable !== null) inference.variable = variable;
+    return Object.freeze(inference);
   }
 
   return node(root, new Map());

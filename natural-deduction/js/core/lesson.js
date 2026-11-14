@@ -6,6 +6,7 @@
 // Uma prova é `{ sequent, text }`, com `text` no formato de `proof-text.js`, e o título em
 // `learn.figures.<id>`. Uma pergunta é `{ options, answer }`, com o texto em `learn.checks.<id>.*`.
 import { format } from "./formula.js";
+import { premiseText } from "./guided.js";
 import { parseProof } from "./proof-text.js";
 import { DERIVED_RULES, RULES, ruleGoal, ruleSet } from "./rules.js";
 import { checkSequent } from "./semantics.js";
@@ -22,6 +23,11 @@ export const LESSON_SECTIONS = Object.freeze([
   { id: "derivadas", key: "derived" },
   { id: "estrategias", key: "strategy" },
   { id: "solidez", key: "meta" },
+  { id: "linguagem", key: "language" },
+  { id: "universal", key: "forall" },
+  { id: "existencial", key: "exists" },
+  { id: "igualdade", key: "equality" },
+  { id: "equivalencias", key: "equivalences" },
 ]);
 
 export const LESSON_PROOFS = Object.freeze({
@@ -188,6 +194,85 @@ export const LESSON_PROOFS = Object.freeze({
 5 |   F             FI, 4, 1
 6 | a               RA, 2–5`,
   },
+  forallElim: {
+    sequent: "∀x∀y(R(x, y) → R(y, x)), R(a, b) ⊢ R(b, a)",
+    text: `
+1 | ∀x∀y(R(x, y) → R(y, x))   premissa
+2 | R(a, b)                   premissa
+3 | ∀y(R(a, y) → R(y, a))     ∀E, 1
+4 | R(a, b) → R(b, a)         ∀E, 3
+5 | R(b, a)                   →E, 2, 4`,
+  },
+  forallIntro: {
+    sequent: "∀x P(x), ∀x Q(x) ⊢ ∀x(P(x) ∧ Q(x))",
+    text: `
+1 | ∀x P(x)             premissa
+2 | ∀x Q(x)             premissa
+3 |  [v] P(v)           ∀E, 1
+4 |   Q(v)              ∀E, 2
+5 |   P(v) ∧ Q(v)       ∧I, 3, 4
+6 | ∀x(P(x) ∧ Q(x))     ∀I, 3–5`,
+  },
+  forallLabel: {
+    sequent: "⊢ ∀x(P(x) ∧ Q(x) → Q(x))",
+    text: `
+  |  [v]
+1 |     P(v) ∧ Q(v)          hipótese
+2 |     Q(v)                 ∧E, 1
+3 |   P(v) ∧ Q(v) → Q(v)     →I, 1–2
+4 | ∀x(P(x) ∧ Q(x) → Q(x))   ∀I, 1–3`,
+  },
+  existsIntro: {
+    sequent: "R(a, a) ⊢ ∃x R(a, x) ∧ ∃x R(x, x)",
+    text: `
+1 | R(a, a)                     premissa
+2 | ∃x R(a, x)                  ∃I, 1
+3 | ∃x R(x, x)                  ∃I, 1
+4 | ∃x R(a, x) ∧ ∃x R(x, x)     ∧I, 2, 3`,
+  },
+  existsElim: {
+    sequent: "∃x R(x, x) ⊢ ∃x∃y R(x, y)",
+    text: `
+1 | ∃x R(x, x)          premissa
+2 |  [v] R(v, v)        hipótese
+3 |   ∃y R(v, y)        ∃I, 2
+4 |   ∃x∃y R(x, y)      ∃I, 3
+5 | ∃x∃y R(x, y)        ∃E, 1, 2–4`,
+  },
+  equalityIntro: {
+    sequent: "P(a) ⊢ ∃x(x = a ∧ P(x))",
+    text: `
+1 | P(a)               premissa
+2 | a = a              =I
+3 | a = a ∧ P(a)       ∧I, 2, 1
+4 | ∃x(x = a ∧ P(x))   ∃I, 3`,
+  },
+  equalityElim: {
+    sequent: "a = b, R(a, a) ⊢ R(a, b) ∧ R(b, b)",
+    text: `
+1 | a = b               premissa
+2 | R(a, a)             premissa
+3 | R(a, b)             =E, 1, 2
+4 | R(b, b)             =E, 1, 2
+5 | R(a, b) ∧ R(b, b)   ∧I, 3, 4`,
+  },
+  equalitySymmetry: {
+    sequent: "c = d ⊢ d = c",
+    text: `
+1 | c = d   premissa
+2 | c = c   =I
+3 | d = c   =E, 1, 2`,
+  },
+  strategyExistsFirst: {
+    sequent: "∃x∀y R(x, y) ⊢ ∀y∃x R(x, y)",
+    text: `
+1 | ∃x∀y R(x, y)       premissa
+2 |  [u] ∀y R(u, y)    hipótese
+3 |    [v] R(u, v)     ∀E, 2
+4 |     ∃x R(x, v)     ∃I, 3
+5 |   ∀y∃x R(x, y)     ∀I, 3–4
+6 | ∀y∃x R(x, y)       ∃E, 1, 2–5`,
+  },
 });
 
 /**
@@ -234,6 +319,32 @@ export const LESSON_LABS = Object.freeze({
 4 |   b      →E, 3, 1
 5 |   F      FI, 4, 2
 6 | a        RA, 3–5`,
+  },
+  labForall: {
+    sequent: "∀x(P(x) → Q(x) ∧ R(x)) ⊢ ∀x(P(x) → R(x))",
+    rules: "base",
+    solution: `
+1 | ∀x(P(x) → Q(x) ∧ R(x))   premissa
+  |  [v]
+2 |     P(v)                 hipótese
+3 |     P(v) → Q(v) ∧ R(v)   ∀E, 1
+4 |     Q(v) ∧ R(v)          →E, 2, 3
+5 |     R(v)                 ∧E, 4
+6 |   P(v) → R(v)            →I, 2–5
+7 | ∀x(P(x) → R(x))          ∀I, 2–6`,
+  },
+  labExists: {
+    sequent: "∃x(P(x) ∧ Q(x)), ∀x(Q(x) → R(x)) ⊢ ∃x R(x)",
+    rules: "base",
+    solution: `
+1 | ∃x(P(x) ∧ Q(x))    premissa
+2 | ∀x(Q(x) → R(x))    premissa
+3 |  [v] P(v) ∧ Q(v)   hipótese
+4 |   Q(v) → R(v)      ∀E, 2
+5 |   Q(v)             ∧E, 3
+6 |   R(v)             →E, 5, 4
+7 |   ∃x R(x)          ∃I, 6
+8 | ∃x R(x)            ∃E, 1, 3–7`,
   },
 });
 
@@ -358,6 +469,71 @@ export const LESSON_MISTAKES = Object.freeze({
     line: 2,
     code: "ruleNotApplicable",
   },
+  forallElimCapture: {
+    sequent: "∀x∃y R(x, y) ⊢ ∃y R(y, y)",
+    text: `
+1 | ∀x∃y R(x, y)   premissa
+2 | ∃y R(y, y)     ∀E, 1`,
+    line: 2,
+    code: "notSubstitutable",
+  },
+  forallIntroNotFresh: {
+    sequent: "P(a) ⊢ ∀x P(x)",
+    text: `
+1 | P(a)          premissa
+2 |  [a] P(a)     R, 1
+3 | ∀x P(x)       ∀I, 2–2`,
+    line: 3,
+    code: "notFresh",
+  },
+  existsIntroMixed: {
+    sequent: "P(a) ∧ Q(b) ⊢ ∃x(P(x) ∧ Q(x))",
+    text: `
+1 | P(a) ∧ Q(b)        premissa
+2 | ∃x(P(x) ∧ Q(x))    ∃I, 1`,
+    line: 2,
+    code: "formulaMismatch",
+  },
+  existsElimEscapes: {
+    sequent: "∃x P(x) ⊢ P(v)",
+    text: `
+1 | ∃x P(x)        premissa
+2 |  [v] P(v)      hipótese
+3 |   P(v)         R, 2
+4 | P(v)           ∃E, 1, 2–3`,
+    line: 4,
+    code: "variableEscapes",
+  },
+  existsNotFresh: {
+    sequent: "∃x P(x), Q(a) ⊢ ∃x(P(x) ∧ Q(x))",
+    text: `
+1 | ∃x P(x)               premissa
+2 | Q(a)                  premissa
+3 |  [a] P(a)             hipótese
+4 |   P(a) ∧ Q(a)         ∧I, 3, 2
+5 |   ∃x(P(x) ∧ Q(x))     ∃I, 4
+6 | ∃x(P(x) ∧ Q(x))       ∃E, 1, 3–5`,
+    line: 6,
+    code: "notFresh",
+  },
+  equalityIntroDifferent: {
+    sequent: "P(a), P(b) ⊢ a = b",
+    text: `
+1 | P(a)    premissa
+2 | P(b)    premissa
+3 | a = b   =I`,
+    line: 3,
+    code: "formulaMismatch",
+  },
+  equalityElimBackwards: {
+    sequent: "b = a, P(a) ⊢ P(b)",
+    text: `
+1 | b = a   premissa
+2 | P(a)    premissa
+3 | P(b)    =E, 1, 2`,
+    line: 3,
+    code: "formulaMismatch",
+  },
 });
 
 /**
@@ -376,6 +552,12 @@ export const LESSON_RULES = Object.freeze({
   notIntro: { rule: "¬I", example: "notIntro", mistake: "notIntroNoFalse" },
   notElim: { rule: "¬E", example: "notElim", mistake: "notElimOneNegation" },
   falseElim: { rule: "FE", example: "falseElim", mistake: "falseElimNoFalse" },
+  forallElim: { rule: "∀E", example: "forallElim", mistake: "forallElimCapture" },
+  forallIntro: { rule: "∀I", example: "forallIntro", mistake: "forallIntroNotFresh" },
+  existsIntro: { rule: "∃I", example: "existsIntro", mistake: "existsIntroMixed" },
+  existsElim: { rule: "∃E", example: "existsElim", mistake: "existsElimEscapes" },
+  equalityIntro: { rule: "=I", example: "equalityIntro", mistake: "equalityIntroDifferent" },
+  equalityElim: { rule: "=E", example: "equalityElim", mistake: "equalityElimBackwards" },
 });
 
 /**
@@ -390,6 +572,10 @@ export const LESSON_DERIVED = Object.freeze({
   deMorgan: { rule: "DM" },
   hypotheticalSyllogism: { rule: "SH" },
   disjunctiveSyllogism: { rule: "SD" },
+  notForall: { rule: "NQ1" },
+  existsNot: { rule: "NQ2" },
+  notExists: { rule: "NQ3" },
+  forallNot: { rule: "NQ4" },
 });
 
 export const LESSON_CHECKS = Object.freeze({
@@ -402,6 +588,12 @@ export const LESSON_CHECKS = Object.freeze({
   rewriteDerived: { options: ["always", "sometimes", "never"], answer: "always" },
   goalNegation: { options: ["suppose", "eliminate", "repeat"], answer: "suppose" },
   counterMeans: { options: ["noProof", "harder", "newRule"], answer: "noProof" },
+  freeOccurrence: { options: ["none", "last", "all"], answer: "last" },
+  captureCheck: { options: ["yes", "captured", "bound"], answer: "captured" },
+  freshName: { options: ["any", "unused", "constant"], answer: "unused" },
+  witnessName: { options: ["known", "fresh", "same"], answer: "fresh" },
+  equalityDirection: { options: ["before", "flipped", "none"], answer: "before" },
+  swapQuantifiers: { options: ["valid", "invalid", "unknown"], answer: "invalid" },
 });
 
 /** A prova `id` já lida: `{ goal, proof }`. Os testes garantem que todas se leem. */
@@ -456,14 +648,13 @@ export function lessonDerivedForms(id) {
     .map((rule) => ({ goal: ruleGoal(rule), proof: parseProof(rule.proof).proof }));
 }
 
-const premiseText = (premise) => (
-  premise.kind === "subproof" ? `[${format(premise.hypothesis)}] … ${format(premise.conclusion)}` : format(premise.schema)
-);
-
-/** O esquema de uma regra, a partir do catálogo: uma linha por forma e conclusão, como `φ ∧ ψ ⊢ φ`. */
+/**
+ * O esquema de uma regra, a partir do catálogo: uma linha por forma e conclusão, como `φ ∧ ψ ⊢ φ`. As caixas
+ * [v] escrevem-se como no modo guiado: `[v] … φ[v/x] ⊢ ∀x φ`.
+ */
 export function ruleSchemaLines(ruleId) {
   return RULES.filter(({ id }) => id === ruleId).flatMap(({ premises, conclusions }) => {
-    const left = premises.map(premiseText).join(", ");
+    const left = premises.map((premise) => premiseText(premise)).join(", ");
     return conclusions.map((conclusion) => `${left} ⊢ ${format(conclusion)}`.trimStart());
   });
 }

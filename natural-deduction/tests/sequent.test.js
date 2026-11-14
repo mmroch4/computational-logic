@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { and, atom, equals, format, implies, not, or } from "../js/core/formula.js";
+import { and, atom, eq, equals, exists, forall, format, implies, not, or, term } from "../js/core/formula.js";
 import { INPUT_LIMITS } from "../js/core/parser.js";
 import { SEQUENT_ERROR_CODES, formatSequent, parseSequent, sequent } from "../js/core/sequent.js";
 import pt from "../js/ui/locales/pt.js";
@@ -94,6 +94,41 @@ test("os erros das fórmulas apontam para o sítio certo do sequente", () => {
     const { error } = parseSequent(text);
     assert.equal(error?.code, code, text);
     assert.deepEqual([error.start, error.end], [start, end], text);
+  }
+});
+
+test("as vírgulas entre argumentos não separam premissas", () => {
+  const [a, b] = ["a", "b"].map((name) => term(name));
+  const P = (...args) => atom("P", args);
+  assertReads("P(a, b), Q(a) ⊢ P(b, a)", [P(a, b), atom("Q", [a])], P(b, a));
+  assertReads("⊢ P(a, b)", [], P(a, b));
+  assertReads("P(f(a, b), a),P(a,b)⊢p", [P(term("f", [a, b]), a), P(a, b)], atom("p"));
+  assertReads("∀x(P(x, a) → P(a, x)), (P(a, b) ∧ p) ⊢ a = b", [
+    forall("x", implies(P(term("x"), a), P(a, term("x")))),
+    and(P(a, b), atom("p")),
+  ], eq(a, b));
+  assertReads("forall x P(x, x) |- exists y P(y, y)", [forall("x", P(term("x"), term("x")))], exists("y", P(term("y"), term("y"))));
+});
+
+test("nos outros parênteses a vírgula separa, como antes da 1.ª ordem", () => {
+  const cases = [
+    { text: "p v (q, r) ⊢ s", code: "unbalanced", start: 4, end: 5 },
+    { text: "(p, q ⊢ r", code: "unbalanced", start: 0, end: 1 },
+    { text: "P(a, b ⊢ q", code: "unbalanced", start: 1, end: 2 },
+    { text: "p ⊢ P(a, b), q", code: "multipleConclusions", start: 11, end: 12 },
+    { text: "p, P(a, ¬b) ⊢ q", code: "notATerm", start: 8, end: 9 },
+  ];
+  for (const { text, code, start, end } of cases) {
+    const { error } = parseSequent(text);
+    assert.equal(error?.code, code, text);
+    assert.deepEqual([error.start, error.end], [start, end], text);
+  }
+});
+
+test("imprimir e voltar a ler dá o mesmo sequente de 1.ª ordem", () => {
+  for (const text of ["P(a, b), ∀x∃y R(x, y) ⊢ ∃y R(a, y)", "f(a) = b, ¬a = b ⊢ ∀v(v = v)"]) {
+    const once = formatSequent(read(text));
+    assert.equal(formatSequent(read(once)), once);
   }
 });
 

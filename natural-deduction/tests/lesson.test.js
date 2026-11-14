@@ -11,11 +11,12 @@ import {
 import { createEditor, editorStatus } from "../js/core/editor.js";
 import { applyOutcome, focusObjective, guidedLines, guidedRules, toggleSelection } from "../js/core/guided.js";
 import { solve } from "../js/core/solver.js";
-import { equals, format } from "../js/core/formula.js";
+import { equals, format, freeVariables, isSubstitutable, substitute, term } from "../js/core/formula.js";
+import { findCountermodel, isCountermodel } from "../js/core/structures.js";
 import { parseFormula } from "../js/core/parser.js";
 import { accessibleFrom } from "../js/core/proof.js";
 import { formatProof, parseProof } from "../js/core/proof-text.js";
-import { BASE_RULES, DERIVED_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
+import { BASE_RULES, DERIVED_RULES, isFirstOrderRule, PROPOSITIONAL_RULES, RULES, ruleGoal, ruleSet } from "../js/core/rules.js";
 import { checkSequent } from "../js/core/semantics.js";
 import { formatSequent, parseSequent } from "../js/core/sequent.js";
 import { verifyProof } from "../js/core/verify.js";
@@ -35,8 +36,16 @@ const page = readFileSync(new URL("../aprender.html", import.meta.url), "utf8");
 const english = readFileSync(new URL("../en/learn.html", import.meta.url), "utf8");
 const SECTIONS = LESSON_SECTIONS.map(({ id, key }, index) => ({ id, number: String(index + 1), title: LOCALES.pt.learn.sections[key] }));
 
-test("a lição tem as 9 secções, por ordem, com âncora e título", () => {
-  assert.equal(LESSON_SECTIONS.length, 9);
+test("a lição tem as 14 secções, por ordem, com âncora e título", () => {
+  assert.equal(LESSON_SECTIONS.length, 14);
+  // As secções de 1.ª ordem vêm no fim: as âncoras das proposicionais não mudam.
+  assert.deepEqual(LESSON_SECTIONS.slice(0, 9).map(({ id }) => id), [
+    "prova", "conjuncao", "implicacao", "subdeducoes", "disjuncao", "negacao", "derivadas", "estrategias", "solidez",
+  ]);
+  assert.deepEqual(LESSON_SECTIONS.slice(9).map(({ id }) => id), [
+    "linguagem", "universal", "existencial", "igualdade", "equivalencias",
+  ]);
+  assert.match(page, new RegExp(`learn\\.eyebrow">[^<]*${LESSON_SECTIONS.length}`));
   const ids = [...page.matchAll(/<section class="lesson-section" id="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(ids, LESSON_SECTIONS.map(({ id }) => id));
   for (const { id, key } of LESSON_SECTIONS) {
@@ -100,25 +109,37 @@ test("a resposta da primeira pergunta é a regra da linha que ela refere", () =>
   assert.equal(line.rule, LOCALES.pt.learn.checks.firstRule.options[LESSON_CHECKS.firstRule.answer]);
 });
 
-test("as secções 2 a 6 apresentam todas as regras base, cada uma uma vez e pela ordem da lição", () => {
+test("as secções 2 a 6 e 11 a 13 apresentam todas as regras base, cada uma uma vez e pela ordem da lição", () => {
   const used = [...page.matchAll(/data-lesson-rule="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(used, Object.keys(LESSON_RULES));
-  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule), ["∧I", "∧E", "→E", "→I", "R", "∨I", "∨E", "FI", "¬I", "¬E", "FE"]);
-  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule).sort(), BASE_RULES.map((rule) => rule.id).sort());
+  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule), [
+    "∧I", "∧E", "→E", "→I", "R", "∨I", "∨E", "FI", "¬I", "¬E", "FE", "∀E", "∀I", "∃I", "∃E", "=I", "=E",
+  ]);
+  assert.deepEqual(used.map((id) => LESSON_RULES[id].rule).sort(), [...new Set(BASE_RULES.map((rule) => rule.id))].sort());
+  assert.deepEqual(
+    BASE_RULES.filter((rule) => !PROPOSITIONAL_RULES.includes(rule)).map((rule) => rule.id).sort(),
+    ["∀E", "∀I", "∃I", "∃E", "=I", "=E"].sort(),
+  );
   const sections = page.split('<section class="lesson-section"');
   assert.match(sections[2], /data-lesson-rule="andElim"/);
   assert.match(sections[3], /data-lesson-rule="implElim"/);
   assert.match(sections[4], /data-lesson-rule="repeat"/);
   assert.match(sections[5], /data-lesson-rule="orElim"/);
   assert.match(sections[6], /data-lesson-rule="falseElim"/);
+  assert.match(sections[11], /data-lesson-rule="forallElim"[\s\S]*data-lesson-rule="forallIntro"/);
+  assert.match(sections[12], /data-lesson-rule="existsIntro"[\s\S]*data-lesson-rule="existsElim"/);
+  assert.match(sections[13], /data-lesson-rule="equalityIntro"[\s\S]*data-lesson-rule="equalityElim"/);
 });
 
-test("a secção 7 mostra todas as derivadas, cada uma uma vez e pela ordem do catálogo", () => {
+test("as secções 7 e 14 mostram todas as derivadas, cada uma uma vez e pela ordem do catálogo", () => {
   const used = [...page.matchAll(/data-lesson-derived="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(used, Object.keys(LESSON_DERIVED));
   assert.deepEqual(used.map((id) => LESSON_DERIVED[id].rule), [...new Set(DERIVED_RULES.map(({ id }) => id))]);
+  // As proposicionais na secção 7; NQ1–NQ4 na secção 14.
   const sections = page.split('<section class="lesson-section"');
-  assert.equal(sections[7].match(/data-lesson-derived=/g).length, used.length);
+  const inSection = (index) => [...sections[index].matchAll(/data-lesson-derived="([^"]+)"/g)].map((match) => LESSON_DERIVED[match[1]].rule);
+  assert.deepEqual(inSection(7), [...new Set(DERIVED_RULES.filter((rule) => !isFirstOrderRule(rule)).map(({ id }) => id))]);
+  assert.deepEqual(inSection(14), ["NQ1", "NQ2", "NQ3", "NQ4"]);
   for (const id of used) for (const locale of Object.values(LOCALES)) {
     assert.ok(locale.learn.derivedRules[id].name, id);
     assert.ok(locale.learn.derivedRules[id].when, id);
@@ -171,7 +192,13 @@ test("figura de derivada: esquema de todas as formas e a prova de cada uma, só 
   assert.match(lessonDerivedHtml("excludedMiddle"), /\(LEM\)/);
   assert.match(lessonDerivedHtml("hypotheticalSyllogism"), /\(HS\)/);
   assert.match(lessonDerivedHtml("disjunctiveSyllogism"), /\(DS\)/);
+  assert.match(lessonDerivedHtml("notForall"), /\(QN1\)/);
+  assert.match(lessonDerivedHtml("forallNot"), /\(QN4\)/);
   setLang("pt");
+  assert.match(lessonDerivedHtml("notForall"), /\(NQ1\)/);
+  assert.match(lessonDerivedHtml("existsNot"), /\(NQ2\)/);
+  // As provas de NQ1 e NQ3 abrem a caixa do ∀I numa linha de etiqueta, que a figura mostra.
+  assert.match(lessonDerivedHtml("notExists"), /fitch__line--label/);
 });
 
 test("o que as secções 5 a 7 afirmam é o que o verificador faz", () => {
@@ -388,11 +415,12 @@ test("o que as notas das provas animadas dizem bate com as provas", () => {
   assert.equal(direct.provable, false);
 });
 
-test("há pelo menos 3 laboratórios, todos na secção 8 e com texto nos dois idiomas", () => {
+test("há 3 laboratórios na secção 8 e um em cada secção de quantificador, com texto nos dois idiomas", () => {
   const used = [...page.matchAll(/data-lesson-lab="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(used, Object.keys(LESSON_LABS));
-  assert.ok(used.length >= 3);
-  assert.equal(sectionHtml(8).match(/data-lesson-lab=/g).length, used.length);
+  assert.equal(sectionHtml(8).match(/data-lesson-lab=/g).length, 3);
+  assert.deepEqual(sectionHtml(11).match(/data-lesson-lab="[^"]+"/g), ['data-lesson-lab="labForall"']);
+  assert.deepEqual(sectionHtml(12).match(/data-lesson-lab="[^"]+"/g), ['data-lesson-lab="labExists"']);
   for (const id of used) for (const locale of Object.values(LOCALES)) {
     for (const key of ["title", "task", "hint"]) assert.ok(locale.learn.labs[id][key], `${id}.${key}`);
   }
@@ -410,11 +438,13 @@ test("cada laboratório resolve-se no modo guiado, passo a passo", () => {
     const { goal, rules } = lessonLab(id);
     let editor = focusObjective(createEditor(goal));
     assert.equal(editorStatus(editor, { rules, known: RULES }).complete, false, id);
-    for (const { pick = [], rule } of LAB_GUIDED[id]) {
+    for (const { pick = [], rule, ask = false } of LAB_GUIDED[id]) {
       let selection = [];
       for (const line of pick) selection = toggleSelection(selection, guidedLines(editor, selection)[line - 1].item);
       const { outcomes } = guidedRules(editor, selection, { rules, known: RULES }).find((option) => option.id === rule);
       assert.equal(outcomes.length, 1, `${id}: ${rule}`);
+      // O Chrome só espera por uma escolha nos passos marcados com `ask`.
+      assert.equal(Boolean(outcomes[0].ask), ask, `${id}: ${rule} ask`);
       editor = applyOutcome(editor, outcomes[0], {});
     }
     assert.equal(editorStatus(editor, { rules, known: RULES }).complete, true, id);
@@ -470,6 +500,138 @@ test("secção 9: o contraexemplo é verdadeiro e o que o texto afirma sobre as 
   assert.equal(solve(goal, { rules: ruleSet("base") }).provable, true);
 });
 
+test("os esquemas das regras de 1.ª ordem mostram a caixa [v] e a substituição", () => {
+  assert.deepEqual(ruleSchemaLines("∀E"), ["∀x φ ⊢ φ[t/x]"]);
+  assert.deepEqual(ruleSchemaLines("∀I"), ["[v] … φ[v/x] ⊢ ∀x φ"]);
+  assert.deepEqual(ruleSchemaLines("∃I"), ["φ[t/x] ⊢ ∃x φ"]);
+  assert.deepEqual(ruleSchemaLines("∃E"), ["∃x φ, [v] φ[v/x] … ψ ⊢ ψ"]);
+  setLang("pt");
+  assert.match(lessonRuleHtml("forallIntro"), /Introdução do universal \(∀I\)/);
+  assert.match(lessonRuleHtml("forallIntro"), /\[v\]/);
+  setLang("en");
+  assert.match(lessonRuleHtml("existsElim"), /Existential elimination \(∃E\)/);
+  setLang("pt");
+});
+
+test("secção 10: o que o texto e as perguntas dizem da linguagem é o que o núcleo faz", () => {
+  const formula = (text) => parseFormula(text).formula;
+  // Os quantificadores ligam como o ¬.
+  assert.ok(equals(formula("∀x P(x) → Q(a)"), formula("(∀x P(x)) → Q(a)")));
+  assert.equal(format(formula("∀x(P(x) → Q(x))")), "∀x(P(x) → Q(x))");
+  // free: em ∀x R(x, y) → P(x), x e y estão livres, e o x de R(x, y) está ligado.
+  const mixed = formula("∀x R(x, y) → P(x)");
+  assert.deepEqual([...freeVariables(mixed)].sort(), ["x", "y"]);
+  assert.deepEqual([...freeVariables(mixed.args[0])], ["y"]);
+  // freeOccurrence: só o x de Q(x) está livre.
+  const free = formula("∃x P(x) ∧ Q(x)");
+  assert.equal(free.kind, "and");
+  assert.deepEqual([...freeVariables(free.args[0])], []);
+  assert.deepEqual([...freeVariables(free.args[1])], ["x"]);
+  // substitution: só as ocorrências livres mudam.
+  assert.equal(format(substitute(formula("P(x) ∧ ∀x Q(x)"), "x", term("a"))), "P(a) ∧ ∀x Q(x)");
+  // capture e captureCheck: y em ∃y R(x, y) e z em ∀z(P(z) → R(x, z)) seriam capturados; a não.
+  assert.equal(isSubstitutable(formula("∃y R(x, y)"), "x", term("y")), false);
+  assert.equal(format(substitute(formula("∃y R(x, y)"), "x", term("y"))), "∃y R(y, y)");
+  assert.equal(isSubstitutable(formula("∀z(P(z) → R(x, z))"), "x", term("z")), false);
+  assert.equal(isSubstitutable(formula("∀z(P(z) → R(x, z))"), "x", term("a")), true);
+  // alpha: ∀y P(y) cita-se como ∀x P(x).
+  const alpha = "1 | ∀x P(x)   premissa\n2 | P(a)      ∀E, 1";
+  assert.equal(verifyProof(parseProof(alpha).proof, parseSequent("∀y P(y) ⊢ P(a)").sequent, ruleSet("completo")).ok, true);
+});
+
+test("secções 11 e 12: o que o texto e as perguntas dizem das regras é o que o verificador faz", () => {
+  const reads = (sequent, text) => verifyProof(parseProof(text).proof, parseSequent(sequent).sequent, ruleSet("completo"));
+  const codes = (result) => result.lineErrors.map(({ code }) => code);
+  const invalid = (sequent) => findCountermodel(parseSequent(sequent).sequent).status === "found";
+  // forallElim: dois ∀E, um por quantificador, com termos diferentes.
+  assert.deepEqual(lessonProof("forallElim").proof.lines.map((line) => line.rule).slice(2, 4), ["∀E", "∀E"]);
+  // forallElimCapture: com a, a regra aplica-se; o sequente do erro é inválido.
+  assert.equal(reads("∀x∃y R(x, y) ⊢ ∃y R(a, y)", "1 | ∀x∃y R(x, y)   premissa\n2 | ∃y R(a, y)     ∀E, 1").ok, true);
+  for (const id of ["forallElimCapture", "forallIntroNotFresh", "existsIntroMixed", "existsElimEscapes", "existsNotFresh"]) {
+    assert.equal(invalid(LESSON_MISTAKES[id].sequent), true, id);
+  }
+  // forallLabel: a caixa do ∀I começa numa linha de etiqueta, e o intervalo na primeira linha numerada.
+  const label = lessonProof("forallLabel").proof;
+  assert.equal(label.lines[0].label, "v");
+  assert.equal(label.lines[0].kind, "hypothesis");
+  assert.equal(label.lines.at(-1).rule, "∀I");
+  // forallIntro: a caixa do ∀I não tem hipótese, a primeira linha é um ∀E.
+  const intro = lessonProof("forallIntro").proof;
+  assert.equal(intro.lines[2].fresh, "v");
+  assert.equal(intro.lines[2].kind, "step");
+  assert.equal(intro.lines[2].rule, "∀E");
+  // freshName: a caixa do ∀I podia chamar-se a (não está antes dela), mas não um nome das premissas.
+  const fresh = (name) => reads("∀x P(x), ∀x Q(x) ⊢ ∀x(P(x) ∧ Q(x))", formatProof(lessonProof("forallIntro").proof).replaceAll("(v)", `(${name})`).replace("[v]", `[${name}]`));
+  assert.equal(fresh("a").ok, true);
+  assert.equal(reads("P(b), ∀x Q(x) ⊢ ∀x Q(x)", "1 | P(b)       premissa\n2 | ∀x Q(x)    premissa\n3 |  [b] Q(b)  ∀E, 2\n4 | ∀x Q(x)    ∀I, 3–3").ok, false);
+  // existsIntro: as duas conclusões saem da mesma linha.
+  assert.equal(formatProof(lessonProof("existsIntro").proof).match(/∃I, 1$/gm).length, 2);
+  // witnessName: com a premissa Q(a), nem a nem x servem de nome à caixa do ∃E; v serve.
+  const witness = (name) => reads("∃x P(x), Q(a) ⊢ ∃y P(y)", `1 | ∃x P(x)   premissa\n2 | Q(a)      premissa\n3 |  [${name}] P(${name})   hipótese\n4 |   ∃y P(y)   ∃I, 3\n5 | ∃y P(y)   ∃E, 1, 3–4`);
+  assert.equal(witness("v").ok, true);
+  assert.deepEqual(codes(witness("a")), ["notFresh"]);
+  assert.deepEqual(codes(witness("x")), ["notFresh"]);
+});
+
+test("nenhuma prova da lição tem uma só linha: o .fitch focável ficava abaixo dos 44px de alvo", () => {
+  for (const id of Object.keys(LESSON_PROOFS)) assert.ok(lessonProof(id).proof.lines.length > 1, id);
+  for (const id of Object.keys(LESSON_MISTAKES)) assert.ok(lessonMistake(id).proof.lines.length > 1, id);
+});
+
+test("secção 13: o que o texto e a pergunta dizem da igualdade é o que o verificador faz", () => {
+  const reads = (sequent, text) => verifyProof(parseProof(text).proof, parseSequent(sequent).sequent, ruleSet("base"));
+  const invalid = (sequent) => findCountermodel(parseSequent(sequent).sequent).status === "found";
+  // equalityIntro: o =I não cita nada.
+  const intro = lessonProof("equalityIntro").proof.lines.find((line) => line.rule === "=I");
+  assert.deepEqual(intro.citations, []);
+  // equalityElim: a mesma linha dá as duas conclusões.
+  assert.equal(formatProof(lessonProof("equalityElim").proof).match(/=E, 1, 2$/gm).length, 2);
+  // equalitySymmetry: só =I e =E.
+  assert.deepEqual(lessonProof("equalitySymmetry").proof.lines.slice(1).map((line) => line.rule), ["=I", "=E"]);
+  // equalityIntroDifferent é inválido; equalityElimBackwards é válido e corrige-se com a simetria.
+  assert.equal(invalid(LESSON_MISTAKES.equalityIntroDifferent.sequent), true);
+  assert.equal(invalid(LESSON_MISTAKES.equalityElimBackwards.sequent), false);
+  const fixed = "1 | b = a   premissa\n2 | P(a)    premissa\n3 | b = b   =I\n4 | a = b   =E, 1, 3\n5 | P(b)    =E, 4, 2";
+  assert.equal(reads("b = a, P(a) ⊢ P(b)", fixed).ok, true);
+  // equalityDirection: c = d e Q(c) dão Q(d); com d = c, ou sem a segunda linha, não.
+  assert.equal(reads("c = d, Q(c) ⊢ Q(d)", "1 | c = d   premissa\n2 | Q(c)    premissa\n3 | Q(d)    =E, 1, 2").ok, true);
+  assert.equal(reads("c = d, d = c ⊢ Q(d)", "1 | c = d   premissa\n2 | d = c   premissa\n3 | Q(d)    =E, 1, 2").ok, false);
+  assert.equal(reads("c = d ⊢ Q(d)", "1 | c = d   premissa\n2 | Q(d)    =E, 1").ok, false);
+  assert.equal(LESSON_CHECKS.equalityDirection.answer, "before");
+});
+
+test("secção 14: as equivalências, a prova e a pergunta batem com o solver e os contramodelos", () => {
+  const goal = (text) => parseSequent(text).sequent;
+  const invalid = (sequent) => findCountermodel(goal(sequent)).status === "found";
+  const provable = (sequent) => solve(goal(sequent), { rules: ruleSet("base") }).provable;
+  // As derivadas dão equivalências: cada forma tem a recíproca no catálogo.
+  for (const [one, other] of [["NQ1", "NQ2"], ["NQ3", "NQ4"]]) {
+    const [a] = DERIVED_RULES.filter(({ id }) => id === one).map(ruleGoal);
+    const [b] = DERIVED_RULES.filter(({ id }) => id === other).map(ruleGoal);
+    assert.ok(equals(a.premises[0], b.conclusion) && equals(b.premises[0], a.conclusion), one);
+  }
+  // p3: ∀ distribui sobre ∧ e ∃ sobre ∨, nos dois sentidos; ∀ sobre ∨ só num.
+  for (const [left, right] of [["∀x(P(x) ∧ Q(x))", "∀x P(x) ∧ ∀x Q(x)"], ["∃x(P(x) ∨ Q(x))", "∃x P(x) ∨ ∃x Q(x)"]]) {
+    assert.equal(provable(`${left} ⊢ ${right}`), true, left);
+    assert.equal(provable(`${right} ⊢ ${left}`), true, right);
+  }
+  assert.equal(invalid("∀x(P(x) ∨ Q(x)) ⊢ ∀x P(x) ∨ ∀x Q(x)"), true);
+  assert.equal(provable("∀x∀y R(x, y) ⊢ ∀y∀x R(x, y)"), true);
+  assert.equal(provable("∃x∃y R(x, y) ⊢ ∃y∃x R(x, y)"), true);
+  // strategyExistsFirst: a caixa do ∀I (passo com [v]) fica dentro da do ∃E (hipótese com [u]).
+  const { proof } = lessonProof("strategyExistsFirst");
+  assert.equal(proof.lines[1].kind, "hypothesis");
+  assert.equal(proof.lines[1].fresh, "u");
+  assert.equal(proof.lines[2].kind, "step");
+  assert.equal(proof.lines[2].fresh, "v");
+  assert.ok(proof.lines[2].depth > proof.lines[1].depth);
+  // swapQuantifiers: o contramodelo do texto, domínio {1, 2} com R só em (1, 1) e (2, 2).
+  const swapped = goal("∀y∃x R(x, y) ⊢ ∃x∀y R(x, y)");
+  const structure = { size: 2, constants: [], functions: [], predicates: [{ name: "R", arity: 2, extension: [[0, 0], [1, 1]] }] };
+  assert.equal(isCountermodel(swapped, structure), true);
+  assert.equal(LESSON_CHECKS.swapQuantifiers.answer, "invalid");
+});
+
 test("índice: uma ligação por secção, a atual assinalada e as anteriores lidas", () => {
   setLang("pt");
   const html = renderLessonToc(SECTIONS, 3, { progress: 0.4 });
@@ -477,9 +639,9 @@ test("índice: uma ligação por secção, a atual assinalada e as anteriores li
   assert.equal(html.match(/aria-current="location"/g).length, 1);
   assert.match(html, /href="#subdeducoes" data-toc-index="3" aria-current="location"/);
   assert.equal(html.match(/lesson-toc__item--done/g).length, 3);
-  assert.match(html, /4\/9/);
+  assert.match(html, /4\/14/);
   assert.match(html, /aria-valuenow="40"/);
-  assert.match(html, /3 de 9 lidas/);
+  assert.match(html, /3 de 14 lidas/);
 });
 
 test("scroll-spy: a última secção que passou a linha; no fim da página, a última", () => {
@@ -497,6 +659,6 @@ test("progresso da leitura: entre 0 e 1, e 1 se a página couber no ecrã", () =
 });
 
 test("no Chrome: índice, links diretos e figuras, a 390px e a 1280px", { skip: !existsSync(process.env.CHROME_BIN || "/usr/bin/google-chrome") }, () => {
-  const run = spawnSync("node", ["scripts/check-learn.mjs"], { encoding: "utf8", timeout: 90000 });
+  const run = spawnSync("node", ["scripts/check-learn.mjs"], { encoding: "utf8", timeout: 240000 });
   assert.equal(run.status, 0, run.stderr || run.stdout);
 });

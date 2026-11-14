@@ -9,12 +9,14 @@
 //   truthTable(formulas)       → { ok: true, table: { variables, rows: [{ values, results }] } }
 //   checkSequent(sequent)      → { ok: true, valid, counterexample: Map | null }
 //   checkTautology(formula)    → igual a checkSequent(⊢ formula)
-// Os três últimos devolvem { ok: false, error: { code, params } } com variáveis a mais.
+// Os três últimos devolvem { ok: false, error: { code, params } } com variáveis a mais ou com uma
+// fórmula de 1.ª ordem (`notPropositional`), sem lançar.
 //
 // As linhas vão de tudo V a tudo F, com a primeira variável a mudar mais devagar. O contraexemplo é
 // parcial: fixa o menor número de variáveis tal que, seja qual for o valor das outras, as premissas
 // são verdadeiras e a conclusão é falsa. Em caso de empate, ganha o que surge primeiro na tabela.
 
+import { isPropositional } from "./formula.js";
 import { sequent } from "./sequent.js";
 
 /**
@@ -26,7 +28,10 @@ export const MAX_VARIABLES = 12;
 /** Códigos de erro. As mensagens estão em `semantics.errors.*`. */
 export const SEMANTICS_ERROR_CODES = [
   "tooManyVariables", // { count, max }
+  "notPropositional", // há quantificadores, termos ou `=`: a tabela de verdade não chega
 ];
+
+const NOT_PROPOSITIONAL = Object.freeze({ ok: false, error: Object.freeze({ code: "notPropositional", params: {} }) });
 
 const compareNames = (a, b) => a.localeCompare(b, "en", { numeric: true });
 
@@ -74,6 +79,7 @@ function rowValues(row, count) {
 
 /** Tabela de verdade: `values` segue `variables` e `results` segue `formulas`. */
 export function truthTable(formulas) {
+  if (!formulas.every(isPropositional)) return NOT_PROPOSITIONAL;
   const variables = variablesOf(formulas);
   const count = variables.length;
   if (count > MAX_VARIABLES) {

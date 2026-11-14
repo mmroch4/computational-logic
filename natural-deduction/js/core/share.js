@@ -6,6 +6,10 @@
 // que não são premissas: [profundidade, fórmula] numa hipótese e [profundidade, fórmula, justificação]
 // num passo, com "" no que está por preencher. As premissas vêm sempre do sequente, por isso um link não
 // consegue acrescentar nenhuma. Uma prova ainda em branco não leva `p`.
+// Uma prova com caixas com variável usa o formato 2: cada linha é
+// [profundidade, fórmula, justificação, fresh, label], com null na justificação de uma hipótese e no
+// `fresh` ou `label` que não houver. Sem caixas com variável, o link continua no formato 1, igual ao
+// de antes; os dois formatos leem-se.
 // `r` é a mesma coisa para os rascunhos das regras do utilizador que a prova cita, e só essas: o link
 // fica curto, e uma regra que não venha com ele não faz falta. Vão só os esquemas: ao abrir, cada regra
 // passa outra vez pela validação de `loadUserRules`, e a que falhar deixa a linha com `unknownRule`.
@@ -42,6 +46,8 @@ export const SHARE_ERROR_CODES = [
 export const SHARE_LIMITS = { maxLength: 8000 };
 
 const VERSION = "1";
+/** Versão do formato da prova com caixas com variável. */
+const FRESH_VERSION = "2";
 
 const BASE64URL_RE = /^[A-Za-z0-9_-]+$/;
 
@@ -77,21 +83,43 @@ function lineEntry({ kind, depth, formula, rule, citations }) {
   return kind === "hypothesis" ? [depth, written] : [depth, written, formatJustification(rule, citations)];
 }
 
+function freshLineEntry(line) {
+  const [depth, written, justification = null] = lineEntry(line);
+  return [depth, written, justification, line.fresh ?? null, line.label ?? null];
+}
+
+const hasFresh = (lines) => lines.some(({ fresh = null, label = null }) => fresh !== null || label !== null);
+
 /** Query string (sem `?`) do sequente `goal` com a prova `proof` e as regras de `userRules` que ela cita. */
 export function encodeShare(goal, proof, userRules = []) {
   const sequentPart = `s=${encodeValue(convertNotation(formatSequent(goal), "ascii"))}`;
   if (sequentPart.length > SHARE_LIMITS.maxLength) return { query: "", complete: false };
   if (isBlank(proof)) return { query: sequentPart, complete: true };
-  const entries = proof.lines.filter(({ kind }) => kind !== "premise").map(lineEntry);
+  const added = proof.lines.filter(({ kind }) => kind !== "premise");
+  const fresh = hasFresh(added);
+  const entries = added.map(fresh ? freshLineEntry : lineEntry);
+  const proofVersion = fresh ? FRESH_VERSION : VERSION;
   const used = serializeUserRules(rulesUsedBy(proof, userRules));
   const rulesPart = used.length > 0 ? `&r=${VERSION}.${toBase64Url(JSON.stringify(used))}` : "";
-  const query = `${sequentPart}&p=${VERSION}.${toBase64Url(JSON.stringify(entries))}${rulesPart}`;
+  const query = `${sequentPart}&p=${proofVersion}.${toBase64Url(JSON.stringify(entries))}${rulesPart}`;
   return query.length > SHARE_LIMITS.maxLength ? { query: sequentPart, complete: false } : { query, complete: true };
 }
 
 const lineFailure = (line) => ({ failed: { code: "badLine", params: { line } } });
 
-/** A linha da prova lida de `entry`, ou `failed`. `number` é o número dela na prova. */
+const isNameOrNull = (value) => value === null || typeof value === "string";
+
+/** A linha do formato 2 lida de `entry`, ou `failed`. */
+function readFreshEntry(entry, number) {
+  if (!Array.isArray(entry) || entry.length !== 5) return lineFailure(number);
+  const [depth, written, justification, fresh, label] = entry;
+  if (!isNameOrNull(justification) || !isNameOrNull(fresh) || !isNameOrNull(label)) return lineFailure(number);
+  const plain = justification === null ? [depth, written] : [depth, written, justification];
+  const { line, failed } = readEntry(plain, number);
+  return failed ? { failed } : { line: { ...line, fresh, label } };
+}
+
+/** A linha da prova lida de `entry` (formato 1), ou `failed`. `number` é o número dela na prova. */
 function readEntry(entry, number) {
   if (!Array.isArray(entry) || entry.length < 2 || entry.length > 3) return lineFailure(number);
   const [depth, written, justification] = entry;
@@ -111,13 +139,16 @@ function readEntry(entry, number) {
   return { line: { kind: "step", depth, formula, rule: read.rule, citations: read.citations } };
 }
 
-/** A lista não vazia guardada num valor `<versão>.<base64url>`, ou `failed` com o código `badCode`. */
-function readList(value, badCode) {
+/**
+ * A lista não vazia guardada num valor `<versão>.<base64url>`, com a versão, ou `failed` com o código
+ * `badCode`. `versions` são as versões que se sabem ler.
+ */
+function readList(value, badCode, versions = [VERSION]) {
   const bad = { failed: { code: badCode, params: {} } };
   const dot = value.indexOf(".");
   const version = dot === -1 ? value : value.slice(0, dot);
   if (dot === -1 || !/^\d+$/.test(version)) return bad;
-  if (version !== VERSION) return { failed: { code: "unknownVersion", params: { version } } };
+  if (!versions.includes(version)) return { failed: { code: "unknownVersion", params: { version } } };
 
   const text = fromBase64Url(value.slice(dot + 1));
   let list = null;
@@ -126,18 +157,19 @@ function readList(value, badCode) {
   } catch {
     // Fica null: é o mesmo caso que dados que não são uma lista.
   }
-  return Array.isArray(list) && list.length > 0 ? { list } : bad;
+  return Array.isArray(list) && list.length > 0 ? { list, version } : bad;
 }
 
 /** Lê o valor de `p`, para as premissas de `goal`. */
 function readProof(value, goal) {
-  const { list: entries, failed: unread } = readList(value, "badProof");
+  const { list: entries, version, failed: unread } = readList(value, "badProof", [VERSION, FRESH_VERSION]);
   if (unread) return { failed: unread };
+  const read = version === FRESH_VERSION ? readFreshEntry : readEntry;
 
   const premises = goal.premises.map((formula) => ({ kind: "premise", depth: 0, formula }));
   const lines = [...premises];
   for (const entry of entries) {
-    const { line, failed } = readEntry(entry, lines.length + 1);
+    const { line, failed } = read(entry, lines.length + 1);
     if (failed) return { failed };
     lines.push(line);
   }

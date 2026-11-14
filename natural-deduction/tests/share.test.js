@@ -6,7 +6,7 @@ import { existsSync } from "node:fs";
 import { EXAMPLE_GROUPS } from "../js/core/examples.js";
 import { createEditor, hasUnreadText, openProof, setText } from "../js/core/editor.js";
 import { citeLine, citeRange, createProof } from "../js/core/proof.js";
-import { parseProof } from "../js/core/proof-text.js";
+import { formatProof, parseProof } from "../js/core/proof-text.js";
 import { RULES } from "../js/core/rules.js";
 import { formatSequent, parseSequent } from "../js/core/sequent.js";
 import { SHARE_ERROR_CODES, SHARE_LIMITS, decodeShare, encodeShare } from "../js/core/share.js";
@@ -110,7 +110,7 @@ test("cada link inválido dá o seu código e nunca rebenta", () => {
     [`?s=p|-p&p=1.${Buffer.from("[[0,").toString("base64url")}`, "badProof"], // cortado a meio
     [`?s=p|-p&p=1.${wrap({ lines: [] })}`, "badProof"],
     [`?s=p|-p&p=1.${wrap([])}`, "badProof"],
-    ["?s=p|-p&p=2.e30", "unknownVersion"],
+    ["?s=p|-p&p=3.e30", "unknownVersion"], // o 2 é o formato com caixas com variável
     [link("p ⊢ p", [[0]]), "badLine"],
     [link("p ⊢ p", ["x"]), "badLine"],
     [link("p ⊢ p", [[0, 7, ""]]), "badLine"],
@@ -130,6 +130,86 @@ test("cada link inválido dá o seu código e nunca rebenta", () => {
     const opened = decodeShare(search);
     assert.equal(opened.status, "invalid", search);
     assert.equal(opened.error.code, code, search);
+  }
+});
+
+// Caixas com variável (1.ª ordem): formato 2
+
+const link2 = (sequent, entries) => `?s=${encodeURIComponent(sequent)}&p=2.${wrap(entries)}`;
+
+const FIRST_ORDER = [
+  "1 | ∀x(P(x) → Q(x))   premissa",
+  "2 | ∃x P(x)           premissa",
+  "3 |  [u] P(u)         hipótese",
+  "4 |   P(u) → Q(u)     ∀E, 1",
+  "5 |   Q(u)            →E, 4, 3",
+  "6 |   ∃x Q(x)         ∃I, 5",
+  "7 | ∃x Q(x)           ∃E, 2, 3–6",
+  "  |  [v]",
+  "8 |     R(v, v)       hipótese",
+  "9 |   R(v, v) → R(v, v)   →I, 8–8",
+  "10 | ∀x(R(x, x) → R(x, x))   ∀I, 8–9",
+  "11 |  [w] ∃x Q(x)     R, 7",
+  "12 | ∀y ∃x Q(x)       ∀I, 11–11",
+].join("\n");
+
+test("uma prova com caixas com variável vai no formato 2 e volta igual", () => {
+  const goal = goalOf("∀x(P(x) → Q(x)), ∃x P(x) ⊢ ∀y ∃x Q(x)");
+  const proof = parseProof(FIRST_ORDER).proof;
+  assert.ok(proof);
+  const { query } = encodeShare(goal, proof);
+  assert.match(query, /&p=2\./);
+  const opened = roundTrip(goal, proof);
+  assert.equal(opened.status, "ok");
+  assert.deepEqual(opened.proof, proof);
+  assert.equal(opened.proof.lines[2].fresh, "u");
+  assert.equal(opened.proof.lines[7].label, "v");
+  assert.equal(opened.proof.lines[10].fresh, "w");
+});
+
+test("sem caixas com variável o link continua no formato 1, com os mesmos bytes", () => {
+  const goal = goalOf("p ⊢ p ∧ p");
+  const { proof } = parseProof("1 | p  premissa\n2 |   q  hipótese\n3 | p ∧ p   ∧I, 1, 1");
+  const expected = `&p=1.${wrap([[1, "q"], [0, "p ∧ p", "∧I, 1, 1"]])}`;
+  assert.ok(encodeShare(goal, proof).query.endsWith(expected));
+  const firstOrder = goalOf("∀x P(x) ⊢ P(a)");
+  const { proof: instance } = parseProof("1 | ∀x P(x)  premissa\n2 | P(a)  ∀E, 1");
+  assert.match(encodeShare(firstOrder, instance).query, /&p=1\./);
+});
+
+test("um link do formato 1 abre igual, e o formato 2 sem variáveis dá a mesma prova", () => {
+  const entries = [[1, "q"], [1, "p", "R, 1"], [0, "q → p", "→I, 2–3"]];
+  const old = decodeShare(link("p ⊢ q → p", entries));
+  assert.equal(old.status, "ok");
+  assert.equal(formatProof(old.proof), [
+    "1 | p       premissa",
+    "2 |   q     hipótese",
+    "3 |   p     R, 1",
+    "4 | q → p   →I, 2–3",
+  ].join("\n"));
+  const fresh = decodeShare(link2("p ⊢ q → p", [[1, "q", null, null, null], [1, "p", "R, 1", null, null], [0, "q → p", "→I, 2–3", null, null]]));
+  assert.equal(fresh.status, "ok");
+  assert.deepEqual(fresh.proof, old.proof);
+});
+
+test("cada linha inválida do formato 2 dá badLine", () => {
+  const cases = [
+    [[1, "P(u)", null, "u"]], // falta o label
+    [[1, "P(u)"]], // forma do formato 1
+    [[1, "P(u)", null, "u", null, null]],
+    [[1, "P(u)", null, 7, null]],
+    [[1, "P(u)", null, "F", null]],
+    [[1, "P(u)", null, "", null]],
+    [[0, "P(u)", null, "u", null]], // hipótese fora de caixa
+    [[0, "P(u)", "R, 1", "u", null]], // ∀I à profundidade 0
+    [[1, "P(u)", "R, 1", null, "v"]], // etiqueta num passo
+    [[1, "P(u)", null, null, "v"]], // a etiqueta precisa da hipótese um nível mais dentro
+    [[1, "P(u)", 3, null, null]],
+  ];
+  for (const entries of cases) {
+    const opened = decodeShare(link2("∃x P(x) ⊢ ∃x P(x)", entries));
+    assert.equal(opened.status, "invalid", JSON.stringify(entries));
+    assert.deepEqual(opened.error, { code: "badLine", params: { line: 2 } }, JSON.stringify(entries));
   }
 });
 

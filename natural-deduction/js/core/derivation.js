@@ -1,8 +1,14 @@
 // Derivações em árvore: arrumar e escrever em Fitch. Módulo puro (sem DOM).
 // Contrato:
-//   node(entry, rule, from, strategy), assumption(entry), subderivation(hypothesis, end, strategy)
+//   node(entry, rule, from, strategy), assumption(entry), subderivation(hypothesis, end, strategy, fresh)
 //     constroem a árvore. `entry` é a fórmula interna da procura, única por fórmula. `from` tem nós e,
-//     para as subdeduções, `{ hypothesis, end, strategy }`. Um nó pode aparecer em vários ramos.
+//     para as subdeduções, `{ hypothesis, end, strategy, fresh }`. Um nó pode aparecer em vários ramos.
+//   1.ª ordem: `fresh` é a variável da caixa. No ∃E, a hipótese é a do [v]; no ∀I, que não tem hipótese,
+//     é o marcador `boxVariable(v)`. Um nó pode ter `uses`, marcadores ou hipóteses de que depende sem
+//     os citar: a procura põe lá as caixas das variáveis que ocorrem na fórmula dele, para nenhuma
+//     linha com v sair da caixa de v ao arrumar ou ao partilhar. A primeira linha da caixa do ∀I leva o
+//     [v] (estratégia `openForallBox`), ou a etiqueta, se for uma hipótese; se ela abrir outra caixa do
+//     ∀I, a de fora começa por repetir um facto acessível (`separateBoxes`), ou por um =I sem nenhum.
 //   tidy(derivation) → derivação sem desvios: um nó dá lugar a outro com a mesma fórmula que tenha
 //     dentro de si, se esse não depender de nada que ele próprio não dependa. Assim saem os casos de
 //     um ∨E que não usam a hipótese, o RA que só repete o que já estava provado e voltas parecidas.
@@ -12,6 +18,7 @@
 //     de R: quem chama compara.
 // As estratégias estão em `solver.strategies.*`.
 
+import { eq, term } from "./formula.js";
 import { citeLine, citeRange, createProof } from "./proof.js";
 
 /** Códigos de estratégia: porque é que o passo ou a hipótese estão na prova. */
@@ -36,6 +43,15 @@ export const STRATEGY_CODES = [
   "excludedMiddle", // TE
   "repeatFact", // R
   "applyRule", // outra regra do conjunto ativo
+  "openForallBox", // caixa [v] do ∀I, para provar ∀x φ
+  "assumeWitness", // hipótese [v] φ[v/x] do ∃E, a partir de ∃x φ
+  "concludeForall", // ∀I
+  "concludeFromWitness", // ∃E
+  "instantiate", // ∀E com um termo que já está na prova
+  "showWitness", // ∃I
+  "rewriteEquality", // =E
+  "reflexivity", // =I
+  "separateBoxes", // R no início de uma caixa do ∀I, para a caixa de dentro abrir noutra linha
 ];
 
 const STRATEGY_OF_RULE = new Map([
@@ -51,6 +67,12 @@ const STRATEGY_OF_RULE = new Map([
   ["FI", "reachContradiction"],
   ["FE", "anythingFromAbsurd"],
   ["TE", "excludedMiddle"],
+  ["∀I", "concludeForall"],
+  ["∃E", "concludeFromWitness"],
+  ["∀E", "instantiate"],
+  ["∃I", "showWitness"],
+  ["=E", "rewriteEquality"],
+  ["=I", "reflexivity"],
 ]);
 
 /** A estratégia por omissão de um passo com esta regra. */
@@ -64,9 +86,13 @@ export const node = (entry, rule, from = [], strategy = strategyOf(rule)) => (
 /** Premissa ou hipótese. */
 export const assumption = (entry) => ({ entry, rule: null, from: [], strategy: null });
 
-export const subderivation = (hypothesis, end, strategy) => ({ hypothesis, end, strategy });
+export const subderivation = (hypothesis, end, strategy, fresh = null) => ({ hypothesis, end, strategy, fresh });
+
+/** Marcador da caixa do ∀I com a variável `name`: faz as vezes da hipótese que ela não tem. */
+export const boxVariable = (name) => ({ variable: name });
 
 const isSubderivation = (source) => "hypothesis" in source;
+const isForallBox = ({ hypothesis }) => "variable" in hypothesis;
 
 /** O que está por baixo de `source`, incluindo ele, cada nó uma vez. Pára se `visit` der true. */
 function walk(source, visit, seen = new Set()) {
@@ -94,7 +120,8 @@ function createDependencies() {
     if (memo.has(source)) return memo.get(source);
     const open = source.rule === null
       ? bitOf(source)
-      : source.from.reduce((all, next) => all | of(next), 0n);
+      : source.from.reduce((all, next) => all | of(next), 0n)
+        | (source.uses ?? []).reduce((all, marker) => all | bitOf(marker), 0n);
     memo.set(source, open);
     return open;
   }
@@ -170,11 +197,31 @@ export function writeProof(derivation, premises, { share = false } = {}) {
     return null;
   };
   const depth = () => scopes.length - 1;
+  // A variável da caixa do ∀I acabada de abrir: a primeira linha dela leva o [v], ou a etiqueta se for hipótese.
+  let pendingFresh = null;
   const push = (entry, line) => {
-    lines.push({ ...line, formula: entry.formula, depth: depth() });
-    if (!scopes.at(-1).has(entry.id)) scopes.at(-1).set(entry.id, lines.length);
+    const written = { ...line, formula: entry.formula, depth: depth() };
+    if (pendingFresh !== null) {
+      if (written.kind === "hypothesis") written.label = pendingFresh;
+      else Object.assign(written, { fresh: pendingFresh, strategy: "openForallBox" });
+      pendingFresh = null;
+    }
+    lines.push(written);
+    if (entry.id !== null && !scopes.at(-1).has(entry.id)) scopes.at(-1).set(entry.id, lines.length);
     return lines.length;
   };
+
+  /** Uma linha abre no máximo uma caixa: a do ∀I de fora começa por repetir um facto acessível. */
+  function separateBoxes() {
+    const name = pendingFresh;
+    const accessible = scopes.flatMap((scope) => [...scope.values()]);
+    const line = accessible.length > 0
+      ? { kind: "step", rule: "R", citations: [citeLine(Math.max(...accessible))] }
+      : { kind: "step", rule: "=I", citations: [] };
+    const formula = line.rule === "R" ? lines[Math.max(...accessible) - 1].formula : eq(term(name), term(name));
+    push({ id: null, formula }, line);
+    lines.at(-1).strategy = "separateBoxes";
+  }
 
   /** Garante que a última linha do escopo é `end`, com R se ela vier de trás. */
   function finish(end) {
@@ -185,11 +232,20 @@ export function writeProof(derivation, premises, { share = false } = {}) {
     }
   }
 
-  function writeSubproof({ hypothesis, end, strategy }) {
+  function writeSubproof(source) {
+    const { hypothesis, end, strategy, fresh = null } = source;
     const outerBits = openBits;
     openBits |= dependencies.bitOf(hypothesis);
+    if (isForallBox(source) && pendingFresh !== null) separateBoxes();
     scopes.push(new Map());
-    const from = push(hypothesis.entry, { kind: "hypothesis", strategy });
+    let from = lines.length + 1;
+    if (isForallBox(source)) {
+      pendingFresh = fresh;
+    } else {
+      const line = { kind: "hypothesis", strategy };
+      if (fresh !== null) line.fresh = fresh;
+      from = push(hypothesis.entry, line);
+    }
     finish(end);
     scopes.pop();
     openBits = outerBits;

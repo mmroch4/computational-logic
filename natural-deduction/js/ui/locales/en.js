@@ -2,28 +2,28 @@
 export default {
   meta: {
     langName: "English",
-    ogImageAlt: "Learn Natural Deduction: Fitch-style proofs, checked line by line.",
+    ogImageAlt: "Learn Natural Deduction: Fitch-style proofs in propositional and first-order logic, checked line by line.",
     home: {
       title: "Learn natural deduction",
-      description: "Learn to write natural deduction proofs in Fitch notation, with every line checked, strategy hints and step-by-step solutions.",
+      description: "Learn natural deduction proofs in Fitch notation, for propositional and first-order logic, with every line checked, hints and step-by-step solutions.",
     },
     prove: {
       title: "Natural deduction proof checker",
-      description: "Enter a sequent and build the proof in Fitch notation: every line is checked, with hints, automatic solutions and counterexamples.",
+      description: "Enter a sequent, with or without quantifiers, and build the proof in Fitch notation: every line is checked, with hints, automatic solutions and counterexamples.",
     },
     step: {
       title: "Natural deduction step by step",
-      description: "Follow a natural deduction proof step by step, in Fitch notation, with the strategy that explains each line up to the conclusion.",
+      description: "Follow a natural deduction proof step by step, propositional or first-order, in Fitch notation, with the strategy that explains each line.",
     },
     learn: {
       title: "Natural deduction explained",
-      description: "An interactive natural deduction lesson: introduction and elimination rules, subproofs, derived rules and proof strategies.",
+      description: "An interactive natural deduction lesson: introduction and elimination rules, subproofs, derived rules, quantifiers, equality and proof strategies.",
       level: "Beginner",
-      teaches: "Introduction and elimination rules · Subproofs · Derived rules · Proof strategies",
+      teaches: "Introduction and elimination rules · Subproofs · Derived rules · Quantifiers and equality · Proof strategies",
     },
     exercises: {
       title: "Natural deduction exercises",
-      description: "Practise natural deduction with graded exercises: write the proofs in Fitch notation, with instant feedback and saved progress.",
+      description: "Practise propositional and first-order natural deduction with graded exercises: proofs in Fitch notation, instant feedback and saved progress.",
     },
     notFound: {
       title: "Page not found",
@@ -117,6 +117,11 @@ export default {
     },
     shortcuts: "Enter moves on · Ctrl+Enter opens a subproof · Shift+Enter closes it · Ctrl+Shift+Backspace deletes the line · Ctrl+Z undoes · Ctrl+Y redoes",
     complete: "The proof is complete and every line is correct.",
+    boxes: "Box for ∀I or ∃E: start the formula with [v], using the fresh variable. Open subproof (Ctrl+Enter) on a line with only [v] puts an assumption inside the box.",
+    errors: {
+      badFresh: "“[{name}]” can't be the box variable: write a name, such as [v].",
+      freshBoxNotEmpty: "This line opens the box for {name}, which has more lines: keep the [{name}], or delete the box with Ctrl+Shift+Backspace.",
+    },
   },
   rulePick: {
     choose: "Choose the rule",
@@ -126,6 +131,7 @@ export default {
     none: "No accessible line has this form.",
     refused: "{rule} concludes {conclusions}, which doesn't give this line's formula.",
     result: "gives more than one formula. Choose the one you want on this line:",
+    other: "Another term: I'll type it",
     cancel: "Cancel",
   },
   guided: {
@@ -142,6 +148,16 @@ export default {
       needsSelection: "Select what the rule cites: {premises}.",
       selectionMismatch: "The selection doesn't fit what the rule cites: {premises}.",
       targetMismatch: "The goal doesn't have the form this rule gives: {conclusions}.",
+      boxClash: "The new box would open on the same line as the box of {variable}, and a line opens only one box. First write another line inside the box of {variable}.",
+      badTerm: "“{text}” isn't a term: type a name, like a, or a function, like f(a).",
+      badVariable: "“{text}” can't be a variable: type a name, like v.",
+      notFresh: "The variable {variable} already appears before the box or in the step: choose a new variable.",
+      notSubstitutable: "With {term}, the step doesn't work: a variable of the term would be captured, or the rule would no longer hold.",
+    },
+    ask: {
+      term: "Term (you can type another):",
+      variable: "New variable of the box (you can change it):",
+      apply: "Use",
     },
   },
   assist: {
@@ -167,6 +183,15 @@ export default {
     anyValuation: "Any valuation is a counterexample.",
     otherValues: "The other variables can take any value.",
     valuationLabel: "Counterexample valuation",
+    invalidStructure: "This sequent has no proof, because it is invalid. Countermodel: in this structure, the premises are true and the conclusion is false.",
+    invalidStructureNoPremises: "This sequent has no proof, because it is invalid. Countermodel: in this structure, the conclusion is false.",
+    structure: {
+      label: "Countermodel structure",
+      domain: "Domain",
+      constants: "Constants",
+      functions: "Functions",
+      predicates: "Predicates",
+    },
     values: {
       true: "T",
       false: "F",
@@ -188,6 +213,9 @@ export default {
       or: "Disjunction",
       implies: "Implication",
       falsum: "False",
+      forall: "For all (type forall)",
+      exists: "There exists (type exists)",
+      eq: "Equals",
       open: "Open parenthesis",
       close: "Close parenthesis",
       comma: "Comma",
@@ -206,6 +234,7 @@ export default {
       direct: "No subproof",
       subproofs: "With a subproof",
       classical: "No premises",
+      firstOrder: "First-order",
       invalid: "Invalid sequent",
     },
     items: {
@@ -216,7 +245,13 @@ export default {
       contrapositive: "Contrapositive",
       peirce: "Peirce's law",
       excludedMiddle: "Excluded middle",
+      forallBox: "The ∀I box",
+      existsBox: "The ∃E box",
+      swapQuantifiers: "Swapping ∃ and ∀",
+      negateExists: "Negating a ∃",
+      symmetry: "Symmetry of equality",
       converse: "Affirming the consequent",
+      someToAll: "From ∃ to ∀",
     },
   },
   share: {
@@ -286,6 +321,8 @@ export default {
     invalid: "This sequent is not valid, so there is no proof to play.",
     counterexample: "Counterexample: with these values, the premises are true and the conclusion is false.",
     counterexampleNoPremises: "Counterexample: with these values, the conclusion is false.",
+    countermodel: "Countermodel: in this structure, the premises are true and the conclusion is false.",
+    countermodelNoPremises: "Countermodel: in this structure, the conclusion is false.",
     noLines: "There are no lines yet: this sequent has no premises.",
     start: "You start with only the premises. Each step adds one line to the proof.",
     startEmpty: "There are no premises, so the proof starts with nothing proved. Each step adds one line.",
@@ -293,6 +330,15 @@ export default {
     treeStart: "The tree appears at the first step: it shows where that step's line comes from.",
     treeHint: "The tree of this step's line. Select a formula to see where it came from, or press it to go to the step that wrote it. Lines with R do not appear, because they only repeat a formula.",
     views: { label: "Proof view", fitch: "Fitch", tree: "Tree" },
+    firstOrder: {
+      labelBox: "The ∀I box opens on a line with only [{variable}], because the first line inside it is a hypothesis, which opens another box.",
+      forallBox: "The [{variable}] opens the ∀I box: {variable} is a new variable, which does not appear on any accessible line before the box.",
+      existsBox: "The [{variable}] opens the ∃E box: {variable} is a new variable that names the object that exists, and it cannot leave the box.",
+      instantiate: "Instantiation: drop the ∀ from {formula} and {variable} becomes the term {term}.",
+      witness: "The term {term} is the witness: the ∃ puts {variable} in its place.",
+      closeForall: "The box closes and {variable} gives way to the {bound} of the ∀: {variable} is no longer free in the conclusion.",
+      closeExists: "The box closes: the conclusion does not mention {variable}, so it can leave the box.",
+    },
     keys: {
       label: "Keyboard shortcuts",
       step: "Previous or next step",
@@ -304,7 +350,7 @@ export default {
   learn: {
     title: "Learn natural deduction",
     lead: "A lesson on the rules, subproofs and the strategies for finding a proof.",
-    eyebrow: "Lesson · 9 sections",
+    eyebrow: "Lesson · 12 sections",
     interactive: "Interactive",
     progressLabel: "Reading progress",
     toc: {
@@ -324,6 +370,11 @@ export default {
       derived: "Derived rules",
       strategy: "Strategies",
       meta: "Soundness and completeness",
+      language: "First-order language",
+      forall: "Universal quantifier (∀)",
+      exists: "Existential quantifier (∃)",
+      equality: "Equality (=)",
+      equivalences: "Equivalences and strategies",
     },
     proof: {
       p1: "A proof starts from the premises and reaches the conclusion in small steps, each justified by a rule. In Fitch notation, every line states the formula, the rule that allows it and the lines that rule relies on. If every line is correct, the conclusion follows from the premises.",
@@ -393,6 +444,42 @@ export default {
       rules: "Neither result is automatic, because both depend on the chosen rules. If you remove ¬E from the base rules, for example, a ∨ ¬a stays true under every valuation and no longer has a proof.",
       together: "Together, they say that ⊢ and ⊨ coincide. Every sequent has either a proof or a counterexample, never both. Completeness only says that the proof exists, not that it is short or easy to find, and that is what strategies are for.",
     },
+    language: {
+      p1: "So far, each variable was a closed block: a is true or false, and there is no way to look inside it. First-order logic opens those blocks. It talks about objects, the properties they have and the relations between them, and lets you say “all” and “some”.",
+      terms: "Objects are named by terms. A term is a name, like a, b or x, or a function applied to terms, like f(a) or g(x, b). Here, a name does not tell you whether it is a constant or a variable: a name is a variable where a quantifier binds it, and when free it stands for a concrete object you know nothing about.",
+      predicates: "An atomic formula applies a predicate to terms. P(a) says that a has the property P, and R(a, b) says that a is in the relation R with b. A predicate with no arguments, like p, is a variable like the ones in the earlier sections, so everything you have seen still holds. There is also equality, t₁ = t₂, which has rules of its own.",
+      quantifiers: "There are two quantifiers. ∀x φ says that φ holds for every object, and ∃x φ says that it holds for at least one. You write them with ∀ and ∃, or with forall x and exists x. They bind like ¬, tighter than any connective, so ∀x P(x) → Q(a) is (∀x P(x)) → Q(a). For the quantifier to cover the whole implication, use parentheses: ∀x(P(x) → Q(x)).",
+      free: "An occurrence of x is bound when it sits inside a ∀x or an ∃x, and free when it does not. The same variable can have occurrences of both kinds in one formula. In ∀x R(x, y) → P(x), the x of R(x, y) is bound, the x of P(x) is free, and y is free.",
+      substitution: "The quantifier rules swap a variable for a term. φ[t/x] is the formula φ with t in place of every free occurrence of x. Bound ones stay as they are: (P(x) ∧ ∀x Q(x))[a/x] is P(a) ∧ ∀x Q(x).",
+      capture: "There is a trap. If t has a variable that a quantifier of φ binds, the swap changes what the formula means. ∃y R(x, y) says that x is related to some object, and putting y in place of x gives ∃y R(y, y), which says that some object is related to itself. The y of the term has been captured. That is why the rules only swap x for t when x is substitutable by t in φ: no free occurrence of x may sit inside a quantifier that binds a variable of t.",
+      alpha: "Finally, the name of a bound variable does not matter. ∀x P(x) and ∀y P(y) say the same thing, and the checker accepts one in place of the other, when citing and when comparing with the conclusion.",
+    },
+    forall: {
+      p1: "A line with ∀x φ is a general guarantee: φ holds for any object. To use it, you pick the object.",
+      p2: "∀E removes only the outermost quantifier. With two, as in the example, it takes two steps, and each one picks its own term. The term does not even need to appear earlier in the proof.",
+      p3: "Proving ∀x φ asks for more. You cannot check the objects one by one, so you show φ for a generic object, one you know nothing special about. That object is a new name, v, and the reasoning goes in a box marked [v] in the margin of its first line.",
+      p4: "The ∀I box has no hypothesis. Its first line is an ordinary step, with its own rule, and the [v] mark only says which object is the generic one. If the first line has to be a hypothesis, for an →I or a ¬I, the mark sits alone on a line with no number, and the hypothesis opens its own box inside. The ∀I range starts at the first numbered line.",
+      p5: "The “v fresh” condition is what makes the object generic. If v already appeared on an accessible line, you would know something about it, and what you proved might hold only for it.",
+      lab: "In the lab, applying ∀I to the goal opens the box and suggests the name v. You can change it before confirming.",
+    },
+    exists: {
+      p1: "∃x φ says that at least one object has φ, without saying which. Getting there is easy, because one example is enough. Using it takes more care.",
+      p2: "In the example, the same line R(a, a) gives two different conclusions, depending on which occurrences of a become x. The common mistake is the opposite: merging two different objects into one variable.",
+      p3: "The idea of ∃E is to give the object that exists a temporary name. Since you do not know which object it is, the name has to be new, so that nothing you already know talks about it. And the name only means something inside the box: outside, nobody knows which object it refers to, so the conclusion cannot have it free.",
+      lab: "When a premise is an ∃, open the ∃E box early, as with ∨E: inside it you have one more line to use. The goal of the box is the same as the goal outside.",
+    },
+    equality: {
+      p1: "t₁ = t₂ says that both terms name the same object. Unlike other predicates, equality has a fixed meaning, and two rules say what you can do with it. The first is the simplest in the system: every term is equal to itself, with no premises.",
+      p2: "The second replaces equals with equals: if t₁ = t₂, whatever holds for t₁ holds for t₂. As with ∃I, you choose which occurrences to replace, and in the example the same line R(a, a) gives both R(a, b) and R(b, b).",
+      p3: "=E has a direction. With the line t₁ = t₂, t₁ is replaced by t₂, never the other way round. To go the other way, first prove t₂ = t₁. The two rules are enough: =I gives c = c, and =E replaces the first c with d.",
+    },
+    equivalences: {
+      p1: "In propositional logic, De Morgan's laws move a negation inside an ∧ or an ∨. Quantifiers have similar laws. Denying that everything has φ is saying that something lacks it, and denying that something has φ is saying that nothing has it. These are four derived rules, one per direction, and each has a proof using only the base rules.",
+      p2: "Together, they say that ¬∀x φ and ∃x ¬φ are equivalent, and so are ¬∃x φ and ∀x ¬φ. In practice, a premise with a negated quantifier stops being a problem: the derived rule moves the negation inside, and the quantifier left in front already has an elimination rule.",
+      p3: "There are more equivalences. ∀ distributes over ∧, and ∃ over ∨: ∀x(P(x) ∧ Q(x)) says the same as ∀x P(x) ∧ ∀x Q(x). Swapped, they do not: ∀x P(x) ∨ ∀x Q(x) does not follow from ∀x(P(x) ∨ Q(x)), because each object may have only one of the two. Two equal quantifiers in a row can swap places without changing anything, but a ∀ and an ∃ cannot. The next proof goes in one direction, with a ∀I box inside the ∃E box.",
+      p4: "To find a first-order proof, open the boxes before instantiating: the ∀I box when the goal is a ∀, and the ∃E box when a premise is an ∃, with a fresh name. Only then use ∀E and ∃I, with the terms already in the proof. Usually, they are the names of the boxes, like u and v in the example.",
+      p5: "If a premise has a negated quantifier, the derived rules of this section move the negation inside. If nothing works, reductio ad absurdum is left, as in propositional logic. In Prove, the help follows these same ideas and, when the sequent is invalid, looks for a countermodel.",
+    },
     proofFigure: {
       prev: "Previous",
       next: "Next",
@@ -408,6 +495,10 @@ export default {
       strategyBackward: "Working back from the conclusion",
       strategyCases: "A disjunction in the premises",
       strategyAbsurd: "Reductio ad absurdum",
+      forallLabel: "A [v] box that starts with a hypothesis",
+      existsNotFresh: "Common mistake: giving the ∃E object a name that is already in use",
+      equalitySymmetry: "Equality both ways",
+      strategyExistsFirst: "An ∃ before a ∀",
     },
     walkthroughs: {
       strategyBackward: {
@@ -457,6 +548,16 @@ export default {
         title: "Lab: reductio ad absurdum",
         task: "No premise gives a directly. You have the base rules and RAA.",
         hint: "Apply RAA to the goal. Inside the subproof, the hypothesis ¬a is the antecedent of line 1, and the result contradicts line 2.",
+      },
+      labForall: {
+        title: "Lab: a [v] box",
+        task: "The conclusion is a ∀, so the proof ends with ∀I. Inside the box, the goal is an implication. You have the base rules.",
+        hint: "Apply ∀I and then →I to the goal. Tap line 1 and pick ∀E, with the term v. From there, →E and ∧E reach R(v).",
+      },
+      labExists: {
+        title: "Lab: an example without a name",
+        task: "The first premise only says that some object has P and Q. Use it with ∃E. You have the base rules.",
+        hint: "Tap line 1 and pick ∃E. Inside the box, apply ∃I to the goal with the term v. R(v) is left: line 2 gives Q(v) → R(v) with ∀E, and the hypothesis gives Q(v) with ∧E.",
       },
     },
     counters: {
@@ -516,6 +617,30 @@ export default {
         name: "F elimination",
         when: "From F you can write any formula φ. Cite the line of F.",
       },
+      forallElim: {
+        name: "Universal elimination",
+        when: "From ∀x φ you can write φ[t/x], with any term t, as long as x is substitutable by t in φ. Cite the line of the ∀.",
+      },
+      forallIntro: {
+        name: "Universal introduction",
+        when: "Open a [v] box, with v fresh, and reach φ[v/x] on its last line. Outside it, write ∀x φ and cite the box as a range. v is fresh if it does not appear on any accessible line before the box, premises included, and it also cannot be free in ∀x φ.",
+      },
+      existsIntro: {
+        name: "Existential introduction",
+        when: "From φ[t/x] you can write ∃x φ, as long as x is substitutable by t in φ. You choose which occurrences of t become x: they need not be all of them. Cite the line of the example.",
+      },
+      existsElim: {
+        name: "Existential elimination",
+        when: "With ∃x φ on a line, open a [v] box, with v fresh and the hypothesis φ[v/x], and reach ψ. Outside it, write ψ, which cannot have v free. Cite the line of the ∃ and the range of the box.",
+      },
+      equalityIntro: {
+        name: "Equality introduction",
+        when: "At any point in the proof you can write t = t, with the same term t on both sides. It cites no line.",
+      },
+      equalityElim: {
+        name: "Equality elimination",
+        when: "From t₁ = t₂ and φ[t₁/x] you can write φ[t₂/x], as long as x is substitutable by t₁ and by t₂ in φ. You choose which occurrences of t₁ become t₂. Cite both lines, in any order.",
+      },
     },
     derivedRules: {
       modusTollens: {
@@ -546,6 +671,22 @@ export default {
         name: "Disjunctive syllogism",
         when: "If you have a disjunction and the negation of one side, the other side remains. Cite both lines. Both proofs show FE at work: the impossible case ends in F and gives the formula of the other case.",
       },
+      notForall: {
+        name: "From ¬∀ to ∃¬",
+        when: "From ¬∀x φ you can write ∃x ¬φ. It is the only one of the four that needs a detour through absurdity: ¬∀x φ does not say which object lacks φ, so the proof assumes there is none and reaches F. Cite the line of the ¬∀.",
+      },
+      existsNot: {
+        name: "From ∃¬ to ¬∀",
+        when: "From ∃x ¬φ you can write ¬∀x φ: one object without φ is enough to deny that all have it. Cite the line of the ∃.",
+      },
+      notExists: {
+        name: "From ¬∃ to ∀¬",
+        when: "From ¬∃x φ you can write ∀x ¬φ. It puts a ∀ in front, so you can then use ∀E with whatever term you need. Cite the line of the ¬∃.",
+      },
+      forallNot: {
+        name: "From ∀¬ to ¬∃",
+        when: "From ∀x ¬φ you can write ¬∃x φ. Use it when the goal is a negated ∃ and you already know that no object has φ. Cite the line of the ∀.",
+      },
     },
     mistakes: {
       andIntroOneSide: "The ∧I rule cites one line for each side, and here there is only line 1. The formula b is nowhere to be found: having one side is not enough to write the conjunction.",
@@ -560,6 +701,13 @@ export default {
       notIntroNoFalse: "The subproof must end in F. Ending on a negated formula is not enough, because ¬b and a can both be true at once. The sequent is not even valid.",
       notElimOneNegation: "Line 1 has only one negation in front. The other is inside, in ¬a, and negates just a part. The ¬E rule requires ¬¬ at the start of the whole formula, so it does not apply.",
       falseElimNoFalse: "¬a is not F, and the FE rule only accepts a line with F. For this sequent, suppose a, write F with FI, then b with FE, and close with →I.",
+      forallElimCapture: "The term is y, and the x of line 1 sits inside ∃y: the new y would be bound, so x is not substitutable by y in ∃y R(x, y). The premise says that every object is related to some object, and line 2 would say that some object is related to itself, which does not follow. With a term without y, like a, the rule gives ∃y R(a, y).",
+      forallIntroNotFresh: "The box uses a, which already appears on line 1, so a is not fresh. Knowing P(a) tells you something about a, not about an arbitrary object. The sequent is not even valid: in a domain with two objects, one can have P and the other not.",
+      existsIntroMixed: "∃I swaps occurrences of a single term for x. Here a and b would both have to become the same x, and line 1 is not P(t) ∧ Q(t) for any t. Indeed, a can have P and b have Q without any object having both.",
+      existsElimEscapes: "The conclusion P(v) has the box's name free, and ∃E does not let v out of the box. Outside, v is no object in particular: the premise says that some object has P, but not which one.",
+      existsNotFresh: "The box uses a, which already appears on line 2, so a is not fresh. The object with P may not be the one with Q, and the premises do not say they are the same. The conclusion does not follow.",
+      equalityIntroDifferent: "=I only writes t = t, with the same term on both sides. Sharing a property does not make a and b the same object, and the sequent is not even valid: in a domain with two objects, both with P, a and b can name different objects.",
+      equalityElimBackwards: "With b = a, =E replaces b with a, and line 2 has no b to replace. To go from P(a) to P(b), you need a = b. The sequent is valid, but a step is missing: get a = b from line 1, as in the symmetry figure, and only then apply =E.",
     },
     quiz: {
       heading: "Final quiz",
@@ -679,6 +827,46 @@ export default {
             rulesFail: "The rules are sound: each one preserves truth. What fails is one of the two solutions, and it is worth checking the proof line by line.",
           },
         },
+        forallLine: {
+          prompt: "You want to use the ∀ on line 1. Which of these lines is line 3?",
+          why: {
+            right: "∀E removes the ∀x and puts a single term in place of every free occurrence of x. With c, the term of line 2, the next line can already be Q(c), by →E.",
+            twoTerms: "∀E puts the same term in every occurrence of x. Replacing one with c and another with d gives a formula that line 1 does not guarantee.",
+            skipStep: "∀E cites only the line of the ∀ and does not apply the implication. First write P(c) → Q(c) with ∀E, then Q(c) with →E, citing line 2.",
+            wrongRule: "Line 1 is not an implication: its main connective is the ∀. →E only applies once ∀E has removed the quantifier.",
+          },
+        },
+        escapedName: {
+          prompt: "The sequent is valid, but this proof has a wrong line, or else everything is fine. Which is it?",
+          why: {
+            line3: "Line 3 is fine: inside the box, the hypothesis P(u) ∧ Q(u) gives P(u) by ∧E.",
+            line4: "Line 4 takes u out of the box, and ∃E does not let the conclusion have the box name free. Outside, u is no object in particular. The ∃I should stay inside the box, and ∃E would then give ∃x P(x).",
+            line5: "If line 4 were right, line 5 would be too, because ∃I replaces u with x. The problem comes earlier: line 4 takes u out of the ∃E box.",
+            none: "Line 4 has u, the box name, free, and ∃E does not let it out. The conclusion can only talk about objects that exist outside the box.",
+          },
+        },
+        equalityLine: {
+          prompt: "You want to combine the two equalities. Which of these lines is line 3?",
+          why: {
+            right: "In a = b, b is replaced with c using line 2, b = c. =E gives a = c, and the two lines can be cited in any order.",
+            reflexive: "=I only gives a term equal to itself, like a = a. a = c needs the premises.",
+            flipped: "Replacing b with c in a = b gives a = c, not c = a. Turning the equality around would take one more line, as in the symmetry proof.",
+            wrongRule: "Neither line is an implication. To use an equality, the rule is =E.",
+          },
+        },
+        quantifierNegation: {
+          prompt: "Which of these formulas says the same as ¬∀x(P(x) → Q(x))?",
+          options: {
+            someCounter: "∃x(P(x) ∧ ¬Q(x))",
+            allCounter: "∀x(P(x) ∧ ¬Q(x))",
+            negateParts: "∃x(¬P(x) → ¬Q(x))",
+          },
+          why: {
+            someCounter: "By QN1, the negation of a ∀ is an ∃ of the negation: ∃x ¬(P(x) → Q(x)). And an implication is false only with a true antecedent and a false consequent, that is, P(x) ∧ ¬Q(x).",
+            allCounter: "Negating a ∀ does not give another ∀. One object that breaks the implication is enough; they do not all have to.",
+            negateParts: "Negating the implication is not negating each side. ¬(P(x) → Q(x)) says that P(x) holds and Q(x) does not, and ¬P(x) → ¬Q(x) is something else.",
+          },
+        },
       },
     },
     check: {
@@ -776,6 +964,60 @@ export default {
           never: "MT has a proof with base rules only. A derived rule shortens a proof, but gives you nothing new.",
         },
       },
+      freeOccurrence: {
+        question: "In ∃x P(x) ∧ Q(x), which occurrences of x are free?",
+        options: { none: "None: ∃x binds both", last: "Only the one in Q(x)", all: "Both" },
+        why: {
+          none: "∃x binds like ¬, only up to the end of P(x). The formula is (∃x P(x)) ∧ Q(x), and Q(x) is left out.",
+          last: "∃x only covers P(x), because it binds tighter than ∧. The x of Q(x) is free. For ∃x to cover both, write ∃x(P(x) ∧ Q(x)).",
+          all: "The x of P(x) is inside ∃x, so it is bound. Only the one in Q(x) is left out.",
+        },
+      },
+      captureCheck: {
+        question: "In ∀z(P(z) → R(x, z)), is x substitutable by z?",
+        options: { yes: "Yes, because x is free", captured: "No: z would be bound by ∀z", bound: "No, because x is bound" },
+        why: {
+          yes: "x is free, but it sits inside ∀z. Swapping it for z would give R(z, z), and that new z would become the quantifier's.",
+          captured: "The occurrence of x is inside ∀z, and the term is z. After the swap, ∀z would bind it, and the formula would say something else. With a, for example, the swap is fine.",
+          bound: "No quantifier binds x: the only one is ∀z. The problem is the term, because z would become bound.",
+        },
+      },
+      freshName: {
+        question: "In a [v] box of ∀I, what name can v have?",
+        options: { any: "Any name, because the box isolates it", unused: "A name that does not appear on any accessible line before the box", constant: "Only a name that is already in the premises" },
+        why: {
+          any: "The box is not enough. If v were already in a premise, what you proved about it could depend on that premise and not hold for everything.",
+          unused: "That is the “v fresh” condition. That way v has nothing special, and what you prove about it holds for any object.",
+          constant: "It is the other way round: a name from the premises is an object you already know something about. The box's name has to be new.",
+        },
+      },
+      witnessName: {
+        question: "The premises are ∃x P(x) and Q(a). What name do you give the object of the ∃E box?",
+        options: { known: "a, which already appears in the premises", fresh: "A new name, like v", same: "x, the variable of the ∃" },
+        why: {
+          known: "Nothing says that the object with P is a. If you called it a, you would merge what you know about a with an object that may be a different one.",
+          fresh: "The object with P could be any object, so it needs a name nothing is known about.",
+          same: "x appears on the line of the ∃, so it is not fresh either. Use a name that is on no line above.",
+        },
+      },
+      equalityDirection: {
+        question: "You have c = d on a line. To write Q(d) with =E, which other line do you cite?",
+        options: { before: "Q(c)", flipped: "d = c", none: "None: c = d is enough" },
+        why: {
+          before: "=E replaces c with d in a formula about c. From c = d and Q(c) you get Q(d).",
+          flipped: "d = c is the same equality, turned around, and says nothing about Q. =E needs the formula where it makes the replacement: Q(c).",
+          none: "c = d only says that both names are the same object. To conclude Q(d), you need to know Q of that object, on a line Q(c).",
+        },
+      },
+      swapQuantifiers: {
+        question: "And the other way? Does ∀y∃x R(x, y) ⊢ ∃x∀y R(x, y) have a proof?",
+        options: { valid: "Yes, with the same proof backwards", invalid: "No: there is a countermodel", unknown: "Nobody knows, because first-order logic is undecidable" },
+        why: {
+          valid: "The proof does not reverse. In a domain {1, 2}, with R only at (1, 1) and (2, 2), each y is related to some x, y itself, but no x is related to both.",
+          invalid: "In a domain {1, 2}, with R only at (1, 1) and (2, 2), each y has an x with R(x, y), y itself, but no x has R with both. The premise holds and the conclusion does not, so there is no proof.",
+          unknown: "Undecidability means there is no method that always answers, not that we never know. Here there is a small countermodel: domain {1, 2}, with R only at (1, 1) and (2, 2).",
+        },
+      },
     },
   },
   exercises: {
@@ -792,6 +1034,10 @@ export default {
       3: "Negation, cases and proving rules",
       4: "Using derived rules",
       5: "De Morgan, excluded middle and long proofs",
+      6: "∀E and ∃I: instantiating",
+      7: "The ∀I and ∃E boxes",
+      8: "Negated quantifiers and proving QN",
+      9: "Equality and nested quantifiers",
     },
     progressLabel: "Progress",
     count: "{solved} of {total} solved",
@@ -843,6 +1089,24 @@ export default {
       emptyImplication: "Inside the subproof, F gives you any formula, including the consequent you are missing.",
       casesFromTheDisjunction: "Split into cases with the second premise. In each one, the first premise rules out the other atom.",
       recoverTheAntecedent: "Show that ¬a leads to F. With a in hand, the premise gives you a disjunction to split into cases.",
+      oneQuantifierAtATime: "∀E removes one quantifier at a time: instantiate x with c first, then y with d.",
+      anyNameWillDo: "The sequent has no names, but ∀E accepts any term. Pick a name, such as a, and instantiate with it.",
+      openTheBoxWithForallE: "The ∀I box can open with a ∀E: its first line is the premise instantiated with the new variable.",
+      witnessBox: "Open the ∃E box with a new variable as the witness, and inside it reach a conclusion that does not mention it.",
+      refuteInsideTheBox: "Inside the box, assume R(v) and reach F: ¬I gives you ¬R(v), and ∃I does the rest.",
+      casesInsideTheBox: "Inside the ∀I box, the instantiated disjunction gives two cases, and each one reaches R(v).",
+      falseCaseGivesAnything: "In the Q(v) case, the second premise gives F, and from F you get whatever formula you need.",
+      assumeTheOppositeExistential: "Assume ¬∃x ¬P(x) and show ∀x P(x) to contradict the premise. Inside the [v] box, get P(v) through ¬¬.",
+      labelBeforeHypothesis: "The ∀I starts with a hypothesis, P(v), so the [v] label sits alone on a line before it.",
+      assumeTheUniversal: "Assume ∀x P(x) and show ∀x Q(x) in a [v] box: it clashes with the second premise.",
+      pushTheNegationIn: "A QN rule moves the negation inside the quantifier. The rest happens inside a box.",
+      deMorganInsideTheBox: "In the ∃E box you have the negation of a disjunction: De Morgan splits it into two negations.",
+      replaceSomeOccurrences: "=E does not have to replace every occurrence: replace only the second a with b.",
+      turnTheEquation: "=E replaces the left side with the right one. Flip the equation first: start from f(a) = f(a), which comes from =I.",
+      startFromReflexivity: "Start from g(a, a) = g(a, a), by =I, and replace with b only the occurrences of a that suit you.",
+      existsBoxFirst: "Open the ∃E box first. The ∀I box opens afterwards, inside it, with another new variable.",
+      boxInsideBox: "Open the ∀I box with the ∀E of the first premise and, inside it, the ∃E box with another new variable.",
+      equalToTheWitness: "Inside the box, show that a and b are both equal to the witness, then join the two equations with =E.",
     },
     findError: {
       promptLine: "This proof has exactly one mistake. Pick the wrong line.",
@@ -869,6 +1133,11 @@ export default {
         missingCase: "One of the cases of the disjunction isn't cited.",
         ruleNotInSet: "The rule used isn't among the rules allowed in this proof.",
         assumedPremise: "This formula isn't a premise of the sequent.",
+        forallVariableFree: "The variable of the ∀I box is still free in the concluded formula.",
+        witnessInConclusion: "The conclusion of ∃E can't contain the variable of the box.",
+        variableNotFresh: "The variable of the box isn't fresh: it already appears on an accessible line.",
+        capturedTerm: "Substituting the variable gets the term caught by a quantifier of the formula.",
+        equalityDirection: "=E replaces the left side of the equality with the right side, not the other way round.",
       },
       explanations: {
         backwardsImplication: "From g → h and g you get h, but not the other way round: knowing h says nothing about g.",
@@ -883,6 +1152,11 @@ export default {
         mismatchedCases: "The first case ends in r and the second in s, so the disjunction doesn't guarantee r.",
         negationGained: "From the hypothesis ¬n, ¬I gives ¬¬n. To reach n you still need a step with ¬E.",
         deMorganSplit: "The negation of a conjunction gives a disjunction, ¬l ∨ ¬m, and not a conjunction.",
+        capturedVariable: "Putting y in place of x in ∃y L(x, y) brings it into the reach of ∃y, which catches it: ∃y L(y, y) says something else. ∀E only accepts a substitutable term.",
+        escapedVariable: "The formula ∀x R(x, v) still talks about v, which only makes sense inside the box on line 2. ∀I has to replace every occurrence of v.",
+        witnessEscapes: "P(v) talks about the witness, which only has a name inside the box. Do the ∃I while still inside it, so the conclusion of ∃E no longer has v.",
+        reusedWitness: "Lines 3 and 4 both call v the witnesses of ∃x P(x) and ∃x Q(x), but they may be different objects. The box on line 4 needed another variable; the error shows up at the ∃E that closes it.",
+        equalityBackwards: "With a = b, =E puts b in place of a, not the other way round. To get from P(b) to P(a), first get b = a with =I and =E.",
       },
     },
   },
@@ -901,6 +1175,11 @@ export default {
       unbalanced: "“{char}” has no match: check the parentheses.",
       missingOperand: "A formula is missing next to “{char}”.",
       missingOperator: "A connective is missing before “{token}”.",
+      missingVariable: "“{token}” must be followed by its variable: a letter with optional digits, other than F (e.g. ∀x, ∃y1).",
+      missingTerm: "A term is missing next to “{char}”: a name such as a or x, or a function such as f(a).",
+      notATerm: "“{token}” cannot be part of a term: arguments and the sides of = are names such as a or x, or functions such as f(a).",
+      badArgument: "Arguments are separated by commas: a comma or a “)” is missing before “{token}”.",
+      badEquality: "“{char}” only joins terms, as in a = f(b), and here it has no term on its left.",
       missingTurnstile: "The ⊢ symbol is missing between the premises and the conclusion.",
       multipleTurnstiles: "A sequent has a single ⊢, so this “{token}” is one too many.",
       multipleConclusions: "A sequent has a single conclusion: the comma after ⊢ should not be there.",
@@ -911,6 +1190,7 @@ export default {
   semantics: {
     errors: {
       tooManyVariables: "There are {count} variables, and the truth table only takes up to {max}.",
+      notPropositional: "First-order logic is not supported here yet: the truth table does not handle quantifiers, terms or equality.",
     },
   },
   solver: {
@@ -918,6 +1198,7 @@ export default {
     errors: {
       stepLimit: "The search stopped after {max} steps. This does not mean there is no proof.",
       searchExhausted: "The search found no proof with these rules. This does not mean there is no proof.",
+      undecided: "I found neither a proof nor a countermodel: the search only looks at structures with up to {maxSize} elements and has a step limit. This does not mean the sequent is valid, nor that it is invalid.",
       unverifiedProof: "The generated proof did not pass the checker, so it is not shown.",
       timeout: "The search stopped after {seconds} s. This does not mean there is no proof.",
       cancelled: "You cancelled the search.",
@@ -944,6 +1225,15 @@ export default {
       excludedMiddle: "A formula or its negation must hold: this is the starting point for two cases.",
       repeatFact: "Repeat the formula so that the subproof ends on it.",
       applyRule: "This rule from the active set applies directly to what is already proved.",
+      openForallBox: "To prove a ∀, open a box with a new variable and prove the formula for it: since the variable could be any, it holds for all.",
+      assumeWitness: "There is a ∃ at hand: open a box with a new variable for the object that exists and assume its property.",
+      concludeForall: "The box proved the formula for a new variable, so it holds for all.",
+      concludeFromWitness: "The goal came out of the ∃E box without depending on the new variable, so it follows from the ∃.",
+      instantiate: "Instantiate the ∀ with a term that is already in the proof.",
+      showWitness: "The formula already holds for a concrete term, so some object satisfies it.",
+      rewriteEquality: "Use the equality to swap one term for the other.",
+      reflexivity: "Every term is equal to itself.",
+      separateBoxes: "A line opens at most one box: repeat a fact so that the outer box starts on it, and the inner box opens on the next line.",
     },
   },
   hints: {
@@ -954,10 +1244,14 @@ export default {
       premise: "A premise is missing.",
       hypothesis: "Open a subproof: you will close it with {rule}.",
       step: "Use the rule {rule}.",
+      forallBox: "Open the ∀I box with the new variable {variable}.",
+      existsBox: "Open the ∃E box with the new variable {variable}.",
     },
     exact: {
       premise: "On line {line}, write the premise {formula}.",
       hypothesis: "On line {line}, assume {formula}.",
+      forallBox: "On line {line}, open the box [{variable}] and write {formula}, still to prove.",
+      existsBox: "On line {line}, open the box [{variable}] and assume {formula}.",
       step: "On line {line}, write {formula} by {rule}, {citations}.",
       stepUncited: "On line {line}, write {formula} by {rule}.",
     },
@@ -1001,6 +1295,11 @@ export default {
       wrongCitationKind: "Line {line}: rule {rule} cites lines and subproofs differently, so check the citations.",
       ruleNotApplicable: "Line {line}: what you cited does not have the form rule {rule} asks for.",
       formulaMismatch: "Line {line}: rule {rule} applies to what you cited, but it does not give this formula.",
+      missingFreshBox: "Line {line}: rule {rule} cites a box with a fresh variable, marked [v] on its first line, and what you cited has none.",
+      wrongBox: "Line {line}: the cited box is not the one rule {rule} asks for, because ∀I cites a [v] box with no hypothesis, ∃E a [v] box that opens with a hypothesis, and the other rules boxes without [v].",
+      notFresh: "Line {line}: the box variable {variable} is not fresh, because it already appears on line {cited}.",
+      variableEscapes: "Line {line}: the box variable {variable} would be free in the conclusion of {rule}, outside the box where it is fresh.",
+      notSubstitutable: "Line {line}: {term} is not free for {variable} in this formula, because a quantifier would capture a variable of {term}.",
     },
     conclusion: {
       emptyProof: "The proof has no lines yet.",
@@ -1018,6 +1317,10 @@ export default {
       DM: "DM",
       SH: "HS",
       SD: "DS",
+      NQ1: "QN1",
+      NQ2: "QN2",
+      NQ3: "QN3",
+      NQ4: "QN4",
     },
   },
   userRules: {
@@ -1032,6 +1335,7 @@ export default {
       schemaTooLarge: "This schema has {size} symbols, and the maximum is {max}.",
       tooManyRules: "You can only have up to {max} rules of your own.",
       unsound: "The rule is not sound: there is a valuation where the premises are true and the conclusion is false.",
+      firstOrder: "Your own rules are propositional: use only φ, ψ, θ, atoms and connectives, with no quantifiers, terms or equality. They still work in first-order proofs.",
     },
   },
   rulesPanel: {
@@ -1097,6 +1401,8 @@ export default {
       pending: "Line {line} is unfinished.",
     },
     moreChanges: "{count} more lines changed.",
+    fresh: "Box for variable {variable}.",
+    labelLine: "Label line: box for variable {variable}, unnumbered.",
   },
   speech: {
     not: "not",
@@ -1121,10 +1427,12 @@ export default {
     errors: {
       badLine: "Line {line}: write the number, a bar and the formula, as in “3 | p ∧ q   ∧I, 1, 2”.",
       badLineNumber: "This line should be number {expected}, and it is {found}.",
-      badIndent: "Line {line}: the indentation is one space after the bar, plus two for each subproof.",
+      badIndent: "Line {line}: the indentation is one space after the bar, plus two for each subproof, or just two per subproof before a mark like [v].",
       missingRuleName: "Line {line}: there are citations, but the rule name is missing.",
       badCitation: "Line {line}: “{token}” is not a citation: write a number, like 3, or a range, like 2–4.",
       unexpectedCitation: "Line {line}: premises and hypotheses do not cite other lines.",
+      badFresh: "Line {line}: “[{name}]” does not mark a fresh variable: write a name that works as a term, like [v], and not on a premise.",
+      orphanLabel: "Before line {line}: a line with only [v] must come right before a hypothesis, one level further in.",
     },
   },
 };

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- seo (gerado por scripts/build-pages.mjs) -->
   <title>Dedução natural explicada · Learn Natural Deduction</title>
-  <meta name="description" content="Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas e estratégias de prova.">
+  <meta name="description" content="Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas, quantificadores, igualdade e estratégias de prova.">
   <link rel="canonical" href="https://nd.computational-logic.miguelrocha.dev/aprender">
   <link rel="alternate" hreflang="pt" href="https://nd.computational-logic.miguelrocha.dev/aprender">
   <link rel="alternate" hreflang="en" href="https://nd.computational-logic.miguelrocha.dev/en/learn">
@@ -17,14 +17,14 @@
   <meta property="og:locale:alternate" content="en_GB">
   <meta property="og:url" content="https://nd.computational-logic.miguelrocha.dev/aprender">
   <meta property="og:title" content="Dedução natural explicada · Learn Natural Deduction">
-  <meta property="og:description" content="Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas e estratégias de prova.">
+  <meta property="og:description" content="Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas, quantificadores, igualdade e estratégias de prova.">
   <meta property="og:image" content="https://nd.computational-logic.miguelrocha.dev/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Learn Natural Deduction: provas em notação de Fitch, verificadas linha a linha.">
+  <meta property="og:image:alt" content="Learn Natural Deduction: provas em notação de Fitch, na lógica proposicional e de 1.ª ordem, verificadas linha a linha.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://nd.computational-logic.miguelrocha.dev/og-image.png">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"LearningResource","url":"https://nd.computational-logic.miguelrocha.dev/aprender","inLanguage":"pt-PT","description":"Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas e estratégias de prova.","isAccessibleForFree":true,"author":{"@type":"Person","name":"Miguel Rocha","url":"https://miguelrocha.dev"},"name":"Dedução natural explicada","educationalLevel":"Iniciante","teaches":["Regras de introdução e eliminação","Subdeduções","Regras derivadas","Estratégias de prova"],"learningResourceType":"lesson"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"LearningResource","url":"https://nd.computational-logic.miguelrocha.dev/aprender","inLanguage":"pt-PT","description":"Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas, quantificadores, igualdade e estratégias de prova.","isAccessibleForFree":true,"author":{"@type":"Person","name":"Miguel Rocha","url":"https://miguelrocha.dev"},"name":"Dedução natural explicada","educationalLevel":"Iniciante","teaches":["Regras de introdução e eliminação","Subdeduções","Regras derivadas","Quantificadores e igualdade","Estratégias de prova"],"learningResourceType":"lesson"}</script>
   <!-- /seo -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -64,7 +64,7 @@
     <div class="lesson__layout">
       <nav class="lesson-toc" id="lesson-toc" data-i18n-attr="aria-label:learn.toc.title" aria-label="Nesta lição"></nav>
       <article class="lesson__body">
-        <p class="lesson__eyebrow" data-i18n="learn.eyebrow">Lição · 9 secções</p>
+        <p class="lesson__eyebrow" data-i18n="learn.eyebrow">Lição · 14 secções</p>
         <h1 class="lesson__title" data-i18n="learn.title">Aprender dedução natural</h1>
         <p class="lesson__lead" data-i18n="learn.lead">Uma lição sobre as regras, as subdeduções e as estratégias para encontrar uma prova.</p>
         <section class="lesson-section" id="prova" aria-labelledby="prova-title">
@@ -246,10 +246,109 @@
             <p data-i18n="learn.meta.together">Juntas, as duas dizem que ⊢ e ⊨ coincidem. Cada sequente tem uma prova ou um contraexemplo, nunca os dois. A completude diz só que a prova existe, não que seja curta nem fácil de encontrar, e é para isso que servem as estratégias.</p>
           </div>
         </section>
+        <section class="lesson-section" id="linguagem" aria-labelledby="linguagem-title">
+          <h2 class="lesson-section__title" id="linguagem-title"><span class="lesson-section__num">10</span> <span data-section-title data-i18n="learn.sections.language">Linguagem de 1.ª ordem</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.language.p1">Até aqui, cada variável era um bloco fechado: a é verdadeira ou falsa, e não há como olhar para dentro dela. A lógica de 1.ª ordem abre esses blocos. Fala de objetos, das propriedades que têm e das relações entre eles, e deixa dizer «todos» e «algum».</p>
+            <p data-i18n="learn.language.terms">Os objetos nomeiam-se com termos. Um termo é um nome, como a, b ou x, ou uma função aplicada a termos, como f(a) ou g(x, b). Aqui, o nome não diz se é constante ou variável: um nome é variável onde um quantificador o liga, e livre fica a valer por um objeto concreto de que nada se sabe.</p>
+            <p data-i18n="learn.language.predicates">Uma fórmula atómica aplica um predicado a termos. P(a) diz que a tem a propriedade P, e R(a, b) diz que a está na relação R com b. Um predicado sem argumentos, como p, é uma variável como as das secções anteriores, por isso tudo o que viste continua a valer. Há ainda a igualdade, t₁ = t₂, que tem regras próprias.</p>
+            <p data-i18n="learn.language.quantifiers">Há dois quantificadores. ∀x φ diz que φ vale para todos os objetos, e ∃x φ diz que vale para pelo menos um. Escrevem-se com ∀ e ∃, ou com forall x e exists x. Ligam como o ¬, mais do que qualquer conectivo, e por isso ∀x P(x) → Q(a) é (∀x P(x)) → Q(a). Para o quantificador abranger a implicação toda, usa parênteses: ∀x(P(x) → Q(x)).</p>
+            <p data-i18n="learn.language.free">Uma ocorrência de x está ligada quando fica dentro de um ∀x ou de um ∃x, e livre quando não fica. A mesma variável pode ter ocorrências dos dois tipos na mesma fórmula. Em ∀x R(x, y) → P(x), o x de R(x, y) está ligado, o x de P(x) está livre, e y está livre.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="freeOccurrence"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.language.substitution">As regras dos quantificadores trocam uma variável por um termo. φ[t/x] é a fórmula φ com t no lugar de cada ocorrência livre de x. As ligadas ficam como estão: (P(x) ∧ ∀x Q(x))[a/x] é P(a) ∧ ∀x Q(x).</p>
+            <p data-i18n="learn.language.capture">Há uma armadilha. Se t tiver uma variável que um quantificador de φ liga, a troca muda o sentido da fórmula. ∃y R(x, y) diz que x está relacionado com algum objeto, e pôr y no lugar de x dá ∃y R(y, y), que diz que algum objeto está relacionado consigo próprio. O y do termo ficou capturado. Por isso, as regras só trocam x por t quando x é substituível por t em φ: nenhuma ocorrência livre de x pode estar dentro de um quantificador que ligue uma variável de t.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="captureCheck"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.language.alpha">Por fim, o nome de uma variável ligada não conta. ∀x P(x) e ∀y P(y) dizem o mesmo, e o verificador aceita uma no lugar da outra, ao citar e ao comparar com a conclusão.</p>
+          </div>
+        </section>
+        <section class="lesson-section" id="universal" aria-labelledby="universal-title">
+          <h2 class="lesson-section__title" id="universal-title"><span class="lesson-section__num">11</span> <span data-section-title data-i18n="learn.sections.forall">Quantificador universal (∀)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.forall.p1">Uma linha com ∀x φ é uma garantia geral: φ vale para qualquer objeto. Para a usares, escolhes o objeto.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="forallElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.forall.p2">O ∀E tira só o quantificador de fora. Com dois, como no exemplo, são dois passos, e cada um escolhe o seu termo. O termo nem precisa de aparecer antes na prova.</p>
+            <p data-i18n="learn.forall.p3">Provar ∀x φ pede mais. Não dá para ver os objetos um a um, por isso mostras φ para um objeto genérico, de que não sabes nada em especial. Esse objeto é um nome novo, v, e o raciocínio fica numa caixa com a marca [v] à margem da primeira linha.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="forallIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.forall.p4">A caixa do ∀I não tem hipótese. A primeira linha é um passo normal, com a sua regra, e a marca [v] só diz qual é o objeto genérico. Se a primeira linha tiver de ser uma hipótese, para um →I ou um ¬I, a marca fica sozinha numa linha sem número, e a hipótese abre a sua caixa por dentro. O intervalo do ∀I começa na primeira linha numerada.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="forallLabel"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.forall.p5">A condição «v nova» é o que torna o objeto genérico. Se v já aparecesse numa linha acessível, saberias alguma coisa sobre ele, e o que provasses podia valer só para ele.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-check="freshName"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.forall.lab">No laboratório, aplicar ∀I ao objetivo abre a caixa e propõe o nome v. Podes trocá-lo por outro antes de confirmar.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-lab="labForall"></div>
+        </section>
+        <section class="lesson-section" id="existencial" aria-labelledby="existencial-title">
+          <h2 class="lesson-section__title" id="existencial-title"><span class="lesson-section__num">12</span> <span data-section-title data-i18n="learn.sections.exists">Quantificador existencial (∃)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.exists.p1">∃x φ diz que há pelo menos um objeto com φ, sem dizer qual. Chegar lá é fácil, porque basta um exemplo. Usá-lo pede mais cuidado.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="existsIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.exists.p2">No exemplo, a mesma linha R(a, a) dá duas conclusões diferentes, conforme as ocorrências de a que passam a x. O erro comum é o contrário: juntar dois objetos diferentes na mesma variável.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="existsElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.exists.p3">A ideia do ∃E é dar um nome provisório ao objeto que existe. Como não sabes qual é, o nome tem de ser novo, para nada do que já sabes falar dele. E o nome só vale dentro da caixa: cá fora não se sabe a que objeto se refere, por isso a conclusão não o pode ter livre.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-mistake="existsNotFresh"></div>
+          <div class="lesson-interactive" data-lesson-check="witnessName"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.exists.lab">Quando uma premissa é um ∃, abre a caixa do ∃E cedo, como no ∨E: dentro dela tens mais uma linha para usar. O objetivo da caixa é o mesmo que o de fora.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-lab="labExists"></div>
+        </section>
+        <section class="lesson-section" id="igualdade" aria-labelledby="igualdade-title">
+          <h2 class="lesson-section__title" id="igualdade-title"><span class="lesson-section__num">13</span> <span data-section-title data-i18n="learn.sections.equality">Igualdade (=)</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equality.p1">t₁ = t₂ diz que os dois termos nomeiam o mesmo objeto. Ao contrário dos outros predicados, a igualdade tem um sentido fixo, e duas regras dizem o que podes fazer com ela. A primeira é a mais simples do sistema: qualquer termo é igual a si próprio, sem premissas.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="equalityIntro"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equality.p2">A segunda troca iguais por iguais: se t₁ = t₂, o que vale para t₁ vale para t₂. Como no ∃I, escolhes que ocorrências trocas, e no exemplo a mesma linha R(a, a) dá R(a, b) e R(b, b).</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-rule="equalityElim"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equality.p3">O =E tem sentido. Com a linha t₁ = t₂, troca-se t₁ por t₂, e nunca ao contrário. Para ir no outro sentido, prova primeiro t₂ = t₁. Bastam as duas regras: o =I dá c = c, e o =E troca o primeiro c por d.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="equalitySymmetry"></div>
+          <div class="lesson-interactive" data-lesson-check="equalityDirection"></div>
+        </section>
+        <section class="lesson-section" id="equivalencias" aria-labelledby="equivalencias-title">
+          <h2 class="lesson-section__title" id="equivalencias-title"><span class="lesson-section__num">14</span> <span data-section-title data-i18n="learn.sections.equivalences">Equivalências e estratégias</span></h2>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equivalences.p1">Na lógica proposicional, as leis de De Morgan levam a negação para dentro de um ∧ ou de um ∨. Os quantificadores têm leis parecidas. Negar que todos têm φ é dizer que algum não tem, e negar que algum tem φ é dizer que nenhum tem. São quatro regras derivadas, uma por sentido, e cada uma tem uma prova só com as regras base.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-derived="notForall"></div>
+          <div class="lesson-interactive" data-lesson-derived="existsNot"></div>
+          <div class="lesson-interactive" data-lesson-derived="notExists"></div>
+          <div class="lesson-interactive" data-lesson-derived="forallNot"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equivalences.p2">Juntas, dizem que ¬∀x φ e ∃x ¬φ são equivalentes, e que ¬∃x φ e ∀x ¬φ também. Na prática, uma premissa com um quantificador negado deixa de ser um problema: a derivada leva a negação para dentro, e o quantificador que fica à frente já tem regra de eliminação.</p>
+            <p data-i18n="learn.equivalences.p3">Há mais equivalências. O ∀ distribui sobre o ∧, e o ∃ sobre o ∨: ∀x(P(x) ∧ Q(x)) diz o mesmo que ∀x P(x) ∧ ∀x Q(x). Trocados, já não: de ∀x(P(x) ∨ Q(x)) não sai ∀x P(x) ∨ ∀x Q(x), porque cada objeto pode ter só uma das duas. Dois quantificadores iguais seguidos trocam de ordem sem mudar nada, mas um ∀ e um ∃ não. A prova seguinte vai num dos sentidos, com uma caixa do ∀I dentro da caixa do ∃E.</p>
+          </div>
+          <div class="lesson-interactive" data-lesson-proof="strategyExistsFirst"></div>
+          <div class="lesson-interactive" data-lesson-check="swapQuantifiers"></div>
+          <div class="lesson-prose">
+            <p data-i18n="learn.equivalences.p4">Para encontrar uma prova de 1.ª ordem, abre as caixas antes de instanciar: a do ∀I quando o objetivo é um ∀, e a do ∃E quando uma premissa é um ∃, com um nome novo. Só depois usa ∀E e ∃I, com os termos que já estão na prova. Normalmente, são os nomes das caixas, como u e v no exemplo.</p>
+            <p data-i18n="learn.equivalences.p5">Se uma premissa tem um quantificador negado, as derivadas desta secção levam a negação para dentro. Se nada avança, resta a redução ao absurdo, como na lógica proposicional. No Provar, a ajuda segue estas mesmas ideias e, quando o sequente é inválido, procura um contramodelo.</p>
+          </div>
+        </section>
         <section class="lesson-quiz" id="quiz" aria-labelledby="quiz-title">
           <h2 class="lesson-section__title" id="quiz-title"><span data-i18n="learn.quiz.heading">Quiz final</span></h2>
           <div class="lesson-prose">
-            <p data-i18n="learn.quiz.intro">Oito perguntas para confirmares o que leste. Cada resposta traz a sua explicação, e o teu melhor resultado fica guardado neste browser.</p>
+            <p data-i18n="learn.quiz.intro">Doze perguntas para confirmares o que leste. Cada resposta traz a sua explicação, e o teu melhor resultado fica guardado neste browser.</p>
           </div>
           <div class="lesson-interactive" data-lesson-quiz></div>
         </section>

@@ -3,28 +3,28 @@
 export default {
   meta: {
     langName: "Português",
-    ogImageAlt: "Learn Natural Deduction: provas em notação de Fitch, verificadas linha a linha.",
+    ogImageAlt: "Learn Natural Deduction: provas em notação de Fitch, na lógica proposicional e de 1.ª ordem, verificadas linha a linha.",
     home: {
       title: "Aprender dedução natural",
-      description: "Aprende a fazer provas de dedução natural em notação de Fitch, com verificação de cada linha, dicas e soluções passo a passo.",
+      description: "Aprende a fazer provas de dedução natural em notação de Fitch, na lógica proposicional e de 1.ª ordem, com cada linha verificada, dicas e soluções.",
     },
     prove: {
       title: "Provar em dedução natural online",
-      description: "Escreve um sequente e faz a prova em notação de Fitch: cada linha é verificada, e tens dicas, solução automática e contraexemplos.",
+      description: "Escreve um sequente, com ou sem quantificadores, e faz a prova em notação de Fitch: cada linha é verificada, com dicas, solução automática e contraexemplos.",
     },
     step: {
       title: "Dedução natural passo a passo",
-      description: "Acompanha uma prova de dedução natural passo a passo, em notação de Fitch, com a estratégia que explica cada linha até à conclusão.",
+      description: "Acompanha uma prova de dedução natural passo a passo, proposicional ou de 1.ª ordem, em notação de Fitch, com a estratégia que explica cada linha.",
     },
     learn: {
       title: "Dedução natural explicada",
-      description: "Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas e estratégias de prova.",
+      description: "Lição interativa de dedução natural: regras de introdução e eliminação, subdeduções, regras derivadas, quantificadores, igualdade e estratégias de prova.",
       level: "Iniciante",
-      teaches: "Regras de introdução e eliminação · Subdeduções · Regras derivadas · Estratégias de prova",
+      teaches: "Regras de introdução e eliminação · Subdeduções · Regras derivadas · Quantificadores e igualdade · Estratégias de prova",
     },
     exercises: {
       title: "Exercícios de dedução natural",
-      description: "Treina dedução natural com exercícios graduados: faz as provas em notação de Fitch, com correção imediata e progresso guardado.",
+      description: "Treina dedução natural proposicional e de 1.ª ordem com exercícios graduados: provas em notação de Fitch, com correção imediata e progresso guardado.",
     },
     notFound: {
       title: "Página não encontrada",
@@ -118,6 +118,11 @@ export default {
     },
     shortcuts: "Enter avança · Ctrl+Enter abre subdedução · Shift+Enter fecha · Ctrl+Shift+Backspace apaga a linha · Ctrl+Z desfaz · Ctrl+Y refaz",
     complete: "A prova está completa e todas as linhas estão certas.",
+    boxes: "Caixa do ∀I ou do ∃E: começa a fórmula por [v], com a variável nova. Abrir subdedução (Ctrl+Enter) numa linha só com [v] põe uma hipótese dentro da caixa.",
+    errors: {
+      badFresh: "«[{name}]» não serve de variável da caixa: escreve um nome, como [v].",
+      freshBoxNotEmpty: "Esta linha abre a caixa de {name}, que tem mais linhas: mantém o [{name}], ou apaga a caixa com Ctrl+Shift+Backspace.",
+    },
   },
   rulePick: {
     choose: "Escolhe a regra",
@@ -127,6 +132,7 @@ export default {
     none: "Não há nenhuma linha acessível com esta forma.",
     refused: "A regra {rule} conclui {conclusions}, e isso não dá a fórmula desta linha.",
     result: "dá mais do que uma fórmula. Escolhe qual queres nesta linha:",
+    other: "Outro termo: escrevo eu",
     cancel: "Cancelar",
   },
   guided: {
@@ -143,6 +149,16 @@ export default {
       needsSelection: "Seleciona o que a regra cita: {premises}.",
       selectionMismatch: "A seleção não encaixa no que a regra cita: {premises}.",
       targetMismatch: "O objetivo não tem a forma que a regra dá: {conclusions}.",
+      boxClash: "A caixa nova abriria na mesma linha que a caixa de {variable}, e só cabe uma caixa por linha. Escreve primeiro outra linha dentro da caixa de {variable}.",
+      badTerm: "«{text}» não é um termo: escreve um nome, como a, ou uma função, como f(a).",
+      badVariable: "«{text}» não serve de variável: escreve um nome, como v.",
+      notFresh: "A variável {variable} já aparece antes da caixa ou no passo: escolhe uma variável nova.",
+      notSubstitutable: "Com {term}, o passo não serve: uma variável do termo ficaria ligada, ou a regra deixaria de valer.",
+    },
+    ask: {
+      term: "Termo (podes escrever outro):",
+      variable: "Variável nova da caixa (podes mudá-la):",
+      apply: "Usar",
     },
   },
   assist: {
@@ -168,6 +184,15 @@ export default {
     anyValuation: "Qualquer valoração serve de contraexemplo.",
     otherValues: "As outras variáveis podem ter qualquer valor.",
     valuationLabel: "Valoração do contraexemplo",
+    invalidStructure: "Este sequente não tem prova, porque é inválido. Contramodelo: nesta estrutura, as premissas são verdadeiras e a conclusão é falsa.",
+    invalidStructureNoPremises: "Este sequente não tem prova, porque é inválido. Contramodelo: nesta estrutura, a conclusão é falsa.",
+    structure: {
+      label: "Estrutura do contramodelo",
+      domain: "Domínio",
+      constants: "Constantes",
+      functions: "Funções",
+      predicates: "Predicados",
+    },
     values: {
       true: "V",
       false: "F",
@@ -189,6 +214,9 @@ export default {
       or: "Disjunção",
       implies: "Implicação",
       falsum: "Falso",
+      forall: "Para todo (escreve forall)",
+      exists: "Existe (escreve exists)",
+      eq: "Igual",
       open: "Abrir parêntese",
       close: "Fechar parêntese",
       comma: "Vírgula",
@@ -207,6 +235,7 @@ export default {
       direct: "Sem subdedução",
       subproofs: "Com subdedução",
       classical: "Sem premissas",
+      firstOrder: "1.ª ordem",
       invalid: "Sequente inválido",
     },
     items: {
@@ -217,7 +246,13 @@ export default {
       contrapositive: "Contrarrecíproca",
       peirce: "Lei de Peirce",
       excludedMiddle: "Terceiro excluído",
+      forallBox: "Caixa do ∀I",
+      existsBox: "Caixa do ∃E",
+      swapQuantifiers: "Trocar ∃ e ∀",
+      negateExists: "Negar um ∃",
+      symmetry: "Simetria da igualdade",
       converse: "Afirmar o consequente",
+      someToAll: "Do ∃ ao ∀",
     },
   },
   share: {
@@ -287,6 +322,8 @@ export default {
     invalid: "Este sequente não é válido, por isso não há prova para reproduzir.",
     counterexample: "Contraexemplo: com estes valores, as premissas são verdadeiras e a conclusão é falsa.",
     counterexampleNoPremises: "Contraexemplo: com estes valores, a conclusão é falsa.",
+    countermodel: "Contramodelo: nesta estrutura, as premissas são verdadeiras e a conclusão é falsa.",
+    countermodelNoPremises: "Contramodelo: nesta estrutura, a conclusão é falsa.",
     noLines: "Ainda não há linhas: este sequente não tem premissas.",
     start: "Começas só com as premissas. Cada passo acrescenta uma linha à prova.",
     startEmpty: "Não há premissas, por isso a prova começa sem nada provado. Cada passo acrescenta uma linha.",
@@ -294,6 +331,15 @@ export default {
     treeStart: "A árvore aparece no primeiro passo: mostra de onde vem a linha desse passo.",
     treeHint: "A árvore da linha deste passo. Seleciona uma fórmula para ver de onde veio, ou carrega nela para ir ao passo que a escreveu. As linhas com R não aparecem, porque só repetem uma fórmula.",
     views: { label: "Vista da prova", fitch: "Fitch", tree: "Árvore" },
+    firstOrder: {
+      labelBox: "A caixa do ∀I abre numa linha só com [{variable}], porque a primeira linha dentro dela é uma hipótese, que abre outra caixa.",
+      forallBox: "O [{variable}] abre a caixa do ∀I: {variable} é uma variável nova, que não aparece em nenhuma linha acessível antes da caixa.",
+      existsBox: "O [{variable}] abre a caixa do ∃E: {variable} é uma variável nova que dá nome ao objeto que existe, e não pode sair da caixa.",
+      instantiate: "Instanciação: tira-se o ∀ de {formula} e o {variable} passa a ser o termo {term}.",
+      witness: "O termo {term} é a testemunha: o ∃ põe {variable} no lugar dele.",
+      closeForall: "A caixa fecha e {variable} dá lugar ao {bound} do ∀: {variable} já não está livre na conclusão.",
+      closeExists: "A caixa fecha: a conclusão não fala de {variable}, por isso pode sair da caixa.",
+    },
     keys: {
       label: "Atalhos de teclado",
       step: "Passo anterior ou seguinte",
@@ -305,7 +351,7 @@ export default {
   learn: {
     title: "Aprender dedução natural",
     lead: "Uma lição sobre as regras, as subdeduções e as estratégias para encontrar uma prova.",
-    eyebrow: "Lição · 9 secções",
+    eyebrow: "Lição · 14 secções",
     interactive: "Interativo",
     progressLabel: "Progresso da leitura",
     toc: {
@@ -325,6 +371,11 @@ export default {
       derived: "Regras derivadas",
       strategy: "Estratégias",
       meta: "Solidez e completude",
+      language: "Linguagem de 1.ª ordem",
+      forall: "Quantificador universal (∀)",
+      exists: "Quantificador existencial (∃)",
+      equality: "Igualdade (=)",
+      equivalences: "Equivalências e estratégias",
     },
     proof: {
       p1: "Uma prova parte das premissas e chega à conclusão por passos pequenos, cada um justificado por uma regra. Em notação de Fitch, cada linha diz a fórmula, a regra que a permite e as linhas em que essa regra se apoia. Se todas as linhas estiverem certas, a conclusão segue das premissas.",
@@ -394,6 +445,42 @@ export default {
       rules: "Nenhuma das duas é automática, porque dependem das regras escolhidas. Se tirares ¬E às regras base, por exemplo, a ∨ ¬a continua verdadeira em todas as valorações e deixa de ter prova.",
       together: "Juntas, as duas dizem que ⊢ e ⊨ coincidem. Cada sequente tem uma prova ou um contraexemplo, nunca os dois. A completude diz só que a prova existe, não que seja curta nem fácil de encontrar, e é para isso que servem as estratégias.",
     },
+    language: {
+      p1: "Até aqui, cada variável era um bloco fechado: a é verdadeira ou falsa, e não há como olhar para dentro dela. A lógica de 1.ª ordem abre esses blocos. Fala de objetos, das propriedades que têm e das relações entre eles, e deixa dizer «todos» e «algum».",
+      terms: "Os objetos nomeiam-se com termos. Um termo é um nome, como a, b ou x, ou uma função aplicada a termos, como f(a) ou g(x, b). Aqui, o nome não diz se é constante ou variável: um nome é variável onde um quantificador o liga, e livre fica a valer por um objeto concreto de que nada se sabe.",
+      predicates: "Uma fórmula atómica aplica um predicado a termos. P(a) diz que a tem a propriedade P, e R(a, b) diz que a está na relação R com b. Um predicado sem argumentos, como p, é uma variável como as das secções anteriores, por isso tudo o que viste continua a valer. Há ainda a igualdade, t₁ = t₂, que tem regras próprias.",
+      quantifiers: "Há dois quantificadores. ∀x φ diz que φ vale para todos os objetos, e ∃x φ diz que vale para pelo menos um. Escrevem-se com ∀ e ∃, ou com forall x e exists x. Ligam como o ¬, mais do que qualquer conectivo, e por isso ∀x P(x) → Q(a) é (∀x P(x)) → Q(a). Para o quantificador abranger a implicação toda, usa parênteses: ∀x(P(x) → Q(x)).",
+      free: "Uma ocorrência de x está ligada quando fica dentro de um ∀x ou de um ∃x, e livre quando não fica. A mesma variável pode ter ocorrências dos dois tipos na mesma fórmula. Em ∀x R(x, y) → P(x), o x de R(x, y) está ligado, o x de P(x) está livre, e y está livre.",
+      substitution: "As regras dos quantificadores trocam uma variável por um termo. φ[t/x] é a fórmula φ com t no lugar de cada ocorrência livre de x. As ligadas ficam como estão: (P(x) ∧ ∀x Q(x))[a/x] é P(a) ∧ ∀x Q(x).",
+      capture: "Há uma armadilha. Se t tiver uma variável que um quantificador de φ liga, a troca muda o sentido da fórmula. ∃y R(x, y) diz que x está relacionado com algum objeto, e pôr y no lugar de x dá ∃y R(y, y), que diz que algum objeto está relacionado consigo próprio. O y do termo ficou capturado. Por isso, as regras só trocam x por t quando x é substituível por t em φ: nenhuma ocorrência livre de x pode estar dentro de um quantificador que ligue uma variável de t.",
+      alpha: "Por fim, o nome de uma variável ligada não conta. ∀x P(x) e ∀y P(y) dizem o mesmo, e o verificador aceita uma no lugar da outra, ao citar e ao comparar com a conclusão.",
+    },
+    forall: {
+      p1: "Uma linha com ∀x φ é uma garantia geral: φ vale para qualquer objeto. Para a usares, escolhes o objeto.",
+      p2: "O ∀E tira só o quantificador de fora. Com dois, como no exemplo, são dois passos, e cada um escolhe o seu termo. O termo nem precisa de aparecer antes na prova.",
+      p3: "Provar ∀x φ pede mais. Não dá para ver os objetos um a um, por isso mostras φ para um objeto genérico, de que não sabes nada em especial. Esse objeto é um nome novo, v, e o raciocínio fica numa caixa com a marca [v] à margem da primeira linha.",
+      p4: "A caixa do ∀I não tem hipótese. A primeira linha é um passo normal, com a sua regra, e a marca [v] só diz qual é o objeto genérico. Se a primeira linha tiver de ser uma hipótese, para um →I ou um ¬I, a marca fica sozinha numa linha sem número, e a hipótese abre a sua caixa por dentro. O intervalo do ∀I começa na primeira linha numerada.",
+      p5: "A condição «v nova» é o que torna o objeto genérico. Se v já aparecesse numa linha acessível, saberias alguma coisa sobre ele, e o que provasses podia valer só para ele.",
+      lab: "No laboratório, aplicar ∀I ao objetivo abre a caixa e propõe o nome v. Podes trocá-lo por outro antes de confirmar.",
+    },
+    exists: {
+      p1: "∃x φ diz que há pelo menos um objeto com φ, sem dizer qual. Chegar lá é fácil, porque basta um exemplo. Usá-lo pede mais cuidado.",
+      p2: "No exemplo, a mesma linha R(a, a) dá duas conclusões diferentes, conforme as ocorrências de a que passam a x. O erro comum é o contrário: juntar dois objetos diferentes na mesma variável.",
+      p3: "A ideia do ∃E é dar um nome provisório ao objeto que existe. Como não sabes qual é, o nome tem de ser novo, para nada do que já sabes falar dele. E o nome só vale dentro da caixa: cá fora não se sabe a que objeto se refere, por isso a conclusão não o pode ter livre.",
+      lab: "Quando uma premissa é um ∃, abre a caixa do ∃E cedo, como no ∨E: dentro dela tens mais uma linha para usar. O objetivo da caixa é o mesmo que o de fora.",
+    },
+    equality: {
+      p1: "t₁ = t₂ diz que os dois termos nomeiam o mesmo objeto. Ao contrário dos outros predicados, a igualdade tem um sentido fixo, e duas regras dizem o que podes fazer com ela. A primeira é a mais simples do sistema: qualquer termo é igual a si próprio, sem premissas.",
+      p2: "A segunda troca iguais por iguais: se t₁ = t₂, o que vale para t₁ vale para t₂. Como no ∃I, escolhes que ocorrências trocas, e no exemplo a mesma linha R(a, a) dá R(a, b) e R(b, b).",
+      p3: "O =E tem sentido. Com a linha t₁ = t₂, troca-se t₁ por t₂, e nunca ao contrário. Para ir no outro sentido, prova primeiro t₂ = t₁. Bastam as duas regras: o =I dá c = c, e o =E troca o primeiro c por d.",
+    },
+    equivalences: {
+      p1: "Na lógica proposicional, as leis de De Morgan levam a negação para dentro de um ∧ ou de um ∨. Os quantificadores têm leis parecidas. Negar que todos têm φ é dizer que algum não tem, e negar que algum tem φ é dizer que nenhum tem. São quatro regras derivadas, uma por sentido, e cada uma tem uma prova só com as regras base.",
+      p2: "Juntas, dizem que ¬∀x φ e ∃x ¬φ são equivalentes, e que ¬∃x φ e ∀x ¬φ também. Na prática, uma premissa com um quantificador negado deixa de ser um problema: a derivada leva a negação para dentro, e o quantificador que fica à frente já tem regra de eliminação.",
+      p3: "Há mais equivalências. O ∀ distribui sobre o ∧, e o ∃ sobre o ∨: ∀x(P(x) ∧ Q(x)) diz o mesmo que ∀x P(x) ∧ ∀x Q(x). Trocados, já não: de ∀x(P(x) ∨ Q(x)) não sai ∀x P(x) ∨ ∀x Q(x), porque cada objeto pode ter só uma das duas. Dois quantificadores iguais seguidos trocam de ordem sem mudar nada, mas um ∀ e um ∃ não. A prova seguinte vai num dos sentidos, com uma caixa do ∀I dentro da caixa do ∃E.",
+      p4: "Para encontrar uma prova de 1.ª ordem, abre as caixas antes de instanciar: a do ∀I quando o objetivo é um ∀, e a do ∃E quando uma premissa é um ∃, com um nome novo. Só depois usa ∀E e ∃I, com os termos que já estão na prova. Normalmente, são os nomes das caixas, como u e v no exemplo.",
+      p5: "Se uma premissa tem um quantificador negado, as derivadas desta secção levam a negação para dentro. Se nada avança, resta a redução ao absurdo, como na lógica proposicional. No Provar, a ajuda segue estas mesmas ideias e, quando o sequente é inválido, procura um contramodelo.",
+    },
     proofFigure: {
       prev: "Anterior",
       next: "Seguinte",
@@ -409,6 +496,10 @@ export default {
       strategyBackward: "Da conclusão para trás",
       strategyCases: "Uma disjunção nas premissas",
       strategyAbsurd: "Redução ao absurdo",
+      forallLabel: "Uma caixa [v] que começa por uma hipótese",
+      existsNotFresh: "Erro comum: dar ao objeto do ∃E um nome que já existe",
+      equalitySymmetry: "A igualdade nos dois sentidos",
+      strategyExistsFirst: "Um ∃ antes de um ∀",
     },
     walkthroughs: {
       strategyBackward: {
@@ -458,6 +549,16 @@ export default {
         title: "Laboratório: redução ao absurdo",
         task: "Nenhuma premissa dá a diretamente. Tens as regras base e RA.",
         hint: "Aplica RA ao objetivo. Dentro da subdedução, a hipótese ¬a serve de antecedente à linha 1, e o resultado contradiz a linha 2.",
+      },
+      labForall: {
+        title: "Laboratório: uma caixa [v]",
+        task: "A conclusão é um ∀, por isso a prova acaba com ∀I. Dentro da caixa, o objetivo é uma implicação. Tens as regras base.",
+        hint: "Aplica ∀I e depois →I ao objetivo. Toca na linha 1 e escolhe ∀E, com o termo v. A partir daí, →E e ∧E chegam a R(v).",
+      },
+      labExists: {
+        title: "Laboratório: um exemplo sem nome",
+        task: "A primeira premissa só diz que algum objeto tem P e Q. Usa-a com ∃E. Tens as regras base.",
+        hint: "Toca na linha 1 e escolhe ∃E. Dentro da caixa, aplica ∃I ao objetivo com o termo v. Falta R(v): a linha 2 dá Q(v) → R(v) com ∀E, e a hipótese dá Q(v) com ∧E.",
       },
     },
     counters: {
@@ -517,6 +618,30 @@ export default {
         name: "Eliminação de F",
         when: "De F podes escrever qualquer fórmula φ. Cita a linha de F.",
       },
+      forallElim: {
+        name: "Eliminação do universal",
+        when: "De ∀x φ podes escrever φ[t/x], com qualquer termo t, desde que x seja substituível por t em φ. Cita a linha do ∀.",
+      },
+      forallIntro: {
+        name: "Introdução do universal",
+        when: "Abre uma caixa [v], com v nova, e chega a φ[v/x] na última linha. Fora dela, escreve ∀x φ e cita a caixa como intervalo. v é nova se não aparecer em nenhuma linha acessível antes da caixa, premissas incluídas, e também não pode estar livre em ∀x φ.",
+      },
+      existsIntro: {
+        name: "Introdução do existencial",
+        when: "De φ[t/x] podes escrever ∃x φ, desde que x seja substituível por t em φ. Escolhes que ocorrências de t passam a x: não têm de ser todas. Cita a linha do exemplo.",
+      },
+      existsElim: {
+        name: "Eliminação do existencial",
+        when: "Com ∃x φ numa linha, abre uma caixa [v], com v nova e a hipótese φ[v/x], e chega a ψ. Fora dela, escreve ψ, que não pode ter v livre. Cita a linha do ∃ e o intervalo da caixa.",
+      },
+      equalityIntro: {
+        name: "Introdução da igualdade",
+        when: "Em qualquer ponto da prova podes escrever t = t, com o mesmo termo t dos dois lados. Não cita nenhuma linha.",
+      },
+      equalityElim: {
+        name: "Eliminação da igualdade",
+        when: "De t₁ = t₂ e de φ[t₁/x] podes escrever φ[t₂/x], desde que x seja substituível por t₁ e por t₂ em φ. Escolhes que ocorrências de t₁ passam a t₂. Cita as duas linhas, por qualquer ordem.",
+      },
     },
     derivedRules: {
       modusTollens: {
@@ -547,6 +672,22 @@ export default {
         name: "Silogismo disjuntivo",
         when: "Se tens uma disjunção e a negação de um dos lados, resta o outro lado. Cita as duas linhas. As duas provas mostram FE a trabalhar: o caso impossível acaba em F e dá a fórmula do outro caso.",
       },
+      notForall: {
+        name: "Do ¬∀ ao ∃¬",
+        when: "De ¬∀x φ podes escrever ∃x ¬φ. É a única das quatro que precisa de uma volta pelo absurdo: ¬∀x φ não diz qual é o objeto sem φ, por isso a prova supõe que não há nenhum e chega a F. Cita a linha do ¬∀.",
+      },
+      existsNot: {
+        name: "Do ∃¬ ao ¬∀",
+        when: "De ∃x ¬φ podes escrever ¬∀x φ: um objeto sem φ chega para negar que todos o têm. Cita a linha do ∃.",
+      },
+      notExists: {
+        name: "Do ¬∃ ao ∀¬",
+        when: "De ¬∃x φ podes escrever ∀x ¬φ. Serve para pôr um ∀ à frente e depois usar ∀E com o termo que precisares. Cita a linha do ¬∃.",
+      },
+      forallNot: {
+        name: "Do ∀¬ ao ¬∃",
+        when: "De ∀x ¬φ podes escrever ¬∃x φ. Usa-a quando o objetivo é um ∃ negado e já sabes que nenhum objeto tem φ. Cita a linha do ∀.",
+      },
     },
     mistakes: {
       andIntroOneSide: "A regra ∧I cita uma linha por cada lado, e aqui só há a linha 1. A fórmula b não está em lado nenhum: ter um lado não chega para escrever a conjunção.",
@@ -561,10 +702,17 @@ export default {
       notIntroNoFalse: "A subdedução tem de acabar em F. Acabar numa fórmula negada não chega, porque ¬b e a podem ser verdadeiras ao mesmo tempo. O sequente nem sequer é válido.",
       notElimOneNegation: "A linha 1 tem só uma negação à frente. A outra está lá dentro, em ¬a, e nega apenas uma parte. A regra ¬E exige ¬¬ a abrir a fórmula toda, por isso não se aplica.",
       falseElimNoFalse: "¬a não é F, e a regra FE só aceita uma linha com F. Para este sequente, supõe a, escreve F com FI, depois b com FE, e fecha com →I.",
+      forallElimCapture: "O termo é y, e o x da linha 1 está dentro de ∃y: o y novo ficava ligado, por isso x não é substituível por y em ∃y R(x, y). A premissa diz que cada objeto está relacionado com algum, e a linha 2 diria que algum está relacionado consigo próprio, o que não se segue. Com um termo sem y, como a, a regra dá ∃y R(a, y).",
+      forallIntroNotFresh: "A caixa usa a, que já aparece na linha 1, por isso a não é nova. Saber P(a) diz alguma coisa sobre a, não sobre um objeto qualquer. O sequente nem sequer é válido: num domínio com dois objetos, um pode ter P e o outro não.",
+      existsIntroMixed: "O ∃I troca por x ocorrências de um só termo. Aqui era preciso trocar a e b pelo mesmo x, e a linha 1 não é P(t) ∧ Q(t) para nenhum t. De facto, a pode ter P e b ter Q sem haver um objeto com as duas.",
+      existsElimEscapes: "A conclusão P(v) tem livre o nome da caixa, e o ∃E não deixa v sair dela. Cá fora, v não é nenhum objeto em particular: a premissa diz que algum objeto tem P, mas não diz qual.",
+      existsNotFresh: "A caixa usa a, que já aparece na linha 2, por isso a não é nova. O objeto com P pode não ser o que tem Q, e as premissas não dizem que são o mesmo. A conclusão não se segue.",
+      equalityIntroDifferent: "O =I só escreve t = t, com o mesmo termo dos dois lados. Ter a mesma propriedade não faz de a e b o mesmo objeto, e o sequente nem sequer é válido: num domínio com dois objetos, ambos com P, a e b podem nomear objetos diferentes.",
+      equalityElimBackwards: "Com b = a, o =E troca b por a, e a linha 2 não tem nenhum b para trocar. Para ir de P(a) a P(b), precisas de a = b. O sequente é válido, mas falta um passo: tira a = b da linha 1, como na figura da simetria, e só depois aplica o =E.",
     },
     quiz: {
       heading: "Quiz final",
-      intro: "Oito perguntas para confirmares o que leste. Cada resposta traz a sua explicação, e o teu melhor resultado fica guardado neste browser.",
+      intro: "Doze perguntas para confirmares o que leste. Cada resposta traz a sua explicação, e o teu melhor resultado fica guardado neste browser.",
       title: "Quiz: dedução natural",
       count: "Pergunta {n} de {total}",
       score: ({ n }) => `${n} ${n === 1 ? "certa" : "certas"}`,
@@ -680,6 +828,46 @@ export default {
             rulesFail: "As regras são sólidas: cada uma preserva a verdade. O que falha é uma das duas soluções, e vale a pena verificar a prova linha a linha.",
           },
         },
+        forallLine: {
+          prompt: "Queres usar o ∀ da linha 1. Qual destas linhas é a 3?",
+          why: {
+            right: "O ∀E tira o ∀x e põe um só termo no lugar de todas as ocorrências livres de x. Com c, que é o termo da linha 2, a linha seguinte já pode ser Q(c), por →E.",
+            twoTerms: "O ∀E põe o mesmo termo em todas as ocorrências de x. Trocar uma por c e outra por d dá uma fórmula que a linha 1 não garante.",
+            skipStep: "O ∀E cita só a linha do ∀ e não aplica a implicação. Primeiro escreves P(c) → Q(c) com ∀E, e depois Q(c) com →E, que cita a linha 2.",
+            wrongRule: "A linha 1 não é uma implicação: o conectivo principal é o ∀. O →E só se aplica depois de o ∀E tirar o quantificador.",
+          },
+        },
+        escapedName: {
+          prompt: "O sequente é válido, mas esta prova tem uma linha errada, ou então está tudo certo. Qual é a resposta?",
+          why: {
+            line3: "A linha 3 está certa: dentro da caixa, a hipótese P(u) ∧ Q(u) dá P(u) por ∧E.",
+            line4: "A linha 4 tira u da caixa, e o ∃E não deixa a conclusão ter livre o nome da caixa. Cá fora, u não é nenhum objeto em particular. O ∃I devia ficar dentro da caixa, e o ∃E dava então ∃x P(x).",
+            line5: "Se a linha 4 estivesse certa, a linha 5 também estaria, porque o ∃I troca u por x. O problema vem antes: a linha 4 tira u da caixa do ∃E.",
+            none: "A linha 4 tem livre u, o nome da caixa, e o ∃E não o deixa sair. A conclusão só pode falar de objetos que existem fora da caixa.",
+          },
+        },
+        equalityLine: {
+          prompt: "Queres juntar as duas igualdades. Qual destas linhas é a 3?",
+          why: {
+            right: "Em a = b, troca-se b por c com a linha 2, b = c. O =E dá a = c, e as duas linhas citam-se por qualquer ordem.",
+            reflexive: "O =I só dá um termo igual a si próprio, como a = a. a = c precisa das premissas.",
+            flipped: "Trocar b por c em a = b dá a = c, não c = a. Para virar a igualdade, era precisa mais uma linha, como na prova da simetria.",
+            wrongRule: "Nenhuma das linhas é uma implicação. Para usar uma igualdade, a regra é o =E.",
+          },
+        },
+        quantifierNegation: {
+          prompt: "Qual destas fórmulas diz o mesmo que ¬∀x(P(x) → Q(x))?",
+          options: {
+            someCounter: "∃x(P(x) ∧ ¬Q(x))",
+            allCounter: "∀x(P(x) ∧ ¬Q(x))",
+            negateParts: "∃x(¬P(x) → ¬Q(x))",
+          },
+          why: {
+            someCounter: "Pela NQ1, a negação de um ∀ é um ∃ da negação: ∃x ¬(P(x) → Q(x)). E uma implicação é falsa só com o antecedente verdadeiro e o consequente falso, ou seja, P(x) ∧ ¬Q(x).",
+            allCounter: "Negar um ∀ não dá outro ∀. Basta um objeto que falhe a implicação, não é preciso que falhem todos.",
+            negateParts: "Negar a implicação não é negar cada lado. ¬(P(x) → Q(x)) diz que P(x) vale e Q(x) não, e ¬P(x) → ¬Q(x) é outra coisa.",
+          },
+        },
       },
     },
     check: {
@@ -777,6 +965,60 @@ export default {
           never: "MT tem uma prova só com regras base. Uma derivada encurta uma prova, mas não te dá nada de novo.",
         },
       },
+      freeOccurrence: {
+        question: "Em ∃x P(x) ∧ Q(x), que ocorrências de x estão livres?",
+        options: { none: "Nenhuma: o ∃x liga as duas", last: "Só a de Q(x)", all: "As duas" },
+        why: {
+          none: "O ∃x liga como o ¬, só até ao fim de P(x). A fórmula é (∃x P(x)) ∧ Q(x), e Q(x) fica de fora.",
+          last: "O ∃x só abrange P(x), porque liga mais do que o ∧. O x de Q(x) está livre. Para o ∃x apanhar as duas, escreve ∃x(P(x) ∧ Q(x)).",
+          all: "O x de P(x) está dentro do ∃x, por isso está ligado. Só o de Q(x) fica de fora.",
+        },
+      },
+      captureCheck: {
+        question: "Em ∀z(P(z) → R(x, z)), x é substituível por z?",
+        options: { yes: "Sim, porque x está livre", captured: "Não: o z ficava ligado pelo ∀z", bound: "Não, porque x está ligado" },
+        why: {
+          yes: "x está livre, mas está dentro do ∀z. Trocá-lo por z dava R(z, z), e esse z novo passava a ser o do quantificador.",
+          captured: "A ocorrência de x está dentro do ∀z, e o termo é z. Depois da troca, o ∀z ligava-o, e a fórmula diria outra coisa. Com a, por exemplo, a troca já se pode fazer.",
+          bound: "Nenhum quantificador liga x: o único é ∀z. O problema está no termo, porque z ficaria ligado.",
+        },
+      },
+      freshName: {
+        question: "Numa caixa [v] do ∀I, que nome pode ter v?",
+        options: { any: "Qualquer nome, porque a caixa o isola", unused: "Um nome que não apareça em nenhuma linha acessível antes da caixa", constant: "Só um nome que já esteja nas premissas" },
+        why: {
+          any: "A caixa não basta. Se v já estivesse numa premissa, o que provasses sobre ele podia depender dessa premissa e não valer para todos.",
+          unused: "É a condição «v nova». Assim, v não tem nada de especial, e o que se prova sobre ele vale para qualquer objeto.",
+          constant: "É ao contrário: um nome das premissas é um objeto de que já sabes alguma coisa. O nome da caixa tem de ser novo.",
+        },
+      },
+      witnessName: {
+        question: "As premissas são ∃x P(x) e Q(a). Que nome dás ao objeto da caixa do ∃E?",
+        options: { known: "a, que já aparece nas premissas", fresh: "Um nome novo, como v", same: "x, a variável do ∃" },
+        why: {
+          known: "Nada diz que o objeto com P é a. Se o chamasses a, juntavas o que sabes de a a um objeto que pode ser outro.",
+          fresh: "O objeto com P pode ser qualquer um, por isso tem de ter um nome de que nada se sabe.",
+          same: "x aparece na linha do ∃, por isso também não é novo. Usa um nome que não esteja em nenhuma linha acima.",
+        },
+      },
+      equalityDirection: {
+        question: "Tens c = d numa linha. Para escrever Q(d) com =E, que outra linha citas?",
+        options: { before: "Q(c)", flipped: "d = c", none: "Nenhuma: c = d chega" },
+        why: {
+          before: "O =E troca c por d numa fórmula que fala de c. De c = d e Q(c) sai Q(d).",
+          flipped: "d = c é a mesma igualdade, ao contrário, e não diz nada sobre Q. O =E precisa da fórmula onde faz a troca: Q(c).",
+          none: "c = d só diz que os dois nomes são o mesmo objeto. Para concluir Q(d), tens de saber Q desse objeto, numa linha Q(c).",
+        },
+      },
+      swapQuantifiers: {
+        question: "E no outro sentido? ∀y∃x R(x, y) ⊢ ∃x∀y R(x, y) tem prova?",
+        options: { valid: "Sim, com a mesma prova às avessas", invalid: "Não: há um contramodelo", unknown: "Não se sabe, porque a 1.ª ordem é indecidível" },
+        why: {
+          valid: "A prova não se inverte. Num domínio {1, 2}, com R só em (1, 1) e (2, 2), cada y está relacionado com algum x, o próprio y, mas nenhum x está relacionado com os dois.",
+          invalid: "Num domínio {1, 2}, com R só em (1, 1) e (2, 2), cada y tem um x com R(x, y), o próprio y, mas nenhum x tem R com os dois. A premissa vale e a conclusão não, por isso não há prova.",
+          unknown: "A indecidibilidade diz que não há um método que responda sempre, não que nunca se saiba. Aqui há um contramodelo pequeno: domínio {1, 2}, com R só em (1, 1) e (2, 2).",
+        },
+      },
     },
   },
   exercises: {
@@ -793,6 +1035,10 @@ export default {
       3: "Negação, casos e provar regras",
       4: "Usar regras derivadas",
       5: "De Morgan, terceiro excluído e provas longas",
+      6: "∀E e ∃I: instanciar",
+      7: "As caixas do ∀I e do ∃E",
+      8: "Negar quantificadores e provar NQ",
+      9: "Igualdade e quantificadores encaixados",
     },
     progressLabel: "Progresso",
     count: "{solved} de {total} resolvidos",
@@ -844,6 +1090,24 @@ export default {
       emptyImplication: "Dentro da subdedução, de F tira-se qualquer fórmula, incluindo o consequente que te faltar.",
       casesFromTheDisjunction: "Separa os casos com a segunda premissa. Em cada um, a primeira premissa exclui o outro átomo.",
       recoverTheAntecedent: "Mostra que ¬a dá F. Com a na mão, a premissa dá-te uma disjunção para separar em casos.",
+      oneQuantifierAtATime: "O ∀E tira um quantificador de cada vez: instancia primeiro o x com c e depois o y com d.",
+      anyNameWillDo: "O sequente não tem nomes, mas o ∀E aceita qualquer termo. Escolhe um nome, como a, e instancia com ele.",
+      openTheBoxWithForallE: "A caixa do ∀I pode abrir num ∀E: a primeira linha é a premissa instanciada com a variável nova.",
+      witnessBox: "Abre a caixa do ∃E com uma variável nova a fazer de testemunha e chega lá dentro a uma conclusão sem ela.",
+      refuteInsideTheBox: "Dentro da caixa, assume R(v) e chega a F: o ¬I dá-te ¬R(v), e o ∃I faz o resto.",
+      casesInsideTheBox: "Dentro da caixa do ∀I, a disjunção instanciada dá dois casos, e cada um chega a R(v).",
+      falseCaseGivesAnything: "No caso de Q(v), a segunda premissa dá F, e de F tira-se a fórmula que te faltar.",
+      assumeTheOppositeExistential: "Assume ¬∃x ¬P(x) e mostra ∀x P(x) para contradizer a premissa. Dentro da caixa [v], obtém P(v) por ¬¬.",
+      labelBeforeHypothesis: "O ∀I começa por uma hipótese, P(v), por isso a etiqueta [v] fica sozinha numa linha antes dela.",
+      assumeTheUniversal: "Assume ∀x P(x) e mostra ∀x Q(x) numa caixa [v]: choca com a segunda premissa.",
+      pushTheNegationIn: "Uma regra NQ passa a negação para dentro do quantificador. O resto faz-se dentro de uma caixa.",
+      deMorganInsideTheBox: "Na caixa do ∃E tens a negação de uma disjunção: De Morgan separa-a em duas negações.",
+      replaceSomeOccurrences: "O =E não tem de trocar todas as ocorrências: troca só o segundo a por b.",
+      turnTheEquation: "O =E troca o lado esquerdo pelo direito. Vira primeiro a igualdade: parte de f(a) = f(a), que vem do =I.",
+      startFromReflexivity: "Parte de g(a, a) = g(a, a), pelo =I, e troca por b só as ocorrências de a que te convêm.",
+      existsBoxFirst: "Abre primeiro a caixa do ∃E. A caixa do ∀I abre-se depois, dentro dela, com outra variável nova.",
+      boxInsideBox: "Abre a caixa do ∀I com o ∀E da primeira premissa e, dentro dela, a caixa do ∃E com outra variável nova.",
+      equalToTheWitness: "Dentro da caixa, mostra que a e b são ambos iguais à testemunha e junta as duas igualdades com o =E.",
     },
     findError: {
       promptLine: "Esta prova tem um único erro. Escolhe a linha errada.",
@@ -870,6 +1134,11 @@ export default {
         missingCase: "Falta citar um dos casos da disjunção.",
         ruleNotInSet: "A regra usada não faz parte das regras permitidas nesta prova.",
         assumedPremise: "Esta fórmula não é premissa do sequente.",
+        forallVariableFree: "A variável da caixa do ∀I continua livre na fórmula concluída.",
+        witnessInConclusion: "A conclusão do ∃E não pode conter a variável da caixa.",
+        variableNotFresh: "A variável da caixa não é nova: já aparece numa linha acessível.",
+        capturedTerm: "Ao substituir a variável, o termo fica preso por um quantificador da fórmula.",
+        equalityDirection: "O =E troca o lado esquerdo da igualdade pelo direito, e não o contrário.",
       },
       explanations: {
         backwardsImplication: "De g → h e g tira-se h, mas não o contrário: saber h não diz nada sobre g.",
@@ -884,6 +1153,11 @@ export default {
         mismatchedCases: "O primeiro caso acaba em r e o segundo em s. Por isso, a disjunção não garante r.",
         negationGained: "Da hipótese ¬n, o ¬I dá ¬¬n. Para chegar a n, falta ainda um passo com ¬E.",
         deMorganSplit: "A negação de uma conjunção dá uma disjunção, ¬l ∨ ¬m, e não uma conjunção.",
+        capturedVariable: "Pôr y no lugar de x em ∃y L(x, y) mete-o ao alcance do ∃y, que o prende: ∃y L(y, y) já diz outra coisa. O ∀E só aceita um termo substituível.",
+        escapedVariable: "A fórmula ∀x R(x, v) ainda fala de v, que só tem sentido dentro da caixa da linha 2. O ∀I tem de trocar todas as ocorrências de v.",
+        witnessEscapes: "P(v) fala da testemunha, que só tem nome dentro da caixa. Faz o ∃I ainda dentro dela, para a conclusão do ∃E já não ter v.",
+        reusedWitness: "As linhas 3 e 4 chamam v às testemunhas de ∃x P(x) e de ∃x Q(x), mas podem ser objetos diferentes. A caixa da linha 4 precisava de outra variável; o erro aparece no ∃E que a fecha.",
+        equalityBackwards: "Com a = b, o =E põe b no lugar de a, e não o contrário. Para ir de P(b) a P(a), obtém primeiro b = a com =I e =E.",
       },
     },
   },
@@ -902,6 +1176,11 @@ export default {
       unbalanced: "«{char}» não tem par: confirma os parênteses.",
       missingOperand: "Falta uma fórmula junto de «{char}».",
       missingOperator: "Falta um conectivo antes de «{token}».",
+      missingVariable: "Depois de «{token}» vem a variável: uma letra, com dígitos opcionais, que não seja F (ex.: ∀x, ∃y1).",
+      missingTerm: "Falta um termo junto de «{char}»: um nome como a ou x, ou uma função como f(a).",
+      notATerm: "«{token}» não pode estar num termo: os argumentos e os lados de = são nomes como a ou x, ou funções como f(a).",
+      badArgument: "Os argumentos separam-se por vírgulas: falta uma vírgula ou um «)» antes de «{token}».",
+      badEquality: "O «{char}» só junta termos, como em a = f(b), e aqui não tem um termo à esquerda.",
       missingTurnstile: "Falta o símbolo ⊢ entre as premissas e a conclusão.",
       multipleTurnstiles: "Um sequente só tem um ⊢, e este «{token}» está a mais.",
       multipleConclusions: "Um sequente só tem uma conclusão: a vírgula depois do ⊢ está a mais.",
@@ -912,6 +1191,7 @@ export default {
   semantics: {
     errors: {
       tooManyVariables: "Há {count} variáveis, e a tabela de verdade só aceita até {max}.",
+      notPropositional: "A lógica de 1.ª ordem ainda não é suportada aqui: a tabela de verdade não trata quantificadores, termos nem igualdade.",
     },
   },
   solver: {
@@ -919,6 +1199,7 @@ export default {
     errors: {
       stepLimit: "A procura parou ao fim de {max} passos. Isto não quer dizer que não haja prova.",
       searchExhausted: "A procura não encontrou prova com estas regras. Isto não quer dizer que não haja prova.",
+      undecided: "Não encontrei prova nem contramodelo: a procura só vê estruturas com até {maxSize} elementos e tem um limite de passos. Isto não quer dizer que o sequente seja válido nem que seja inválido.",
       unverifiedProof: "A prova gerada não passou no verificador, por isso não é mostrada.",
       timeout: "A procura parou ao fim de {seconds} s. Isto não quer dizer que não haja prova.",
       cancelled: "Cancelaste a procura.",
@@ -945,6 +1226,15 @@ export default {
       excludedMiddle: "Uma fórmula ou a negação dela tem de valer: é o ponto de partida para dois casos.",
       repeatFact: "Repete a fórmula para a subdedução acabar nela.",
       applyRule: "Esta regra do conjunto ativo aplica-se diretamente ao que já está provado.",
+      openForallBox: "Para provar um ∀, abre uma caixa com uma variável nova e prova a fórmula para ela: como a variável podia ser qualquer uma, vale para todas.",
+      assumeWitness: "Há um ∃ à mão: abre uma caixa com uma variável nova para o objeto que existe e assume a propriedade dele.",
+      concludeForall: "A caixa provou a fórmula para uma variável nova, por isso vale para todas.",
+      concludeFromWitness: "O objetivo saiu da caixa do ∃E sem depender da variável nova, por isso sai do ∃.",
+      instantiate: "Instancia o ∀ com um termo que já está na prova.",
+      showWitness: "A fórmula já vale para um termo concreto, por isso existe um objeto que a satisfaz.",
+      rewriteEquality: "Usa a igualdade para trocar um termo pelo outro.",
+      reflexivity: "Qualquer termo é igual a si próprio.",
+      separateBoxes: "Cada linha abre no máximo uma caixa: repete um facto para a caixa de fora começar nele, e a de dentro abre na linha seguinte.",
     },
   },
   hints: {
@@ -955,10 +1245,14 @@ export default {
       premise: "Falta uma premissa.",
       hypothesis: "Abre uma subdedução: vais fechá-la com {rule}.",
       step: "Usa a regra {rule}.",
+      forallBox: "Abre a caixa do ∀I com a variável nova {variable}.",
+      existsBox: "Abre a caixa do ∃E com a variável nova {variable}.",
     },
     exact: {
       premise: "Na linha {line}, escreve a premissa {formula}.",
       hypothesis: "Na linha {line}, assume {formula}.",
+      forallBox: "Na linha {line}, abre a caixa [{variable}] e escreve {formula}, que fica por provar.",
+      existsBox: "Na linha {line}, abre a caixa [{variable}] e assume {formula}.",
       step: "Na linha {line}, escreve {formula} por {rule}, {citations}.",
       stepUncited: "Na linha {line}, escreve {formula} por {rule}.",
     },
@@ -1002,6 +1296,11 @@ export default {
       wrongCitationKind: "Linha {line}: a regra {rule} cita linhas e subdeduções de outra forma, por isso revê as citações.",
       ruleNotApplicable: "Linha {line}: o que citaste não tem a forma que a regra {rule} pede.",
       formulaMismatch: "Linha {line}: a regra {rule} aplica-se ao que citaste, mas não dá esta fórmula.",
+      missingFreshBox: "Linha {line}: a regra {rule} cita uma caixa com variável nova, marcada [v] na primeira linha, e o que citaste não a tem.",
+      wrongBox: "Linha {line}: a caixa citada não é a que a regra {rule} pede, porque o ∀I cita uma caixa [v] sem hipótese, o ∃E uma caixa [v] que abre numa hipótese e as outras regras caixas sem [v].",
+      notFresh: "Linha {line}: a variável {variable} da caixa não é nova, porque já aparece na linha {cited}.",
+      variableEscapes: "Linha {line}: a variável {variable} da caixa ficava livre na conclusão do {rule}, fora da caixa onde é nova.",
+      notSubstitutable: "Linha {line}: {variable} não é substituível por {term} nesta fórmula, porque um quantificador apanhava uma variável de {term}.",
     },
     conclusion: {
       emptyProof: "A prova ainda não tem linhas.",
@@ -1019,6 +1318,10 @@ export default {
       DM: "DM",
       SH: "SH",
       SD: "SD",
+      NQ1: "NQ1",
+      NQ2: "NQ2",
+      NQ3: "NQ3",
+      NQ4: "NQ4",
     },
   },
   userRules: {
@@ -1033,6 +1336,7 @@ export default {
       schemaTooLarge: "Este esquema tem {size} símbolos, e o máximo é {max}.",
       tooManyRules: "Só podes ter até {max} regras próprias.",
       unsound: "A regra não é sólida: há uma valoração em que as premissas são verdadeiras e a conclusão é falsa.",
+      firstOrder: "As regras próprias são proposicionais: usa só φ, ψ, θ, átomos e conectivos, sem quantificadores, termos nem igualdade. Mesmo assim, servem em provas de 1.ª ordem.",
     },
   },
   rulesPanel: {
@@ -1098,6 +1402,8 @@ export default {
       pending: "Linha {line} por acabar.",
     },
     moreChanges: "E mais {count} linhas mudaram.",
+    fresh: "Caixa da variável {variable}.",
+    labelLine: "Linha de etiqueta: caixa da variável {variable}, sem número.",
   },
   speech: {
     not: "não",
@@ -1122,10 +1428,12 @@ export default {
     errors: {
       badLine: "Linha {line}: escreve o número, uma barra e a fórmula, como em «3 | p ∧ q   ∧I, 1, 2».",
       badLineNumber: "Esta linha devia ter o número {expected}, e tem {found}.",
-      badIndent: "Linha {line}: a indentação é um espaço depois da barra, mais dois por cada subdedução.",
+      badIndent: "Linha {line}: a indentação é um espaço depois da barra, mais dois por cada subdedução, ou só dois por subdedução antes de uma marca como [v].",
       missingRuleName: "Linha {line}: há citações, mas falta o nome da regra.",
       badCitation: "Linha {line}: «{token}» não é uma citação: escreve um número, como 3, ou um intervalo, como 2–4.",
       unexpectedCitation: "Linha {line}: premissas e hipóteses não citam outras linhas.",
+      badFresh: "Linha {line}: «[{name}]» não marca uma variável nova: escreve um nome que sirva de termo, como [v], e fora das premissas.",
+      orphanLabel: "Antes da linha {line}: uma linha só com [v] tem de vir logo antes de uma hipótese, um nível mais dentro.",
     },
   },
 };

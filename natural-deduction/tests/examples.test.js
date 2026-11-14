@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EXAMPLE_GROUPS, findExample } from "../js/core/examples.js";
-import { parseSequent, formatSequent } from "../js/core/sequent.js";
+import { isPropositionalSequent, parseSequent, formatSequent } from "../js/core/sequent.js";
 import { solve } from "../js/core/solver.js";
 import { RULES } from "../js/core/rules.js";
 import { verifyProof } from "../js/core/verify.js";
@@ -24,7 +24,8 @@ test("os exemplos têm prova verificada, e o inválido tem contraexemplo", () =>
     assert.ok(result.ok, sequent);
     if (group === "invalid") {
       assert.equal(result.valid, false, sequent);
-      assert.ok(result.counterexample, sequent);
+      // Em 1.ª ordem, o contraexemplo é uma estrutura (contramodelo).
+      assert.ok(isPropositionalSequent(goal) ? result.counterexample : result.structure, sequent);
     } else {
       assert.equal(result.provable, true, sequent);
       assert.equal(verifyProof(result.proof, goal, RULES).ok, true, sequent);
@@ -38,6 +39,29 @@ test("os grupos com ou sem subdedução dizem a verdade", () => {
     const { proof } = solve(parseSequent(sequent).sequent);
     const hasSubproof = proof.lines.some((line) => line.kind === "hypothesis");
     assert.equal(hasSubproof, group === "subproofs", sequent);
+  }
+});
+
+test("o grupo de 1.ª ordem só tem sequentes de 1.ª ordem e mostra caixas, variável nova e instanciação", () => {
+  const firstOrder = all.filter(({ group }) => group === "firstOrder");
+  assert.ok(firstOrder.length >= 4);
+  const rules = new Set();
+  let fresh = 0;
+  let labels = 0;
+  for (const { sequent } of firstOrder) {
+    const goal = parseSequent(sequent).sequent;
+    assert.equal(isPropositionalSequent(goal), false, sequent);
+    for (const line of solve(goal).proof.lines) {
+      if (line.rule) rules.add(line.rule);
+      if (line.fresh) fresh += 1;
+      if (line.label) labels += 1;
+    }
+  }
+  for (const rule of ["∀E", "∀I", "∃E", "∃I", "=E"]) assert.ok(rules.has(rule), rule);
+  assert.ok(fresh >= 3 && labels >= 1);
+  // Os outros grupos válidos continuam proposicionais.
+  for (const { sequent, group } of all) {
+    if (group !== "firstOrder" && group !== "invalid") assert.ok(isPropositionalSequent(parseSequent(sequent).sequent), sequent);
   }
 });
 

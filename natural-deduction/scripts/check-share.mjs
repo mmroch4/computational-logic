@@ -7,6 +7,10 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseProof } from "../js/core/proof-text.js";
+import { parseSequent } from "../js/core/sequent.js";
+import { encodeShare } from "../js/core/share.js";
+import { LABEL, LABEL_GOAL } from "../tests/fixtures/fitch-proofs.js";
 
 const CHROME = process.env.CHROME_BIN || "/usr/bin/google-chrome";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -298,6 +302,34 @@ async function scenario({ page, evaluate, tap }, origin, path, lang) {
 
   expect(Math.min(...heights) >= 44, true, tag(`zonas de toque com ${Math.min(...heights)}px`));
   expect((await evaluate("document.documentElement.scrollWidth")) <= WIDTH, true, tag("largura da página"));
+
+  // 1.ª ordem: um link p=2 com a caixa [w] numa linha de etiqueta; árvore, LaTeX e folha mostram a variável.
+  const { query } = encodeShare(parseSequent(LABEL_GOAL).sequent, parseProof(LABEL).proof);
+  expect(query.includes("&p=2."), true, tag("a prova com caixa [w] usa o p=2"));
+  await forget();
+  await go(`${origin}${path}?${query}`, `document.querySelector(".proof-editor__status .msg-ok") !== null`);
+  expect(await evaluate(`document.querySelector("#proof-editor .fitch__line--label")?.textContent.trim()`), "[w]", tag("o link abre a linha de etiqueta"));
+  expect(await evaluate(`document.getElementById("proof-formula-3").value`), "P(w)", tag("o link abre a prova de 1.ª ordem"));
+  await tap("#proof-tree summary");
+  await waitFor(() => evaluate(`document.querySelector("#proof-tree .gentzen") !== null`), tag("a árvore"));
+  expect(await evaluate(`[...document.querySelectorAll("#proof-tree .gt__rule")].some((rule) => rule.textContent.includes("∀I") && rule.textContent.includes("[w]"))`),
+    true, tag("a árvore marca a variável do ∀I"));
+  await evaluate(`(() => {
+    window.copied = [];
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text) => { window.copied.push(text); } } });
+  })()`);
+  await share('[data-share="copy-latex"]');
+  await waitFor(() => evaluate(`window.copied.length === 1`), tag("copiar o LaTeX de 1.ª ordem"));
+  const latex = await evaluate("window.copied[0]");
+  expect(latex.includes("\\boxed{w}") && latex.includes("\\forall"), true, tag("o LaTeX tem a marca da caixa e o ∀"));
+  await evaluate(`dispatchEvent(new Event("beforeprint"))`);
+  await page("Emulation.setEmulatedMedia", { media: "print" });
+  expect(await evaluate(`document.querySelector(".print-sheet .fitch__line--label")?.textContent.trim()`), "[w]", tag("a folha tem a linha de etiqueta"));
+  const firstOrderPdf = await page("Page.printToPDF", { printBackground: false });
+  writeFileSync(join(SCREENS, `${lang}-primeira-ordem.pdf`), Buffer.from(firstOrderPdf.data, "base64"));
+  await page("Emulation.setEmulatedMedia", { media: "" });
+  await evaluate(`dispatchEvent(new Event("afterprint"))`);
+  expect((await evaluate("document.documentElement.scrollWidth")) <= WIDTH, true, tag("1.ª ordem: largura da página"));
 }
 
 const server = spawn("node", [join(ROOT, "scripts/serve.mjs"), "0"], { stdio: ["ignore", "pipe", "ignore"] });

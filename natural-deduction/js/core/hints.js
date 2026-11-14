@@ -4,12 +4,16 @@
 //     → { status: "step", target, strategy, step, levels }      o próximo passo; target: objetivo atual
 //     | { status: "fixLine", line, error, levels }              uma linha tem de ser corrigida primeiro
 //     | { status: "deadEnd", line, reason, step, levels }       a subdedução da linha não leva ao objetivo
-//     | { status: "done" | "invalid" | "noProof" | "unknown" }  sem passo: prova acabada, `counterexample`,
-//                                                               `witness` (como no `solve`) ou `error`
-//   step: { action: "write", line, replaces, kind, depth, formula, rule, citations, strategy, viaRule }
+//     | { status: "done" | "invalid" | "noProof" | "unknown" }  sem passo: prova acabada, `counterexample`
+//                                                               (`structure` em 1.ª ordem), `witness`
+//                                                               (como no `solve`) ou `error`
+//   step: { action: "write", line, replaces, kind, depth, formula, rule, citations, strategy, viaRule, fresh? }
 //       | { action: "deleteSubproof", line }
 //     `replaces`: a linha `line` fica substituída; sem isso, insere-se ali. `viaRule`: numa hipótese,
-//     a regra que a vai fechar.
+//     a regra que a vai fechar. `fresh`: a variável nova de uma caixa [v] que a linha abre (um passo por
+//     justificar, no ∀I, ou a hipótese do ∃E).
+// Num sequente de 1.ª ordem não há tabela de verdade: procura-se um contramodelo finito e, sem ele, as
+// heurísticas de `firstOrderHint`, mais abaixo.
 //   levels: [estratégia, regra, passo exato], cada um { key, params }, com `key` em `solver.strategies.*`,
 //     `hints.*` ou `verify.*`. Passa `params` por `localizeRuleParam` antes de `t()`.
 //   applyHint(proof, step) → { ok, proof | error }, como as operações de `proof.js`.
@@ -24,12 +28,20 @@
 // texto diz que ela não parece ajudar. `noProof` só sai com a demonstração do `solve`.
 
 import { strategyOf } from "./derivation.js";
-import { equals, FALSUM, format, not } from "./formula.js";
-import { accessibleFrom, citeLine, citeRange, createProof, deleteLine, enclosingSubproofs, insertLine, subproofs } from "./proof.js";
+import {
+  displayName, equals, FALSUM, format, isSubstitutable, not, substitute, term,
+} from "./formula.js";
+import { freeTerms, namesOf, unusedName } from "./guided.js";
+import {
+  accessibleFrom, citeLine, citeRange, createProof, deleteLine, editLine, enclosingSubproofs, insertAtBoxStart, insertLine,
+  subproofs,
+} from "./proof.js";
 import { RULES } from "./rules.js";
+import { sameFormula } from "./schema.js";
 import { checkSequent } from "./semantics.js";
-import { sequent } from "./sequent.js";
+import { isPropositionalSequent, sequent } from "./sequent.js";
 import { solve } from "./solver.js";
+import { findCountermodel } from "./structures.js";
 import { verifyLine, verifyProof } from "./verify.js";
 
 /** Códigos de `fixLine` que não vêm do verificador; os outros são `VERIFY_ERROR_CODES`. */
@@ -49,8 +61,18 @@ const citationText = (citation) => (
 );
 
 function stepLevels(step, strategyKey) {
-  const { line, formula, rule, viaRule, citations, kind } = step;
+  const { line, formula, rule, viaRule, citations, kind, fresh = null } = step;
   const params = { line, formula: format(formula) };
+  if (fresh !== null) {
+    // Uma caixa com variável: a do ∀I abre num passo por justificar, a do ∃E numa hipótese.
+    const box = kind === "hypothesis" ? "existsBox" : "forallBox";
+    const variable = displayName(fresh);
+    return [
+      { key: strategyKey, params: {} },
+      { key: `hints.rule.${box}`, params: { variable } },
+      { key: `hints.exact.${box}`, params: { ...params, variable } },
+    ];
+  }
   if (kind === "premise") {
     return [
       { key: strategyKey, params: {} },
@@ -384,20 +406,38 @@ export function isFinished(proof, goal, rules, known = rules) {
 
 /** Sugere o próximo passo de `proof` para demonstrar `goal`. */
 export function hint(proof, goal, { rules = RULES, known = rules, maxSteps } = {}) {
+  if (!isPropositionalSequent(goal)) {
+    const search = findCountermodel(goal);
+    if (search.status === "found") return { status: "invalid", structure: search.structure };
+    return firstOrderHint(proof, goal, { rules, known });
+  }
   const decided = checkSequent(goal);
   if (!decided.ok) return { status: "unknown", error: decided.error };
   if (!decided.valid) return { status: "invalid", counterexample: decided.counterexample };
   if (isFinished(proof, goal, rules, known)) return { status: "done" };
 
   const cursor = findCursor(proof);
+  const fix = firstBrokenLine(proof, cursor, rules, known);
+  if (fix) return fix;
+  const written = proof.lines.filter(({ formula }) => formula).map(({ formula }) => formula);
+  const sizeCheck = checkSequent(sequent(written, goal.conclusion));
+  if (!sizeCheck.ok) return { status: "unknown", error: sizeCheck.error };
+  const premiseStep = premiseHint(proof, goal);
+  if (premiseStep) return premiseStep;
+  return propositionalStep(cursor, goal, { rules, maxSteps });
+}
+
+/** A primeira linha antes do cursor que o verificador recusa, como dica `fixLine`, ou null. */
+function firstBrokenLine(proof, cursor, rules, known) {
   for (let line = 1; line < cursor.line; line += 1) {
     const checked = verifyLine(proof, line, rules, known);
     if (!checked.ok) return fixLine(line, checked.error);
   }
-  const written = proof.lines.filter(({ formula }) => formula).map(({ formula }) => formula);
-  const sizeCheck = checkSequent(sequent(written, goal.conclusion));
-  if (!sizeCheck.ok) return { status: "unknown", error: sizeCheck.error };
+  return null;
+}
 
+/** Uma premissa a mais, ou a primeira que falta escrever, ou null. */
+function premiseHint(proof, goal) {
   const premises = proof.lines.filter(({ kind, formula }) => kind === "premise" && formula);
   const extra = proof.lines.findIndex(({ kind, formula }) => (
     kind === "premise" && formula && !goal.premises.some((premise) => equals(premise, formula))
@@ -428,7 +468,11 @@ export function hint(proof, goal, { rules = RULES, known = rules, maxSteps } = {
       levels: stepLevels(step, "hints.startFromPremises"),
     };
   }
+  return null;
+}
 
+/** O passo proposicional, pelo solver, depois das verificações comuns. */
+function propositionalStep(cursor, goal, { rules, maxSteps }) {
   const planner = createPlanner(cursor.proof, goal, { rules, maxSteps });
   const chain = enclosingSubproofs(cursor.proof, cursor.line).filter(({ from }) => from !== cursor.line);
   const depth = chain.at(-1)?.depth ?? 0;
@@ -484,12 +528,315 @@ export function hint(proof, goal, { rules = RULES, known = rules, maxSteps } = {
   return noWayFromHere(planner, goal, chain, next.unprovable);
 }
 
-/** Aplica um passo de `hint` à prova. */
+// --- 1.ª ordem -------------------------------------------------------------------------------------
+// Sem solver nem tabela de verdade (a validade é indecidível), as dicas seguem as heurísticas da
+// cadeira, pela ordem: repetir um facto; um passo só que dê o objetivo com o que já está na prova (o
+// verificador decide); objetivo ∀ → abrir a caixa [v] do ∀I; premissa ∃ → abrir a caixa [v] do ∃E;
+// instanciar um ∀ com os termos que já existem; assumir o antecedente ou a fórmula a negar. Não dizem
+// `invalid` nem `noProof`: sem passo, `unknown` com `searchExhausted`.
+
+/** Uma variável nova para uma caixa: nenhum nome da prova nem do sequente. */
+const freshFor = (proof, goal) => unusedName(
+  namesOf([...goal.premises, goal.conclusion, ...proof.lines.map(({ formula }) => formula)]),
+  ["v", "u", "w"],
+  "v",
+);
+
+/** A linha `∃x φ` acessível de onde vem a hipótese `[v] φ[v/x]`, ou null. */
+function witnessSource(proof, from, hypothesis, variable) {
+  const { lines } = proof;
+  const line = accessibleFrom(proof, from).lines.find((number) => {
+    const formula = lines[number - 1].formula;
+    return formula?.kind === "exists"
+      && sameFormula(substitute(formula.args[0], formula.name, term(variable)), hypothesis);
+  });
+  return line ?? null;
+}
+
+/** O que pretende cada caixa aberta, de fora para dentro; `failed` é a primeira que não encaixa. */
+function firstOrderFrames(proof, chain, conclusion) {
+  const frames = [];
+  let target = conclusion;
+  for (const subproof of chain) {
+    const first = proof.lines[subproof.from - 1];
+    const hypothesis = first.formula;
+    let frame = null;
+    if (subproof.fresh !== null && (first.kind === "step" || subproof.label)) {
+      if (target.kind === "forall" && isSubstitutable(target.args[0], target.name, term(subproof.fresh))) {
+        const inner = substitute(target.args[0], target.name, term(subproof.fresh));
+        frame = { target: inner, closing: { rule: "∀I", formula: target } };
+      }
+    } else if (subproof.fresh !== null) {
+      const source = hypothesis && witnessSource(proof, subproof.from, hypothesis, subproof.fresh);
+      if (source) frame = { target, closing: { rule: "∃E", formula: target, source } };
+    } else if (hypothesis) {
+      if (target.kind === "implies" && sameFormula(target.args[0], hypothesis)) {
+        frame = { target: target.args[1], closing: { rule: "→I", formula: target } };
+      } else if (target.kind === "not" && sameFormula(target.args[0], hypothesis)) {
+        frame = { target: FALSUM, closing: { rule: "¬I", formula: target } };
+      } else if (sameFormula(hypothesis, not(target))) {
+        frame = { target: FALSUM, closing: { rule: "RA", formula: target } };
+      }
+    }
+    if (!frame) return { frames, target, failed: subproof };
+    frames.push({ ...frame, subproof });
+    target = frame.target;
+  }
+  return { frames, target, failed: null };
+}
+
+/** As formas de citar com que se tenta um passo só: linhas, caixas e o par linha e caixa (∃E). */
+function* citationChoices(rule, facts, ranges) {
+  const formulas = rule.premises.filter(({ kind }) => kind === "formula").length;
+  const boxes = rule.premises.length - formulas;
+  if (boxes === 0 && formulas === 0) yield [];
+  if (boxes === 0 && formulas === 1) for (const fact of facts) yield [citeLine(fact.line)];
+  if (boxes === 0 && formulas === 2) {
+    for (const [i, a] of facts.entries()) for (const b of facts.slice(i)) yield [citeLine(a.line), citeLine(b.line)];
+  }
+  if (boxes === 1 && formulas === 0) for (const range of ranges) yield [citeRange(range.from, range.to)];
+  if (boxes === 1 && formulas === 1) {
+    for (const fact of facts) for (const range of ranges) yield [citeLine(fact.line), citeRange(range.from, range.to)];
+  }
+}
+
+/** Um passo só, com uma regra ativa e o que já está na prova, que dê `target` na linha do cursor. */
+function oneStep(cursor, target, facts, { rules, known }) {
+  const { proof, line } = cursor;
+  if (proof.lines[line - 1].kind !== "step") return null;
+  const ranges = accessibleFrom(proof, line).ranges;
+  const tried = new Set();
+  for (const rule of rules) {
+    if (rule.id === "R" || tried.has(rule.id)) continue;
+    tried.add(rule.id);
+    for (const citations of citationChoices(rule, facts, ranges)) {
+      const probe = editLine(proof, line, { formula: target, rule: rule.id, citations });
+      if (probe.ok && verifyLine(probe.proof, line, rules, known).ok) return { rule: rule.id, citations };
+    }
+  }
+  return null;
+}
+
+/** Se `part` é `whole` ou uma subfórmula dela. */
+function within(part, whole) {
+  return sameFormula(part, whole) || whole.args.some((arg) => arg.kind !== "term" && within(part, arg));
+}
+
+/** Os termos que já existem no objetivo e nos factos; sem nenhum, um nome novo. */
+function existingTerms(target, facts, names) {
+  const found = new Map();
+  for (const formula of [target, ...facts.map((fact) => fact.formula)]) freeTerms(formula, found);
+  return found.size > 0 ? [...found.values()] : [term(unusedName(names, ["a", "b", "c"], "a"))];
+}
+
+/**
+ * O que leva ao objetivo num passo: num ∃x φ, φ com cada termo que já existe no lugar de x (∃I); numa
+ * conjunção, os dois lados e o que leva a cada um.
+ */
+function witnessesOf(target, terms) {
+  if (target.kind === "and") return target.args.flatMap((side) => [side, ...witnessesOf(side, terms)]);
+  if (target.kind !== "exists") return [];
+  const [body] = target.args;
+  return terms.filter((t) => isSubstitutable(body, target.name, t)).map((t) => substitute(body, target.name, t));
+}
+
+/**
+ * Uma instância de um ∀ acessível com um termo que já existe, que ajude: contém o objetivo ou uma
+ * fórmula que daria o objetivo ∃ (`wanted`), é uma delas, ou aparece dentro de outro facto. Devolve
+ * { formula, line }, ou null.
+ */
+function usefulInstance(target, facts, terms, wanted) {
+  const isFact = (formula) => facts.some((fact) => sameFormula(fact.formula, formula));
+  const witnesses = (formula) => wanted.some((item) => sameFormula(item, formula));
+  const instances = [];
+  for (const fact of [...facts].reverse()) {
+    if (fact.formula.kind === "forall") {
+      const [body] = fact.formula.args;
+      for (const t of terms) {
+        if (isSubstitutable(body, fact.formula.name, t)) {
+          const formula = substitute(body, fact.formula.name, t);
+          if (!isFact(formula)) instances.push({ formula, line: fact.line });
+        }
+      }
+    }
+  }
+  const inOther = (formula) => facts.some((fact) => fact.formula.kind !== "forall" && within(formula, fact.formula));
+  const leads = (formula) => [target, ...wanted].some((item) => within(item, formula)) && !witnesses(formula);
+  // Um ∀ dentro de outro: a instância ajuda se alguma instância dela ajudar (∀x∀y R(x, y) dá ∀y R(u, y)).
+  const nested = (formula) => formula.kind === "forall" && terms.some((t) => (
+    isSubstitutable(formula.args[0], formula.name, t) && leads(substitute(formula.args[0], formula.name, t))
+  ));
+  return instances.find(({ formula }) => leads(formula))
+    ?? instances.find(({ formula }) => witnesses(formula))
+    ?? instances.find(({ formula }) => nested(formula))
+    ?? instances.find(({ formula }) => inOther(formula))
+    ?? instances.find(({ formula }) => [...freeTerms(target).keys()].some((name) => freeTerms(formula).has(name)))
+    ?? null;
+}
+
+/** Dica de 1.ª ordem: ver o comentário acima. */
+function firstOrderHint(proof, goal, { rules, known }) {
+  if (isFinished(proof, goal, rules, known)) return { status: "done" };
+  let cursor = findCursor(proof);
+  const fix = firstBrokenLine(proof, cursor, rules, known);
+  if (fix) return fix;
+  const premiseStep = premiseHint(proof, goal);
+  if (premiseStep) return premiseStep;
+
+  const can = (id) => rules.some((rule) => rule.id === id);
+  const real = cursor;
+  const own = real.proof.lines[real.line - 1];
+  let frames = [];
+  let target = own.formula;
+  let outer = goal.conclusion;
+  if (!target) {
+    const chain = enclosingSubproofs(real.proof, real.line).filter(({ from }) => from !== real.line);
+    const inferred = firstOrderFrames(real.proof, chain, goal.conclusion);
+    if (inferred.failed) return deadEnd(inferred.failed.from, "offTrack");
+    ({ frames, target } = inferred);
+  } else {
+    // Uma caixa que acaba logo antes desta linha, mais funda, ainda está a ser escrita: o passo entra
+    // nela, como se houvesse ali uma linha por preencher, e o objetivo dela sai do desta linha.
+    const previous = real.proof.lines[real.line - 2];
+    const virtual = previous && previous.depth > own.depth && own.kind === "step"
+      ? insertLine(real.proof, real.line - 1, { depth: previous.depth })
+      : { ok: false };
+    if (virtual.ok) {
+      const deeper = enclosingSubproofs(virtual.proof, real.line).filter(({ depth: inner }) => inner > own.depth);
+      const inferred = firstOrderFrames(virtual.proof, deeper, own.formula);
+      if (deeper.length > 0 && !inferred.failed) {
+        cursor = { proof: virtual.proof, line: real.line, synthetic: true };
+        ({ frames, target } = inferred);
+        outer = own.formula;
+      }
+    }
+  }
+  const { lines } = cursor.proof;
+  const current = lines[cursor.line - 1];
+  const depth = current.depth;
+  const facts = accessibleFrom(cursor.proof, cursor.line).lines
+    .filter((line) => lines[line - 1].formula)
+    .map((line) => ({ formula: lines[line - 1].formula, line }));
+
+  const last = frames.at(-1);
+  const previous = lines[cursor.line - 2];
+  if (last && previous?.formula && previous.depth === last.subproof.depth && sameFormula(previous.formula, last.target)) {
+    const range = citeRange(last.subproof.from, cursor.line - 1);
+    const { rule, formula, source } = last.closing;
+    const closingDepth = last.subproof.depth - 1;
+    // A caixa fecha na própria linha escrita: é ela que fica justificada.
+    const onOwn = cursor !== real && closingDepth === own.depth && sameFormula(formula, own.formula);
+    return stepHint(onOwn ? real : cursor, frames.at(-2)?.target ?? outer, {
+      kind: "step",
+      depth: closingDepth,
+      formula,
+      rule,
+      citations: rule === "∃E" ? [citeLine(source), range] : [range],
+      strategy: strategyOf(rule),
+    });
+  }
+
+  const repeated = facts.find(({ formula }) => sameFormula(formula, target));
+  if (repeated && can("R")) {
+    return stepHint(cursor, target, {
+      kind: "step", depth, formula: target, rule: "R", citations: [citeLine(repeated.line)], strategy: "repeatFact",
+    });
+  }
+  const direct = oneStep(cursor, target, facts, { rules, known });
+  if (direct) {
+    return stepHint(cursor, target, { kind: "step", depth, formula: target, ...direct, strategy: strategyOf(direct.rule) });
+  }
+  if (target.kind === "forall" && can("∀I")) {
+    const variable = freshFor(cursor.proof, goal);
+    // A linha abre a caixa de outro ∀I, e só cabe uma caixa por linha: a de fora começa por repetir um facto.
+    if ((current.fresh ?? null) !== null && current.kind === "step" && can("R") && facts.length > 0) {
+      const [fact] = facts;
+      return stepHint(cursor, target, {
+        kind: "step", depth, formula: fact.formula, rule: "R", citations: [citeLine(fact.line)], strategy: "separateBoxes",
+      });
+    }
+    if ((current.fresh ?? null) === null && isSubstitutable(target.args[0], target.name, term(variable))) {
+      return stepHint(cursor, target, {
+        kind: "step",
+        depth: depth + 1,
+        formula: substitute(target.args[0], target.name, term(variable)),
+        fresh: variable,
+        strategy: "openForallBox",
+        viaRule: "∀I",
+      });
+    }
+  }
+  // Um ∃ que a própria prova tirou por ∃I não se volta a abrir: dava um ciclo.
+  const opened = new Set(frames.map(({ closing }) => closing.source).filter(Boolean));
+  const witness = can("∃E") && facts.find(({ formula, line }) => (
+    formula.kind === "exists" && !opened.has(line) && lines[line - 1].rule !== "∃I"
+  ));
+  if (witness) {
+    const variable = freshFor(cursor.proof, goal);
+    const [body] = witness.formula.args;
+    if (isSubstitutable(body, witness.formula.name, term(variable))) {
+      return stepHint(cursor, target, {
+        kind: "hypothesis",
+        depth: depth + 1,
+        formula: substitute(body, witness.formula.name, term(variable)),
+        fresh: variable,
+        strategy: "assumeWitness",
+        viaRule: "∃E",
+      });
+    }
+  }
+  // Uma conjunção provada separa-se: cada lado pode ser o que falta.
+  const split = can("∧E") && facts.flatMap(({ formula, line }) => (
+    formula.kind === "and" ? formula.args.map((side) => ({ formula: side, line })) : []
+  )).find(({ formula }) => !facts.some((fact) => sameFormula(fact.formula, formula)));
+  if (split) {
+    return stepHint(cursor, target, {
+      kind: "step", depth, formula: split.formula, rule: "∧E", citations: [citeLine(split.line)], strategy: "useConjunction",
+    });
+  }
+  const names = namesOf([...goal.premises, goal.conclusion, ...lines.map(({ formula }) => formula)]);
+  const terms = existingTerms(target, facts, names);
+  const wanted = witnessesOf(target, terms);
+  const instance = can("∀E") && usefulInstance(target, facts, terms, wanted);
+  if (instance) {
+    return stepHint(cursor, target, {
+      kind: "step", depth, formula: instance.formula, rule: "∀E", citations: [citeLine(instance.line)], strategy: "instantiate",
+    });
+  }
+  // Para um objetivo ∃, uma instância dele que saia num passo só do que já está provado.
+  for (const formula of wanted.filter((item) => !facts.some((fact) => sameFormula(fact.formula, item)))) {
+    const step = oneStep(cursor, formula, facts, { rules, known });
+    if (step) return stepHint(cursor, target, { kind: "step", depth, formula, ...step, strategy: strategyOf(step.rule) });
+  }
+  const assume = (formula, rule, strategy) => stepHint(cursor, target, {
+    kind: "hypothesis", depth: depth + 1, formula, strategy, viaRule: rule,
+  });
+  if (target.kind === "implies" && can("→I")) return assume(target.args[0], "→I", "assumeAntecedent");
+  if (target.kind === "not" && can("¬I")) return assume(target.args[0], "¬I", "assumeToNegate");
+  return { status: "unknown", error: { code: "searchExhausted", params: {} } };
+}
+
+/**
+ * Aplica um passo de `hint` à prova. Uma linha substituída guarda a caixa que abria (`fresh`, `label`);
+ * uma linha que entra antes do passo que abre a caixa do ∀I passa a abri-la ela.
+ */
 export function applyHint(proof, step) {
   if (step.action === "deleteSubproof") return deleteLine(proof, step.line);
-  const { line, replaces, kind, depth, formula, rule, citations, strategy } = step;
-  const written = { kind, depth, formula, rule, citations, strategy };
-  if (!replaces) return insertLine(proof, line - 1, written);
-  const lines = proof.lines.map((old, index) => (index === line - 1 ? written : old));
+  const { line, replaces, kind, depth, formula, rule, citations, strategy, fresh = null } = step;
+  const written = { kind, depth, formula, rule, citations, strategy, fresh };
+  if (!replaces) {
+    const next = proof.lines[line - 1];
+    const opensBox = next?.kind === "step" && (next.fresh ?? null) !== null;
+    const fits = kind === "hypothesis" ? depth === next?.depth + 1 : depth === next?.depth && fresh === null;
+    if (opensBox && fits) {
+      return insertAtBoxStart(proof, line, written);
+    }
+    return insertLine(proof, line - 1, written);
+  }
+  const lines = proof.lines.map((old, index) => (
+    index === line - 1
+      ? { ...written, fresh: fresh ?? old.fresh ?? null, label: kind === "hypothesis" ? old.label ?? null : null }
+      : old
+  ));
   return createProof(lines);
 }

@@ -190,6 +190,50 @@ async function scenario({ page, evaluate }, origin, path, lang) {
   await press({ key: "z", ctrl: true });
   await sleep(50);
   expect(await lineCount(), KEYBOARD_LINES, tag("desfazer repõe a linha"));
+
+  // 1.ª ordem: o sequente com as teclas ∀ e =, e a prova com uma caixa [w] só com o teclado.
+  await page("Page.navigate", { url: `${origin}${path}` });
+  await waitFor(() => evaluate(`document.querySelector("#sequent") !== null && document.getElementById("start-proof") !== null`));
+  await sleep(100);
+  await evaluate(`document.querySelector("#sequent").focus()`);
+  const tapKey = (name) => evaluate(`document.querySelector('#sequent-input [data-symbol="${name}"], .sequent-input [data-symbol="${name}"]').click()`);
+  await tapKey("forall");
+  await type("x P(x)");
+  await tapKey("turnstile");
+  await tapKey("forall");
+  await type("x(Q(x) → P(x))");
+  expect(await evaluate(`document.querySelector("#sequent").value`), "∀x P(x) ⊢ ∀x(Q(x) → P(x))", tag("as teclas ∀ e ⊢ escrevem no sequente"));
+  expect(await evaluate(`document.activeElement?.id`), "sequent", tag("a tecla ∀ não tira o foco do sequente"));
+  await press({ key: "Enter" });
+  await sleep(50);
+  expect(await field(), "proof-formula-2", tag("1.ª ordem: o foco vai para a primeira linha livre"));
+  expect(await evaluate(`[...document.querySelectorAll("#proof-editor [data-symbol]")].map((key) => key.dataset.symbol).filter((name) => ["forall", "exists", "eq"].includes(name))`),
+    ["forall", "exists", "eq"], tag("o editor tem as teclas ∀, ∃ e ="));
+  expect(await evaluate(`document.querySelector("#proof-editor").textContent.includes("[v]")`), true, tag("a dica das caixas aparece"));
+
+  await type("[w]");
+  await sleep(30);
+  expect(await field(), "proof-formula-2", tag("abrir a caixa com [w] mantém o foco no campo"));
+  expect(await evaluate(`document.querySelectorAll('#proof-editor [data-line="2"] .fitch__bar').length`), 2, tag("[w] põe a linha dentro da caixa"));
+  for (const step of [
+    { key: "Enter", ctrl: true }, "Q(w)", { key: "Enter" }, "P(w)", { key: "Enter" }, "∀E, 1", { key: "Enter", shift: true },
+    "Q(w) → P(w)", { key: "Enter" }, "→I, 2–3", { key: "Enter", shift: true }, "∀x(Q(x) → P(x))", { key: "Enter" }, "∀I, 2–4",
+  ]) {
+    if (typeof step === "string") await type(step);
+    else await press(step);
+  }
+  await sleep(50);
+  const lines = await evaluate(`[...document.querySelectorAll("#proof-editor .fitch__line[data-line]")].map((row) => row.dataset.state)`);
+  expect(lines, ["ok", "ok", "ok", "ok", "ok"], tag("1.ª ordem: todas as linhas certas"));
+  expect(await evaluate(`document.querySelector(".proof-editor__status .msg-ok") !== null`), true, tag("1.ª ordem: a prova fica completa"));
+  const label = await evaluate(`(() => {
+    const row = document.querySelector("#proof-editor .fitch__line--label");
+    return row && { text: row.textContent.trim(), spoken: row.querySelector('[role="img"]').getAttribute("aria-label") };
+  })()`);
+  expect(label?.text, "[w]", tag("a linha de etiqueta mostra a variável"));
+  expect(label?.spoken.includes("w"), true, tag("a linha de etiqueta diz a variável ao leitor de ecrã"));
+  expect(await evaluate(`document.documentElement.scrollWidth <= ${WIDTH}`), true, tag("1.ª ordem: a página cabe a 390px"));
+  await writeScreenshot(page, `${lang}-primeira-ordem`);
 }
 
 async function writeScreenshot(page, name) {

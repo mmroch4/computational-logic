@@ -6,7 +6,9 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { CASES, CASES_GOAL, NESTED, NESTED_GOAL, STATES, STATES_GOAL, WIDE, WIDE_GOAL } from "../tests/fixtures/fitch-proofs.js";
+import {
+  BOXES, BOXES_GOAL, CASES, CASES_GOAL, LABEL, LABEL_GOAL, NESTED, NESTED_GOAL, STATES, STATES_GOAL, WIDE, WIDE_GOAL,
+} from "../tests/fixtures/fitch-proofs.js";
 
 const CHROME = process.env.CHROME_BIN || "/usr/bin/google-chrome";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -98,6 +100,8 @@ async function scenario({ evaluate, page }, origin) {
     { id: "wide", text: WIDE, goal: WIDE_GOAL },
     { id: "cases", text: CASES, goal: CASES_GOAL },
     { id: "states", text: STATES, goal: STATES_GOAL },
+    { id: "boxes", text: BOXES, goal: BOXES_GOAL },
+    { id: "label", text: LABEL, goal: LABEL_GOAL },
   ]));
   await sleep(300);
 
@@ -160,6 +164,46 @@ async function scenario({ evaluate, page }, origin) {
   await evaluate(`document.querySelector("#cases").scrollIntoView()`);
   await sleep(100);
   await writeScreenshot(page, "casos-e-estados");
+
+  // 1.ª ordem: a marca [v] fica entre a barra da caixa e a fórmula; a linha de etiqueta não tem número.
+  const boxes = await evaluate(`(() => {
+    const left = (element) => element.getBoundingClientRect().left;
+    const right = (element) => element.getBoundingClientRect().right;
+    const boxes = document.querySelector("#boxes .fitch");
+    const opener = boxes.querySelector('[data-line="3"]');
+    const label = document.querySelector("#label .fitch__line--label");
+    const hypothesis = document.querySelector('#label [data-line="2"]');
+    const labelBars = [...label.querySelectorAll(".fitch__bar")];
+    const hypothesisBars = [...hypothesis.querySelectorAll(".fitch__bar")];
+    return {
+      pageWidth: document.documentElement.scrollWidth,
+      fits: boxes.scrollWidth <= boxes.clientWidth,
+      marks: [...boxes.querySelectorAll(".fitch__fresh")].map((mark) => mark.textContent),
+      markAfterBar: left(opener.querySelector(".fitch__fresh")) >= right(opener.querySelector(".fitch__bars")) - 1,
+      markBeforeFormula: right(opener.querySelector(".fitch__fresh")) <= left(opener.querySelector(".fitch__formula")) + 1,
+      openBar: opener.querySelector(".fitch__bar:last-child").classList.contains("fitch__bar--open"),
+      justification: [...boxes.querySelectorAll("[data-line] .fitch__why")].map(left),
+      labelNumber: label.querySelector(".fitch__number"),
+      labelText: label.textContent.trim(),
+      labelSpoken: label.querySelector('[role="img"]').getAttribute("aria-label"),
+      labelBarLeft: left(labelBars.at(-1)),
+      hypothesisBarLeft: left(hypothesisBars[labelBars.length - 1]),
+      labelVisible: label.querySelector(".fitch__fresh").getBoundingClientRect().width > 0,
+    };
+  })()`);
+  check(boxes.pageWidth <= WIDTH, `com as caixas de variável, a página tem ${boxes.pageWidth}px`);
+  check(boxes.fits, "a prova com caixas de variável devia caber sem scroll a 390px");
+  check(boxes.marks.join(" ") === "[u] [v]", `as marcas são ${JSON.stringify(boxes.marks)}`);
+  check(boxes.markAfterBar && boxes.markBeforeFormula, "a marca [v] não fica entre a barra e a fórmula");
+  check(boxes.openBar, "a caixa do ∀I não abre com a barra recolhida, como a da hipótese");
+  check(new Set(boxes.justification).size === 1, "com marcas, as justificações deixaram de estar alinhadas");
+  check(boxes.labelNumber === null, "a linha de etiqueta tem número");
+  check(boxes.labelText === "[w]" && boxes.labelVisible, `a linha de etiqueta mostra ${JSON.stringify(boxes.labelText)}`);
+  check(boxes.labelSpoken.includes("w"), "a linha de etiqueta não diz a variável ao leitor de ecrã");
+  check(Math.abs(boxes.labelBarLeft - boxes.hypothesisBarLeft) <= 1, "a barra da linha de etiqueta não continua na hipótese");
+  await evaluate(`document.querySelector("#boxes").scrollIntoView()`);
+  await sleep(100);
+  await writeScreenshot(page, "caixas-de-variavel");
 }
 
 async function writeScreenshot(page, name) {

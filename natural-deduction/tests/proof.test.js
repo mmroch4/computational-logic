@@ -9,7 +9,9 @@ import {
   closeSubproof,
   createProof,
   deleteLine,
+  editLine,
   enclosingSubproofs,
+  insertAtBoxStart,
   insertLine,
   openSubproof,
   subproofs,
@@ -372,6 +374,164 @@ test("uma sequência de edições mantém prova e citações coerentes", () => {
   assert.deepEqual(proof.lines[3].citations, [citeLine(2)]);
 });
 
+// Caixas com variável (1.ª ordem)
+
+const forallStep = (depth, fresh = "v", citations = []) => ({ ...step(depth, citations), fresh });
+const labelHyp = (depth, label = "v", extra = {}) => ({ ...hyp(depth), label, ...extra });
+const boxes = (proof) => subproofs(proof).map(({ from, to, depth, fresh, label }) => [`${from}-${to}`, depth, fresh, label]);
+
+// 1 premissa
+//   [v]
+// 2 | | hipótese
+// 3 | | passo
+// 4 | passo, 2–3
+// 5 passo, 2–4
+const labelled = () => build([
+  premise(), labelHyp(2), step(2), step(1, [citeRange(2, 3)]), step(0, [citeRange(2, 4)]),
+]);
+
+test("um passo com fresh abre a caixa do ∀I, que se cita como uma subdedução", () => {
+  const proof = build([premise(), forallStep(1), step(1), step(0, [citeRange(2, 3)])]);
+  assert.deepEqual(boxes(proof), [["2-3", 1, "v", false]]);
+  assert.equal(subproofs(proof)[0].closed, true);
+  assert.deepEqual(accessibleFrom(proof, 3), { lines: [1, 2], ranges: [] });
+  assert.deepEqual(accessibleFrom(proof, 4), { lines: [1], ranges: [{ from: 2, to: 3 }] });
+  assert.deepEqual(enclosingSubproofs(proof, 3).map(({ from, to }) => `${from}-${to}`), ["2-3"]);
+});
+
+test("a linha de etiqueta abre a caixa do ∀I por fora da hipótese, na mesma linha", () => {
+  const proof = labelled();
+  assert.deepEqual(boxes(proof), [["2-4", 1, "v", true], ["2-3", 2, null, false]]);
+  assert.deepEqual(enclosingSubproofs(proof, 3).map(({ from, to }) => `${from}-${to}`), ["2-4", "2-3"]);
+  assert.deepEqual(accessibleFrom(proof, 3), { lines: [1, 2], ranges: [] });
+  assert.deepEqual(accessibleFrom(proof, 4), { lines: [1], ranges: [{ from: 2, to: 3 }] });
+  assert.deepEqual(accessibleFrom(proof, 5), { lines: [1], ranges: [{ from: 2, to: 4 }] });
+});
+
+test("caixas com variável seguidas, a hipótese do ∃E e as linhas sem variável", () => {
+  const siblings = build([forallStep(1), step(1), forallStep(1, "u"), step(0)]);
+  assert.deepEqual(boxes(siblings), [["1-2", 1, "v", false], ["3-3", 1, "u", false]]);
+  assert.deepEqual(accessibleFrom(siblings, 3), { lines: [], ranges: [{ from: 1, to: 2 }] });
+
+  const exists = build([premise(), { ...hyp(1), fresh: "u" }, step(1), step(0)]);
+  assert.deepEqual(boxes(exists), [["2-3", 1, "u", false]]);
+  assert.equal(exists.lines[1].fresh, "u");
+
+  const both = build([premise(), labelHyp(2, "v", { fresh: "u" }), step(2), step(1), step(0)]);
+  assert.deepEqual(boxes(both), [["2-4", 1, "v", true], ["2-3", 2, "u", false]]);
+
+  const plainLines = nested();
+  assert.ok(plainLines.lines.every((line) => !("fresh" in line) && !("label" in line)));
+  assert.ok(subproofs(plainLines).every(({ fresh, label }) => fresh === null && label === false));
+});
+
+test("recusa caixas com variável mal postas", () => {
+  assertFails(createProof([premise(), forallStep(0)]), "invalidDepth", 2);
+  assertFails(createProof([premise(), forallStep(2)]), "invalidDepth", 2);
+  assertFails(createProof([premise(), labelHyp(1)]), "invalidDepth", 2);
+  assertFails(createProof([premise(), labelHyp(3)]), "invalidDepth", 2);
+  assertFails(createProof([{ ...premise(), fresh: "v" }]), "invalidLine", 1);
+  assertFails(createProof([premise(), { ...step(0), label: "v" }]), "invalidLine", 2);
+  for (const fresh of ["F", "forall", "", "1a", 3]) {
+    assertFails(createProof([premise(), forallStep(1, fresh)]), "invalidLine", 2);
+    assertFails(createProof([premise(), labelHyp(2, fresh)]), "invalidLine", 2);
+  }
+});
+
+test("inserir antes de uma linha de etiqueta mantém cada intervalo na sua caixa", () => {
+  const proof = done(insertLine(labelled(), 1, { formula: b }));
+  assert.deepEqual(boxes(proof), [["3-5", 1, "v", true], ["3-4", 2, null, false]]);
+  assert.equal(proof.lines[2].label, "v");
+  assert.deepEqual(proof.lines[4].citations, [citeRange(3, 4)]);
+  assert.deepEqual(proof.lines[5].citations, [citeRange(3, 5)]);
+});
+
+test("uma linha que abre caixa com variável nunca apanha as linhas seguintes", () => {
+  const proof = build([premise(), hyp(1), step(1), step(0)]);
+  assertFails(insertLine(proof, 2, { kind: "step", depth: 1, fresh: "v" }), "capturesLines", 3);
+  assertFails(insertLine(proof, 2, labelHyp(2)), "capturesLines", 3);
+  assert.deepEqual(depths(done(insertLine(proof, 2, { kind: "step", depth: 2, fresh: "v" }))), [0, 1, 2, 1, 0]);
+  assert.deepEqual(depths(done(insertLine(proof, 2, labelHyp(3)))), [0, 1, 3, 1, 0]);
+  assert.deepEqual(depths(done(insertLine(proof, 3, { kind: "step", depth: 1, fresh: "v" }))), [0, 1, 1, 1, 0]);
+});
+
+test("apagar a linha que abre uma caixa com variável apaga a caixa", () => {
+  const forall = build([premise(), forallStep(1), step(1), step(0, [citeRange(2, 3), citeLine(1)])]);
+  const afterForall = done(deleteLine(forall, 2));
+  assert.deepEqual(depths(afterForall), [0, 0]);
+  assert.deepEqual(afterForall.lines[1].citations, [citeLine(1)]);
+
+  const afterLabel = done(deleteLine(labelled(), 2));
+  assert.deepEqual(depths(afterLabel), [0, 0]);
+  assert.deepEqual(afterLabel.lines[1].citations, []);
+});
+
+test("apagar dentro da caixa da etiqueta encurta cada intervalo pela sua caixa", () => {
+  const proof = done(deleteLine(labelled(), 3));
+  assert.deepEqual(boxes(proof), [["2-3", 1, "v", true], ["2-2", 2, null, false]]);
+  assert.deepEqual(proof.lines[2].citations, [citeRange(2, 2)]);
+  assert.deepEqual(proof.lines[3].citations, [citeRange(2, 3)]);
+});
+
+test("editar muda o nome da variável, mas não abre nem fecha caixas", () => {
+  const forall = build([premise(), forallStep(1), step(1), step(0)]);
+  assert.equal(done(editLine(forall, 2, { fresh: "u" })).lines[1].fresh, "u");
+  const reformulated = done(editLine(forall, 2, { formula: b }));
+  assert.equal(reformulated.lines[1].fresh, "v");
+  assert.deepEqual(reformulated.lines[1].formula, b);
+  assertFails(editLine(forall, 2, { fresh: null }), "invalidLine", 2);
+  assertFails(editLine(forall, 2, { fresh: "F" }), "invalidLine", 2);
+  assertFails(editLine(forall, 3, { fresh: "u" }), "invalidLine", 3);
+  assertFails(editLine(forall, 3, { label: "u" }), "invalidLine", 3);
+
+  const proof = labelled();
+  assert.equal(done(editLine(proof, 2, { label: "w" })).lines[1].label, "w");
+  assert.equal(done(editLine(proof, 2, { fresh: "u" })).lines[1].fresh, "u");
+  assert.deepEqual(boxes(done(editLine(proof, 2, { fresh: "u" }))), [["2-4", 1, "v", true], ["2-3", 2, "u", false]]);
+  assertFails(editLine(proof, 2, { label: null }), "invalidLine", 2);
+  assertFails(editLine(nested(), 2, { label: "v" }), "invalidLine", 2);
+  const exists = done(editLine(nested(), 2, { fresh: "u" }));
+  assert.equal(exists.lines[1].fresh, "u");
+  assert.equal("fresh" in done(editLine(exists, 2, { fresh: null })).lines[1], false);
+});
+
+test("abrir uma caixa com variável: hipótese do ∃E, passo do ∀I ou linha de etiqueta", () => {
+  const proof = build([premise()]);
+  const exists = done(openSubproof(proof, 1, a, undefined, { fresh: "u" }));
+  assert.deepEqual(boxes(exists), [["2-2", 1, "u", false]]);
+  assert.equal(exists.lines[1].kind, "hypothesis");
+
+  const forall = done(openSubproof(proof, 1, a, undefined, { step: true, fresh: "v" }));
+  assert.deepEqual(forall.lines[1], { kind: "step", depth: 1, formula: a, rule: null, citations: [], fresh: "v" });
+  assert.deepEqual(boxes(forall), [["2-2", 1, "v", false]]);
+
+  const label = done(openSubproof(proof, 1, null, undefined, { label: "v" }));
+  assert.deepEqual(label.lines[1], { kind: "hypothesis", depth: 2, formula: null, rule: null, citations: [], label: "v" });
+  assert.deepEqual(boxes(label), [["2-2", 1, "v", true], ["2-2", 2, null, false]]);
+
+  const deeper = done(openSubproof(forall, 2, b, undefined, { label: "w", fresh: "u" }));
+  assert.deepEqual(depths(deeper), [0, 1, 3]);
+  assert.deepEqual(boxes(deeper), [["2-3", 1, "v", false], ["3-3", 2, "w", true], ["3-3", 3, "u", false]]);
+
+  assertFails(openSubproof(proof, 1, a, undefined, { step: true }), "invalidLine", 2);
+  assertFails(openSubproof(proof, 1, a, undefined, { step: true, fresh: "v", label: "u" }), "invalidLine", 2);
+  assertFails(openSubproof(proof, 1, a, undefined, { fresh: "F" }), "invalidLine", 2);
+});
+
+test("fechar caixas com variável, a de dentro e depois a da etiqueta", () => {
+  const forall = build([premise(), forallStep(1), step(1), step(1)]);
+  assert.deepEqual(depths(done(closeSubproof(forall, 3))), [0, 1, 1, 0]);
+
+  let proof = build([premise(), labelHyp(2), step(2), step(2), step(1, [citeRange(2, 4)])]);
+  proof = done(closeSubproof(proof, 3));
+  assert.deepEqual(depths(proof), [0, 2, 2, 1, 1]);
+  assert.deepEqual(boxes(proof), [["2-5", 1, "v", true], ["2-3", 2, null, false]]);
+  assert.deepEqual(proof.lines[4].citations, [citeRange(2, 3)]);
+  proof = done(closeSubproof(proof, 5));
+  assert.deepEqual(depths(proof), [0, 2, 2, 1, 1, 0]);
+  assert.deepEqual(boxes(proof), [["2-5", 1, "v", true], ["2-3", 2, null, false]]);
+});
+
 test("todos os códigos de erro têm mensagem nos dois idiomas", () => {
   for (const code of PROOF_ERROR_CODES) {
     assert.ok(pt.proof.errors[code].includes("{line}"), `pt: ${code}`);
@@ -379,4 +539,30 @@ test("todos os códigos de erro têm mensagem nos dois idiomas", () => {
   }
   assert.deepEqual(Object.keys(pt.proof.errors).sort(), [...PROOF_ERROR_CODES].sort());
   assert.deepEqual(Object.keys(en.proof.errors).sort(), [...PROOF_ERROR_CODES].sort());
+});
+
+test("inserir no início da caixa do ∀I passa a marca para a linha nova e mantém os intervalos", () => {
+  const boxed = build([
+    premise(),
+    { kind: "step", depth: 1, formula: b, rule: null, citations: [], fresh: "v" },
+    step(1, [citeLine(1)]),
+    { ...step(0, [citeRange(2, 3)], c), rule: "∀I" },
+  ]);
+  const withStep = insertAtBoxStart(boxed, 2, { kind: "step", formula: a, rule: "R", citations: [citeLine(1)] });
+  assert.ok(withStep.ok);
+  assert.equal(withStep.proof.lines[1].fresh, "v");
+  assert.equal(withStep.proof.lines[1].depth, 1);
+  assert.equal(withStep.proof.lines[2].fresh ?? null, null);
+  assert.deepEqual(withStep.proof.lines[4].citations, [citeRange(2, 4)]);
+  assert.deepEqual(subproofs(withStep.proof).map(({ from, to, fresh }) => [from, to, fresh]), [[2, 4, "v"]]);
+
+  const withHypothesis = insertAtBoxStart(boxed, 2, { kind: "hypothesis", formula: a, fresh: "u" });
+  assert.ok(withHypothesis.ok);
+  const [line] = withHypothesis.proof.lines.slice(1);
+  assert.deepEqual([line.depth, line.label, line.fresh], [2, "v", "u"]);
+  assert.deepEqual(withHypothesis.proof.lines[4].citations, [citeRange(2, 4)]);
+
+  // Outra caixa [v] na mesma linha, ou uma linha que não abre a caixa do ∀I, não servem.
+  assert.equal(insertAtBoxStart(boxed, 2, { kind: "step", formula: a, fresh: "u" }).ok, false);
+  assert.equal(insertAtBoxStart(boxed, 3, { kind: "step", formula: a }).ok, false);
 });

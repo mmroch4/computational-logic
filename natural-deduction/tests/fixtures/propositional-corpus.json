@@ -1,0 +1,8237 @@
+[
+ {
+  "kind": "proof",
+  "text": "\n     1 |   (a → b) → a         hipótese\n     2 |     ¬a                hipótese\n     3 |       a               hipótese\n     4 |       F               FI, 3, 2\n     5 |       b               FE, 4\n     6 |     a → b             →I, 3–5\n     7 |     a                 →E, 6, 1\n     8 |     F                 FI, 7, 2\n     9 |   ¬¬a                 ¬I, 2–8\n    10 |   a                   ¬E, 9\n    11 | ((a → b) → a) → a     →I, 1–10",
+  "printed": " 1 |   (a → b) → a       hipótese\n 2 |     ¬a              hipótese\n 3 |       a             hipótese\n 4 |       F             FI, 3, 2\n 5 |       b             FE, 4\n 6 |     a → b           →I, 3–5\n 7 |     a               →E, 6, 1\n 8 |     F               FI, 7, 2\n 9 |   ¬¬a               ¬I, 2–8\n10 |   a                 ¬E, 9\n11 | ((a → b) → a) → a   →I, 1–10"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 |   a → (b → c)                       hipótese\n     2 |     a → b                           hipótese\n     3 |       a                             hipótese\n     4 |       b                             →E, 3, 2\n     5 |       b → c                         →E, 3, 1\n     6 |       c                             →E, 4, 5\n     7 |     a → c                           →I, 3–6\n     8 |   (a → b) → (a → c)                 →I, 2–7\n     9 | (a → (b → c)) → ((a → b) → (a → c)) →I, 1–8",
+  "printed": "1 |   a → b → c                     hipótese\n2 |     a → b                       hipótese\n3 |       a                         hipótese\n4 |       b                         →E, 3, 2\n5 |       b → c                     →E, 3, 1\n6 |       c                         →E, 4, 5\n7 |     a → c                       →I, 3–6\n8 |   (a → b) → a → c               →I, 2–7\n9 | (a → b → c) → (a → b) → a → c   →I, 1–8"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 | (a → c) ∧ (b → c)   premissa\n     2 | a → c               ∧E, 1\n     3 | b → c               ∧E, 1\n     4 |   a ∨ b             hipótese\n     5 |     a               hipótese\n     6 |     c               →E, 5, 2\n     7 |     b               hipótese\n     8 |     c               →E, 7, 3\n     9 |   c                 ∨E, 4, 5–6, 7–8\n    10 | a ∨ b → c           →I, 4–9",
+  "printed": " 1 | (a → c) ∧ (b → c)   premissa\n 2 | a → c               ∧E, 1\n 3 | b → c               ∧E, 1\n 4 |   a ∨ b             hipótese\n 5 |     a               hipótese\n 6 |     c               →E, 5, 2\n 7 |     b               hipótese\n 8 |     c               →E, 7, 3\n 9 |   c                 ∨E, 4, 5–6, 7–8\n10 | a ∨ b → c           →I, 4–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 | (a ∧ b) ∨ (a ∧ c)   premissa\n     2 |   a ∧ b             hipótese\n     3 |   a                 ∧E, 2\n     4 |   b                 ∧E, 2\n     5 |   b ∨ c             ∨I, 4\n     6 |   a ∧ (b ∨ c)       ∧I, 3, 5\n     7 |   a ∧ c             hipótese\n     8 |   a                 ∧E, 7\n     9 |   c                 ∧E, 7\n    10 |   b ∨ c             ∨I, 9\n    11 |   a ∧ (b ∨ c)       ∧I, 8, 10\n    12 | a ∧ (b ∨ c)         ∨E, 1, 2–6, 7–11",
+  "printed": " 1 | a ∧ b ∨ a ∧ c   premissa\n 2 |   a ∧ b         hipótese\n 3 |   a             ∧E, 2\n 4 |   b             ∧E, 2\n 5 |   b ∨ c         ∨I, 4\n 6 |   a ∧ (b ∨ c)   ∧I, 3, 5\n 7 |   a ∧ c         hipótese\n 8 |   a             ∧E, 7\n 9 |   c             ∧E, 7\n10 |   b ∨ c         ∨I, 9\n11 |   a ∧ (b ∨ c)   ∧I, 8, 10\n12 | a ∧ (b ∨ c)     ∨E, 1, 2–6, 7–11"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 | (a ∨ b) ∨ c       premissa\n     2 |   a ∨ b           hipótese\n     3 |     a             hipótese\n     4 |     a ∨ (b ∨ c)   ∨I, 3\n     5 |     b             hipótese\n     6 |     b ∨ c         ∨I, 5\n     7 |     a ∨ (b ∨ c)   ∨I, 6\n     8 |   a ∨ (b ∨ c)     ∨E, 2, 3–4, 5–7\n     9 |   c               hipótese\n    10 |   b ∨ c           ∨I, 9\n    11 |   a ∨ (b ∨ c)     ∨I, 10\n    12 | a ∨ (b ∨ c)       ∨E, 1, 2–8, 9–11",
+  "printed": " 1 | a ∨ b ∨ c         premissa\n 2 |   a ∨ b           hipótese\n 3 |     a             hipótese\n 4 |     a ∨ (b ∨ c)   ∨I, 3\n 5 |     b             hipótese\n 6 |     b ∨ c         ∨I, 5\n 7 |     a ∨ (b ∨ c)   ∨I, 6\n 8 |   a ∨ (b ∨ c)     ∨E, 2, 3–4, 5–7\n 9 |   c               hipótese\n10 |   b ∨ c           ∨I, 9\n11 |   a ∨ (b ∨ c)     ∨I, 10\n12 | a ∨ (b ∨ c)       ∨E, 1, 2–8, 9–11"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 | a → c    premissa\n     2 | b → d    premissa\n     3 | a ∨ b    premissa\n     4 |   a      hipótese\n     5 |   c      →E, 4, 1\n     6 |   c ∨ d  ∨I, 5\n     7 |   b      hipótese\n     8 |   d      →E, 7, 2\n     9 |   c ∨ d  ∨I, 8\n    10 | c ∨ d    ∨E, 3, 4–6, 7–9",
+  "printed": " 1 | a → c     premissa\n 2 | b → d     premissa\n 3 | a ∨ b     premissa\n 4 |   a       hipótese\n 5 |   c       →E, 4, 1\n 6 |   c ∨ d   ∨I, 5\n 7 |   b       hipótese\n 8 |   d       →E, 7, 2\n 9 |   c ∨ d   ∨I, 8\n10 | c ∨ d     ∨E, 3, 4–6, 7–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 | a ∧ (b ∨ c)         premissa\n     2 | a                   ∧E, 1\n     3 | b ∨ c               ∧E, 1\n     4 |   b                 hipótese\n     5 |   a ∧ b             ∧I, 2, 4\n     6 |   (a ∧ b) ∨ (a ∧ c) ∨I, 5\n     7 |   c                 hipótese\n     8 |   a ∧ c             ∧I, 2, 7\n     9 |   (a ∧ b) ∨ (a ∧ c) ∨I, 8\n    10 | (a ∧ b) ∨ (a ∧ c)   ∨E, 3, 4–6, 7–9",
+  "printed": " 1 | a ∧ (b ∨ c)       premissa\n 2 | a                 ∧E, 1\n 3 | b ∨ c             ∧E, 1\n 4 |   b               hipótese\n 5 |   a ∧ b           ∧I, 2, 4\n 6 |   a ∧ b ∨ a ∧ c   ∨I, 5\n 7 |   c               hipótese\n 8 |   a ∧ c           ∧I, 2, 7\n 9 |   a ∧ b ∨ a ∧ c   ∨I, 8\n10 | a ∧ b ∨ a ∧ c     ∨E, 3, 4–6, 7–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 | a ∨ (b ∧ c)         premissa\n     2 |   a                 hipótese\n     3 |   a ∨ b             ∨I, 2\n     4 |   a ∨ c             ∨I, 2\n     5 |   (a ∨ b) ∧ (a ∨ c) ∧I, 3, 4\n     6 |   b ∧ c             hipótese\n     7 |   b                 ∧E, 6\n     8 |   c                 ∧E, 6\n     9 |   a ∨ b             ∨I, 7\n    10 |   a ∨ c             ∨I, 8\n    11 |   (a ∨ b) ∧ (a ∨ c) ∧I, 9, 10\n    12 | (a ∨ b) ∧ (a ∨ c)   ∨E, 1, 2–5, 6–11",
+  "printed": " 1 | a ∨ b ∧ c             premissa\n 2 |   a                   hipótese\n 3 |   a ∨ b               ∨I, 2\n 4 |   a ∨ c               ∨I, 2\n 5 |   (a ∨ b) ∧ (a ∨ c)   ∧I, 3, 4\n 6 |   b ∧ c               hipótese\n 7 |   b                   ∧E, 6\n 8 |   c                   ∧E, 6\n 9 |   a ∨ b               ∨I, 7\n10 |   a ∨ c               ∨I, 8\n11 |   (a ∨ b) ∧ (a ∨ c)   ∧I, 9, 10\n12 | (a ∨ b) ∧ (a ∨ c)     ∨E, 1, 2–5, 6–11"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 | a ∨ b → c           premissa\n     2 |   a                 hipótese\n     3 |   a ∨ b             ∨I, 2\n     4 |   c                 →E, 3, 1\n     5 | a → c               →I, 2–4\n     6 |   b                 hipótese\n     7 |   a ∨ b             ∨I, 6\n     8 |   c                 →E, 7, 1\n     9 | b → c               →I, 6–8\n    10 | (a → c) ∧ (b → c)   ∧I, 5, 9",
+  "printed": " 1 | a ∨ b → c           premissa\n 2 |   a                 hipótese\n 3 |   a ∨ b             ∨I, 2\n 4 |   c                 →E, 3, 1\n 5 | a → c               →I, 2–4\n 6 |   b                 hipótese\n 7 |   a ∨ b             ∨I, 6\n 8 |   c                 →E, 7, 1\n 9 | b → c               →I, 6–8\n10 | (a → c) ∧ (b → c)   ∧I, 5, 9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n     1 | ¬(a → b)  premissa\n     2 |   ¬a      hipótese\n     3 |     a     hipótese\n     4 |     F     FI, 3, 2\n     5 |     b     FE, 4\n     6 |   a → b   →I, 3–5\n     7 |   F       FI, 6, 1\n     8 | a         RA, 2–7\n     9 |   b       hipótese\n    10 |     a     hipótese\n    11 |     b     R, 9\n    12 |   a → b   →I, 10–11\n    13 |   F       FI, 12, 1\n    14 | ¬b        ¬I, 9–13\n    15 | a ∧ ¬b    ∧I, 8, 14",
+  "printed": " 1 | ¬(a → b)   premissa\n 2 |   ¬a       hipótese\n 3 |     a      hipótese\n 4 |     F      FI, 3, 2\n 5 |     b      FE, 4\n 6 |   a → b    →I, 3–5\n 7 |   F        FI, 6, 1\n 8 | a          RA, 2–7\n 9 |   b        hipótese\n10 |     a      hipótese\n11 |     b      R, 9\n12 |   a → b    →I, 10–11\n13 |   F        FI, 12, 1\n14 | ¬b         ¬I, 9–13\n15 | a ∧ ¬b     ∧I, 8, 14"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 |   a           hipótese\n    2 |     b         hipótese\n    3 |     a         R, 1\n    4 |   b → a       →I, 2–3\n    5 | a → (b → a)   →I, 1–4",
+  "printed": "1 |   a         hipótese\n2 |     b       hipótese\n3 |     a       R, 1\n4 |   b → a     →I, 2–3\n5 | a → b → a   →I, 1–4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 |   a     hipótese\n    2 | a → a   →I, 1–1",
+  "printed": "1 |   a     hipótese\n2 | a → a   →I, 1–1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 |   a ∧ ¬a     hipótese\n    2 |   a          ∧E, 1\n    3 |   ¬a         ∧E, 1\n    4 |   F          FI, 2, 3\n    5 | ¬(a ∧ ¬a)    ¬I, 1–4",
+  "printed": "1 |   a ∧ ¬a    hipótese\n2 |   a         ∧E, 1\n3 |   ¬a        ∧E, 1\n4 |   F         FI, 2, 3\n5 | ¬(a ∧ ¬a)   ¬I, 1–4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 |   k       hipótese\n    2 |     j     hipótese\n    3 |     k     R, 1\n    4 |   j → k   →I, 2–3\n    5 | k → (j → k)   →I, 1–4",
+  "printed": "1 |   k         hipótese\n2 |     j       hipótese\n3 |     k       R, 1\n4 |   j → k     →I, 2–3\n5 | k → j → k   →I, 1–4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 |   ¬(c ∨ ¬c)   hipótese\n    2 |     c         hipótese\n    3 |     c ∨ ¬c    ∨I, 2\n    4 |     F         FI, 3, 1\n    5 |   ¬c          ¬I, 2–4\n    6 |   c ∨ ¬c      ∨I, 5\n    7 |   F           FI, 6, 1\n    8 | ¬¬(c ∨ ¬c)    ¬I, 1–7\n    9 | c ∨ ¬c        ¬E, 8",
+  "printed": "1 |   ¬(c ∨ ¬c)   hipótese\n2 |     c         hipótese\n3 |     c ∨ ¬c    ∨I, 2\n4 |     F         FI, 3, 1\n5 |   ¬c          ¬I, 2–4\n6 |   c ∨ ¬c      ∨I, 5\n7 |   F           FI, 6, 1\n8 | ¬¬(c ∨ ¬c)    ¬I, 1–7\n9 | c ∨ ¬c        ¬E, 8"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | (a ∧ b) ∧ c   premissa\n    2 | a ∧ b         ∧E, 1\n    3 | c             ∧E, 1\n    4 | a             ∧E, 2\n    5 | b             ∧E, 2\n    6 | b ∧ c         ∧I, 5, 3\n    7 | a ∧ (b ∧ c)   ∧I, 4, 6",
+  "printed": "1 | a ∧ b ∧ c     premissa\n2 | a ∧ b         ∧E, 1\n3 | c             ∧E, 1\n4 | a             ∧E, 2\n5 | b             ∧E, 2\n6 | b ∧ c         ∧I, 5, 3\n7 | a ∧ (b ∧ c)   ∧I, 4, 6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | F        premissa\n    2 | a ∧ ¬a   FE, 1",
+  "printed": "1 | F        premissa\n2 | a ∧ ¬a   FE, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a      premissa\n    2 | ¬¬a    ¬¬I, 1\n    3 | ¬¬¬¬a  ¬¬I, 2",
+  "printed": "1 | a       premissa\n2 | ¬¬a     ¬¬I, 1\n3 | ¬¬¬¬a   ¬¬I, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a    premissa\n    2 | ¬a   premissa\n    3 | F    FI, 1, 2\n    4 | b    FE, 3",
+  "printed": "1 | a    premissa\n2 | ¬a   premissa\n3 | F    FI, 1, 2\n4 | b    FE, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a → (b → c)   premissa\n    2 |   a ∧ b       hipótese\n    3 |   a           ∧E, 2\n    4 |   b           ∧E, 2\n    5 |   b → c       →E, 3, 1\n    6 |   c           →E, 4, 5\n    7 | a ∧ b → c     →I, 2–6",
+  "printed": "1 | a → b → c   premissa\n2 |   a ∧ b     hipótese\n3 |   a         ∧E, 2\n4 |   b         ∧E, 2\n5 |   b → c     →E, 3, 1\n6 |   c         →E, 4, 5\n7 | a ∧ b → c   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a → F   premissa\n    2 |   a     hipótese\n    3 |   F     →E, 2, 1\n    4 | ¬a      ¬I, 2–3",
+  "printed": "1 | a → F   premissa\n2 |   a     hipótese\n3 |   F     →E, 2, 1\n4 | ¬a      ¬I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a → b       premissa\n    2 |   ¬b        hipótese\n    3 |     a       hipótese\n    4 |     b       →E, 3, 1\n    5 |     F       FI, 4, 2\n    6 |   ¬a        ¬I, 3–5\n    7 | ¬b → ¬a     →I, 2–6",
+  "printed": "1 | a → b     premissa\n2 |   ¬b      hipótese\n3 |     a     hipótese\n4 |     b     →E, 3, 1\n5 |     F     FI, 4, 2\n6 |   ¬a      ¬I, 3–5\n7 | ¬b → ¬a   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a → b     premissa\n    2 | a ∨ ¬a    TE\n    3 |   a       hipótese\n    4 |   b       →E, 3, 1\n    5 |   ¬a ∨ b  ∨I, 4\n    6 |   ¬a      hipótese\n    7 |   ¬a ∨ b  ∨I, 6\n    8 | ¬a ∨ b    ∨E, 2, 3–5, 6–7",
+  "printed": "1 | a → b      premissa\n2 | a ∨ ¬a     TE\n3 |   a        hipótese\n4 |   b        →E, 3, 1\n5 |   ¬a ∨ b   ∨I, 4\n6 |   ¬a       hipótese\n7 |   ¬a ∨ b   ∨I, 6\n8 | ¬a ∨ b     ∨E, 2, 3–5, 6–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a → b    premissa\n    2 | a → ¬b   premissa\n    3 |   a      hipótese\n    4 |   b      →E, 3, 1\n    5 |   ¬b     →E, 3, 2\n    6 |   F      FI, 4, 5\n    7 | ¬a       ¬I, 3–6",
+  "printed": "1 | a → b    premissa\n2 | a → ¬b   premissa\n3 |   a      hipótese\n4 |   b      →E, 3, 1\n5 |   ¬b     →E, 3, 2\n6 |   F      FI, 4, 5\n7 | ¬a       ¬I, 3–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a → b   premissa\n    2 | b → c   premissa\n    3 |   a     hipótese\n    4 |   b     →E, 3, 1\n    5 |   c     →E, 4, 2\n    6 | a → c   →I, 3–5",
+  "printed": "1 | a → b   premissa\n2 | b → c   premissa\n3 |   a     hipótese\n4 |   b     →E, 3, 1\n5 |   c     →E, 4, 2\n6 | a → c   →I, 3–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a → b   premissa\n    2 | b → c   premissa\n    3 | c → d   premissa\n    4 | a → c   SH, 1, 2\n    5 | a → d   SH, 4, 3",
+  "printed": "1 | a → b   premissa\n2 | b → c   premissa\n3 | c → d   premissa\n4 | a → c   SH, 1, 2\n5 | a → d   SH, 4, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a → b   premissa\n    2 | ¬b      premissa\n    3 |   a     hipótese\n    4 |   b     →E, 3, 1\n    5 | ¬a      Refuta, 3–4, 2",
+  "printed": "1 | a → b   premissa\n2 | ¬b      premissa\n3 |   a     hipótese\n4 |   b     →E, 3, 1\n5 | ¬a      Refuta, 3–4, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a ∧ b   premissa\n    2 | a       ∧E, 1\n    3 | b       ∧E, 1\n    4 | b ∧ a   ∧I, 3, 2",
+  "printed": "1 | a ∧ b   premissa\n2 | a       ∧E, 1\n3 | b       ∧E, 1\n4 | b ∧ a   ∧I, 3, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a ∧ b → c       premissa\n    2 |   a             hipótese\n    3 |     b           hipótese\n    4 |     a ∧ b       ∧I, 2, 3\n    5 |     c           →E, 4, 1\n    6 |   b → c         →I, 3–5\n    7 | a → (b → c)     →I, 2–6",
+  "printed": "1 | a ∧ b → c   premissa\n2 |   a         hipótese\n3 |     b       hipótese\n4 |     a ∧ b   ∧I, 2, 3\n5 |     c       →E, 4, 1\n6 |   b → c     →I, 3–5\n7 | a → b → c   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a ∨ b     premissa\n    2 |   a       hipótese\n    3 |   b ∨ a   ∨I, 2\n    4 |   b       hipótese\n    5 |   b ∨ a   ∨I, 4\n    6 | b ∨ a     ∨E, 1, 2–3, 4–5",
+  "printed": "1 | a ∨ b     premissa\n2 |   a       hipótese\n3 |   b ∨ a   ∨I, 2\n4 |   b       hipótese\n5 |   b ∨ a   ∨I, 4\n6 | b ∨ a     ∨E, 1, 2–3, 4–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a ∨ b   premissa\n    2 | ¬a      premissa\n    3 | b → c   premissa\n    4 | b       SD, 2, 1\n    5 | c       →E, 4, 3",
+  "printed": "1 | a ∨ b   premissa\n2 | ¬a      premissa\n3 | b → c   premissa\n4 | b       SD, 2, 1\n5 | c       →E, 4, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | a ∨ b   premissa\n    2 | ¬b      premissa\n    3 | b ∨ a   Troca, 1\n    4 | a       SD, 3, 2",
+  "printed": "1 | a ∨ b   premissa\n2 | ¬b      premissa\n3 | b ∨ a   Troca, 1\n4 | a       SD, 3, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | b₁   premissa",
+  "printed": "1 | b₁   premissa"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | c → a   premissa\n    2 | a → b   premissa\n    3 | ¬b      premissa\n    4 | ¬a      MT, 2, 3\n    5 | ¬c      MT, 1, 4",
+  "printed": "1 | c → a   premissa\n2 | a → b   premissa\n3 | ¬b      premissa\n4 | ¬a      MT, 2, 3\n5 | ¬c      MT, 1, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | d    premissa\n    2 | ¬d   premissa\n    3 | F    FI, 1, 2\n    4 | e    FE, 3",
+  "printed": "1 | d    premissa\n2 | ¬d   premissa\n3 | F    FI, 1, 2\n4 | e    FE, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | g ∧ (h ∨ i)   premissa\n    2 | g             ∧E, 1\n    3 | h ∨ i         ∧E, 1\n    4 |   h           hipótese\n    5 |   g ∧ h       ∧I, 2, 4\n    6 |   (g ∧ h) ∨ (g ∧ i)   ∨I, 5\n    7 |   i           hipótese\n    8 |   g ∧ i       ∧I, 2, 7\n    9 |   (g ∧ h) ∨ (g ∧ i)   ∨I, 8\n   10 | (g ∧ h) ∨ (g ∧ i)     ∨E, 3, 4–6, 7–9",
+  "printed": " 1 | g ∧ (h ∨ i)       premissa\n 2 | g                 ∧E, 1\n 3 | h ∨ i             ∧E, 1\n 4 |   h               hipótese\n 5 |   g ∧ h           ∧I, 2, 4\n 6 |   g ∧ h ∨ g ∧ i   ∨I, 5\n 7 |   i               hipótese\n 8 |   g ∧ i           ∧I, 2, 7\n 9 |   g ∧ h ∨ g ∧ i   ∨I, 8\n10 | g ∧ h ∨ g ∧ i     ∨E, 3, 4–6, 7–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | m ∧ n   premissa\n    2 | n       ∧E, 1\n    3 | m       ∧E, 1\n    4 | n ∧ m   ∧I, 2, 3",
+  "printed": "1 | m ∧ n   premissa\n2 | n       ∧E, 1\n3 | m       ∧E, 1\n4 | n ∧ m   ∧I, 2, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | p ∨ q  premissa\n    2 |   p    hipótese\n    3 |   q ∨ p  ∨I, 2",
+  "printed": "1 | p ∨ q     premissa\n2 |   p       hipótese\n3 |   q ∨ p   ∨I, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | s ∨ t   premissa\n    2 |   s     hipótese\n    3 |   t ∨ s ∨I, 2\n    4 |   t     hipótese\n    5 |   t ∨ s ∨I, 4\n    6 | t ∨ s   ∨E, 1, 2–3, 4–5",
+  "printed": "1 | s ∨ t     premissa\n2 |   s       hipótese\n3 |   t ∨ s   ∨I, 2\n4 |   t       hipótese\n5 |   t ∨ s   ∨I, 4\n6 | t ∨ s     ∨E, 1, 2–3, 4–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | u     premissa\n    2 |   ¬u  hipótese\n    3 |   F   FI, 1, 2\n    4 | ¬¬u   ¬I, 2–3",
+  "printed": "1 | u      premissa\n2 |   ¬u   hipótese\n3 |   F    FI, 1, 2\n4 | ¬¬u    ¬I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | w ∨ z   premissa\n    2 | ¬w      premissa\n    3 |   w     hipótese\n    4 |   F     FI, 3, 2\n    5 |   z     FE, 4\n    6 |   z     hipótese\n    7 |   z     R, 6\n    8 | z       ∨E, 1, 3–5, 6–7",
+  "printed": "1 | w ∨ z   premissa\n2 | ¬w      premissa\n3 |   w     hipótese\n4 |   F     FI, 3, 2\n5 |   z     FE, 4\n6 |   z     hipótese\n7 |   z     R, 6\n8 | z       ∨E, 1, 3–5, 6–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | x → y     premissa\n    2 |   ¬y      hipótese\n    3 |     x     hipótese\n    4 |     y     →E, 3, 1\n    5 |     F     FI, 4, 2\n    6 |   ¬x      ¬I, 3–5\n    7 | ¬y → ¬x   →I, 2–6",
+  "printed": "1 | x → y     premissa\n2 |   ¬y      hipótese\n3 |     x     hipótese\n4 |     y     →E, 3, 1\n5 |     F     FI, 4, 2\n6 |   ¬x      ¬I, 3–5\n7 | ¬y → ¬x   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | ¬(a ∧ b)  premissa\n    2 | a         premissa\n    3 | ¬a ∨ ¬b   DM, 1\n    4 | ¬¬a       ¬¬I, 2\n    5 | ¬b        SD, 3, 4",
+  "printed": "1 | ¬(a ∧ b)   premissa\n2 | a          premissa\n3 | ¬a ∨ ¬b    DM, 1\n4 | ¬¬a        ¬¬I, 2\n5 | ¬b         SD, 3, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | ¬(a ∨ b)  premissa\n    2 | ¬a ∧ ¬b   DM, 1\n    3 | ¬b        ∧E, 2",
+  "printed": "1 | ¬(a ∨ b)   premissa\n2 | ¬a ∧ ¬b    DM, 1\n3 | ¬b         ∧E, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | ¬(l ∨ o)   premissa\n    2 |   l        hipótese\n    3 |   l ∨ o    ∨I, 2\n    4 |   F        FI, 3, 1\n    5 | ¬l         ¬I, 2–4\n    6 |   o        hipótese\n    7 |   l ∨ o    ∨I, 6\n    8 |   F        FI, 7, 1\n    9 | ¬o         ¬I, 6–8\n   10 | ¬l ∧ ¬o    ∧I, 5, 9",
+  "printed": " 1 | ¬(l ∨ o)   premissa\n 2 |   l        hipótese\n 3 |   l ∨ o    ∨I, 2\n 4 |   F        FI, 3, 1\n 5 | ¬l         ¬I, 2–4\n 6 |   o        hipótese\n 7 |   l ∨ o    ∨I, 6\n 8 |   F        FI, 7, 1\n 9 | ¬o         ¬I, 6–8\n10 | ¬l ∧ ¬o    ∧I, 5, 9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | ¬a                   premissa\n    2 | ¬b                   premissa\n    3 | ¬a ∧ ¬b              ∧I, 1, 2\n    4 | ¬(a ∨ b)             DM, 3\n    5 | ¬a ∨ ¬b              ∨I, 1\n    6 | ¬(a ∧ b)             DM, 5\n    7 | ¬(a ∨ b) ∧ ¬(a ∧ b)  ∧I, 4, 6",
+  "printed": "1 | ¬a                    premissa\n2 | ¬b                    premissa\n3 | ¬a ∧ ¬b               ∧I, 1, 2\n4 | ¬(a ∨ b)              DM, 3\n5 | ¬a ∨ ¬b               ∨I, 1\n6 | ¬(a ∧ b)              DM, 5\n7 | ¬(a ∨ b) ∧ ¬(a ∧ b)   ∧I, 4, 6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | ¬a      premissa\n    2 |   a     hipótese\n    3 |   F     FI, 2, 1\n    4 | a → F   →I, 2–3",
+  "printed": "1 | ¬a      premissa\n2 |   a     hipótese\n3 |   F     FI, 2, 1\n4 | a → F   →I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | ¬a → a  premissa\n    2 |   ¬a    hipótese\n    3 |   a     →E, 2, 1\n    4 |   F     FI, 3, 2\n    5 | a       RA, 2–4",
+  "printed": "1 | ¬a → a   premissa\n2 |   ¬a     hipótese\n3 |   a      →E, 2, 1\n4 |   F      FI, 3, 2\n5 | a        RA, 2–4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n    1 | ¬a ∨ b   premissa\n    2 |   a      hipótese\n    3 |   ¬¬a    ¬¬I, 2\n    4 |   b      SD, 1, 3\n    5 | a → b    →I, 2–4",
+  "printed": "1 | ¬a ∨ b   premissa\n2 |   a      hipótese\n3 |   ¬¬a    ¬¬I, 2\n4 |   b      SD, 1, 3\n5 | a → b    →I, 2–4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 |   ¬((a → b) ∨ (b → a))   hipótese\n 2 |     a                    hipótese\n 3 |       b                  hipótese\n 4 |       a                  R, 2\n 5 |     b → a                →I, 3–4\n 6 |     (a → b) ∨ (b → a)    ∨I, 5\n 7 |     F                    FI, 6, 1\n 8 |     b                    FE, 7\n 9 |   a → b                  →I, 2–8\n10 |   (a → b) ∨ (b → a)      ∨I, 9\n11 |   F                      FI, 10, 1\n12 | ¬¬((a → b) ∨ (b → a))    ¬I, 1–11\n13 | (a → b) ∨ (b → a)        ¬E, 12",
+  "printed": " 1 |   ¬((a → b) ∨ (b → a))   hipótese\n 2 |     a                    hipótese\n 3 |       b                  hipótese\n 4 |       a                  R, 2\n 5 |     b → a                →I, 3–4\n 6 |     (a → b) ∨ (b → a)    ∨I, 5\n 7 |     F                    FI, 6, 1\n 8 |     b                    FE, 7\n 9 |   a → b                  →I, 2–8\n10 |   (a → b) ∨ (b → a)      ∨I, 9\n11 |   F                      FI, 10, 1\n12 | ¬¬((a → b) ∨ (b → a))    ¬I, 1–11\n13 | (a → b) ∨ (b → a)        ¬E, 12"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | (a → b) → c          premissa\n 2 |   ¬a                 hipótese\n 3 |     a                hipótese\n 4 |     F                FI, 3, 2\n 5 |     b                FE, 4\n 6 |   a → b              →I, 3–5\n 7 |   c                  →E, 6, 1\n 8 | ¬a → c               →I, 2–7\n 9 |   b                  hipótese\n10 |     a                hipótese\n11 |     b                R, 9\n12 |   a → b              →I, 10–11\n13 |   c                  →E, 12, 1\n14 | b → c                →I, 9–13\n15 | (¬a → c) ∧ (b → c)   ∧I, 8, 14",
+  "printed": " 1 | (a → b) → c          premissa\n 2 |   ¬a                 hipótese\n 3 |     a                hipótese\n 4 |     F                FI, 3, 2\n 5 |     b                FE, 4\n 6 |   a → b              →I, 3–5\n 7 |   c                  →E, 6, 1\n 8 | ¬a → c               →I, 2–7\n 9 |   b                  hipótese\n10 |     a                hipótese\n11 |     b                R, 9\n12 |   a → b              →I, 10–11\n13 |   c                  →E, 12, 1\n14 | b → c                →I, 9–13\n15 | (¬a → c) ∧ (b → c)   ∧I, 8, 14"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | (a → b) ∧ (c → d)   premissa\n 2 |   a ∧ c             hipótese\n 3 |   a                 ∧E, 2\n 4 |   a → b             ∧E, 1\n 5 |   b                 →E, 3, 4\n 6 |   c                 ∧E, 2\n 7 |   c → d             ∧E, 1\n 8 |   d                 →E, 6, 7\n 9 |   b ∧ d             ∧I, 5, 8\n10 | a ∧ c → b ∧ d       →I, 2–9",
+  "printed": " 1 | (a → b) ∧ (c → d)   premissa\n 2 |   a ∧ c             hipótese\n 3 |   a                 ∧E, 2\n 4 |   a → b             ∧E, 1\n 5 |   b                 →E, 3, 4\n 6 |   c                 ∧E, 2\n 7 |   c → d             ∧E, 1\n 8 |   d                 →E, 6, 7\n 9 |   b ∧ d             ∧I, 5, 8\n10 | a ∧ c → b ∧ d       →I, 2–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | a → b     premissa\n 2 | ¬a → c    premissa\n 3 | a ∨ ¬a    TE\n 4 |   a       hipótese\n 5 |   b       →E, 4, 1\n 6 |   b ∨ c   ∨I, 5\n 7 |   ¬a      hipótese\n 8 |   c       →E, 7, 2\n 9 |   b ∨ c   ∨I, 8\n10 | b ∨ c     ∨E, 3, 4–6, 7–9",
+  "printed": " 1 | a → b     premissa\n 2 | ¬a → c    premissa\n 3 | a ∨ ¬a    TE\n 4 |   a       hipótese\n 5 |   b       →E, 4, 1\n 6 |   b ∨ c   ∨I, 5\n 7 |   ¬a      hipótese\n 8 |   c       →E, 7, 2\n 9 |   b ∨ c   ∨I, 8\n10 | b ∨ c     ∨E, 3, 4–6, 7–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | a → b ∨ c                premissa\n 2 |   ¬((a → b) ∨ (a → c))   hipótese\n 3 |     ¬a                   hipótese\n 4 |       a                  hipótese\n 5 |       F                  FI, 4, 3\n 6 |       b                  FE, 5\n 7 |     a → b                →I, 4–6\n 8 |     (a → b) ∨ (a → c)    ∨I, 7\n 9 |     F                    FI, 8, 2\n10 |   ¬¬a                    ¬I, 3–9\n11 |   a                      ¬E, 10\n12 |   b ∨ c                  →E, 11, 1\n13 |     b                    hipótese\n14 |       a                  hipótese\n15 |       b                  R, 13\n16 |     a → b                →I, 14–15\n17 |     c                    hipótese\n18 |       a                  hipótese\n19 |       c                  R, 17\n20 |     a → c                →I, 18–19\n21 |     (a → b) ∨ (a → c)    ∨I, 20\n22 |     F                    FI, 21, 2\n23 |     a → b                FE, 22\n24 |   a → b                  ∨E, 12, 13–16, 17–23\n25 |   (a → b) ∨ (a → c)      ∨I, 24\n26 |   F                      FI, 25, 2\n27 | ¬¬((a → b) ∨ (a → c))    ¬I, 2–26\n28 | (a → b) ∨ (a → c)        ¬E, 27",
+  "printed": " 1 | a → b ∨ c                premissa\n 2 |   ¬((a → b) ∨ (a → c))   hipótese\n 3 |     ¬a                   hipótese\n 4 |       a                  hipótese\n 5 |       F                  FI, 4, 3\n 6 |       b                  FE, 5\n 7 |     a → b                →I, 4–6\n 8 |     (a → b) ∨ (a → c)    ∨I, 7\n 9 |     F                    FI, 8, 2\n10 |   ¬¬a                    ¬I, 3–9\n11 |   a                      ¬E, 10\n12 |   b ∨ c                  →E, 11, 1\n13 |     b                    hipótese\n14 |       a                  hipótese\n15 |       b                  R, 13\n16 |     a → b                →I, 14–15\n17 |     c                    hipótese\n18 |       a                  hipótese\n19 |       c                  R, 17\n20 |     a → c                →I, 18–19\n21 |     (a → b) ∨ (a → c)    ∨I, 20\n22 |     F                    FI, 21, 2\n23 |     a → b                FE, 22\n24 |   a → b                  ∨E, 12, 13–16, 17–23\n25 |   (a → b) ∨ (a → c)      ∨I, 24\n26 |   F                      FI, 25, 2\n27 | ¬¬((a → b) ∨ (a → c))    ¬I, 2–26\n28 | (a → b) ∨ (a → c)        ¬E, 27"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | a ∧ b → c                 premissa\n 2 |   ¬((a → c) ∨ (b → c))    hipótese\n 3 |     b                     hipótese\n 4 |       ¬a                  hipótese\n 5 |         a                 hipótese\n 6 |         F                 FI, 5, 4\n 7 |         c                 FE, 6\n 8 |       a → c               →I, 5–7\n 9 |       (a → c) ∨ (b → c)   ∨I, 8\n10 |       F                   FI, 9, 2\n11 |     ¬¬a                   ¬I, 4–10\n12 |     a                     ¬E, 11\n13 |     a ∧ b                 ∧I, 12, 3\n14 |     c                     →E, 13, 1\n15 |   b → c                   →I, 3–14\n16 |   (a → c) ∨ (b → c)       ∨I, 15\n17 |   F                       FI, 16, 2\n18 | ¬¬((a → c) ∨ (b → c))     ¬I, 2–17\n19 | (a → c) ∨ (b → c)         ¬E, 18",
+  "printed": " 1 | a ∧ b → c                 premissa\n 2 |   ¬((a → c) ∨ (b → c))    hipótese\n 3 |     b                     hipótese\n 4 |       ¬a                  hipótese\n 5 |         a                 hipótese\n 6 |         F                 FI, 5, 4\n 7 |         c                 FE, 6\n 8 |       a → c               →I, 5–7\n 9 |       (a → c) ∨ (b → c)   ∨I, 8\n10 |       F                   FI, 9, 2\n11 |     ¬¬a                   ¬I, 4–10\n12 |     a                     ¬E, 11\n13 |     a ∧ b                 ∧I, 12, 3\n14 |     c                     →E, 13, 1\n15 |   b → c                   →I, 3–14\n16 |   (a → c) ∨ (b → c)       ∨I, 15\n17 |   F                       FI, 16, 2\n18 | ¬¬((a → c) ∨ (b → c))     ¬I, 2–17\n19 | (a → c) ∨ (b → c)         ¬E, 18"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | a ∨ b     premissa\n 2 | a → c     premissa\n 3 | b → d     premissa\n 4 |   a       hipótese\n 5 |   c       →E, 4, 2\n 6 |   c ∨ d   ∨I, 5\n 7 |   b       hipótese\n 8 |   d       →E, 7, 3\n 9 |   c ∨ d   ∨I, 8\n10 | c ∨ d     ∨E, 1, 4–6, 7–9",
+  "printed": " 1 | a ∨ b     premissa\n 2 | a → c     premissa\n 3 | b → d     premissa\n 4 |   a       hipótese\n 5 |   c       →E, 4, 2\n 6 |   c ∨ d   ∨I, 5\n 7 |   b       hipótese\n 8 |   d       →E, 7, 3\n 9 |   c ∨ d   ∨I, 8\n10 | c ∨ d     ∨E, 1, 4–6, 7–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | a ∨ b    premissa\n 2 | ¬a ∧ c   premissa\n 3 |   a      hipótese\n 4 |   ¬a     ∧E, 2\n 5 |   F      FI, 3, 4\n 6 |   b      FE, 5\n 7 |   b      hipótese\n 8 | b        ∨E, 1, 3–6, 7–7\n 9 | c        ∧E, 2\n10 | b ∧ c    ∧I, 8, 9",
+  "printed": " 1 | a ∨ b    premissa\n 2 | ¬a ∧ c   premissa\n 3 |   a      hipótese\n 4 |   ¬a     ∧E, 2\n 5 |   F      FI, 3, 4\n 6 |   b      FE, 5\n 7 |   b      hipótese\n 8 | b        ∨E, 1, 3–6, 7–7\n 9 | c        ∧E, 2\n10 | b ∧ c    ∧I, 8, 9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | ¬(a ∧ b)            premissa\n 2 | a ∨ b               premissa\n 3 |   a                 hipótese\n 4 |     b               hipótese\n 5 |     a ∧ b           ∧I, 3, 4\n 6 |     F               FI, 5, 1\n 7 |   ¬b                ¬I, 4–6\n 8 |   a ∧ ¬b            ∧I, 3, 7\n 9 |   a ∧ ¬b ∨ b ∧ ¬a   ∨I, 8\n10 |   b                 hipótese\n11 |     a               hipótese\n12 |     a ∧ b           ∧I, 11, 10\n13 |     F               FI, 12, 1\n14 |   ¬a                ¬I, 11–13\n15 |   b ∧ ¬a            ∧I, 10, 14\n16 |   a ∧ ¬b ∨ b ∧ ¬a   ∨I, 15\n17 | a ∧ ¬b ∨ b ∧ ¬a     ∨E, 2, 3–9, 10–16",
+  "printed": " 1 | ¬(a ∧ b)            premissa\n 2 | a ∨ b               premissa\n 3 |   a                 hipótese\n 4 |     b               hipótese\n 5 |     a ∧ b           ∧I, 3, 4\n 6 |     F               FI, 5, 1\n 7 |   ¬b                ¬I, 4–6\n 8 |   a ∧ ¬b            ∧I, 3, 7\n 9 |   a ∧ ¬b ∨ b ∧ ¬a   ∨I, 8\n10 |   b                 hipótese\n11 |     a               hipótese\n12 |     a ∧ b           ∧I, 11, 10\n13 |     F               FI, 12, 1\n14 |   ¬a                ¬I, 11–13\n15 |   b ∧ ¬a            ∧I, 10, 14\n16 |   a ∧ ¬b ∨ b ∧ ¬a   ∨I, 15\n17 | a ∧ ¬b ∨ b ∧ ¬a     ∨E, 2, 3–9, 10–16"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | ¬(p ∧ q)       premissa\n 2 |   ¬(¬p ∨ ¬q)   hipótese\n 3 |     ¬p         hipótese\n 4 |     ¬p ∨ ¬q    ∨I, 3\n 5 |     F          FI, 4, 2\n 6 |   ¬¬p          ¬I, 3–5\n 7 |   p            ¬E, 6\n 8 |     ¬q         hipótese\n 9 |     ¬p ∨ ¬q    ∨I, 8\n10 |     F          FI, 9, 2\n11 |   ¬¬q          ¬I, 8–10\n12 |   q            ¬E, 11\n13 |   p ∧ q        ∧I, 7, 12\n14 |   F            FI, 13, 1\n15 | ¬¬(¬p ∨ ¬q)    ¬I, 2–14\n16 | ¬p ∨ ¬q        ¬E, 15",
+  "printed": " 1 | ¬(p ∧ q)       premissa\n 2 |   ¬(¬p ∨ ¬q)   hipótese\n 3 |     ¬p         hipótese\n 4 |     ¬p ∨ ¬q    ∨I, 3\n 5 |     F          FI, 4, 2\n 6 |   ¬¬p          ¬I, 3–5\n 7 |   p            ¬E, 6\n 8 |     ¬q         hipótese\n 9 |     ¬p ∨ ¬q    ∨I, 8\n10 |     F          FI, 9, 2\n11 |   ¬¬q          ¬I, 8–10\n12 |   q            ¬E, 11\n13 |   p ∧ q        ∧I, 7, 12\n14 |   F            FI, 13, 1\n15 | ¬¬(¬p ∨ ¬q)    ¬I, 2–14\n16 | ¬p ∨ ¬q        ¬E, 15"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | ¬(p ∨ q)   premissa\n 2 |   p        hipótese\n 3 |   p ∨ q    ∨I, 2\n 4 |   F        FI, 3, 1\n 5 | ¬p         ¬I, 2–4\n 6 |   q        hipótese\n 7 |   p ∨ q    ∨I, 6\n 8 |   F        FI, 7, 1\n 9 | ¬q         ¬I, 6–8\n10 | ¬p ∧ ¬q    ∧I, 5, 9",
+  "printed": " 1 | ¬(p ∨ q)   premissa\n 2 |   p        hipótese\n 3 |   p ∨ q    ∨I, 2\n 4 |   F        FI, 3, 1\n 5 | ¬p         ¬I, 2–4\n 6 |   q        hipótese\n 7 |   p ∨ q    ∨I, 6\n 8 |   F        FI, 7, 1\n 9 | ¬q         ¬I, 6–8\n10 | ¬p ∧ ¬q    ∧I, 5, 9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | ¬p ∧ ¬q    premissa\n 2 | ¬p         ∧E, 1\n 3 | ¬q         ∧E, 1\n 4 |   p ∨ q    hipótese\n 5 |     p      hipótese\n 6 |     F      FI, 5, 2\n 7 |     q      hipótese\n 8 |     F      FI, 7, 3\n 9 |   F        ∨E, 4, 5–6, 7–8\n10 | ¬(p ∨ q)   ¬I, 4–9",
+  "printed": " 1 | ¬p ∧ ¬q    premissa\n 2 | ¬p         ∧E, 1\n 3 | ¬q         ∧E, 1\n 4 |   p ∨ q    hipótese\n 5 |     p      hipótese\n 6 |     F      FI, 5, 2\n 7 |     q      hipótese\n 8 |     F      FI, 7, 3\n 9 |   F        ∨E, 4, 5–6, 7–8\n10 | ¬(p ∨ q)   ¬I, 4–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n 1 | ¬p ∨ ¬q    premissa\n 2 |   p ∧ q    hipótese\n 3 |   p        ∧E, 2\n 4 |   q        ∧E, 2\n 5 |     ¬p     hipótese\n 6 |     F      FI, 3, 5\n 7 |     ¬q     hipótese\n 8 |     F      FI, 4, 7\n 9 |   F        ∨E, 1, 5–6, 7–8\n10 | ¬(p ∧ q)   ¬I, 2–9",
+  "printed": " 1 | ¬p ∨ ¬q    premissa\n 2 |   p ∧ q    hipótese\n 3 |   p        ∧E, 2\n 4 |   q        ∧E, 2\n 5 |     ¬p     hipótese\n 6 |     F      FI, 3, 5\n 7 |     ¬q     hipótese\n 8 |     F      FI, 4, 7\n 9 |   F        ∨E, 1, 5–6, 7–8\n10 | ¬(p ∧ q)   ¬I, 2–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1  | p                               premissa\n2  |   q                             hipótese\n3  |     r                           hipótese\n4  |       s                         hipótese\n5  |         t                       hipótese\n6  |         p ∧ t                   ∧I, 1, 5\n7  |       t → p ∧ t                 →I, 5–6\n8  |     s → (t → p ∧ t)             →I, 4–7\n9  |   r → (s → (t → p ∧ t))         →I, 3–8\n10 | q → (r → (s → (t → p ∧ t)))     →I, 2–9\n",
+  "printed": " 1 | p                       premissa\n 2 |   q                     hipótese\n 3 |     r                   hipótese\n 4 |       s                 hipótese\n 5 |         t               hipótese\n 6 |         p ∧ t           ∧I, 1, 5\n 7 |       t → p ∧ t         →I, 5–6\n 8 |     s → t → p ∧ t       →I, 4–7\n 9 |   r → s → t → p ∧ t     →I, 3–8\n10 | q → r → s → t → p ∧ t   →I, 2–9"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 |   a     hipótese\n2 | a → a   →I, 1–1",
+  "printed": "1 |   a     hipótese\n2 | a → a   →I, 1–1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 |   ¬(p ∨ ¬p)   hipótese\n2 |     p         hipótese\n3 |     p ∨ ¬p    ∨I, 2\n4 |     F         FI, 3, 1\n5 |   ¬p          ¬I, 2–4\n6 |   p ∨ ¬p      ∨I, 5\n7 |   F           FI, 6, 1\n8 | ¬¬(p ∨ ¬p)    ¬I, 1–7\n9 | p ∨ ¬p        ¬E, 8",
+  "printed": "1 |   ¬(p ∨ ¬p)   hipótese\n2 |     p         hipótese\n3 |     p ∨ ¬p    ∨I, 2\n4 |     F         FI, 3, 1\n5 |   ¬p          ¬I, 2–4\n6 |   p ∨ ¬p      ∨I, 5\n7 |   F           FI, 6, 1\n8 | ¬¬(p ∨ ¬p)    ¬I, 1–7\n9 | p ∨ ¬p        ¬E, 8"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | (a → b) → c   premissa\n2 | b             premissa\n3 |   a           hipótese\n4 |   b           R, 2\n5 | a → b         →I, 3–4\n6 | c             →E, 5, 1",
+  "printed": "1 | (a → b) → c   premissa\n2 | b             premissa\n3 |   a           hipótese\n4 |   b           R, 2\n5 | a → b         →I, 3–4\n6 | c             →E, 5, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | (a ∧ b) → c   premissa\n2 | (b ∧ a) → c   R, 1",
+  "printed": "1 | a ∧ b → c   premissa\n2 | b ∧ a → c   R, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | (a ∧ b) → c   premissa\n2 | a             ∧E, 1",
+  "printed": "1 | a ∧ b → c   premissa\n2 | a           ∧E, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | (a ∧ b) ∧ c   premissa\n2 | a ∧ b         ∧E, 1\n3 | b             ∧E, 2",
+  "printed": "1 | a ∧ b ∧ c   premissa\n2 | a ∧ b       ∧E, 1\n3 | b           ∧E, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | (m → n) ∧ m   premissa\n2 | m             ∧E, 1\n3 | m → n         ∧E, 1\n4 | n             →E, 2, 3\n5 | n ∨ k         ∨I, 4",
+  "printed": "1 | (m → n) ∧ m   premissa\n2 | m             ∧E, 1\n3 | m → n         ∧E, 1\n4 | n             →E, 2, 3\n5 | n ∨ k         ∨I, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a                   premissa\n2 | a ∨ b               ∨I, 1\n3 | c ∨ a               ∨I, 1\n4 | (a ∨ b) ∧ (c ∨ a)   ∧I, 2, 3",
+  "printed": "1 | a                   premissa\n2 | a ∨ b               ∨I, 1\n3 | c ∨ a               ∨I, 1\n4 | (a ∨ b) ∧ (c ∨ a)   ∧I, 2, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a             premissa\n2 | b             premissa\n3 | c             premissa\n4 | a ∧ b         ∧I, 1, 2\n5 | (a ∧ b) ∧ c   ∧I, 4, 3",
+  "printed": "1 | a           premissa\n2 | b           premissa\n3 | c           premissa\n4 | a ∧ b       ∧I, 1, 2\n5 | a ∧ b ∧ c   ∧I, 4, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a          premissa\n2 | ¬(a ∨ b)   premissa\n3 | a ∨ b      ∨I, 1\n4 | F          FI, 3, 2",
+  "printed": "1 | a          premissa\n2 | ¬(a ∨ b)   premissa\n3 | a ∨ b      ∨I, 1\n4 | F          FI, 3, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a       premissa\n2 | a ∧ b   ∧I, 1",
+  "printed": "1 | a       premissa\n2 | a ∧ b   ∧I, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a       premissa\n2 | b ∨ c   ∨I, 1",
+  "printed": "1 | a       premissa\n2 | b ∨ c   ∨I, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a       premissa\n2 | ¬a      premissa\n3 | F       FI, 1, 2\n4 | b ∧ c   FE, 3",
+  "printed": "1 | a       premissa\n2 | ¬a      premissa\n3 | F       FI, 1, 2\n4 | b ∧ c   FE, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b         premissa\n2 | a → c         premissa\n3 |   a           hipótese\n4 |   b           →E, 3, 1\n5 |   c           →E, 3, 2\n6 |   b ∧ c       ∧I, 4, 5\n7 | a → (b ∧ c)   →I, 3–6",
+  "printed": "1 | a → b       premissa\n2 | a → c       premissa\n3 |   a         hipótese\n4 |   b         →E, 3, 1\n5 |   c         →E, 3, 2\n6 |   b ∧ c     ∧I, 4, 5\n7 | a → b ∧ c   →I, 3–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b     premissa\n2 |   ¬b      hipótese\n3 |   ¬a      MT, 1, 2\n4 | ¬b → ¬a   →I, 2–3",
+  "printed": "1 | a → b     premissa\n2 |   ¬b      hipótese\n3 |   ¬a      MT, 1, 2\n4 | ¬b → ¬a   →I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b     premissa\n2 | c → ¬b    premissa\n3 |   a       hip\n4 |   b       →E, 1, 3\n5 |     c     hip\n6 |     ¬b    →E, 2, 5\n7 |     F     FI, 4, 6\n8 |   ¬c      ¬I, 5–7\n9 | a → ¬c    →I, 3–8",
+  "printed": "1 | a → b    premissa\n2 | c → ¬b   premissa\n3 |   a      hipótese\n4 |   b      →E, 1, 3\n5 |     c    hipótese\n6 |     ¬b   →E, 2, 5\n7 |     F    FI, 4, 6\n8 |   ¬c     ¬I, 5–7\n9 | a → ¬c   →I, 3–8"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b    premissa\n2 | b → ¬a   premissa\n3 |   a      hipótese\n4 |   b      →E, 3, 1\n5 |   ¬a     →E, 4, 2\n6 |   F      FI, 3, 5\n7 | ¬a       ¬I, 3–6",
+  "printed": "1 | a → b    premissa\n2 | b → ¬a   premissa\n3 |   a      hipótese\n4 |   b      →E, 3, 1\n5 |   ¬a     →E, 4, 2\n6 |   F      FI, 3, 5\n7 | ¬a       ¬I, 3–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b   premissa\n2 |   a     hipótese\n3 |   b     →E, 2, 1\n4 | a → b   →I, 2–3\n5 | b       R, 3",
+  "printed": "1 | a → b   premissa\n2 |   a     hipótese\n3 |   b     →E, 2, 1\n4 | a → b   →I, 2–3\n5 | b       R, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b   premissa\n2 | b       premissa\n3 | a       →E, 1, 2",
+  "printed": "1 | a → b   premissa\n2 | b       premissa\n3 | a       →E, 1, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b   premissa\n2 | b → c   premissa\n3 | a       premissa\n4 | b       →E, 3, 1\n5 | c       →E, 4, 2",
+  "printed": "1 | a → b   premissa\n2 | b → c   premissa\n3 | a       premissa\n4 | b       →E, 3, 1\n5 | c       →E, 4, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b   premissa\n2 | b → c   premissa\n3 | c → d   premissa\n4 | a → c   SH, 1, 2\n5 | a → d   SH, 4, 3",
+  "printed": "1 | a → b   premissa\n2 | b → c   premissa\n3 | c → d   premissa\n4 | a → c   SH, 1, 2\n5 | a → d   SH, 4, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → b → c   premissa\n2 |   a ∧ b     hipótese\n3 |   b         ∧E, 2\n4 |   a         ∧E, 2\n5 |   b → c     →E, 4, 1\n6 |   c         →E, 3, 5\n7 | a ∧ b → c   →I, 2–6",
+  "printed": "1 | a → b → c   premissa\n2 |   a ∧ b     hipótese\n3 |   b         ∧E, 2\n4 |   a         ∧E, 2\n5 |   b → c     →E, 4, 1\n6 |   c         →E, 3, 5\n7 | a ∧ b → c   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a → ¬b     premissa\n2 |   a ∧ b    hipótese\n3 |   b        ∧E, 2\n4 |   a        ∧E, 2\n5 |   ¬b       →E, 4, 1\n6 |   F        FI, 3, 5\n7 | ¬(a ∧ b)   ¬I, 2–6",
+  "printed": "1 | a → ¬b     premissa\n2 |   a ∧ b    hipótese\n3 |   b        ∧E, 2\n4 |   a        ∧E, 2\n5 |   ¬b       →E, 4, 1\n6 |   F        FI, 3, 5\n7 | ¬(a ∧ b)   ¬I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∧ b         premissa\n2 |   c           hipótese\n3 |   a ∧ b       R, 1\n4 | c → (a ∧ b)   →I, 2–3",
+  "printed": "1 | a ∧ b       premissa\n2 |   c         hipótese\n3 |   a ∧ b     R, 1\n4 | c → a ∧ b   →I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∧ b   premissa\n2 | a → c   premissa\n3 | a       ∧E, 1\n4 | c       →E, 2, 3\n5 | b       ∧E, 1\n6 | c ∧ b   ∧I, 4, 5",
+  "printed": "1 | a ∧ b   premissa\n2 | a → c   premissa\n3 | a       ∧E, 1\n4 | c       →E, 2, 3\n5 | b       ∧E, 1\n6 | c ∧ b   ∧I, 4, 5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∧ b   premissa\n2 | ¬a      premissa\n3 | F       FI, 1, 2",
+  "printed": "1 | a ∧ b   premissa\n2 | ¬a      premissa\n3 | F       FI, 1, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∧ b ∧ (c ∧ d)   premissa\n2 | c ∧ d             ∧E, 1\n3 | d                 ∧E, 2\n4 | a ∧ b             ∧E, 1\n5 | a                 ∧E, 4\n6 | d ∧ a             ∧I, 3, 5",
+  "printed": "1 | a ∧ b ∧ (c ∧ d)   premissa\n2 | c ∧ d             ∧E, 1\n3 | d                 ∧E, 2\n4 | a ∧ b             ∧E, 1\n5 | a                 ∧E, 4\n6 | d ∧ a             ∧I, 3, 5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∧ b ∨ c   premissa\n2 |   a ∧ b     hipótese\n3 |   a         ∧E, 2\n4 |   c ∨ a     ∨I, 3\n5 |   c         hipótese\n6 |   c ∨ a     ∨I, 5\n7 | c ∨ a       ∨E, 1, 2–4, 5–6",
+  "printed": "1 | a ∧ b ∨ c   premissa\n2 |   a ∧ b     hipótese\n3 |   a         ∧E, 2\n4 |   c ∨ a     ∨I, 3\n5 |   c         hipótese\n6 |   c ∨ a     ∨I, 5\n7 | c ∨ a       ∨E, 1, 2–4, 5–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∨ a   premissa\n2 |   a     hipótese\n3 |   a     hipótese\n4 | a       ∨E, 1, 2–2, 3–3",
+  "printed": "1 | a ∨ a   premissa\n2 |   a     hipótese\n3 |   a     hipótese\n4 | a       ∨E, 1, 2–2, 3–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∨ b             premissa\n2 | c                 premissa\n3 |   a               hipótese\n4 |   a ∧ c           ∧I, 3, 2\n5 |   a ∧ c ∨ b ∧ c   ∨I, 4\n6 |   b               hipótese\n7 |   b ∧ c           ∧I, 6, 2\n8 |   a ∧ c ∨ b ∧ c   ∨I, 7\n9 | a ∧ c ∨ b ∧ c     ∨E, 1, 3–5, 6–8",
+  "printed": "1 | a ∨ b             premissa\n2 | c                 premissa\n3 |   a               hipótese\n4 |   a ∧ c           ∧I, 3, 2\n5 |   a ∧ c ∨ b ∧ c   ∨I, 4\n6 |   b               hipótese\n7 |   b ∧ c           ∧I, 6, 2\n8 |   a ∧ c ∨ b ∧ c   ∨I, 7\n9 | a ∧ c ∨ b ∧ c     ∨E, 1, 3–5, 6–8"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∨ b     premissa\n2 | a → c     premissa\n3 |   a       hipótese\n4 |   c       →E, 3, 2\n5 |   b ∨ c   ∨I, 4\n6 |   b       hipótese\n7 |   b ∨ c   ∨I, 6\n8 | b ∨ c     ∨E, 1, 3–5, 6–7",
+  "printed": "1 | a ∨ b     premissa\n2 | a → c     premissa\n3 |   a       hipótese\n4 |   c       →E, 3, 2\n5 |   b ∨ c   ∨I, 4\n6 |   b       hipótese\n7 |   b ∨ c   ∨I, 6\n8 | b ∨ c     ∨E, 1, 3–5, 6–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∨ b    premissa\n2 | a → c    premissa\n3 |   ¬c     hipótese\n4 |   ¬a     MT, 2, 3\n5 |   b      SD, 1, 4\n6 | ¬c → b   →I, 3–5",
+  "printed": "1 | a ∨ b    premissa\n2 | a → c    premissa\n3 |   ¬c     hipótese\n4 |   ¬a     MT, 2, 3\n5 |   b      SD, 1, 4\n6 | ¬c → b   →I, 3–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∨ b    premissa\n2 | ¬a       premissa\n3 | b → c    premissa\n4 | ¬c ∨ d   premissa\n5 | b        SD, 1, 2\n6 | c        →E, 5, 3\n7 | ¬¬c      ¬¬I, 6\n8 | d        SD, 4, 7",
+  "printed": "1 | a ∨ b    premissa\n2 | ¬a       premissa\n3 | b → c    premissa\n4 | ¬c ∨ d   premissa\n5 | b        SD, 1, 2\n6 | c        →E, 5, 3\n7 | ¬¬c      ¬¬I, 6\n8 | d        SD, 4, 7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∨ b   premissa\n2 | a → c   premissa\n3 | b → d   premissa\n4 |   a     hipótese\n5 |   c     →E, 4, 2\n6 |   b     hipótese\n7 |   d     →E, 6, 3\n8 | c       ∨E, 1, 4–5, 6–7",
+  "printed": "1 | a ∨ b   premissa\n2 | a → c   premissa\n3 | b → d   premissa\n4 |   a     hipótese\n5 |   c     →E, 4, 2\n6 |   b     hipótese\n7 |   d     →E, 6, 3\n8 | c       ∨E, 1, 4–5, 6–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∨ b   premissa\n2 | b → a   premissa\n3 |   a     hipótese\n4 |   b     hipótese\n5 |   a     →E, 4, 2\n6 | a       ∨E, 1, 3–3, 4–5",
+  "printed": "1 | a ∨ b   premissa\n2 | b → a   premissa\n3 |   a     hipótese\n4 |   b     hipótese\n5 |   a     →E, 4, 2\n6 | a       ∨E, 1, 3–3, 4–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a ∨ b → c         premissa\n2 |   b               hipótese\n3 |   a ∨ b           ∨I, 2\n4 |   c               →E, 3, 1\n5 |   c ∧ (a ∨ b)     ∧I, 4, 3\n6 | b → c ∧ (a ∨ b)   →I, 2–5",
+  "printed": "1 | a ∨ b → c         premissa\n2 |   b               hipótese\n3 |   a ∨ b           ∨I, 2\n4 |   c               →E, 3, 1\n5 |   c ∧ (a ∨ b)     ∧I, 4, 3\n6 | b → c ∧ (a ∨ b)   →I, 2–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | a1 ∨ a2                  premissa\n2 | a1 → b                   premissa\n3 | a2 → b                   premissa\n4 |   a1                     hipótese\n5 |   b                      →E, 2, 4\n6 |   a2                     hipótese\n7 |   b                      →E, 3, 6\n8 | b                        ∨E, 1, 4–5, 6–7\n",
+  "printed": "1 | a₁ ∨ a₂   premissa\n2 | a₁ → b    premissa\n3 | a₂ → b    premissa\n4 |   a₁      hipótese\n5 |   b       →E, 2, 4\n6 |   a₂      hipótese\n7 |   b       →E, 3, 6\n8 | b         ∨E, 1, 4–5, 6–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | b       premissa\n2 |   a     hipótese\n3 |   b     R, 1\n4 | b → a   →I, 2–3",
+  "printed": "1 | b       premissa\n2 |   a     hipótese\n3 |   b     R, 1\n4 | b → a   →I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | b → c             premissa\n2 |   b               hipótese\n3 |   c               →E, 2, 1\n4 |   b ∧ c           ∧I, 2, 3\n5 | b → b ∧ c         →I, 2–4\n6 | (b → b ∧ c) ∧ c   ∧I, 5, 3",
+  "printed": "1 | b → c             premissa\n2 |   b               hipótese\n3 |   c               →E, 2, 1\n4 |   b ∧ c           ∧I, 2, 3\n5 | b → b ∧ c         →I, 2–4\n6 | (b → b ∧ c) ∧ c   ∧I, 5, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | b → c           premissa\n2 |   a ∧ b         hipótese\n3 |   a             ∧E, 2\n4 |   b             ∧E, 2\n5 |   c             →E, 4, 1\n6 |   a ∧ c         ∧I, 3, 5\n7 | a ∧ b → a ∧ c   →I, 2–6",
+  "printed": "1 | b → c           premissa\n2 |   a ∧ b         hipótese\n3 |   a             ∧E, 2\n4 |   b             ∧E, 2\n5 |   c             →E, 4, 1\n6 |   a ∧ c         ∧I, 3, 5\n7 | a ∧ b → a ∧ c   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | b → c           premissa\n2 |   a ∧ b         hipótese\n3 |   b             ∧E, 2\n4 |   c             →E, 3, 1\n5 |   a             ∧E, 2\n6 |   c ∧ a         ∧I, 4, 5\n7 | a ∧ b → c ∧ a   →I, 2–6",
+  "printed": "1 | b → c           premissa\n2 |   a ∧ b         hipótese\n3 |   b             ∧E, 2\n4 |   c             →E, 3, 1\n5 |   a             ∧E, 2\n6 |   c ∧ a         ∧I, 4, 5\n7 | a ∧ b → c ∧ a   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | c                       premissa\n2 |   a                     hipótese\n3 |     b                   hipótese\n4 |     a ∧ b               ∧I, 2, 3\n5 |     (a ∧ b) ∧ c         ∧I, 4, 1\n6 |   b → (a ∧ b) ∧ c       →I, 3–5\n7 | a → (b → (a ∧ b) ∧ c)   →I, 2–6",
+  "printed": "1 | c                   premissa\n2 |   a                 hipótese\n3 |     b               hipótese\n4 |     a ∧ b           ∧I, 2, 3\n5 |     a ∧ b ∧ c       ∧I, 4, 1\n6 |   b → a ∧ b ∧ c     →I, 3–5\n7 | a → b → a ∧ b ∧ c   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | c → a   premissa\n2 | a → b   premissa\n3 | ¬b      premissa\n4 | ¬a      MT, 2, 3\n5 | ¬c      MT, 1, 4",
+  "printed": "1 | c → a   premissa\n2 | a → b   premissa\n3 | ¬b      premissa\n4 | ¬a      MT, 2, 3\n5 | ¬c      MT, 1, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | c → a ∧ b   premissa\n2 |   c         hipótese\n3 |   a ∧ b     →E, 2, 1\n4 |   a         ∧E, 3\n5 |   b         ∧E, 3\n6 |   b ∧ a     ∧I, 5, 4\n7 | c → b ∧ a   →I, 2–6",
+  "printed": "1 | c → a ∧ b   premissa\n2 |   c         hipótese\n3 |   a ∧ b     →E, 2, 1\n4 |   a         ∧E, 3\n5 |   b         ∧E, 3\n6 |   b ∧ a     ∧I, 5, 4\n7 | c → b ∧ a   →I, 2–6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | c ∧ ¬c   premissa\n2 | c        ∧E, 1\n3 | ¬c       ∧E, 1\n4 | F        FI, 2, 3\n5 | d ∨ e    FE, 4",
+  "printed": "1 | c ∧ ¬c   premissa\n2 | c        ∧E, 1\n3 | ¬c       ∧E, 1\n4 | F        FI, 2, 3\n5 | d ∨ e    FE, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | d                   premissa\n2 | c ∨ d               ∨I, 1\n3 | d ∨ e               ∨I, 1\n4 | (c ∨ d) ∧ (d ∨ e)   ∧I, 2, 3",
+  "printed": "1 | d                   premissa\n2 | c ∨ d               ∨I, 1\n3 | d ∨ e               ∨I, 1\n4 | (c ∨ d) ∧ (d ∨ e)   ∧I, 2, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | d ∧ e         premissa\n2 |   e           hipótese\n3 |     e         hipótese\n4 |     d         ∧E, 1\n5 |   e → d       →I, 3–4\n6 | e → (e → d)   →I, 2–5",
+  "printed": "1 | d ∧ e       premissa\n2 |   e         hipótese\n3 |     e       hipótese\n4 |     d       ∧E, 1\n5 |   e → d     →I, 3–4\n6 | e → e → d   →I, 2–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | d ∧ e         premissa\n2 |   e           hipótese\n3 |   d           ∧E, 1\n4 |   e → d       →I, 2–3\n5 | e → (e → d)   →I, 2–4",
+  "printed": "1 | d ∧ e       premissa\n2 |   e         hipótese\n3 |   d         ∧E, 1\n4 |   e → d     →I, 2–3\n5 | e → e → d   →I, 2–4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | e → f     premissa\n2 | ¬f        premissa\n3 |   e       hipótese\n4 |   f       →E, 3, 1\n5 |   F       FI, 4, 2\n6 | ¬e        ¬I, 3–5\n7 | ¬e ∧ ¬f   ∧I, 6, 2",
+  "printed": "1 | e → f     premissa\n2 | ¬f        premissa\n3 |   e       hipótese\n4 |   f       →E, 3, 1\n5 |   F       FI, 4, 2\n6 | ¬e        ¬I, 3–5\n7 | ¬e ∧ ¬f   ∧I, 6, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | e → f     premissa\n2 | ¬f        premissa\n3 | ¬e        MT, 1, 2\n4 | ¬e ∧ ¬f   ∧I, 3, 2",
+  "printed": "1 | e → f     premissa\n2 | ¬f        premissa\n3 | ¬e        MT, 1, 2\n4 | ¬e ∧ ¬f   ∧I, 3, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | f → g       premissa\n2 | f → h       premissa\n3 | g ∧ h → i   premissa\n4 |   f         hipótese\n5 |   g         →E, 4, 1\n6 |   h         →E, 4, 2\n7 |   g ∧ h     ∧I, 5, 6\n8 |   i         →E, 7, 3\n9 | f → i       →I, 4–8",
+  "printed": "1 | f → g       premissa\n2 | f → h       premissa\n3 | g ∧ h → i   premissa\n4 |   f         hipótese\n5 |   g         →E, 4, 1\n6 |   h         →E, 4, 2\n7 |   g ∧ h     ∧I, 5, 6\n8 |   i         →E, 7, 3\n9 | f → i       →I, 4–8"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | f → k       premissa\n2 | f           premissa\n3 |   g         hipótese\n4 |   k         →E, 2, 1\n5 |   k ∧ g     ∧I, 4, 3\n6 | g → k ∧ g   →I, 3–5",
+  "printed": "1 | f → k       premissa\n2 | f           premissa\n3 |   g         hipótese\n4 |   k         →E, 2, 1\n5 |   k ∧ g     ∧I, 4, 3\n6 | g → k ∧ g   →I, 3–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | f → k       premissa\n2 | f           premissa\n3 |   g         hipótese\n4 |   k         →E, 2, 1\n5 |   k ∧ g     ∧I, 4, 3\n6 | g → k ∧ g   →I, 4–5",
+  "printed": "1 | f → k       premissa\n2 | f           premissa\n3 |   g         hipótese\n4 |   k         →E, 2, 1\n5 |   k ∧ g     ∧I, 4, 3\n6 | g → k ∧ g   →I, 4–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | g → h   premissa\n2 | h       premissa\n3 | g       →E, 2, 1\n4 | g ∧ h   ∧I, 3, 2",
+  "printed": "1 | g → h   premissa\n2 | h       premissa\n3 | g       →E, 2, 1\n4 | g ∧ h   ∧I, 3, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | g ∨ h   premissa\n2 | ¬g      premissa\n3 | h → j   premissa\n4 | h       SD, 1, 2\n5 | j       →E, 3, 4",
+  "printed": "1 | g ∨ h   premissa\n2 | ¬g      premissa\n3 | h → j   premissa\n4 | h       SD, 1, 2\n5 | j       →E, 3, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | h → i ∧ j   premissa\n2 | h           premissa\n3 | i ∧ j       →E, 2, 1\n4 | j           ∧E, 3\n5 | j ∧ h       ∧I, 4, 2",
+  "printed": "1 | h → i ∧ j   premissa\n2 | h           premissa\n3 | i ∧ j       →E, 2, 1\n4 | j           ∧E, 3\n5 | j ∧ h       ∧I, 4, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | i ∨ j   premissa\n2 | i → k   premissa\n3 |   i     hipótese\n4 |   k     →E, 3, 2\n5 | k       ∨E, 1, 3–4\n6 | k ∨ i   ∨I, 5",
+  "printed": "1 | i ∨ j   premissa\n2 | i → k   premissa\n3 |   i     hipótese\n4 |   k     →E, 3, 2\n5 | k       ∨E, 1, 3–4\n6 | k ∨ i   ∨I, 5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | k ∧ l   premissa\n2 |   j     hipótese\n3 |   l     ∧E, 1\n4 | j → l   →I, 2–3",
+  "printed": "1 | k ∧ l   premissa\n2 |   j     hipótese\n3 |   l     ∧E, 1\n4 | j → l   →I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | m ∧ n         premissa\n2 | k             premissa\n3 | n             ∧E, 1\n4 | m             ∧E, 1\n5 | k ∧ m         ∧I, 2, 4\n6 | n ∧ (k ∧ m)   ∧I, 3, 5",
+  "printed": "1 | m ∧ n         premissa\n2 | k             premissa\n3 | n             ∧E, 1\n4 | m             ∧E, 1\n5 | k ∧ m         ∧I, 2, 4\n6 | n ∧ (k ∧ m)   ∧I, 3, 5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | p      premissa\n2 |   ¬p   hipótese\n3 |   F    FI, 1, 2\n4 | ¬¬p    ¬I, 2–3",
+  "printed": "1 | p      premissa\n2 |   ¬p   hipótese\n3 |   F    FI, 1, 2\n4 | ¬¬p    ¬I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | p → q   premissa\n2 | q → r   premissa\n3 |   p     hipótese\n4 |   q     →E, 3, 1\n5 |   r     →E, 4, 2\n6 | p → r   →I, 3–5",
+  "printed": "1 | p → q   premissa\n2 | q → r   premissa\n3 |   p     hipótese\n4 |   q     →E, 3, 1\n5 |   r     →E, 4, 2\n6 | p → r   →I, 3–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | p → q   premissa\n2 | ¬q      premissa\n3 |   p     hipótese\n4 |   q     →E, 3, 1\n5 |   F     FI, 4, 2\n6 | ¬p      ¬I, 3–5",
+  "printed": "1 | p → q   premissa\n2 | ¬q      premissa\n3 |   p     hipótese\n4 |   q     →E, 3, 1\n5 |   F     FI, 4, 2\n6 | ¬p      ¬I, 3–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | p ∨ q   premissa\n2 | ¬p      premissa\n3 |   p     hipótese\n4 |   F     FI, 3, 2\n5 |   q     FE, 4\n6 |   q     hipótese\n7 |   q     R, 6\n8 | q       ∨E, 1, 3–5, 6–7",
+  "printed": "1 | p ∨ q   premissa\n2 | ¬p      premissa\n3 |   p     hipótese\n4 |   F     FI, 3, 2\n5 |   q     FE, 4\n6 |   q     hipótese\n7 |   q     R, 6\n8 | q       ∨E, 1, 3–5, 6–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | p ∨ q   premissa\n2 | ¬q      premissa\n3 |   p     hipótese\n4 |   p     R, 3\n5 |   q     hipótese\n6 |   F     FI, 5, 2\n7 |   p     FE, 6\n8 | p       ∨E, 1, 3–4, 5–7",
+  "printed": "1 | p ∨ q   premissa\n2 | ¬q      premissa\n3 |   p     hipótese\n4 |   p     R, 3\n5 |   q     hipótese\n6 |   F     FI, 5, 2\n7 |   p     FE, 6\n8 | p       ∨E, 1, 3–4, 5–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | q ∧ r   premissa\n2 | x       premissa\n3 | r       ∧E, 1\n4 | r ∧ x   ∧I, 3, 2",
+  "printed": "1 | q ∧ r   premissa\n2 | x       premissa\n3 | r       ∧E, 1\n4 | r ∧ x   ∧I, 3, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | r → s   premissa\n2 | s → t   premissa\n3 | r       premissa\n4 | s       →E, 3, 1\n5 | t       →E, 4, 2\n6 | t ∧ r   ∧I, 5, 3",
+  "printed": "1 | r → s   premissa\n2 | s → t   premissa\n3 | r       premissa\n4 | s       →E, 3, 1\n5 | t       →E, 4, 2\n6 | t ∧ r   ∧I, 5, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | s → t                 premissa\n2 |   t → u               hipótese\n3 |     s ∧ w             hipótese\n4 |     s                 ∧E, 3\n5 |     t                 →E, 4, 1\n6 |     u                 →E, 5, 2\n7 |   s ∧ w → u           →I, 3–6\n8 | (t → u) → s ∧ w → u   →I, 2–7",
+  "printed": "1 | s → t                 premissa\n2 |   t → u               hipótese\n3 |     s ∧ w             hipótese\n4 |     s                 ∧E, 3\n5 |     t                 →E, 4, 1\n6 |     u                 →E, 5, 2\n7 |   s ∧ w → u           →I, 3–6\n8 | (t → u) → s ∧ w → u   →I, 2–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | t ∧ u   premissa\n2 |   u     hipótese\n3 |   t     ∧E, 1\n4 | u → t   →I, 2–3",
+  "printed": "1 | t ∧ u   premissa\n2 |   u     hipótese\n3 |   t     ∧E, 1\n4 | u → t   →I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | t ∧ u   premissa\n2 | t       ∧E, 1\n3 | u → t   →I, 2",
+  "printed": "1 | t ∧ u   premissa\n2 | t       ∧E, 1\n3 | u → t   →I, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | w    premissa\n2 | ¬w   premissa\n3 | F    FI, 1, 2\n4 | u    FE, 3",
+  "printed": "1 | w    premissa\n2 | ¬w   premissa\n3 | F    FI, 1, 2\n4 | u    FE, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | x → y   premissa\n2 | y → z   premissa\n3 | ¬z      premissa\n4 | ¬y      MT, 2, 3\n5 | ¬x      MT, 1, 4",
+  "printed": "1 | x → y   premissa\n2 | y → z   premissa\n3 | ¬z      premissa\n4 | ¬y      MT, 2, 3\n5 | ¬x      MT, 1, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | y ∨ z   premissa\n2 | y → r   premissa\n3 | z → s   premissa\n4 |   y     hipótese\n5 |   r     →E, 4, 2\n6 |   z     hipótese\n7 |   s     →E, 6, 3\n8 | r       ∨E, 1, 4–5, 6–7",
+  "printed": "1 | y ∨ z   premissa\n2 | y → r   premissa\n3 | z → s   premissa\n4 |   y     hipótese\n5 |   r     →E, 4, 2\n6 |   z     hipótese\n7 |   s     →E, 6, 3\n8 | r       ∨E, 1, 4–5, 6–7"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬(a ∧ b)   premissa\n2 | a          premissa\n3 | ¬a ∨ ¬b    DM, 1\n4 | ¬¬a        ¬¬I, 2\n5 | ¬b         SD, 3, 4",
+  "printed": "1 | ¬(a ∧ b)   premissa\n2 | a          premissa\n3 | ¬a ∨ ¬b    DM, 1\n4 | ¬¬a        ¬¬I, 2\n5 | ¬b         SD, 3, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬(a ∨ b)   premissa\n2 |   a        hipótese\n3 |   a ∨ b    ∨I, 2\n4 |   F        FI, 3, 1\n5 | ¬a         ¬I, 2–4",
+  "printed": "1 | ¬(a ∨ b)   premissa\n2 |   a        hipótese\n3 |   a ∨ b    ∨I, 2\n4 |   F        FI, 3, 1\n5 | ¬a         ¬I, 2–4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬(a ∨ b)   premissa\n2 | c → a      premissa\n3 | ¬a ∧ ¬b    DM, 1\n4 | ¬a         ∧E, 3\n5 | ¬c         MT, 2, 4\n6 | ¬b         ∧E, 3\n7 | ¬c ∧ ¬b    ∧I, 5, 6",
+  "printed": "1 | ¬(a ∨ b)   premissa\n2 | c → a      premissa\n3 | ¬a ∧ ¬b    DM, 1\n4 | ¬a         ∧E, 3\n5 | ¬c         MT, 2, 4\n6 | ¬b         ∧E, 3\n7 | ¬c ∧ ¬b    ∧I, 5, 6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬(l ∧ m)   premissa\n2 | l          premissa\n3 | ¬l ∧ ¬m    DM, 1\n4 | ¬m         ∧E, 3",
+  "printed": "1 | ¬(l ∧ m)   premissa\n2 | l          premissa\n3 | ¬l ∧ ¬m    DM, 1\n4 | ¬m         ∧E, 3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬(l ∧ m)   premissa\n2 | l          premissa\n3 | ¬l ∨ ¬m    DM, 1\n4 | ¬¬l        ¬¬I, 2\n5 | ¬m         SD, 3, 4",
+  "printed": "1 | ¬(l ∧ m)   premissa\n2 | l          premissa\n3 | ¬l ∨ ¬m    DM, 1\n4 | ¬¬l        ¬¬I, 2\n5 | ¬m         SD, 3, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬(¬a ∧ b)   premissa\n2 | a ∧ b       ¬E, 1",
+  "printed": "1 | ¬(¬a ∧ b)   premissa\n2 | a ∧ b       ¬E, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬(¬a ∨ b ∨ c)   premissa\n2 |   ¬a            hipótese\n3 |   ¬a ∨ b        ∨I, 2\n4 |   ¬a ∨ b ∨ c    ∨I, 3\n5 |   F             FI, 4, 1\n6 | a               RA, 2–5",
+  "printed": "1 | ¬(¬a ∨ b ∨ c)   premissa\n2 |   ¬a            hipótese\n3 |   ¬a ∨ b        ∨I, 2\n4 |   ¬a ∨ b ∨ c    ∨I, 3\n5 |   F             FI, 4, 1\n6 | a               RA, 2–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬a         premissa\n2 |   a ∧ b    hipótese\n3 |   a        ∧E, 2\n4 |   F        FI, 3, 1\n5 | ¬(a ∧ b)   ¬I, 2–4",
+  "printed": "1 | ¬a         premissa\n2 |   a ∧ b    hipótese\n3 |   a        ∧E, 2\n4 |   F        FI, 3, 1\n5 | ¬(a ∧ b)   ¬I, 2–4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬a      premissa\n2 | a → b   FE, 1",
+  "printed": "1 | ¬a      premissa\n2 | a → b   FE, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬a → b   premissa\n2 | ¬b       premissa\n3 |   ¬a     hipótese\n4 |   b      →E, 3, 1\n5 |   F      FI, 4, 2\n6 | a        RA, 3–5",
+  "printed": "1 | ¬a → b   premissa\n2 | ¬b       premissa\n3 |   ¬a     hipótese\n4 |   b      →E, 3, 1\n5 |   F      FI, 4, 2\n6 | a        RA, 3–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬b     premissa\n2 |   a    hipótese\n3 |   ¬b   R, 1\n4 | ¬a     ¬I, 2–3",
+  "printed": "1 | ¬b     premissa\n2 |   a    hipótese\n3 |   ¬b   R, 1\n4 | ¬a     ¬I, 2–3"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬n → o   premissa\n2 | ¬o       premissa\n3 |   ¬n     hipótese\n4 |   o      →E, 3, 1\n5 |   F      FI, 4, 2\n6 | n        ¬I, 3–5",
+  "printed": "1 | ¬n → o   premissa\n2 | ¬o       premissa\n3 |   ¬n     hipótese\n4 |   o      →E, 3, 1\n5 |   F      FI, 4, 2\n6 | n        ¬I, 3–5"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬n → o   premissa\n2 | ¬o       premissa\n3 |   ¬n     hipótese\n4 |   o      →E, 3, 1\n5 |   F      FI, 4, 2\n6 | ¬¬n      ¬I, 3–5\n7 | n        ¬E, 6",
+  "printed": "1 | ¬n → o   premissa\n2 | ¬o       premissa\n3 |   ¬n     hipótese\n4 |   o      →E, 3, 1\n5 |   F      FI, 4, 2\n6 | ¬¬n      ¬I, 3–5\n7 | n        ¬E, 6"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬p → F   premissa\n2 |   ¬p     hipótese\n3 |   F      →E, 2, 1\n4 | ¬¬p      ¬I, 2–3\n5 | p        ¬E, 4",
+  "printed": "1 | ¬p → F   premissa\n2 |   ¬p     hipótese\n3 |   F      →E, 2, 1\n4 | ¬¬p      ¬I, 2–3\n5 | p        ¬E, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬q                       premissa\n2 | p → q                    premissa\n3 | r                        premissa\n4 | ¬p                       MT, 1, 2\n5 | p                        ∧E, 4\n6 | ?                        ∧I, 1, 2\n7 | q\n",
+  "printed": "1 | ¬q      premissa\n2 | p → q   premissa\n3 | r       premissa\n4 | ¬p      MT, 1, 2\n5 | p       ∧E, 4\n6 | ?       ∧I, 1, 2\n7 | q"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬¬a ∧ b   premissa\n2 | ¬¬a       ∧E, 1\n3 | a         ¬E, 2\n4 | b         ∧E, 1\n5 | a ∧ b     ∧I, 3, 4",
+  "printed": "1 | ¬¬a ∧ b   premissa\n2 | ¬¬a       ∧E, 1\n3 | a         ¬E, 2\n4 | b         ∧E, 1\n5 | a ∧ b     ∧I, 3, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬¬c ∧ d   premissa\n2 | c         ¬E, 1",
+  "printed": "1 | ¬¬c ∧ d   premissa\n2 | c         ¬E, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬¬c ∧ d   premissa\n2 | ¬¬c       ∧E, 1\n3 | c         ¬E, 2",
+  "printed": "1 | ¬¬c ∧ d   premissa\n2 | ¬¬c       ∧E, 1\n3 | c         ¬E, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬¬s ∧ t   premissa\n2 | t         ∧E, 1\n3 | ¬¬s       ∧E, 1\n4 | s         ¬E, 3\n5 | t ∧ s     ∧I, 2, 4",
+  "printed": "1 | ¬¬s ∧ t   premissa\n2 | t         ∧E, 1\n3 | ¬¬s       ∧E, 1\n4 | s         ¬E, 3\n5 | t ∧ s     ∧I, 2, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "\n1 | ¬¬¬a   premissa\n2 | ¬a     ¬E, 1",
+  "printed": "1 | ¬¬¬a   premissa\n2 | ¬a     ¬E, 1"
+ },
+ {
+  "kind": "formula",
+  "text": "  Contra ",
+  "printed": "Contra"
+ },
+ {
+  "kind": "formula",
+  "text": "  X ",
+  "printed": "X"
+ },
+ {
+  "kind": "formula",
+  "text": "  a  ",
+  "printed": "a"
+ },
+ {
+  "kind": "proof",
+  "text": " 1 | g ∧ (h ∨ i)       premissa",
+  "printed": "1 | g ∧ (h ∨ i)   premissa"
+ },
+ {
+  "kind": "formula",
+  "text": " com ",
+  "printed": "com"
+ },
+ {
+  "kind": "formula",
+  "text": " de ",
+  "printed": "de"
+ },
+ {
+  "kind": "formula",
+  "text": " disabled",
+  "printed": "disabled"
+ },
+ {
+  "kind": "formula",
+  "text": " e ",
+  "printed": "e"
+ },
+ {
+  "kind": "formula",
+  "text": " ou ",
+  "printed": "ou"
+ },
+ {
+  "kind": "formula",
+  "text": " para ",
+  "printed": "para"
+ },
+ {
+  "kind": "formula",
+  "text": " segue ",
+  "printed": "segue"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a | b | c), (d | e | f), (g | h | i), (j | k | l), ~(a & d), ~(a & g), ~(a & j), ~(d & g), ~(d & j), ~(g & j), ~(b & e), ~(b & h), ~(b & k), ~(e & h), ~(e & k), ~(h & k), ~(c & f), ~(c & i), ~(c & l), ~(f & i), ~(f & l), ~(i & l) |- F",
+  "printed": "a ∨ b ∨ c, d ∨ e ∨ f, g ∨ h ∨ i, j ∨ k ∨ l, ¬(a ∧ d), ¬(a ∧ g), ¬(a ∧ j), ¬(d ∧ g), ¬(d ∧ j), ¬(g ∧ j), ¬(b ∧ e), ¬(b ∧ h), ¬(b ∧ k), ¬(e ∧ h), ¬(e ∧ k), ¬(h ∧ k), ¬(c ∧ f), ¬(c ∧ i), ¬(c ∧ l), ¬(f ∧ i), ¬(f ∧ l), ¬(i ∧ l) ⊢ F"
+ },
+ {
+  "kind": "formula",
+  "text": "(a → b) → c",
+  "printed": "(a → b) → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a → b) → c ⊢ (¬a → c) ∧ (b → c)",
+  "printed": "(a → b) → c ⊢ (¬a → c) ∧ (b → c)"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a → b) → c, b ⊢ c",
+  "printed": "(a → b) → c, b ⊢ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a → b) ∧ (c → d) ⊢ a ∧ c → b ∧ d",
+  "printed": "(a → b) ∧ (c → d) ⊢ a ∧ c → b ∧ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a → c) ∧ (b → c) ⊢ a ∨ b → c",
+  "printed": "(a → c) ∧ (b → c) ⊢ a ∨ b → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a ∧ b) → c ⊢ (b ∧ a) → c",
+  "printed": "a ∧ b → c ⊢ b ∧ a → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a ∧ b) → c ⊢ a",
+  "printed": "a ∧ b → c ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a ∧ b) ∧ c ⊢ a ∧ (b ∧ c)",
+  "printed": "a ∧ b ∧ c ⊢ a ∧ (b ∧ c)"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a ∧ b) ∧ c ⊢ b",
+  "printed": "a ∧ b ∧ c ⊢ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a ∧ b) ∨ (a ∧ c) ⊢ a ∧ (b ∨ c)",
+  "printed": "a ∧ b ∨ a ∧ c ⊢ a ∧ (b ∨ c)"
+ },
+ {
+  "kind": "formula",
+  "text": "(a ∧ c) ∨ (b ∧ c)",
+  "printed": "a ∧ c ∨ b ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "(a ∨ b) ∨ c ⊢ a ∨ (b ∨ c)",
+  "printed": "a ∨ b ∨ c ⊢ a ∨ (b ∨ c)"
+ },
+ {
+  "kind": "formula",
+  "text": "(b → c) ∨ a",
+  "printed": "(b → c) ∨ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "(d → (d ∧ f)) ∧ ((d ∧ f) → d) ⊢ d → f",
+  "printed": "(d → d ∧ f) ∧ (d ∧ f → d) ⊢ d → f"
+ },
+ {
+  "kind": "sequent",
+  "text": "(d → f) ∧ (f → d) ⊢ (d ∨ f) → (d ∧ f)",
+  "printed": "(d → f) ∧ (f → d) ⊢ d ∨ f → d ∧ f"
+ },
+ {
+  "kind": "sequent",
+  "text": "(d ∧ ¬f) → g, ¬g, d ⊢ f",
+  "printed": "d ∧ ¬f → g, ¬g, d ⊢ f"
+ },
+ {
+  "kind": "sequent",
+  "text": "(d ∨ f) → (d ∧ f) ⊢ (d → f) ∧ (f → d)",
+  "printed": "d ∨ f → d ∧ f ⊢ (d → f) ∧ (f → d)"
+ },
+ {
+  "kind": "sequent",
+  "text": "(d ∨ f) ∧ (d ∨ g) ⊢ d ∨ (f ∧ g)",
+  "printed": "(d ∨ f) ∧ (d ∨ g) ⊢ d ∨ f ∧ g"
+ },
+ {
+  "kind": "sequent",
+  "text": "(f → (d ∨ f)) ∧ ((d ∨ f) → f) ⊢ d → f",
+  "printed": "(f → d ∨ f) ∧ (d ∨ f → f) ⊢ d → f"
+ },
+ {
+  "kind": "sequent",
+  "text": "(f → d) ∧ (g → d) ⊢ (f ∨ g) → d",
+  "printed": "(f → d) ∧ (g → d) ⊢ f ∨ g → d"
+ },
+ {
+  "kind": "sequent",
+  "text": "(f → g) ∧ (f → d) ⊢ f → (g ∧ d)",
+  "printed": "(f → g) ∧ (f → d) ⊢ f → g ∧ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "(f ∧ d) ∨ (f ∧ g) ⊢ f ∧ (d ∨ g)",
+  "printed": "f ∧ d ∨ f ∧ g ⊢ f ∧ (d ∨ g)"
+ },
+ {
+  "kind": "sequent",
+  "text": "(f ∨ g) → d ⊢ (f → d) ∧ (g → d)",
+  "printed": "f ∨ g → d ⊢ (f → d) ∧ (g → d)"
+ },
+ {
+  "kind": "sequent",
+  "text": "(g ∧ f) ∧ d ⊢ g ∧ (f ∧ d)",
+  "printed": "g ∧ f ∧ d ⊢ g ∧ (f ∧ d)"
+ },
+ {
+  "kind": "sequent",
+  "text": "(g ∨ f) ∨ d ⊢ g ∨ (f ∨ d)",
+  "printed": "g ∨ f ∨ d ⊢ g ∨ (f ∨ d)"
+ },
+ {
+  "kind": "sequent",
+  "text": "(m → n) ∧ m ⊢ n ∨ k",
+  "printed": "(m → n) ∧ m ⊢ n ∨ k"
+ },
+ {
+  "kind": "formula",
+  "text": "(p -> r) -> ((q -> r) -> r)",
+  "printed": "(p → r) → (q → r) → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p → q) → q ⊢ (q → p) → p",
+  "printed": "(p → q) → q ⊢ (q → p) → p"
+ },
+ {
+  "kind": "formula",
+  "text": "(p → q) → r",
+  "printed": "(p → q) → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p → q) → r, q ⊢ r",
+  "printed": "(p → q) → r, q ⊢ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p → q) ∧ (q → p), (q → r) ∧ (r → q) ⊢ p → r",
+  "printed": "(p → q) ∧ (q → p), (q → r) ∧ (r → q) ⊢ p → r"
+ },
+ {
+  "kind": "formula",
+  "text": "(p → q) ∨ r",
+  "printed": "(p → q) ∨ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p → ¬r) ∨ (q → ¬p), ¬s → r ⊢ p → (¬q ∨ s)",
+  "printed": "(p → ¬r) ∨ (q → ¬p), ¬s → r ⊢ p → ¬q ∨ s"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) → r ⊢ p → (q → r)",
+  "printed": "p ∧ q → r ⊢ p → q → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) → r, p ⊢ q → r",
+  "printed": "p ∧ q → r, p ⊢ q → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) → r, p, ¬r ⊢ ¬q",
+  "printed": "p ∧ q → r, p, ¬r ⊢ ¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) ∧ r ⊢ r ∧ q",
+  "printed": "p ∧ q ∧ r ⊢ r ∧ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) ∨ (p ∧ r) ⊢ p ∧ (q ∨ r)",
+  "printed": "p ∧ q ∨ p ∧ r ⊢ p ∧ (q ∨ r)"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) ∨ (q ∧ r) ⊢ q",
+  "printed": "p ∧ q ∨ q ∧ r ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) ∨ (q ∧ r) ⊢ q ∧ p",
+  "printed": "p ∧ q ∨ q ∧ r ⊢ q ∧ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) ∨ q ⊢ q",
+  "printed": "p ∧ q ∨ q ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∧ q) ∨ r ⊢ p ∧ r",
+  "printed": "p ∧ q ∨ r ⊢ p ∧ r"
+ },
+ {
+  "kind": "formula",
+  "text": "(p ∨ q) → F",
+  "printed": "p ∨ q → F"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∨ q) → r ⊢ p → r",
+  "printed": "p ∨ q → r ⊢ p → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(p ∨ q) ∧ (p ∨ r) ⊢ p ∨ (q ∧ r)",
+  "printed": "(p ∨ q) ∧ (p ∨ r) ⊢ p ∨ q ∧ r"
+ },
+ {
+  "kind": "formula",
+  "text": "(p ∨ q) ∧ r",
+  "printed": "(p ∨ q) ∧ r"
+ },
+ {
+  "kind": "formula",
+  "text": "(q -> r) -> r",
+  "printed": "(q → r) → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(t → (r ∨ p)) → ((¬r ∨ k) ∧ ¬k) ⊢ ¬r",
+  "printed": "(t → r ∨ p) → (¬r ∨ k) ∧ ¬k ⊢ ¬r"
+ },
+ {
+  "kind": "sequent",
+  "text": "(~c | b | ~h), (~c | f | ~h), (f | ~e | ~a), (~j | j | ~h), (~c | ~b | ~a), (~f | c | ~h), (d | h | g), (h | ~c | i), (~i | f | ~a), (~g | d | g), (e | b | b), (~h | ~h | b), (a | ~j | ~i), (j | d | g), (i | ~h | d), (e | ~f | j), (~h | ~c | c), (e | f | ~g), (e | ~a | f), (~e | f | a), (~f | h | g), (e | h | g), (e | ~a | ~a), (b | ~d | f), (i | ~h | b), (~i | j | ~a), (f | ~b | a), (c | j | g), (~f | g | i), (~f | ~a | ~h), (j | ~g | f), (~e | ~i | ~c), (g | ~c | h), (b | ~e | i), (~f | ~h | ~d), (f | ~d | ~e), (b | f | e), (~h | e | j), (~f | i | ~e), (~g | ~c | ~h), (~d | ~j | ~j), (~a | ~f | ~f), (d | ~b | ~e), (g | ~h | a), (j | ~j | ~g), (~a | ~b | d), (~b | a | ~f), (a | h | b), (a | i | c), (~g | d | ~h) |- F",
+  "printed": "¬c ∨ b ∨ ¬h, ¬c ∨ f ∨ ¬h, f ∨ ¬e ∨ ¬a, ¬j ∨ j ∨ ¬h, ¬c ∨ ¬b ∨ ¬a, ¬f ∨ c ∨ ¬h, d ∨ h ∨ g, h ∨ ¬c ∨ i, ¬i ∨ f ∨ ¬a, ¬g ∨ d ∨ g, e ∨ b ∨ b, ¬h ∨ ¬h ∨ b, a ∨ ¬j ∨ ¬i, j ∨ d ∨ g, i ∨ ¬h ∨ d, e ∨ ¬f ∨ j, ¬h ∨ ¬c ∨ c, e ∨ f ∨ ¬g, e ∨ ¬a ∨ f, ¬e ∨ f ∨ a, ¬f ∨ h ∨ g, e ∨ h ∨ g, e ∨ ¬a ∨ ¬a, b ∨ ¬d ∨ f, i ∨ ¬h ∨ b, ¬i ∨ j ∨ ¬a, f ∨ ¬b ∨ a, c ∨ j ∨ g, ¬f ∨ g ∨ i, ¬f ∨ ¬a ∨ ¬h, j ∨ ¬g ∨ f, ¬e ∨ ¬i ∨ ¬c, g ∨ ¬c ∨ h, b ∨ ¬e ∨ i, ¬f ∨ ¬h ∨ ¬d, f ∨ ¬d ∨ ¬e, b ∨ f ∨ e, ¬h ∨ e ∨ j, ¬f ∨ i ∨ ¬e, ¬g ∨ ¬c ∨ ¬h, ¬d ∨ ¬j ∨ ¬j, ¬a ∨ ¬f ∨ ¬f, d ∨ ¬b ∨ ¬e, g ∨ ¬h ∨ a, j ∨ ¬j ∨ ¬g, ¬a ∨ ¬b ∨ d, ¬b ∨ a ∨ ¬f, a ∨ h ∨ b, a ∨ i ∨ c, ¬g ∨ d ∨ ¬h ⊢ F"
+ },
+ {
+  "kind": "sequent",
+  "text": "(¬p → q) ∧ (¬p → ¬q) ⊢ p",
+  "printed": "(¬p → q) ∧ (¬p → ¬q) ⊢ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "(¬p ∨ ¬q) ∨ r, q ∨ r, p ⊢ r",
+  "printed": "¬p ∨ ¬q ∨ r, q ∨ r, p ⊢ r"
+ },
+ {
+  "kind": "formula",
+  "text": "(¬ψ → ¬φ) → φ → ψ",
+  "printed": "(¬ψ → ¬φ) → φ → ψ"
+ },
+ {
+  "kind": "formula",
+  "text": "(φ → ψ) ∧ (¬φ → ψ) → ψ",
+  "printed": "(φ → ψ) ∧ (¬φ → ψ) → ψ"
+ },
+ {
+  "kind": "formula",
+  "text": "(φ → ψ) ∧ ψ → φ",
+  "printed": "(φ → ψ) ∧ ψ → φ"
+ },
+ {
+  "kind": "formula",
+  "text": "--version",
+  "printed": "¬¬version"
+ },
+ {
+  "kind": "formula",
+  "text": "-o",
+  "printed": "¬o"
+ },
+ {
+  "kind": "proof",
+  "text": "1 |   a   hipótese",
+  "printed": "1 |   a   hipótese"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | ?",
+  "printed": "1 | ?"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | a   premissa",
+  "printed": "1 | a   premissa"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | a → b     premissa\n2 | ¬b → ¬a   Contra, 1",
+  "printed": "1 | a → b     premissa\n2 | ¬b → ¬a   Contra, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | a ∧ b   premissa",
+  "printed": "1 | a ∧ b   premissa"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | a ∧ b   premissa\n2 | a       ∧E, 1",
+  "printed": "1 | a ∧ b   premissa\n2 | a       ∧E, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | a ∧ b → c   premissa",
+  "printed": "1 | a ∧ b → c   premissa"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | a ∨ ¬a",
+  "printed": "1 | a ∨ ¬a"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | m ∧ n   premissa\n2 | k       premissa\n3 | n       ∧E, 1\n4 | n       R, 3\n5 | k ∧ n   ∧I, 2, 4",
+  "printed": "1 | m ∧ n   premissa\n2 | k       premissa\n3 | n       ∧E, 1\n4 | n       R, 3\n5 | k ∧ n   ∧I, 2, 4"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p   \\input{x}%, 1",
+  "printed": "1 | p   \\input{x}%, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p → q   premissa\n2 |   p     hipótese\n3 |   q     →E, 1, 2",
+  "printed": "1 | p → q   premissa\n2 |   p     hipótese\n3 |   q     →E, 1, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p → q   premissa\n2 | p       premissa\n3 | q       →E, 1, 2",
+  "printed": "1 | p → q   premissa\n2 | p       premissa\n3 | q       →E, 1, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p → q   premissa\n2 | ¬q      premissa\n3 | ¬p      MT, 1, 2",
+  "printed": "1 | p → q   premissa\n2 | ¬q      premissa\n3 | ¬p      MT, 1, 2"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p ∧ q   premissa\n2 | q       ∧E, 1",
+  "printed": "1 | p ∧ q   premissa\n2 | q       ∧E, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p ∧ q   premissa\n2 | q ∧ p   Troca, 1",
+  "printed": "1 | p ∧ q   premissa\n2 | q ∧ p   Troca, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p ∧ q  premissa\n2 |   p  hipótese\n3 |   q  ∧E, 1",
+  "printed": "1 | p ∧ q   premissa\n2 |   p     hipótese\n3 |   q     ∧E, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p ∧ q  premissa\n2 |   r  hipótese",
+  "printed": "1 | p ∧ q   premissa\n2 |   r     hipótese"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p ∧ q  premissa\n2 | r  premissa",
+  "printed": "1 | p ∧ q   premissa\n2 | r       premissa"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p ∧ q  premissa\n2 | r  ∧E, 1",
+  "printed": "1 | p ∧ q   premissa\n2 | r       ∧E, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | p ∨ q     premissa",
+  "printed": "1 | p ∨ q   premissa"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | r   premissa\n2 | r   R, 1",
+  "printed": "1 | r   premissa\n2 | r   R, 1"
+ },
+ {
+  "kind": "proof",
+  "text": "1 | r premissa\n2 | q premissa\n3 | r R, 1\n4 | r ∧ q ∧I, 3, 2",
+  "printed": "1 | r       premissa\n2 | q       premissa\n3 | r       R, 1\n4 | r ∧ q   ∧I, 3, 2"
+ },
+ {
+  "kind": "formula",
+  "text": "A",
+  "printed": "A"
+ },
+ {
+  "kind": "formula",
+  "text": "Ab3",
+  "printed": "Ab₃"
+ },
+ {
+  "kind": "formula",
+  "text": "Absurdo",
+  "printed": "Absurdo"
+ },
+ {
+  "kind": "formula",
+  "text": "All",
+  "printed": "All"
+ },
+ {
+  "kind": "formula",
+  "text": "Anterior",
+  "printed": "Anterior"
+ },
+ {
+  "kind": "formula",
+  "text": "Apagar",
+  "printed": "Apagar"
+ },
+ {
+  "kind": "formula",
+  "text": "Aprender",
+  "printed": "Aprender"
+ },
+ {
+  "kind": "formula",
+  "text": "ArrowDown",
+  "printed": "ArrowDown"
+ },
+ {
+  "kind": "formula",
+  "text": "ArrowLeft",
+  "printed": "ArrowLeft"
+ },
+ {
+  "kind": "formula",
+  "text": "ArrowRight",
+  "printed": "ArrowRight"
+ },
+ {
+  "kind": "formula",
+  "text": "ArrowUp",
+  "printed": "ArrowUp"
+ },
+ {
+  "kind": "formula",
+  "text": "B",
+  "printed": "B"
+ },
+ {
+  "kind": "formula",
+  "text": "Backspace",
+  "printed": "Backspace"
+ },
+ {
+  "kind": "formula",
+  "text": "Beginner",
+  "printed": "Beginner"
+ },
+ {
+  "kind": "formula",
+  "text": "Boa",
+  "printed": "Boa"
+ },
+ {
+  "kind": "formula",
+  "text": "Both",
+  "printed": "Both"
+ },
+ {
+  "kind": "formula",
+  "text": "CSP",
+  "printed": "CSP"
+ },
+ {
+  "kind": "formula",
+  "text": "Cancel",
+  "printed": "Cancel"
+ },
+ {
+  "kind": "formula",
+  "text": "Cancelar",
+  "printed": "Cancelar"
+ },
+ {
+  "kind": "formula",
+  "text": "Casos",
+  "printed": "Casos"
+ },
+ {
+  "kind": "formula",
+  "text": "Close",
+  "printed": "Close"
+ },
+ {
+  "kind": "formula",
+  "text": "Comma",
+  "printed": "Comma"
+ },
+ {
+  "kind": "formula",
+  "text": "Conclusion",
+  "printed": "Conclusion"
+ },
+ {
+  "kind": "formula",
+  "text": "Conjunction",
+  "printed": "Conjunction"
+ },
+ {
+  "kind": "formula",
+  "text": "Continuar",
+  "printed": "Continuar"
+ },
+ {
+  "kind": "formula",
+  "text": "Continue",
+  "printed": "Continue"
+ },
+ {
+  "kind": "formula",
+  "text": "Contra",
+  "printed": "Contra"
+ },
+ {
+  "kind": "formula",
+  "text": "Contrapositive",
+  "printed": "Contrapositive"
+ },
+ {
+  "kind": "formula",
+  "text": "DM",
+  "printed": "DM"
+ },
+ {
+  "kind": "formula",
+  "text": "DS",
+  "printed": "DS"
+ },
+ {
+  "kind": "formula",
+  "text": "Delete",
+  "printed": "Delete"
+ },
+ {
+  "kind": "formula",
+  "text": "Desfazer",
+  "printed": "Desfazer"
+ },
+ {
+  "kind": "formula",
+  "text": "Dica",
+  "printed": "Dica"
+ },
+ {
+  "kind": "formula",
+  "text": "Disjunction",
+  "printed": "Disjunction"
+ },
+ {
+  "kind": "formula",
+  "text": "Done",
+  "printed": "Done"
+ },
+ {
+  "kind": "formula",
+  "text": "Duas",
+  "printed": "Duas"
+ },
+ {
+  "kind": "formula",
+  "text": "EN",
+  "printed": "EN"
+ },
+ {
+  "kind": "formula",
+  "text": "ERROR_CODES",
+  "printed": "ERROR_CODES"
+ },
+ {
+  "kind": "formula",
+  "text": "EUR",
+  "printed": "EUR"
+ },
+ {
+  "kind": "formula",
+  "text": "EXERCISES",
+  "printed": "EXERCISES"
+ },
+ {
+  "kind": "formula",
+  "text": "EducationalApplication",
+  "printed": "EducationalApplication"
+ },
+ {
+  "kind": "formula",
+  "text": "End",
+  "printed": "End"
+ },
+ {
+  "kind": "formula",
+  "text": "English",
+  "printed": "English"
+ },
+ {
+  "kind": "formula",
+  "text": "Enter",
+  "printed": "Enter"
+ },
+ {
+  "kind": "formula",
+  "text": "Escape",
+  "printed": "Escape"
+ },
+ {
+  "kind": "formula",
+  "text": "Escrever",
+  "printed": "Escrever"
+ },
+ {
+  "kind": "formula",
+  "text": "Example",
+  "printed": "Example"
+ },
+ {
+  "kind": "formula",
+  "text": "Examples",
+  "printed": "Examples"
+ },
+ {
+  "kind": "formula",
+  "text": "Exemplo",
+  "printed": "Exemplo"
+ },
+ {
+  "kind": "formula",
+  "text": "Exemplos",
+  "printed": "Exemplos"
+ },
+ {
+  "kind": "formula",
+  "text": "Exercises",
+  "printed": "Exercises"
+ },
+ {
+  "kind": "formula",
+  "text": "F",
+  "printed": "F"
+ },
+ {
+  "kind": "formula",
+  "text": "F → p1_₂ → q₁₂",
+  "printed": "F → p1_₂ → q₁₂"
+ },
+ {
+  "kind": "sequent",
+  "text": "F ⊢ a ∧ ¬a",
+  "printed": "F ⊢ a ∧ ¬a"
+ },
+ {
+  "kind": "formula",
+  "text": "F1 ∧ p₁₂",
+  "printed": "F₁ ∧ p₁₂"
+ },
+ {
+  "kind": "formula",
+  "text": "FE",
+  "printed": "FE"
+ },
+ {
+  "kind": "formula",
+  "text": "FI",
+  "printed": "FI"
+ },
+ {
+  "kind": "formula",
+  "text": "Falsa",
+  "printed": "Falsa"
+ },
+ {
+  "kind": "formula",
+  "text": "False",
+  "printed": "False"
+ },
+ {
+  "kind": "formula",
+  "text": "Falso",
+  "printed": "Falso"
+ },
+ {
+  "kind": "formula",
+  "text": "Falsum",
+  "printed": "Falsum"
+ },
+ {
+  "kind": "formula",
+  "text": "Fechar",
+  "printed": "Fechar"
+ },
+ {
+  "kind": "formula",
+  "text": "Feitos",
+  "printed": "Feitos"
+ },
+ {
+  "kind": "formula",
+  "text": "Fica",
+  "printed": "Fica"
+ },
+ {
+  "kind": "formula",
+  "text": "Fitch",
+  "printed": "Fitch"
+ },
+ {
+  "kind": "formula",
+  "text": "Formula",
+  "printed": "Formula"
+ },
+ {
+  "kind": "formula",
+  "text": "Guiado",
+  "printed": "Guiado"
+ },
+ {
+  "kind": "formula",
+  "text": "Guided",
+  "printed": "Guided"
+ },
+ {
+  "kind": "formula",
+  "text": "HARD_MAX_STEPS",
+  "printed": "HARD_MAX_STEPS"
+ },
+ {
+  "kind": "formula",
+  "text": "HS",
+  "printed": "HS"
+ },
+ {
+  "kind": "formula",
+  "text": "Hint",
+  "printed": "Hint"
+ },
+ {
+  "kind": "formula",
+  "text": "Home",
+  "printed": "Home"
+ },
+ {
+  "kind": "formula",
+  "text": "Hypothesis",
+  "printed": "Hypothesis"
+ },
+ {
+  "kind": "formula",
+  "text": "Idioma",
+  "printed": "Idioma"
+ },
+ {
+  "kind": "formula",
+  "text": "Implication",
+  "printed": "Implication"
+ },
+ {
+  "kind": "formula",
+  "text": "Iniciante",
+  "printed": "Iniciante"
+ },
+ {
+  "kind": "formula",
+  "text": "Interactive",
+  "printed": "Interactive"
+ },
+ {
+  "kind": "formula",
+  "text": "Interativo",
+  "printed": "Interativo"
+ },
+ {
+  "kind": "formula",
+  "text": "LEM",
+  "printed": "LEM"
+ },
+ {
+  "kind": "formula",
+  "text": "LESSON_MISTAKES",
+  "printed": "LESSON_MISTAKES"
+ },
+ {
+  "kind": "formula",
+  "text": "LESSON_PROOFS",
+  "printed": "LESSON_PROOFS"
+ },
+ {
+  "kind": "formula",
+  "text": "Language",
+  "printed": "Language"
+ },
+ {
+  "kind": "formula",
+  "text": "Learn",
+  "printed": "Learn"
+ },
+ {
+  "kind": "formula",
+  "text": "LearningResource",
+  "printed": "LearningResource"
+ },
+ {
+  "kind": "formula",
+  "text": "Lida",
+  "printed": "Lida"
+ },
+ {
+  "kind": "formula",
+  "text": "Lit",
+  "printed": "Lit"
+ },
+ {
+  "kind": "formula",
+  "text": "MT",
+  "printed": "MT"
+ },
+ {
+  "kind": "formula",
+  "text": "Map",
+  "printed": "Map"
+ },
+ {
+  "kind": "formula",
+  "text": "Name",
+  "printed": "Name"
+ },
+ {
+  "kind": "formula",
+  "text": "Negation",
+  "printed": "Negation"
+ },
+ {
+  "kind": "formula",
+  "text": "Next",
+  "printed": "Next"
+ },
+ {
+  "kind": "formula",
+  "text": "Nome",
+  "printed": "Nome"
+ },
+ {
+  "kind": "formula",
+  "text": "OK",
+  "printed": "OK"
+ },
+ {
+  "kind": "formula",
+  "text": "Offer",
+  "printed": "Offer"
+ },
+ {
+  "kind": "formula",
+  "text": "One",
+  "printed": "One"
+ },
+ {
+  "kind": "formula",
+  "text": "Outra",
+  "printed": "Outra"
+ },
+ {
+  "kind": "formula",
+  "text": "P",
+  "printed": "P"
+ },
+ {
+  "kind": "formula",
+  "text": "PROOF_TEXT_ERROR_CODES",
+  "printed": "PROOF_TEXT_ERROR_CODES"
+ },
+ {
+  "kind": "formula",
+  "text": "PT",
+  "printed": "PT"
+ },
+ {
+  "kind": "formula",
+  "text": "Pages",
+  "printed": "Pages"
+ },
+ {
+  "kind": "formula",
+  "text": "Passo",
+  "printed": "Passo"
+ },
+ {
+  "kind": "formula",
+  "text": "Passos",
+  "printed": "Passos"
+ },
+ {
+  "kind": "formula",
+  "text": "Pausa",
+  "printed": "Pausa"
+ },
+ {
+  "kind": "formula",
+  "text": "Pausar",
+  "printed": "Pausar"
+ },
+ {
+  "kind": "formula",
+  "text": "Pause",
+  "printed": "Pause"
+ },
+ {
+  "kind": "formula",
+  "text": "Play",
+  "printed": "Play"
+ },
+ {
+  "kind": "formula",
+  "text": "Playback",
+  "printed": "Playback"
+ },
+ {
+  "kind": "formula",
+  "text": "Premise",
+  "printed": "Premise"
+ },
+ {
+  "kind": "formula",
+  "text": "Premises",
+  "printed": "Premises"
+ },
+ {
+  "kind": "formula",
+  "text": "Premissa",
+  "printed": "Premissa"
+ },
+ {
+  "kind": "formula",
+  "text": "Premissas",
+  "printed": "Premissas"
+ },
+ {
+  "kind": "formula",
+  "text": "Previous",
+  "printed": "Previous"
+ },
+ {
+  "kind": "formula",
+  "text": "Progress",
+  "printed": "Progress"
+ },
+ {
+  "kind": "formula",
+  "text": "Progresso",
+  "printed": "Progresso"
+ },
+ {
+  "kind": "formula",
+  "text": "Proofs",
+  "printed": "Proofs"
+ },
+ {
+  "kind": "formula",
+  "text": "Provar",
+  "printed": "Provar"
+ },
+ {
+  "kind": "formula",
+  "text": "Provas",
+  "printed": "Provas"
+ },
+ {
+  "kind": "formula",
+  "text": "Prove",
+  "printed": "Prove"
+ },
+ {
+  "kind": "formula",
+  "text": "Q",
+  "printed": "Q"
+ },
+ {
+  "kind": "formula",
+  "text": "QuotaExceededError",
+  "printed": "QuotaExceededError"
+ },
+ {
+  "kind": "formula",
+  "text": "R",
+  "printed": "R"
+ },
+ {
+  "kind": "formula",
+  "text": "RA",
+  "printed": "RA"
+ },
+ {
+  "kind": "formula",
+  "text": "RAA",
+  "printed": "RAA"
+ },
+ {
+  "kind": "formula",
+  "text": "REASONS",
+  "printed": "REASONS"
+ },
+ {
+  "kind": "formula",
+  "text": "RULES",
+  "printed": "RULES"
+ },
+ {
+  "kind": "formula",
+  "text": "Read",
+  "printed": "Read"
+ },
+ {
+  "kind": "formula",
+  "text": "Reading",
+  "printed": "Reading"
+ },
+ {
+  "kind": "formula",
+  "text": "Reciproca",
+  "printed": "Reciproca"
+ },
+ {
+  "kind": "formula",
+  "text": "Redo",
+  "printed": "Redo"
+ },
+ {
+  "kind": "formula",
+  "text": "Refazer",
+  "printed": "Refazer"
+ },
+ {
+  "kind": "formula",
+  "text": "Refuta",
+  "printed": "Refuta"
+ },
+ {
+  "kind": "formula",
+  "text": "Regra",
+  "printed": "Regra"
+ },
+ {
+  "kind": "formula",
+  "text": "Regras",
+  "printed": "Regras"
+ },
+ {
+  "kind": "formula",
+  "text": "Repetition",
+  "printed": "Repetition"
+ },
+ {
+  "kind": "formula",
+  "text": "Reproduzir",
+  "printed": "Reproduzir"
+ },
+ {
+  "kind": "formula",
+  "text": "Resolvido",
+  "printed": "Resolvido"
+ },
+ {
+  "kind": "formula",
+  "text": "Resume",
+  "printed": "Resume"
+ },
+ {
+  "kind": "formula",
+  "text": "Rule",
+  "printed": "Rule"
+ },
+ {
+  "kind": "formula",
+  "text": "Rules",
+  "printed": "Rules"
+ },
+ {
+  "kind": "formula",
+  "text": "SD",
+  "printed": "SD"
+ },
+ {
+  "kind": "formula",
+  "text": "SH",
+  "printed": "SH"
+ },
+ {
+  "kind": "formula",
+  "text": "Satisfazibilidade",
+  "printed": "Satisfazibilidade"
+ },
+ {
+  "kind": "formula",
+  "text": "Satisfiability",
+  "printed": "Satisfiability"
+ },
+ {
+  "kind": "formula",
+  "text": "SecurityError",
+  "printed": "SecurityError"
+ },
+ {
+  "kind": "formula",
+  "text": "Seguinte",
+  "printed": "Seguinte"
+ },
+ {
+  "kind": "formula",
+  "text": "Sequent",
+  "printed": "Sequent"
+ },
+ {
+  "kind": "formula",
+  "text": "Sequente",
+  "printed": "Sequente"
+ },
+ {
+  "kind": "formula",
+  "text": "Solution",
+  "printed": "Solution"
+ },
+ {
+  "kind": "formula",
+  "text": "Solved",
+  "printed": "Solved"
+ },
+ {
+  "kind": "formula",
+  "text": "Spacebar",
+  "printed": "Spacebar"
+ },
+ {
+  "kind": "formula",
+  "text": "Speed",
+  "printed": "Speed"
+ },
+ {
+  "kind": "formula",
+  "text": "Start",
+  "printed": "Start"
+ },
+ {
+  "kind": "formula",
+  "text": "Step",
+  "printed": "Step"
+ },
+ {
+  "kind": "formula",
+  "text": "Steps",
+  "printed": "Steps"
+ },
+ {
+  "kind": "formula",
+  "text": "Strategies",
+  "printed": "Strategies"
+ },
+ {
+  "kind": "formula",
+  "text": "Strategy",
+  "printed": "Strategy"
+ },
+ {
+  "kind": "formula",
+  "text": "Subproof",
+  "printed": "Subproof"
+ },
+ {
+  "kind": "formula",
+  "text": "Symbols",
+  "printed": "Symbols"
+ },
+ {
+  "kind": "formula",
+  "text": "T",
+  "printed": "T"
+ },
+ {
+  "kind": "formula",
+  "text": "TE",
+  "printed": "TE"
+ },
+ {
+  "kind": "formula",
+  "text": "Terceiro",
+  "printed": "Terceiro"
+ },
+ {
+  "kind": "formula",
+  "text": "Todos",
+  "printed": "Todos"
+ },
+ {
+  "kind": "formula",
+  "text": "Trans",
+  "printed": "Trans"
+ },
+ {
+  "kind": "formula",
+  "text": "Tree",
+  "printed": "Tree"
+ },
+ {
+  "kind": "formula",
+  "text": "Troca",
+  "printed": "Troca"
+ },
+ {
+  "kind": "formula",
+  "text": "Tudo",
+  "printed": "Tudo"
+ },
+ {
+  "kind": "formula",
+  "text": "Turnstile",
+  "printed": "Turnstile"
+ },
+ {
+  "kind": "formula",
+  "text": "Two",
+  "printed": "Two"
+ },
+ {
+  "kind": "formula",
+  "text": "Uma",
+  "printed": "Uma"
+ },
+ {
+  "kind": "formula",
+  "text": "Undo",
+  "printed": "Undo"
+ },
+ {
+  "kind": "formula",
+  "text": "V",
+  "printed": "V"
+ },
+ {
+  "kind": "formula",
+  "text": "VERIFY_ERROR_CODES",
+  "printed": "VERIFY_ERROR_CODES"
+ },
+ {
+  "kind": "formula",
+  "text": "Velocidade",
+  "printed": "Velocidade"
+ },
+ {
+  "kind": "formula",
+  "text": "WORKER_ERROR_CODES",
+  "printed": "WORKER_ERROR_CODES"
+ },
+ {
+  "kind": "formula",
+  "text": "WebApplication",
+  "printed": "WebApplication"
+ },
+ {
+  "kind": "formula",
+  "text": "Worker",
+  "printed": "Worker"
+ },
+ {
+  "kind": "formula",
+  "text": "Write",
+  "printed": "Write"
+ },
+ {
+  "kind": "formula",
+  "text": "X",
+  "printed": "X"
+ },
+ {
+  "kind": "formula",
+  "text": "XYZ",
+  "printed": "XYZ"
+ },
+ {
+  "kind": "formula",
+  "text": "Z",
+  "printed": "Z"
+ },
+ {
+  "kind": "formula",
+  "text": "a",
+  "printed": "a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a & b |- a",
+  "printed": "a ∧ b ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a -> b, b -> c, c -> d, d -> e, e -> f, f -> g, g -> h, h -> i, i -> j, j -> k, k -> l |- l -> a",
+  "printed": "a → b, b → c, c → d, d → e, e → f, f → g, g → h, h → i, i → j, j → k, k → l ⊢ l → a"
+ },
+ {
+  "kind": "formula",
+  "text": "a /\\ b & c ^ d => e",
+  "printed": "a ∧ b ∧ c ∧ d → e"
+ },
+ {
+  "kind": "formula",
+  "text": "a \\/ b | c v d",
+  "printed": "a ∨ b ∨ c ∨ d"
+ },
+ {
+  "kind": "formula",
+  "text": "a → (b → a)",
+  "printed": "a → b → a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → (b → c) ⊢ a ∧ b → c",
+  "printed": "a → b → c ⊢ a ∧ b → c"
+ },
+ {
+  "kind": "formula",
+  "text": "a → (b ∧ c)",
+  "printed": "a → b ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → F ⊢ ¬a",
+  "printed": "a → F ⊢ ¬a"
+ },
+ {
+  "kind": "formula",
+  "text": "a → a",
+  "printed": "a → a"
+ },
+ {
+  "kind": "formula",
+  "text": "a → b",
+  "printed": "a → b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b → c ⊢ a ∧ b → c",
+  "printed": "a → b → c ⊢ a ∧ b → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b ∨ c ⊢ (a → b) ∨ (a → c)",
+  "printed": "a → b ∨ c ⊢ (a → b) ∨ (a → c)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b ⊢ a",
+  "printed": "a → b ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b ⊢ b",
+  "printed": "a → b ⊢ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b ⊢ ¬(a ∧ ¬b)",
+  "printed": "a → b ⊢ ¬(a ∧ ¬b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b ⊢ ¬a ∨ b",
+  "printed": "a → b ⊢ ¬a ∨ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b ⊢ ¬b → ¬a",
+  "printed": "a → b ⊢ ¬b → ¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, a → c ⊢ a → (b ∧ c)",
+  "printed": "a → b, a → c ⊢ a → b ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, a → ¬b ⊢ ¬a",
+  "printed": "a → b, a → ¬b ⊢ ¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, b → c ⊢ a → c",
+  "printed": "a → b, b → c ⊢ a → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, b → c, a ⊢ c",
+  "printed": "a → b, b → c, a ⊢ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, b → c, c → d ⊢ a → d",
+  "printed": "a → b, b → c, c → d ⊢ a → d"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, b → ¬a ⊢ ¬a",
+  "printed": "a → b, b → ¬a ⊢ ¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, b ⊢ a",
+  "printed": "a → b, b ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, c → ¬b ⊢ a → ¬c",
+  "printed": "a → b, c → ¬b ⊢ a → ¬c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, ¬a → c ⊢ b ∨ c",
+  "printed": "a → b, ¬a → c ⊢ b ∨ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → b, ¬b ⊢ ¬a",
+  "printed": "a → b, ¬b ⊢ ¬a"
+ },
+ {
+  "kind": "formula",
+  "text": "a → c",
+  "printed": "a → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → c, b → d, a ∨ b ⊢ c ∨ d",
+  "printed": "a → c, b → d, a ∨ b ⊢ c ∨ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "a → ¬b ⊢ ¬(a ∧ b)",
+  "printed": "a → ¬b ⊢ ¬(a ∧ b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ (b ∨ c) ⊢ (a ∧ b) ∨ (a ∧ c)",
+  "printed": "a ∧ (b ∨ c) ⊢ a ∧ b ∨ a ∧ c"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∧ a",
+  "printed": "a ∧ a"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∧ b",
+  "printed": "a ∧ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b → c ⊢ (a → c) ∨ (b → c)",
+  "printed": "a ∧ b → c ⊢ (a → c) ∨ (b → c)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b → c ⊢ a → (b → c)",
+  "printed": "a ∧ b → c ⊢ a → b → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b → c ⊢ a → b → c",
+  "printed": "a ∧ b → c ⊢ a → b → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b → c, a, b ⊢ c",
+  "printed": "a ∧ b → c, a, b ⊢ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b ∧ (c ∧ d) ⊢ d ∧ a",
+  "printed": "a ∧ b ∧ (c ∧ d) ⊢ d ∧ a"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∧ b ∧ c ∧ d → e",
+  "printed": "a ∧ b ∧ c ∧ d → e"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b ∨ c ⊢ c ∨ a",
+  "printed": "a ∧ b ∨ c ⊢ c ∨ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b ⊢ a",
+  "printed": "a ∧ b ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b ⊢ a ∨ b",
+  "printed": "a ∧ b ⊢ a ∨ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b ⊢ b",
+  "printed": "a ∧ b ⊢ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b ⊢ b ∧ a",
+  "printed": "a ∧ b ⊢ b ∧ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b ⊢ c → (a ∧ b)",
+  "printed": "a ∧ b ⊢ c → a ∧ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b ⊢ ¬(¬a ∨ ¬b)",
+  "printed": "a ∧ b ⊢ ¬(¬a ∨ ¬b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b, a → c ⊢ c ∧ b",
+  "printed": "a ∧ b, a → c ⊢ c ∧ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b, c ⊢ d → b",
+  "printed": "a ∧ b, c ⊢ d → b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ b, ¬a ⊢ F",
+  "printed": "a ∧ b, ¬a ⊢ F"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∧ c",
+  "printed": "a ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ ¬b ⊢ ¬(a → b)",
+  "printed": "a ∧ ¬b ⊢ ¬(a → b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∧ ¬b ⊢ ¬(a ∧ b)",
+  "printed": "a ∧ ¬b ⊢ ¬(a ∧ b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ (b ∧ c) ⊢ (a ∨ b) ∧ (a ∨ c)",
+  "printed": "a ∨ b ∧ c ⊢ (a ∨ b) ∧ (a ∨ c)"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∨ a",
+  "printed": "a ∨ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ a ⊢ a",
+  "printed": "a ∨ a ⊢ a"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∨ b",
+  "printed": "a ∨ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b → c ⊢ (a → c) ∧ (b → c)",
+  "printed": "a ∨ b → c ⊢ (a → c) ∧ (b → c)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b → c ⊢ b → c ∧ (a ∨ b)",
+  "printed": "a ∨ b → c ⊢ b → c ∧ (a ∨ b)"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∨ b ∨ c",
+  "printed": "a ∨ b ∨ c"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∨ b ∨ c ∨ d",
+  "printed": "a ∨ b ∨ c ∨ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b ⊢ a",
+  "printed": "a ∨ b ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b ⊢ b ∨ a",
+  "printed": "a ∨ b ⊢ b ∨ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b ⊢ ¬(¬a ∧ ¬b)",
+  "printed": "a ∨ b ⊢ ¬(¬a ∧ ¬b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, a → c ⊢ b ∨ c",
+  "printed": "a ∨ b, a → c ⊢ b ∨ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, a → c ⊢ ¬c → b",
+  "printed": "a ∨ b, a → c ⊢ ¬c → b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, a → c, b → c ⊢ c",
+  "printed": "a ∨ b, a → c, b → c ⊢ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, a → c, b → d ⊢ c",
+  "printed": "a ∨ b, a → c, b → d ⊢ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, a → c, b → d ⊢ c ∨ d",
+  "printed": "a ∨ b, a → c, b → d ⊢ c ∨ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, b → a ⊢ a",
+  "printed": "a ∨ b, b → a ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, c ∧ d ⊢ (a ∧ c) ∨ (b ∧ c)",
+  "printed": "a ∨ b, c ∧ d ⊢ a ∧ c ∨ b ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, c ⊢ a ∧ c ∨ b ∧ c",
+  "printed": "a ∨ b, c ⊢ a ∧ c ∨ b ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, ¬a ∧ c ⊢ b ∧ c",
+  "printed": "a ∨ b, ¬a ∧ c ⊢ b ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, ¬a, b → c ⊢ c",
+  "printed": "a ∨ b, ¬a, b → c ⊢ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, ¬a, b → c, ¬c ∨ d ⊢ d",
+  "printed": "a ∨ b, ¬a, b → c, ¬c ∨ d ⊢ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ∨ b, ¬b ⊢ a",
+  "printed": "a ∨ b, ¬b ⊢ a"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∨ c",
+  "printed": "a ∨ c"
+ },
+ {
+  "kind": "formula",
+  "text": "a ∨ ¬a",
+  "printed": "a ∨ ¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ⊢ (a ∨ b) ∧ (c ∨ a)",
+  "printed": "a ⊢ (a ∨ b) ∧ (c ∨ a)"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ⊢ a → a",
+  "printed": "a ⊢ a → a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ⊢ a ∧ b",
+  "printed": "a ⊢ a ∧ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ⊢ a ∨ b",
+  "printed": "a ⊢ a ∨ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ⊢ b ∨ c",
+  "printed": "a ⊢ b ∨ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a ⊢ ¬¬¬¬a",
+  "printed": "a ⊢ ¬¬¬¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "a, b ⊢ a ∧ b",
+  "printed": "a, b ⊢ a ∧ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a, b, c ⊢ (a ∧ b) ∧ c",
+  "printed": "a, b, c ⊢ a ∧ b ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a, ¬(a ∨ b) ⊢ F",
+  "printed": "a, ¬(a ∨ b) ⊢ F"
+ },
+ {
+  "kind": "sequent",
+  "text": "a, ¬a ⊢ b",
+  "printed": "a, ¬a ⊢ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "a, ¬a ⊢ b ∧ c",
+  "printed": "a, ¬a ⊢ b ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "a1 /\\ a2 \\/ a3 => F |- ⊥ -> v2",
+  "printed": "a₁ ∧ a₂ ∨ a₃ → F ⊢ F → v₂"
+ },
+ {
+  "kind": "sequent",
+  "text": "a1 ∨ a2, a1 → b, a2 → b ⊢ b",
+  "printed": "a₁ ∨ a₂, a₁ → b, a₂ → b ⊢ b"
+ },
+ {
+  "kind": "formula",
+  "text": "a_2",
+  "printed": "a_₂"
+ },
+ {
+  "kind": "formula",
+  "text": "ab",
+  "printed": "ab"
+ },
+ {
+  "kind": "formula",
+  "text": "access",
+  "printed": "access"
+ },
+ {
+  "kind": "formula",
+  "text": "activeRules",
+  "printed": "activeRules"
+ },
+ {
+  "kind": "formula",
+  "text": "add",
+  "printed": "add"
+ },
+ {
+  "kind": "formula",
+  "text": "added",
+  "printed": "added"
+ },
+ {
+  "kind": "formula",
+  "text": "advance",
+  "printed": "advance"
+ },
+ {
+  "kind": "formula",
+  "text": "affirmedConsequent",
+  "printed": "affirmedConsequent"
+ },
+ {
+  "kind": "formula",
+  "text": "after",
+  "printed": "after"
+ },
+ {
+  "kind": "formula",
+  "text": "afterprint",
+  "printed": "afterprint"
+ },
+ {
+  "kind": "formula",
+  "text": "aggregateRating",
+  "printed": "aggregateRating"
+ },
+ {
+  "kind": "formula",
+  "text": "ainda",
+  "printed": "ainda"
+ },
+ {
+  "kind": "formula",
+  "text": "ajuda",
+  "printed": "ajuda"
+ },
+ {
+  "kind": "formula",
+  "text": "alert",
+  "printed": "alert"
+ },
+ {
+  "kind": "formula",
+  "text": "all",
+  "printed": "all"
+ },
+ {
+  "kind": "formula",
+  "text": "allowNew",
+  "printed": "allowNew"
+ },
+ {
+  "kind": "formula",
+  "text": "alreadyClosed",
+  "printed": "alreadyClosed"
+ },
+ {
+  "kind": "formula",
+  "text": "always",
+  "printed": "always"
+ },
+ {
+  "kind": "formula",
+  "text": "and",
+  "printed": "and"
+ },
+ {
+  "kind": "formula",
+  "text": "andE",
+  "printed": "andE"
+ },
+ {
+  "kind": "formula",
+  "text": "andElim",
+  "printed": "andElim"
+ },
+ {
+  "kind": "formula",
+  "text": "andElimInside",
+  "printed": "andElimInside"
+ },
+ {
+  "kind": "formula",
+  "text": "andI",
+  "printed": "andI"
+ },
+ {
+  "kind": "formula",
+  "text": "andIntro",
+  "printed": "andIntro"
+ },
+ {
+  "kind": "formula",
+  "text": "andIntroOneSide",
+  "printed": "andIntroOneSide"
+ },
+ {
+  "kind": "formula",
+  "text": "anterior",
+  "printed": "anterior"
+ },
+ {
+  "kind": "formula",
+  "text": "anythingFromAbsurd",
+  "printed": "anythingFromAbsurd"
+ },
+ {
+  "kind": "formula",
+  "text": "apagar",
+  "printed": "apagar"
+ },
+ {
+  "kind": "formula",
+  "text": "applyLink",
+  "printed": "applyLink"
+ },
+ {
+  "kind": "formula",
+  "text": "applyRule",
+  "printed": "applyRule"
+ },
+ {
+  "kind": "formula",
+  "text": "aprender",
+  "printed": "aprender"
+ },
+ {
+  "kind": "formula",
+  "text": "args",
+  "printed": "args"
+ },
+ {
+  "kind": "formula",
+  "text": "arraystretch",
+  "printed": "arraystretch"
+ },
+ {
+  "kind": "formula",
+  "text": "article",
+  "printed": "article"
+ },
+ {
+  "kind": "formula",
+  "text": "ascii",
+  "printed": "ascii"
+ },
+ {
+  "kind": "formula",
+  "text": "ask",
+  "printed": "ask"
+ },
+ {
+  "kind": "formula",
+  "text": "assist",
+  "printed": "assist"
+ },
+ {
+  "kind": "formula",
+  "text": "assistBodyHtml",
+  "printed": "assistBodyHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "assist__actions",
+  "printed": "assist__actions"
+ },
+ {
+  "kind": "formula",
+  "text": "assist__empty",
+  "printed": "assist__empty"
+ },
+ {
+  "kind": "formula",
+  "text": "assist__level",
+  "printed": "assist__level"
+ },
+ {
+  "kind": "formula",
+  "text": "assist__levels",
+  "printed": "assist__levels"
+ },
+ {
+  "kind": "formula",
+  "text": "assist__note",
+  "printed": "assist__note"
+ },
+ {
+  "kind": "formula",
+  "text": "assist__target",
+  "printed": "assist__target"
+ },
+ {
+  "kind": "formula",
+  "text": "assist__valuation",
+  "printed": "assist__valuation"
+ },
+ {
+  "kind": "formula",
+  "text": "assume",
+  "printed": "assume"
+ },
+ {
+  "kind": "formula",
+  "text": "assumeAntecedent",
+  "printed": "assumeAntecedent"
+ },
+ {
+  "kind": "formula",
+  "text": "assumeCase",
+  "printed": "assumeCase"
+ },
+ {
+  "kind": "formula",
+  "text": "assumeNegation",
+  "printed": "assumeNegation"
+ },
+ {
+  "kind": "formula",
+  "text": "assumeToNegate",
+  "printed": "assumeToNegate"
+ },
+ {
+  "kind": "formula",
+  "text": "assumeToRefute",
+  "printed": "assumeToRefute"
+ },
+ {
+  "kind": "formula",
+  "text": "assumedPremise",
+  "printed": "assumedPremise"
+ },
+ {
+  "kind": "formula",
+  "text": "assumption",
+  "printed": "assumption"
+ },
+ {
+  "kind": "formula",
+  "text": "at",
+  "printed": "at"
+ },
+ {
+  "kind": "formula",
+  "text": "atom",
+  "printed": "atom"
+ },
+ {
+  "kind": "formula",
+  "text": "auto",
+  "printed": "auto"
+ },
+ {
+  "kind": "sequent",
+  "text": "a₁ ∨ a₂, a₁ → b, a₂ → b ⊢ b",
+  "printed": "a₁ ∨ a₂, a₁ → b, a₂ → b ⊢ b"
+ },
+ {
+  "kind": "formula",
+  "text": "b",
+  "printed": "b"
+ },
+ {
+  "kind": "formula",
+  "text": "b → a",
+  "printed": "b → a"
+ },
+ {
+  "kind": "sequent",
+  "text": "b → a ⊢ a",
+  "printed": "b → a ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "b → c ⊢ (b → b ∧ c) ∧ c",
+  "printed": "b → c ⊢ (b → b ∧ c) ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "b → c ⊢ a ∧ b → a ∧ c",
+  "printed": "b → c ⊢ a ∧ b → a ∧ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "b → c ⊢ a ∧ b → c ∧ a",
+  "printed": "b → c ⊢ a ∧ b → c ∧ a"
+ },
+ {
+  "kind": "formula",
+  "text": "b ∧ a",
+  "printed": "b ∧ a"
+ },
+ {
+  "kind": "formula",
+  "text": "b ∧ c",
+  "printed": "b ∧ c"
+ },
+ {
+  "kind": "formula",
+  "text": "b ∨ c",
+  "printed": "b ∨ c"
+ },
+ {
+  "kind": "sequent",
+  "text": "b ⊢ b → a",
+  "printed": "b ⊢ b → a"
+ },
+ {
+  "kind": "formula",
+  "text": "b1",
+  "printed": "b₁"
+ },
+ {
+  "kind": "formula",
+  "text": "babel",
+  "printed": "babel"
+ },
+ {
+  "kind": "formula",
+  "text": "backAlongTheChain",
+  "printed": "backAlongTheChain"
+ },
+ {
+  "kind": "formula",
+  "text": "backend",
+  "printed": "backend"
+ },
+ {
+  "kind": "formula",
+  "text": "backwardsImplication",
+  "printed": "backwardsImplication"
+ },
+ {
+  "kind": "formula",
+  "text": "badAnswer",
+  "printed": "badAnswer"
+ },
+ {
+  "kind": "formula",
+  "text": "badCitation",
+  "printed": "badCitation"
+ },
+ {
+  "kind": "formula",
+  "text": "badDistractors",
+  "printed": "badDistractors"
+ },
+ {
+  "kind": "formula",
+  "text": "badExplanation",
+  "printed": "badExplanation"
+ },
+ {
+  "kind": "formula",
+  "text": "badHints",
+  "printed": "badHints"
+ },
+ {
+  "kind": "formula",
+  "text": "badId",
+  "printed": "badId"
+ },
+ {
+  "kind": "formula",
+  "text": "badIndent",
+  "printed": "badIndent"
+ },
+ {
+  "kind": "formula",
+  "text": "badLevel",
+  "printed": "badLevel"
+ },
+ {
+  "kind": "formula",
+  "text": "badLine",
+  "printed": "badLine"
+ },
+ {
+  "kind": "formula",
+  "text": "badLineNumber",
+  "printed": "badLineNumber"
+ },
+ {
+  "kind": "formula",
+  "text": "badProof",
+  "printed": "badProof"
+ },
+ {
+  "kind": "formula",
+  "text": "badRules",
+  "printed": "badRules"
+ },
+ {
+  "kind": "formula",
+  "text": "badSequent",
+  "printed": "badSequent"
+ },
+ {
+  "kind": "formula",
+  "text": "badSolution",
+  "printed": "badSolution"
+ },
+ {
+  "kind": "formula",
+  "text": "badVariable",
+  "printed": "badVariable"
+ },
+ {
+  "kind": "formula",
+  "text": "base",
+  "printed": "base"
+ },
+ {
+  "kind": "formula",
+  "text": "base64url",
+  "printed": "base64url"
+ },
+ {
+  "kind": "formula",
+  "text": "bash",
+  "printed": "bash"
+ },
+ {
+  "kind": "formula",
+  "text": "beforeprint",
+  "printed": "beforeprint"
+ },
+ {
+  "kind": "formula",
+  "text": "begin",
+  "printed": "begin"
+ },
+ {
+  "kind": "formula",
+  "text": "bigskip",
+  "printed": "bigskip"
+ },
+ {
+  "kind": "formula",
+  "text": "bindings",
+  "printed": "bindings"
+ },
+ {
+  "kind": "formula",
+  "text": "blocking",
+  "printed": "blocking"
+ },
+ {
+  "kind": "formula",
+  "text": "blur",
+  "printed": "blur"
+ },
+ {
+  "kind": "formula",
+  "text": "both",
+  "printed": "both"
+ },
+ {
+  "kind": "formula",
+  "text": "bothCases",
+  "printed": "bothCases"
+ },
+ {
+  "kind": "formula",
+  "text": "bothSides",
+  "printed": "bothSides"
+ },
+ {
+  "kind": "formula",
+  "text": "btn",
+  "printed": "btn"
+ },
+ {
+  "kind": "formula",
+  "text": "buriedDoubleNegation",
+  "printed": "buriedDoubleNegation"
+ },
+ {
+  "kind": "formula",
+  "text": "button",
+  "printed": "button"
+ },
+ {
+  "kind": "sequent",
+  "text": "b₁ ⊢ b₁",
+  "printed": "b₁ ⊢ b₁"
+ },
+ {
+  "kind": "formula",
+  "text": "c",
+  "printed": "c"
+ },
+ {
+  "kind": "sequent",
+  "text": "c → a ∧ b ⊢ c → b ∧ a",
+  "printed": "c → a ∧ b ⊢ c → b ∧ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "c → a, a → b, ¬b ⊢ ¬c",
+  "printed": "c → a, a → b, ¬b ⊢ ¬c"
+ },
+ {
+  "kind": "formula",
+  "text": "c ∧ d",
+  "printed": "c ∧ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "c ∧ ¬c ⊢ d ∨ e",
+  "printed": "c ∧ ¬c ⊢ d ∨ e"
+ },
+ {
+  "kind": "sequent",
+  "text": "c ⊢ a → (b → (a ∧ b) ∧ c)",
+  "printed": "c ⊢ a → b → a ∧ b ∧ c"
+ },
+ {
+  "kind": "formula",
+  "text": "cada",
+  "printed": "cada"
+ },
+ {
+  "kind": "formula",
+  "text": "cancelled",
+  "printed": "cancelled"
+ },
+ {
+  "kind": "formula",
+  "text": "candidates",
+  "printed": "candidates"
+ },
+ {
+  "kind": "formula",
+  "text": "capturesLines",
+  "printed": "capturesLines"
+ },
+ {
+  "kind": "formula",
+  "text": "cases",
+  "printed": "cases"
+ },
+ {
+  "kind": "formula",
+  "text": "casesDisagree",
+  "printed": "casesDisagree"
+ },
+ {
+  "kind": "formula",
+  "text": "casesFromTheDisjunction",
+  "printed": "casesFromTheDisjunction"
+ },
+ {
+  "kind": "formula",
+  "text": "certa",
+  "printed": "certa"
+ },
+ {
+  "kind": "formula",
+  "text": "certas",
+  "printed": "certas"
+ },
+ {
+  "kind": "formula",
+  "text": "chain",
+  "printed": "chain"
+ },
+ {
+  "kind": "formula",
+  "text": "chainImplication",
+  "printed": "chainImplication"
+ },
+ {
+  "kind": "formula",
+  "text": "change",
+  "printed": "change"
+ },
+ {
+  "kind": "formula",
+  "text": "check",
+  "printed": "check"
+ },
+ {
+  "kind": "formula",
+  "text": "checkAttempt",
+  "printed": "checkAttempt"
+ },
+ {
+  "kind": "formula",
+  "text": "checkForm",
+  "printed": "checkForm"
+ },
+ {
+  "kind": "formula",
+  "text": "checked",
+  "printed": "checked"
+ },
+ {
+  "kind": "formula",
+  "text": "choice",
+  "printed": "choice"
+ },
+ {
+  "kind": "formula",
+  "text": "chosen",
+  "printed": "chosen"
+ },
+ {
+  "kind": "formula",
+  "text": "citable",
+  "printed": "citable"
+ },
+ {
+  "kind": "formula",
+  "text": "citar",
+  "printed": "citar"
+ },
+ {
+  "kind": "formula",
+  "text": "citation",
+  "printed": "citation"
+ },
+ {
+  "kind": "formula",
+  "text": "citations",
+  "printed": "citations"
+ },
+ {
+  "kind": "formula",
+  "text": "cited",
+  "printed": "cited"
+ },
+ {
+  "kind": "formula",
+  "text": "citesOpenSubproof",
+  "printed": "citesOpenSubproof"
+ },
+ {
+  "kind": "formula",
+  "text": "clampStep",
+  "printed": "clampStep"
+ },
+ {
+  "kind": "formula",
+  "text": "classical",
+  "printed": "classical"
+ },
+ {
+  "kind": "formula",
+  "text": "click",
+  "printed": "click"
+ },
+ {
+  "kind": "formula",
+  "text": "close",
+  "printed": "close"
+ },
+ {
+  "kind": "formula",
+  "text": "closedLine",
+  "printed": "closedLine"
+ },
+ {
+  "kind": "formula",
+  "text": "closedSubproofLine",
+  "printed": "closedSubproofLine"
+ },
+ {
+  "kind": "formula",
+  "text": "code",
+  "printed": "code"
+ },
+ {
+  "kind": "formula",
+  "text": "coisa",
+  "printed": "coisa"
+ },
+ {
+  "kind": "formula",
+  "text": "comma",
+  "printed": "comma"
+ },
+ {
+  "kind": "formula",
+  "text": "como",
+  "printed": "como"
+ },
+ {
+  "kind": "formula",
+  "text": "complete",
+  "printed": "complete"
+ },
+ {
+  "kind": "formula",
+  "text": "completeProof",
+  "printed": "completeProof"
+ },
+ {
+  "kind": "formula",
+  "text": "completo",
+  "printed": "completo"
+ },
+ {
+  "kind": "formula",
+  "text": "conclude",
+  "printed": "conclude"
+ },
+ {
+  "kind": "formula",
+  "text": "concludeByAbsurd",
+  "printed": "concludeByAbsurd"
+ },
+ {
+  "kind": "formula",
+  "text": "concludeImplication",
+  "printed": "concludeImplication"
+ },
+ {
+  "kind": "formula",
+  "text": "concludeNegation",
+  "printed": "concludeNegation"
+ },
+ {
+  "kind": "formula",
+  "text": "concludes",
+  "printed": "concludes"
+ },
+ {
+  "kind": "formula",
+  "text": "conclusion",
+  "printed": "conclusion"
+ },
+ {
+  "kind": "formula",
+  "text": "conjuncao",
+  "printed": "conjuncao"
+ },
+ {
+  "kind": "formula",
+  "text": "conjunction",
+  "printed": "conjunction"
+ },
+ {
+  "kind": "formula",
+  "text": "constructor",
+  "printed": "constructor"
+ },
+ {
+  "kind": "formula",
+  "text": "container",
+  "printed": "container"
+ },
+ {
+  "kind": "formula",
+  "text": "continue",
+  "printed": "continue"
+ },
+ {
+  "kind": "formula",
+  "text": "contradiction",
+  "printed": "contradiction"
+ },
+ {
+  "kind": "formula",
+  "text": "contrapositive",
+  "printed": "contrapositive"
+ },
+ {
+  "kind": "formula",
+  "text": "converse",
+  "printed": "converse"
+ },
+ {
+  "kind": "formula",
+  "text": "copiar",
+  "printed": "copiar"
+ },
+ {
+  "kind": "formula",
+  "text": "core",
+  "printed": "core"
+ },
+ {
+  "kind": "formula",
+  "text": "counter",
+  "printed": "counter"
+ },
+ {
+  "kind": "formula",
+  "text": "counterexample",
+  "printed": "counterexample"
+ },
+ {
+  "kind": "formula",
+  "text": "createAssist",
+  "printed": "createAssist"
+ },
+ {
+  "kind": "formula",
+  "text": "createUrlSync",
+  "printed": "createUrlSync"
+ },
+ {
+  "kind": "formula",
+  "text": "createUserRule",
+  "printed": "createUserRule"
+ },
+ {
+  "kind": "formula",
+  "text": "credits",
+  "printed": "credits"
+ },
+ {
+  "kind": "formula",
+  "text": "current",
+  "printed": "current"
+ },
+ {
+  "kind": "formula",
+  "text": "curry",
+  "printed": "curry"
+ },
+ {
+  "kind": "formula",
+  "text": "d",
+  "printed": "d"
+ },
+ {
+  "kind": "sequent",
+  "text": "d → (f → g), ¬g, d ⊢ ¬f",
+  "printed": "d → f → g, ¬g, d ⊢ ¬f"
+ },
+ {
+  "kind": "sequent",
+  "text": "d → f ⊢ (d → (d ∧ f)) ∧ ((d ∧ f) → d)",
+  "printed": "d → f ⊢ (d → d ∧ f) ∧ (d ∧ f → d)"
+ },
+ {
+  "kind": "sequent",
+  "text": "d → f ⊢ (f → (d ∨ f)) ∧ ((d ∨ f) → f)",
+  "printed": "d → f ⊢ (f → d ∨ f) ∧ (d ∨ f → f)"
+ },
+ {
+  "kind": "sequent",
+  "text": "d → f ⊢ ¬f → ¬d",
+  "printed": "d → f ⊢ ¬f → ¬d"
+ },
+ {
+  "kind": "sequent",
+  "text": "d ∧ e ⊢ e → e → d",
+  "printed": "d ∧ e ⊢ e → e → d"
+ },
+ {
+  "kind": "sequent",
+  "text": "d ∨ (f ∧ g) ⊢ (d ∨ f) ∧ (d ∨ g)",
+  "printed": "d ∨ f ∧ g ⊢ (d ∨ f) ∧ (d ∨ g)"
+ },
+ {
+  "kind": "sequent",
+  "text": "d ∨ g, ¬g ∨ f ⊢ d ∨ f",
+  "printed": "d ∨ g, ¬g ∨ f ⊢ d ∨ f"
+ },
+ {
+  "kind": "sequent",
+  "text": "d ⊢ (c ∨ d) ∧ (d ∨ e)",
+  "printed": "d ⊢ (c ∨ d) ∧ (d ∨ e)"
+ },
+ {
+  "kind": "sequent",
+  "text": "d, f → g ⊢ f → (d → g)",
+  "printed": "d, f → g ⊢ f → d → g"
+ },
+ {
+  "kind": "sequent",
+  "text": "d, ¬d ⊢ e",
+  "printed": "d, ¬d ⊢ e"
+ },
+ {
+  "kind": "sequent",
+  "text": "d, ¬f ⊢ ¬(d → f)",
+  "printed": "d, ¬f ⊢ ¬(d → f)"
+ },
+ {
+  "kind": "formula",
+  "text": "das",
+  "printed": "das"
+ },
+ {
+  "kind": "formula",
+  "text": "data",
+  "printed": "data"
+ },
+ {
+  "kind": "formula",
+  "text": "dd",
+  "printed": "dd"
+ },
+ {
+  "kind": "formula",
+  "text": "deMorgan",
+  "printed": "deMorgan"
+ },
+ {
+  "kind": "formula",
+  "text": "deMorganShape",
+  "printed": "deMorganShape"
+ },
+ {
+  "kind": "formula",
+  "text": "deMorganSplit",
+  "printed": "deMorganSplit"
+ },
+ {
+  "kind": "formula",
+  "text": "deadEnd",
+  "printed": "deadEnd"
+ },
+ {
+  "kind": "formula",
+  "text": "deleteSubproof",
+  "printed": "deleteSubproof"
+ },
+ {
+  "kind": "formula",
+  "text": "denyTheOtherSide",
+  "printed": "denyTheOtherSide"
+ },
+ {
+  "kind": "formula",
+  "text": "depois",
+  "printed": "depois"
+ },
+ {
+  "kind": "formula",
+  "text": "depth",
+  "printed": "depth"
+ },
+ {
+  "kind": "formula",
+  "text": "derivadas",
+  "printed": "derivadas"
+ },
+ {
+  "kind": "formula",
+  "text": "derive",
+  "printed": "derive"
+ },
+ {
+  "kind": "formula",
+  "text": "derived",
+  "printed": "derived"
+ },
+ {
+  "kind": "formula",
+  "text": "details",
+  "printed": "details"
+ },
+ {
+  "kind": "formula",
+  "text": "detectNotation",
+  "printed": "detectNotation"
+ },
+ {
+  "kind": "formula",
+  "text": "dialog",
+  "printed": "dialog"
+ },
+ {
+  "kind": "formula",
+  "text": "diamond",
+  "printed": "diamond"
+ },
+ {
+  "kind": "formula",
+  "text": "dica",
+  "printed": "dica"
+ },
+ {
+  "kind": "formula",
+  "text": "dicas",
+  "printed": "dicas"
+ },
+ {
+  "kind": "formula",
+  "text": "direct",
+  "printed": "direct"
+ },
+ {
+  "kind": "formula",
+  "text": "discharge",
+  "printed": "discharge"
+ },
+ {
+  "kind": "formula",
+  "text": "disjuncao",
+  "printed": "disjuncao"
+ },
+ {
+  "kind": "formula",
+  "text": "disjunction",
+  "printed": "disjunction"
+ },
+ {
+  "kind": "formula",
+  "text": "div",
+  "printed": "div"
+ },
+ {
+  "kind": "formula",
+  "text": "document",
+  "printed": "document"
+ },
+ {
+  "kind": "formula",
+  "text": "documentclass",
+  "printed": "documentclass"
+ },
+ {
+  "kind": "formula",
+  "text": "done",
+  "printed": "done"
+ },
+ {
+  "kind": "formula",
+  "text": "dos",
+  "printed": "dos"
+ },
+ {
+  "kind": "formula",
+  "text": "doubleNegateToCancel",
+  "printed": "doubleNegateToCancel"
+ },
+ {
+  "kind": "formula",
+  "text": "doubled",
+  "printed": "doubled"
+ },
+ {
+  "kind": "formula",
+  "text": "duplicateId",
+  "printed": "duplicateId"
+ },
+ {
+  "kind": "formula",
+  "text": "duplicateName",
+  "printed": "duplicateName"
+ },
+ {
+  "kind": "formula",
+  "text": "e",
+  "printed": "e"
+ },
+ {
+  "kind": "sequent",
+  "text": "e → f, ¬f ⊢ ¬e ∧ ¬f",
+  "printed": "e → f, ¬f ⊢ ¬e ∧ ¬f"
+ },
+ {
+  "kind": "formula",
+  "text": "editorStatus",
+  "printed": "editorStatus"
+ },
+ {
+  "kind": "formula",
+  "text": "ela",
+  "printed": "ela"
+ },
+ {
+  "kind": "formula",
+  "text": "ele",
+  "printed": "ele"
+ },
+ {
+  "kind": "formula",
+  "text": "elements",
+  "printed": "elements"
+ },
+ {
+  "kind": "formula",
+  "text": "eliminate",
+  "printed": "eliminate"
+ },
+ {
+  "kind": "formula",
+  "text": "em",
+  "printed": "em"
+ },
+ {
+  "kind": "formula",
+  "text": "empty",
+  "printed": "empty"
+ },
+ {
+  "kind": "formula",
+  "text": "emptyCitation",
+  "printed": "emptyCitation"
+ },
+ {
+  "kind": "formula",
+  "text": "emptyFormula",
+  "printed": "emptyFormula"
+ },
+ {
+  "kind": "formula",
+  "text": "emptyHeading",
+  "printed": "emptyHeading"
+ },
+ {
+  "kind": "formula",
+  "text": "emptyImplication",
+  "printed": "emptyImplication"
+ },
+ {
+  "kind": "formula",
+  "text": "emptyInput",
+  "printed": "emptyInput"
+ },
+ {
+  "kind": "formula",
+  "text": "emptyPremise",
+  "printed": "emptyPremise"
+ },
+ {
+  "kind": "formula",
+  "text": "emptyProof",
+  "printed": "emptyProof"
+ },
+ {
+  "kind": "formula",
+  "text": "en",
+  "printed": "en"
+ },
+ {
+  "kind": "formula",
+  "text": "encodeShare",
+  "printed": "encodeShare"
+ },
+ {
+  "kind": "formula",
+  "text": "end",
+  "printed": "end"
+ },
+ {
+  "kind": "formula",
+  "text": "english",
+  "printed": "english"
+ },
+ {
+  "kind": "formula",
+  "text": "entre",
+  "printed": "entre"
+ },
+ {
+  "kind": "formula",
+  "text": "entry",
+  "printed": "entry"
+ },
+ {
+  "kind": "formula",
+  "text": "eq",
+  "printed": "eq"
+ },
+ {
+  "kind": "formula",
+  "text": "equals",
+  "printed": "equals"
+ },
+ {
+  "kind": "formula",
+  "text": "error",
+  "printed": "error"
+ },
+ {
+  "kind": "formula",
+  "text": "escapedLine",
+  "printed": "escapedLine"
+ },
+ {
+  "kind": "formula",
+  "text": "escreve",
+  "printed": "escreve"
+ },
+ {
+  "kind": "formula",
+  "text": "escrever",
+  "printed": "escrever"
+ },
+ {
+  "kind": "formula",
+  "text": "esta",
+  "printed": "esta"
+ },
+ {
+  "kind": "formula",
+  "text": "este",
+  "printed": "este"
+ },
+ {
+  "kind": "formula",
+  "text": "estrategias",
+  "printed": "estrategias"
+ },
+ {
+  "kind": "formula",
+  "text": "event",
+  "printed": "event"
+ },
+ {
+  "kind": "formula",
+  "text": "ex",
+  "printed": "ex"
+ },
+ {
+  "kind": "formula",
+  "text": "exact",
+  "printed": "exact"
+ },
+ {
+  "kind": "formula",
+  "text": "example",
+  "printed": "example"
+ },
+ {
+  "kind": "formula",
+  "text": "exclude",
+  "printed": "exclude"
+ },
+ {
+  "kind": "formula",
+  "text": "excludedMiddle",
+  "printed": "excludedMiddle"
+ },
+ {
+  "kind": "formula",
+  "text": "exemplo",
+  "printed": "exemplo"
+ },
+ {
+  "kind": "formula",
+  "text": "exemplos",
+  "printed": "exemplos"
+ },
+ {
+  "kind": "formula",
+  "text": "exercises",
+  "printed": "exercises"
+ },
+ {
+  "kind": "formula",
+  "text": "existing",
+  "printed": "existing"
+ },
+ {
+  "kind": "formula",
+  "text": "exit",
+  "printed": "exit"
+ },
+ {
+  "kind": "formula",
+  "text": "extraCitation",
+  "printed": "extraCitation"
+ },
+ {
+  "kind": "formula",
+  "text": "extraPremise",
+  "printed": "extraPremise"
+ },
+ {
+  "kind": "formula",
+  "text": "extraPremises",
+  "printed": "extraPremises"
+ },
+ {
+  "kind": "formula",
+  "text": "f",
+  "printed": "f"
+ },
+ {
+  "kind": "sequent",
+  "text": "f → (g ∧ d) ⊢ (f → g) ∧ (f → d)",
+  "printed": "f → g ∧ d ⊢ (f → g) ∧ (f → d)"
+ },
+ {
+  "kind": "sequent",
+  "text": "f → g, f → h, g ∧ h → i ⊢ f → i",
+  "printed": "f → g, f → h, g ∧ h → i ⊢ f → i"
+ },
+ {
+  "kind": "sequent",
+  "text": "f → k, f ⊢ g → k ∧ g",
+  "printed": "f → k, f ⊢ g → k ∧ g"
+ },
+ {
+  "kind": "sequent",
+  "text": "f ∧ (d ∨ g) ⊢ (f ∧ d) ∨ (f ∧ g)",
+  "printed": "f ∧ (d ∨ g) ⊢ f ∧ d ∨ f ∧ g"
+ },
+ {
+  "kind": "sequent",
+  "text": "f ∧ ¬f ⊢ ¬(d → g) ∧ (d → g)",
+  "printed": "f ∧ ¬f ⊢ ¬(d → g) ∧ (d → g)"
+ },
+ {
+  "kind": "formula",
+  "text": "failed",
+  "printed": "failed"
+ },
+ {
+  "kind": "formula",
+  "text": "false",
+  "printed": "false"
+ },
+ {
+  "kind": "formula",
+  "text": "falseElim",
+  "printed": "falseElim"
+ },
+ {
+  "kind": "formula",
+  "text": "falseElimNoFalse",
+  "printed": "falseElimNoFalse"
+ },
+ {
+  "kind": "formula",
+  "text": "falseIntro",
+  "printed": "falseIntro"
+ },
+ {
+  "kind": "formula",
+  "text": "falseIntroNotOpposite",
+  "printed": "falseIntroNotOpposite"
+ },
+ {
+  "kind": "formula",
+  "text": "falso",
+  "printed": "falso"
+ },
+ {
+  "kind": "formula",
+  "text": "falsum",
+  "printed": "falsum"
+ },
+ {
+  "kind": "formula",
+  "text": "falta",
+  "printed": "falta"
+ },
+ {
+  "kind": "formula",
+  "text": "fast",
+  "printed": "fast"
+ },
+ {
+  "kind": "formula",
+  "text": "fechar",
+  "printed": "fechar"
+ },
+ {
+  "kind": "formula",
+  "text": "feedback",
+  "printed": "feedback"
+ },
+ {
+  "kind": "formula",
+  "text": "feito",
+  "printed": "feito"
+ },
+ {
+  "kind": "formula",
+  "text": "field",
+  "printed": "field"
+ },
+ {
+  "kind": "formula",
+  "text": "field__label",
+  "printed": "field__label"
+ },
+ {
+  "kind": "formula",
+  "text": "figure",
+  "printed": "figure"
+ },
+ {
+  "kind": "formula",
+  "text": "find",
+  "printed": "find"
+ },
+ {
+  "kind": "formula",
+  "text": "findError",
+  "printed": "findError"
+ },
+ {
+  "kind": "formula",
+  "text": "findErrorHtml",
+  "printed": "findErrorHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "findExample",
+  "printed": "findExample"
+ },
+ {
+  "kind": "formula",
+  "text": "first",
+  "printed": "first"
+ },
+ {
+  "kind": "formula",
+  "text": "firstProof",
+  "printed": "firstProof"
+ },
+ {
+  "kind": "formula",
+  "text": "firstRule",
+  "printed": "firstRule"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch",
+  "printed": "fitch"
+ },
+ {
+  "kind": "formula",
+  "text": "fitchHtml",
+  "printed": "fitchHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch__bars",
+  "printed": "fitch__bars"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch__body",
+  "printed": "fitch__body"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch__gutter",
+  "printed": "fitch__gutter"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch__line",
+  "printed": "fitch__line"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch__lines",
+  "printed": "fitch__lines"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch__number",
+  "printed": "fitch__number"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch__state",
+  "printed": "fitch__state"
+ },
+ {
+  "kind": "formula",
+  "text": "fitch__why",
+  "printed": "fitch__why"
+ },
+ {
+  "kind": "formula",
+  "text": "fitchbar",
+  "printed": "fitchbar"
+ },
+ {
+  "kind": "formula",
+  "text": "fixLine",
+  "printed": "fixLine"
+ },
+ {
+  "kind": "formula",
+  "text": "fixture",
+  "printed": "fixture"
+ },
+ {
+  "kind": "formula",
+  "text": "focusFirst",
+  "printed": "focusFirst"
+ },
+ {
+  "kind": "formula",
+  "text": "focusin",
+  "printed": "focusin"
+ },
+ {
+  "kind": "formula",
+  "text": "focusout",
+  "printed": "focusout"
+ },
+ {
+  "kind": "formula",
+  "text": "footnotesize",
+  "printed": "footnotesize"
+ },
+ {
+  "kind": "formula",
+  "text": "forbiddenShortcut",
+  "printed": "forbiddenShortcut"
+ },
+ {
+  "kind": "formula",
+  "text": "forgottenCase",
+  "printed": "forgottenCase"
+ },
+ {
+  "kind": "formula",
+  "text": "fork",
+  "printed": "fork"
+ },
+ {
+  "kind": "formula",
+  "text": "format",
+  "printed": "format"
+ },
+ {
+  "kind": "formula",
+  "text": "formatProof",
+  "printed": "formatProof"
+ },
+ {
+  "kind": "formula",
+  "text": "formula",
+  "printed": "formula"
+ },
+ {
+  "kind": "formula",
+  "text": "formulaMismatch",
+  "printed": "formulaMismatch"
+ },
+ {
+  "kind": "formula",
+  "text": "formulas",
+  "printed": "formulas"
+ },
+ {
+  "kind": "formula",
+  "text": "found",
+  "printed": "found"
+ },
+ {
+  "kind": "formula",
+  "text": "fr",
+  "printed": "fr"
+ },
+ {
+  "kind": "formula",
+  "text": "free",
+  "printed": "free"
+ },
+ {
+  "kind": "formula",
+  "text": "from",
+  "printed": "from"
+ },
+ {
+  "kind": "formula",
+  "text": "function",
+  "printed": "function"
+ },
+ {
+  "kind": "formula",
+  "text": "future",
+  "printed": "future"
+ },
+ {
+  "kind": "formula",
+  "text": "g",
+  "printed": "g"
+ },
+ {
+  "kind": "sequent",
+  "text": "g → h, h ⊢ g ∧ h",
+  "printed": "g → h, h ⊢ g ∧ h"
+ },
+ {
+  "kind": "sequent",
+  "text": "g ∧ (f ∧ d) ⊢ (g ∧ f) ∧ d",
+  "printed": "g ∧ (f ∧ d) ⊢ g ∧ f ∧ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "g ∧ (h ∨ i) ⊢ (g ∧ h) ∨ (g ∧ i)",
+  "printed": "g ∧ (h ∨ i) ⊢ g ∧ h ∨ g ∧ i"
+ },
+ {
+  "kind": "sequent",
+  "text": "g ∨ (f ∨ d) ⊢ (g ∨ f) ∨ d",
+  "printed": "g ∨ (f ∨ d) ⊢ g ∨ f ∨ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "g ∨ h, ¬g, h → j ⊢ j",
+  "printed": "g ∨ h, ¬g, h → j ⊢ j"
+ },
+ {
+  "kind": "formula",
+  "text": "generatedBy",
+  "printed": "generatedBy"
+ },
+ {
+  "kind": "formula",
+  "text": "gentzen",
+  "printed": "gentzen"
+ },
+ {
+  "kind": "formula",
+  "text": "gentzen__inner",
+  "printed": "gentzen__inner"
+ },
+ {
+  "kind": "formula",
+  "text": "ghost",
+  "printed": "ghost"
+ },
+ {
+  "kind": "formula",
+  "text": "go",
+  "printed": "go"
+ },
+ {
+  "kind": "formula",
+  "text": "goal",
+  "printed": "goal"
+ },
+ {
+  "kind": "formula",
+  "text": "goalThroughDoubleNegation",
+  "printed": "goalThroughDoubleNegation"
+ },
+ {
+  "kind": "formula",
+  "text": "group",
+  "printed": "group"
+ },
+ {
+  "kind": "formula",
+  "text": "grp",
+  "printed": "grp"
+ },
+ {
+  "kind": "formula",
+  "text": "gt",
+  "printed": "gt"
+ },
+ {
+  "kind": "formula",
+  "text": "gt__bar",
+  "printed": "gt__bar"
+ },
+ {
+  "kind": "formula",
+  "text": "gt__formula",
+  "printed": "gt__formula"
+ },
+ {
+  "kind": "formula",
+  "text": "gt__premises",
+  "printed": "gt__premises"
+ },
+ {
+  "kind": "formula",
+  "text": "gt__rule",
+  "printed": "gt__rule"
+ },
+ {
+  "kind": "formula",
+  "text": "guardar",
+  "printed": "guardar"
+ },
+ {
+  "kind": "formula",
+  "text": "guided",
+  "printed": "guided"
+ },
+ {
+  "kind": "formula",
+  "text": "guided__choice",
+  "printed": "guided__choice"
+ },
+ {
+  "kind": "formula",
+  "text": "guided__choices",
+  "printed": "guided__choices"
+ },
+ {
+  "kind": "formula",
+  "text": "guided__hint",
+  "printed": "guided__hint"
+ },
+ {
+  "kind": "formula",
+  "text": "guided__objective",
+  "printed": "guided__objective"
+ },
+ {
+  "kind": "formula",
+  "text": "guided__reason",
+  "printed": "guided__reason"
+ },
+ {
+  "kind": "formula",
+  "text": "guided__rule",
+  "printed": "guided__rule"
+ },
+ {
+  "kind": "formula",
+  "text": "guided__rules",
+  "printed": "guided__rules"
+ },
+ {
+  "kind": "sequent",
+  "text": "h → i ∧ j, h ⊢ j ∧ h",
+  "printed": "h → i ∧ j, h ⊢ j ∧ h"
+ },
+ {
+  "kind": "formula",
+  "text": "h1",
+  "printed": "h₁"
+ },
+ {
+  "kind": "formula",
+  "text": "handled",
+  "printed": "handled"
+ },
+ {
+  "kind": "formula",
+  "text": "harder",
+  "printed": "harder"
+ },
+ {
+  "kind": "formula",
+  "text": "heyting",
+  "printed": "heyting"
+ },
+ {
+  "kind": "formula",
+  "text": "hint",
+  "printed": "hint"
+ },
+ {
+  "kind": "formula",
+  "text": "hip",
+  "printed": "hip"
+ },
+ {
+  "kind": "formula",
+  "text": "hipotese",
+  "printed": "hipotese"
+ },
+ {
+  "kind": "formula",
+  "text": "history",
+  "printed": "history"
+ },
+ {
+  "kind": "formula",
+  "text": "home",
+  "printed": "home"
+ },
+ {
+  "kind": "formula",
+  "text": "hspace",
+  "printed": "hspace"
+ },
+ {
+  "kind": "formula",
+  "text": "hyp",
+  "printed": "hyp"
+ },
+ {
+  "kind": "formula",
+  "text": "hypothesis",
+  "printed": "hypothesis"
+ },
+ {
+  "kind": "sequent",
+  "text": "i ∨ j, i → k ⊢ k ∨ i",
+  "printed": "i ∨ j, i → k ⊢ k ∨ i"
+ },
+ {
+  "kind": "formula",
+  "text": "ic",
+  "printed": "ic"
+ },
+ {
+  "kind": "formula",
+  "text": "icon",
+  "printed": "icon"
+ },
+ {
+  "kind": "formula",
+  "text": "id",
+  "printed": "id"
+ },
+ {
+  "kind": "formula",
+  "text": "idle",
+  "printed": "idle"
+ },
+ {
+  "kind": "formula",
+  "text": "ignore",
+  "printed": "ignore"
+ },
+ {
+  "kind": "formula",
+  "text": "img",
+  "printed": "img"
+ },
+ {
+  "kind": "formula",
+  "text": "implE",
+  "printed": "implE"
+ },
+ {
+  "kind": "formula",
+  "text": "implElim",
+  "printed": "implElim"
+ },
+ {
+  "kind": "formula",
+  "text": "implElimBackwards",
+  "printed": "implElimBackwards"
+ },
+ {
+  "kind": "formula",
+  "text": "implIntro",
+  "printed": "implIntro"
+ },
+ {
+  "kind": "formula",
+  "text": "implIntroSwapped",
+  "printed": "implIntroSwapped"
+ },
+ {
+  "kind": "formula",
+  "text": "implica",
+  "printed": "implica"
+ },
+ {
+  "kind": "formula",
+  "text": "implicacao",
+  "printed": "implicacao"
+ },
+ {
+  "kind": "formula",
+  "text": "implication",
+  "printed": "implication"
+ },
+ {
+  "kind": "formula",
+  "text": "implies",
+  "printed": "implies"
+ },
+ {
+  "kind": "formula",
+  "text": "inaccessibleLine",
+  "printed": "inaccessibleLine"
+ },
+ {
+  "kind": "formula",
+  "text": "incomplete",
+  "printed": "incomplete"
+ },
+ {
+  "kind": "formula",
+  "text": "index",
+  "printed": "index"
+ },
+ {
+  "kind": "formula",
+  "text": "inference",
+  "printed": "inference"
+ },
+ {
+  "kind": "formula",
+  "text": "info",
+  "printed": "info"
+ },
+ {
+  "kind": "formula",
+  "text": "inherit",
+  "printed": "inherit"
+ },
+ {
+  "kind": "formula",
+  "text": "innerDoubleNegation",
+  "printed": "innerDoubleNegation"
+ },
+ {
+  "kind": "formula",
+  "text": "input",
+  "printed": "input"
+ },
+ {
+  "kind": "formula",
+  "text": "instant",
+  "printed": "instant"
+ },
+ {
+  "kind": "formula",
+  "text": "interactionCount",
+  "printed": "interactionCount"
+ },
+ {
+  "kind": "formula",
+  "text": "interpret",
+  "printed": "interpret"
+ },
+ {
+  "kind": "formula",
+  "text": "invalid",
+  "printed": "invalid"
+ },
+ {
+  "kind": "formula",
+  "text": "invalidDepth",
+  "printed": "invalidDepth"
+ },
+ {
+  "kind": "formula",
+  "text": "invalidLine",
+  "printed": "invalidLine"
+ },
+ {
+  "kind": "formula",
+  "text": "invalidName",
+  "printed": "invalidName"
+ },
+ {
+  "kind": "formula",
+  "text": "inventedPremise",
+  "printed": "inventedPremise"
+ },
+ {
+  "kind": "formula",
+  "text": "item",
+  "printed": "item"
+ },
+ {
+  "kind": "formula",
+  "text": "joinCases",
+  "printed": "joinCases"
+ },
+ {
+  "kind": "formula",
+  "text": "joinConjunction",
+  "printed": "joinConjunction"
+ },
+ {
+  "kind": "formula",
+  "text": "js",
+  "printed": "js"
+ },
+ {
+  "kind": "formula",
+  "text": "justification",
+  "printed": "justification"
+ },
+ {
+  "kind": "sequent",
+  "text": "k ∧ l ⊢ j → l",
+  "printed": "k ∧ l ⊢ j → l"
+ },
+ {
+  "kind": "formula",
+  "text": "key",
+  "printed": "key"
+ },
+ {
+  "kind": "formula",
+  "text": "keydown",
+  "printed": "keydown"
+ },
+ {
+  "kind": "formula",
+  "text": "keys",
+  "printed": "keys"
+ },
+ {
+  "kind": "formula",
+  "text": "kind",
+  "printed": "kind"
+ },
+ {
+  "kind": "formula",
+  "text": "known",
+  "printed": "known"
+ },
+ {
+  "kind": "formula",
+  "text": "labCases",
+  "printed": "labCases"
+ },
+ {
+  "kind": "formula",
+  "text": "labels",
+  "printed": "labels"
+ },
+ {
+  "kind": "formula",
+  "text": "land",
+  "printed": "land"
+ },
+ {
+  "kind": "formula",
+  "text": "lang",
+  "printed": "lang"
+ },
+ {
+  "kind": "formula",
+  "text": "last",
+  "printed": "last"
+ },
+ {
+  "kind": "formula",
+  "text": "laterLine",
+  "printed": "laterLine"
+ },
+ {
+  "kind": "formula",
+  "text": "learn",
+  "printed": "learn"
+ },
+ {
+  "kind": "formula",
+  "text": "length",
+  "printed": "length"
+ },
+ {
+  "kind": "formula",
+  "text": "lessonCheckFeedbackHtml",
+  "printed": "lessonCheckFeedbackHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "lessonCheckHtml",
+  "printed": "lessonCheckHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "lessonDerivedForms",
+  "printed": "lessonDerivedForms"
+ },
+ {
+  "kind": "formula",
+  "text": "lessonDerivedHtml",
+  "printed": "lessonDerivedHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "lessonLabHtml",
+  "printed": "lessonLabHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "lessonMistakeHtml",
+  "printed": "lessonMistakeHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "lessonProofHtml",
+  "printed": "lessonProofHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "lessonRuleHtml",
+  "printed": "lessonRuleHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "lida",
+  "printed": "lida"
+ },
+ {
+  "kind": "formula",
+  "text": "line",
+  "printed": "line"
+ },
+ {
+  "kind": "formula",
+  "text": "lineFine",
+  "printed": "lineFine"
+ },
+ {
+  "kind": "formula",
+  "text": "lineStart",
+  "printed": "lineStart"
+ },
+ {
+  "kind": "formula",
+  "text": "lineStates",
+  "printed": "lineStates"
+ },
+ {
+  "kind": "formula",
+  "text": "lines",
+  "printed": "lines"
+ },
+ {
+  "kind": "formula",
+  "text": "linha",
+  "printed": "linha"
+ },
+ {
+  "kind": "formula",
+  "text": "linhas",
+  "printed": "linhas"
+ },
+ {
+  "kind": "formula",
+  "text": "link",
+  "printed": "link"
+ },
+ {
+  "kind": "formula",
+  "text": "linked",
+  "printed": "linked"
+ },
+ {
+  "kind": "formula",
+  "text": "list",
+  "printed": "list"
+ },
+ {
+  "kind": "formula",
+  "text": "lixo",
+  "printed": "lixo"
+ },
+ {
+  "kind": "formula",
+  "text": "lnot",
+  "printed": "lnot"
+ },
+ {
+  "kind": "formula",
+  "text": "load",
+  "printed": "load"
+ },
+ {
+  "kind": "formula",
+  "text": "loadUserRules",
+  "printed": "loadUserRules"
+ },
+ {
+  "kind": "formula",
+  "text": "localStorage",
+  "printed": "localStorage"
+ },
+ {
+  "kind": "formula",
+  "text": "localhost",
+  "printed": "localhost"
+ },
+ {
+  "kind": "formula",
+  "text": "localizeRuleParam",
+  "printed": "localizeRuleParam"
+ },
+ {
+  "kind": "formula",
+  "text": "location",
+  "printed": "location"
+ },
+ {
+  "kind": "formula",
+  "text": "locked",
+  "printed": "locked"
+ },
+ {
+  "kind": "formula",
+  "text": "logo",
+  "printed": "logo"
+ },
+ {
+  "kind": "formula",
+  "text": "lor",
+  "printed": "lor"
+ },
+ {
+  "kind": "sequent",
+  "text": "m ∧ n ⊢ n ∧ m",
+  "printed": "m ∧ n ⊢ n ∧ m"
+ },
+ {
+  "kind": "sequent",
+  "text": "m ∧ n, k ⊢ n ∧ (k ∧ m)",
+  "printed": "m ∧ n, k ⊢ n ∧ (k ∧ m)"
+ },
+ {
+  "kind": "formula",
+  "text": "main",
+  "printed": "main"
+ },
+ {
+  "kind": "formula",
+  "text": "mais",
+  "printed": "mais"
+ },
+ {
+  "kind": "formula",
+  "text": "malformed",
+  "printed": "malformed"
+ },
+ {
+  "kind": "formula",
+  "text": "mark",
+  "printed": "mark"
+ },
+ {
+  "kind": "formula",
+  "text": "matchSchema",
+  "printed": "matchSchema"
+ },
+ {
+  "kind": "formula",
+  "text": "mathit",
+  "printed": "mathit"
+ },
+ {
+  "kind": "formula",
+  "text": "mathrm",
+  "printed": "mathrm"
+ },
+ {
+  "kind": "formula",
+  "text": "maybe",
+  "printed": "maybe"
+ },
+ {
+  "kind": "formula",
+  "text": "mergeUserRules",
+  "printed": "mergeUserRules"
+ },
+ {
+  "kind": "formula",
+  "text": "message",
+  "printed": "message"
+ },
+ {
+  "kind": "formula",
+  "text": "meta",
+  "printed": "meta"
+ },
+ {
+  "kind": "formula",
+  "text": "metavariableConflict",
+  "printed": "metavariableConflict"
+ },
+ {
+  "kind": "formula",
+  "text": "metavariables",
+  "printed": "metavariables"
+ },
+ {
+  "kind": "formula",
+  "text": "minGap",
+  "printed": "minGap"
+ },
+ {
+  "kind": "formula",
+  "text": "mismatch",
+  "printed": "mismatch"
+ },
+ {
+  "kind": "formula",
+  "text": "mismatchedCases",
+  "printed": "mismatchedCases"
+ },
+ {
+  "kind": "formula",
+  "text": "misplacedPremise",
+  "printed": "misplacedPremise"
+ },
+ {
+  "kind": "formula",
+  "text": "missingCase",
+  "printed": "missingCase"
+ },
+ {
+  "kind": "formula",
+  "text": "missingCitation",
+  "printed": "missingCitation"
+ },
+ {
+  "kind": "formula",
+  "text": "missingConclusion",
+  "printed": "missingConclusion"
+ },
+ {
+  "kind": "formula",
+  "text": "missingOperand",
+  "printed": "missingOperand"
+ },
+ {
+  "kind": "formula",
+  "text": "missingOperator",
+  "printed": "missingOperator"
+ },
+ {
+  "kind": "formula",
+  "text": "missingRule",
+  "printed": "missingRule"
+ },
+ {
+  "kind": "formula",
+  "text": "missingRuleName",
+  "printed": "missingRuleName"
+ },
+ {
+  "kind": "formula",
+  "text": "missingSequent",
+  "printed": "missingSequent"
+ },
+ {
+  "kind": "formula",
+  "text": "missingSolution",
+  "printed": "missingSolution"
+ },
+ {
+  "kind": "formula",
+  "text": "missingTurnstile",
+  "printed": "missingTurnstile"
+ },
+ {
+  "kind": "formula",
+  "text": "mistake",
+  "printed": "mistake"
+ },
+ {
+  "kind": "formula",
+  "text": "mixed",
+  "printed": "mixed"
+ },
+ {
+  "kind": "formula",
+  "text": "mode",
+  "printed": "mode"
+ },
+ {
+  "kind": "formula",
+  "text": "module",
+  "printed": "module"
+ },
+ {
+  "kind": "formula",
+  "text": "mostrar",
+  "printed": "mostrar"
+ },
+ {
+  "kind": "formula",
+  "text": "mountLessonCheck",
+  "printed": "mountLessonCheck"
+ },
+ {
+  "kind": "formula",
+  "text": "mountQuiz",
+  "printed": "mountQuiz"
+ },
+ {
+  "kind": "formula",
+  "text": "mousedown",
+  "printed": "mousedown"
+ },
+ {
+  "kind": "formula",
+  "text": "mouseover",
+  "printed": "mouseover"
+ },
+ {
+  "kind": "formula",
+  "text": "mt",
+  "printed": "mt"
+ },
+ {
+  "kind": "formula",
+  "text": "multipleConclusions",
+  "printed": "multipleConclusions"
+ },
+ {
+  "kind": "formula",
+  "text": "multipleTurnstiles",
+  "printed": "multipleTurnstiles"
+ },
+ {
+  "kind": "formula",
+  "text": "nada",
+  "printed": "nada"
+ },
+ {
+  "kind": "formula",
+  "text": "name",
+  "printed": "name"
+ },
+ {
+  "kind": "formula",
+  "text": "nameTooLong",
+  "printed": "nameTooLong"
+ },
+ {
+  "kind": "formula",
+  "text": "names",
+  "printed": "names"
+ },
+ {
+  "kind": "formula",
+  "text": "nas",
+  "printed": "nas"
+ },
+ {
+  "kind": "formula",
+  "text": "nav",
+  "printed": "nav"
+ },
+ {
+  "kind": "formula",
+  "text": "nearest",
+  "printed": "nearest"
+ },
+ {
+  "kind": "formula",
+  "text": "negacao",
+  "printed": "negacao"
+ },
+ {
+  "kind": "formula",
+  "text": "negateTheWholeGoal",
+  "printed": "negateTheWholeGoal"
+ },
+ {
+  "kind": "formula",
+  "text": "negation",
+  "printed": "negation"
+ },
+ {
+  "kind": "formula",
+  "text": "negationGained",
+  "printed": "negationGained"
+ },
+ {
+  "kind": "formula",
+  "text": "negationIntroResult",
+  "printed": "negationIntroResult"
+ },
+ {
+  "kind": "formula",
+  "text": "nestedConclusion",
+  "printed": "nestedConclusion"
+ },
+ {
+  "kind": "formula",
+  "text": "never",
+  "printed": "never"
+ },
+ {
+  "kind": "formula",
+  "text": "newRule",
+  "printed": "newRule"
+ },
+ {
+  "kind": "formula",
+  "text": "newcommand",
+  "printed": "newcommand"
+ },
+ {
+  "kind": "formula",
+  "text": "next",
+  "printed": "next"
+ },
+ {
+  "kind": "formula",
+  "text": "no",
+  "printed": "no"
+ },
+ {
+  "kind": "formula",
+  "text": "noAssumption",
+  "printed": "noAssumption"
+ },
+ {
+  "kind": "formula",
+  "text": "noProof",
+  "printed": "noProof"
+ },
+ {
+  "kind": "formula",
+  "text": "noSubproofCited",
+  "printed": "noSubproofCited"
+ },
+ {
+  "kind": "formula",
+  "text": "noSuchCitation",
+  "printed": "noSuchCitation"
+ },
+ {
+  "kind": "formula",
+  "text": "noSuchLine",
+  "printed": "noSuchLine"
+ },
+ {
+  "kind": "formula",
+  "text": "noWayOut",
+  "printed": "noWayOut"
+ },
+ {
+  "kind": "formula",
+  "text": "node",
+  "printed": "node"
+ },
+ {
+  "kind": "formula",
+  "text": "noindent",
+  "printed": "noindent"
+ },
+ {
+  "kind": "formula",
+  "text": "none",
+  "printed": "none"
+ },
+ {
+  "kind": "formula",
+  "text": "noopener",
+  "printed": "noopener"
+ },
+ {
+  "kind": "formula",
+  "text": "normalbaselineskip",
+  "printed": "normalbaselineskip"
+ },
+ {
+  "kind": "formula",
+  "text": "nos",
+  "printed": "nos"
+ },
+ {
+  "kind": "formula",
+  "text": "not",
+  "printed": "not"
+ },
+ {
+  "kind": "formula",
+  "text": "notASubproof",
+  "printed": "notASubproof"
+ },
+ {
+  "kind": "formula",
+  "text": "notDerivable",
+  "printed": "notDerivable"
+ },
+ {
+  "kind": "formula",
+  "text": "notElim",
+  "printed": "notElim"
+ },
+ {
+  "kind": "formula",
+  "text": "notElimOneNegation",
+  "printed": "notElimOneNegation"
+ },
+ {
+  "kind": "formula",
+  "text": "notFound",
+  "printed": "notFound"
+ },
+ {
+  "kind": "formula",
+  "text": "notInSubproof",
+  "printed": "notInSubproof"
+ },
+ {
+  "kind": "formula",
+  "text": "notIntro",
+  "printed": "notIntro"
+ },
+ {
+  "kind": "formula",
+  "text": "notIntroNoFalse",
+  "printed": "notIntroNoFalse"
+ },
+ {
+  "kind": "formula",
+  "text": "notOneError",
+  "printed": "notOneError"
+ },
+ {
+  "kind": "formula",
+  "text": "note",
+  "printed": "note"
+ },
+ {
+  "kind": "formula",
+  "text": "notes",
+  "printed": "notes"
+ },
+ {
+  "kind": "formula",
+  "text": "nova",
+  "printed": "nova"
+ },
+ {
+  "kind": "formula",
+  "text": "novo",
+  "printed": "novo"
+ },
+ {
+  "kind": "formula",
+  "text": "null",
+  "printed": "null"
+ },
+ {
+  "kind": "formula",
+  "text": "num",
+  "printed": "num"
+ },
+ {
+  "kind": "formula",
+  "text": "numa",
+  "printed": "numa"
+ },
+ {
+  "kind": "formula",
+  "text": "number",
+  "printed": "number"
+ },
+ {
+  "kind": "formula",
+  "text": "object",
+  "printed": "object"
+ },
+ {
+  "kind": "formula",
+  "text": "objective",
+  "printed": "objective"
+ },
+ {
+  "kind": "formula",
+  "text": "objetivo",
+  "printed": "objetivo"
+ },
+ {
+  "kind": "formula",
+  "text": "off",
+  "printed": "off"
+ },
+ {
+  "kind": "formula",
+  "text": "offTrack",
+  "printed": "offTrack"
+ },
+ {
+  "kind": "formula",
+  "text": "offset",
+  "printed": "offset"
+ },
+ {
+  "kind": "formula",
+  "text": "ok",
+  "printed": "ok"
+ },
+ {
+  "kind": "formula",
+  "text": "on",
+  "printed": "on"
+ },
+ {
+  "kind": "formula",
+  "text": "onSelect",
+  "printed": "onSelect"
+ },
+ {
+  "kind": "formula",
+  "text": "onState",
+  "printed": "onState"
+ },
+ {
+  "kind": "formula",
+  "text": "one",
+  "printed": "one"
+ },
+ {
+  "kind": "formula",
+  "text": "oneCase",
+  "printed": "oneCase"
+ },
+ {
+  "kind": "formula",
+  "text": "only",
+  "printed": "only"
+ },
+ {
+  "kind": "formula",
+  "text": "onlyOuterDoubleNegation",
+  "printed": "onlyOuterDoubleNegation"
+ },
+ {
+  "kind": "formula",
+  "text": "open",
+  "printed": "open"
+ },
+ {
+  "kind": "formula",
+  "text": "openSubproof",
+  "printed": "openSubproof"
+ },
+ {
+  "kind": "formula",
+  "text": "or",
+  "printed": "or"
+ },
+ {
+  "kind": "formula",
+  "text": "orElim",
+  "printed": "orElim"
+ },
+ {
+  "kind": "formula",
+  "text": "orElimDifferentEnds",
+  "printed": "orElimDifferentEnds"
+ },
+ {
+  "kind": "formula",
+  "text": "orIntro",
+  "printed": "orIntro"
+ },
+ {
+  "kind": "formula",
+  "text": "orIntroNoSide",
+  "printed": "orIntroNoSide"
+ },
+ {
+  "kind": "formula",
+  "text": "orToSide",
+  "printed": "orToSide"
+ },
+ {
+  "kind": "formula",
+  "text": "orders",
+  "printed": "orders"
+ },
+ {
+  "kind": "formula",
+  "text": "ou",
+  "printed": "ou"
+ },
+ {
+  "kind": "formula",
+  "text": "outcomeLabel",
+  "printed": "outcomeLabel"
+ },
+ {
+  "kind": "formula",
+  "text": "outer",
+  "printed": "outer"
+ },
+ {
+  "kind": "formula",
+  "text": "outline",
+  "printed": "outline"
+ },
+ {
+  "kind": "formula",
+  "text": "outra",
+  "printed": "outra"
+ },
+ {
+  "kind": "formula",
+  "text": "p",
+  "printed": "p"
+ },
+ {
+  "kind": "formula",
+  "text": "p ",
+  "printed": "p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p & q |- q & p",
+  "printed": "p ∧ q ⊢ q ∧ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p -> q | r |- (p -> q) | (p -> r)",
+  "printed": "p → q ∨ r ⊢ (p → q) ∨ (p → r)"
+ },
+ {
+  "kind": "sequent",
+  "text": "p -> q |- r",
+  "printed": "p → q ⊢ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p -> q, p |- q",
+  "printed": "p → q, p ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p -> q, q -> r |- p -> r",
+  "printed": "p → q, q → r ⊢ p → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p -> q, ~q |- ~p",
+  "printed": "p → q, ¬q ⊢ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p -> q, ~r, !s |- t",
+  "printed": "p → q, ¬r, ¬s ⊢ t"
+ },
+ {
+  "kind": "formula",
+  "text": "p -> r",
+  "printed": "p → r"
+ },
+ {
+  "kind": "formula",
+  "text": "p v q",
+  "printed": "p ∨ q"
+ },
+ {
+  "kind": "formula",
+  "text": "p | -q",
+  "printed": "p ∨ ¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p | -q ⊢ r",
+  "printed": "p ∨ ¬q ⊢ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p | ~p",
+  "printed": "p ∨ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p |- p",
+  "printed": "p ⊢ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p |- q",
+  "printed": "p ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p |-q",
+  "printed": "p ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p |~q |- r",
+  "printed": "p ∨ ¬q ⊢ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → (q → r) ⊢ (p ∧ q) → r",
+  "printed": "p → q → r ⊢ p ∧ q → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → (q ∧ r), q ∨ s → t, p ∨ s ⊢ t",
+  "printed": "p → q ∧ r, q ∨ s → t, p ∨ s ⊢ t"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → (q ∨ r), q → s, r → t ⊢ p → (s ∨ t)",
+  "printed": "p → q ∨ r, q → s, r → t ⊢ p → s ∨ t"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → (q ∨ r), ¬q, ¬r ⊢ ¬p",
+  "printed": "p → q ∨ r, ¬q, ¬r ⊢ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → F ⊢ ¬p",
+  "printed": "p → F ⊢ ¬p"
+ },
+ {
+  "kind": "formula",
+  "text": "p → q",
+  "printed": "p → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q |- r",
+  "printed": "p → q ⊢ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p → q → r",
+  "printed": "p → q → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q ∨ r ⊢ (p → q) ∨ (p → r)",
+  "printed": "p → q ∨ r ⊢ (p → q) ∨ (p → r)"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q ⊢ (q → r) → (p → r)",
+  "printed": "p → q ⊢ (q → r) → p → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q ⊢ p → q",
+  "printed": "p → q ⊢ p → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q ⊢ r",
+  "printed": "p → q ⊢ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q ⊢ ¬p ∨ q",
+  "printed": "p → q ⊢ ¬p ∨ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q ⊢ ¬q → ¬p",
+  "printed": "p → q ⊢ ¬q → ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q, p ⊢ q",
+  "printed": "p → q, p ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q, q → r ⊢ p → r",
+  "printed": "p → q, q → r ⊢ p → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q, ¬q ⊢ ¬p",
+  "printed": "p → q, ¬q ⊢ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → q, ¬r, ¬s ⊢ t",
+  "printed": "p → q, ¬r, ¬s ⊢ t"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → r, q → r, p ∨ q ⊢ r",
+  "printed": "p → r, q → r, p ∨ q ⊢ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → ¬p ⊢ ¬p",
+  "printed": "p → ¬p ⊢ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p → ¬q, ¬q → r ⊢ p → r",
+  "printed": "p → ¬q, ¬q → r ⊢ p → r"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∧ (q ∧ r)",
+  "printed": "p ∧ (q ∧ r)"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∧ (q ∧ r) ⊢ (p ∧ q) ∧ r",
+  "printed": "p ∧ (q ∧ r) ⊢ p ∧ q ∧ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∧ (q ∨ r) ⊢ (p ∧ q) ∨ (p ∧ r)",
+  "printed": "p ∧ (q ∨ r) ⊢ p ∧ q ∨ p ∧ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∧ p",
+  "printed": "p ∧ p"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∧ q",
+  "printed": "p ∧ q"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∧ q  ",
+  "printed": "p ∧ q"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∧ q ∧ r",
+  "printed": "p ∧ q ∧ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∧ q ∨ r",
+  "printed": "p ∧ q ∨ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∧ q ⊢ p → q",
+  "printed": "p ∧ q ⊢ p → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∧ q ⊢ q",
+  "printed": "p ∧ q ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∧ q ⊢ q ∧ p",
+  "printed": "p ∧ q ⊢ q ∧ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∧ q, r ⊢ q ∧ r",
+  "printed": "p ∧ q, r ⊢ q ∧ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∧ φ",
+  "printed": "p ∧ φ"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ (q ∧ r) ⊢ (p ∨ q) ∧ (p ∨ r)",
+  "printed": "p ∨ q ∧ r ⊢ (p ∨ q) ∧ (p ∨ r)"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∨ (q ∨ r)",
+  "printed": "p ∨ (q ∨ r)"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ (q ∨ r) ⊢ (p ∨ q) ∨ r",
+  "printed": "p ∨ (q ∨ r) ⊢ p ∨ q ∨ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∨ q",
+  "printed": "p ∨ q"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∨ q → p ∧ r",
+  "printed": "p ∨ q → p ∧ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∨ q ∨ r",
+  "printed": "p ∨ q ∨ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ q ⊢ (p → r) → ((q → r) → r)",
+  "printed": "p ∨ q ⊢ (p → r) → (q → r) → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ q ⊢ p ∧ q",
+  "printed": "p ∨ q ⊢ p ∧ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ q ⊢ q ∨ p",
+  "printed": "p ∨ q ⊢ q ∨ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ q, ¬p ⊢ q",
+  "printed": "p ∨ q, ¬p ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ q, ¬q ⊢ p",
+  "printed": "p ∨ q, ¬q ⊢ p"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∨ ¬p",
+  "printed": "p ∨ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ ¬q ⊢ r",
+  "printed": "p ∨ ¬q ⊢ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨ ¬q, ¬r → q, r → ¬s, s ⊢ p",
+  "printed": "p ∨ ¬q, ¬r → q, r → ¬s, s ⊢ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨-q ⊢ r",
+  "printed": "p ∨ ¬q ⊢ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p ∨¬q",
+  "printed": "p ∨ ¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ∨¬q ⊢ r",
+  "printed": "p ∨ ¬q ⊢ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ⊢ p",
+  "printed": "p ⊢ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ⊢ p ∧ p",
+  "printed": "p ⊢ p ∧ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ⊢ q → (r → (s → (t → p ∧ t)))",
+  "printed": "p ⊢ q → r → s → t → p ∧ t"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ⊢ q → p",
+  "printed": "p ⊢ q → p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p ⊢ ¬¬p",
+  "printed": "p ⊢ ¬¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p, p → q, p → (q → r) ⊢ r",
+  "printed": "p, p → q, p → q → r ⊢ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "p, q ⊢ p",
+  "printed": "p, q ⊢ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "p, q ⊢ p ∧ q",
+  "printed": "p, q ⊢ p ∧ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p, ¬p ⊢ q",
+  "printed": "p, ¬p ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p1 & ~q -> r | F |- s",
+  "printed": "p₁ ∧ ¬q → r ∨ F ⊢ s"
+ },
+ {
+  "kind": "formula",
+  "text": "p11",
+  "printed": "p₁₁"
+ },
+ {
+  "kind": "formula",
+  "text": "p11 ∧ foo_bar2",
+  "printed": "p₁₁ ∧ foo_bar₂"
+ },
+ {
+  "kind": "formula",
+  "text": "p12",
+  "printed": "p₁₂"
+ },
+ {
+  "kind": "formula",
+  "text": "p1a",
+  "printed": "p1a"
+ },
+ {
+  "kind": "formula",
+  "text": "p25",
+  "printed": "p₂₅"
+ },
+ {
+  "kind": "formula",
+  "text": "p6",
+  "printed": "p₆"
+ },
+ {
+  "kind": "formula",
+  "text": "page",
+  "printed": "page"
+ },
+ {
+  "kind": "formula",
+  "text": "pagereveal",
+  "printed": "pagereveal"
+ },
+ {
+  "kind": "formula",
+  "text": "panel",
+  "printed": "panel"
+ },
+ {
+  "kind": "formula",
+  "text": "panelFromResult",
+  "printed": "panelFromResult"
+ },
+ {
+  "kind": "formula",
+  "text": "para",
+  "printed": "para"
+ },
+ {
+  "kind": "formula",
+  "text": "params",
+  "printed": "params"
+ },
+ {
+  "kind": "formula",
+  "text": "parseFormula",
+  "printed": "parseFormula"
+ },
+ {
+  "kind": "formula",
+  "text": "parseProof",
+  "printed": "parseProof"
+ },
+ {
+  "kind": "formula",
+  "text": "parseSequent",
+  "printed": "parseSequent"
+ },
+ {
+  "kind": "formula",
+  "text": "parser",
+  "printed": "parser"
+ },
+ {
+  "kind": "formula",
+  "text": "part",
+  "printed": "part"
+ },
+ {
+  "kind": "formula",
+  "text": "partial",
+  "printed": "partial"
+ },
+ {
+  "kind": "formula",
+  "text": "passo",
+  "printed": "passo"
+ },
+ {
+  "kind": "formula",
+  "text": "passos",
+  "printed": "passos"
+ },
+ {
+  "kind": "formula",
+  "text": "past",
+  "printed": "past"
+ },
+ {
+  "kind": "formula",
+  "text": "pathname",
+  "printed": "pathname"
+ },
+ {
+  "kind": "formula",
+  "text": "pdflatex",
+  "printed": "pdflatex"
+ },
+ {
+  "kind": "formula",
+  "text": "peirce",
+  "printed": "peirce"
+ },
+ {
+  "kind": "formula",
+  "text": "pela",
+  "printed": "pela"
+ },
+ {
+  "kind": "formula",
+  "text": "pelo",
+  "printed": "pelo"
+ },
+ {
+  "kind": "formula",
+  "text": "pending",
+  "printed": "pending"
+ },
+ {
+  "kind": "formula",
+  "text": "phi",
+  "printed": "phi"
+ },
+ {
+  "kind": "formula",
+  "text": "pick",
+  "printed": "pick"
+ },
+ {
+  "kind": "formula",
+  "text": "pickDisjunct",
+  "printed": "pickDisjunct"
+ },
+ {
+  "kind": "formula",
+  "text": "pipe",
+  "printed": "pipe"
+ },
+ {
+  "kind": "formula",
+  "text": "plain",
+  "printed": "plain"
+ },
+ {
+  "kind": "formula",
+  "text": "play",
+  "printed": "play"
+ },
+ {
+  "kind": "formula",
+  "text": "plus",
+  "printed": "plus"
+ },
+ {
+  "kind": "formula",
+  "text": "pointerdown",
+  "printed": "pointerdown"
+ },
+ {
+  "kind": "formula",
+  "text": "por",
+  "printed": "por"
+ },
+ {
+  "kind": "formula",
+  "text": "porque",
+  "printed": "porque"
+ },
+ {
+  "kind": "formula",
+  "text": "portuguese",
+  "printed": "portuguese"
+ },
+ {
+  "kind": "formula",
+  "text": "postMessage",
+  "printed": "postMessage"
+ },
+ {
+  "kind": "formula",
+  "text": "pq",
+  "printed": "pq"
+ },
+ {
+  "kind": "formula",
+  "text": "prefs",
+  "printed": "prefs"
+ },
+ {
+  "kind": "formula",
+  "text": "prem",
+  "printed": "prem"
+ },
+ {
+  "kind": "formula",
+  "text": "prematureDischarge",
+  "printed": "prematureDischarge"
+ },
+ {
+  "kind": "formula",
+  "text": "premise",
+  "printed": "premise"
+ },
+ {
+  "kind": "formula",
+  "text": "premises",
+  "printed": "premises"
+ },
+ {
+  "kind": "formula",
+  "text": "premissa",
+  "printed": "premissa"
+ },
+ {
+  "kind": "formula",
+  "text": "premissas",
+  "printed": "premissas"
+ },
+ {
+  "kind": "formula",
+  "text": "prev",
+  "printed": "prev"
+ },
+ {
+  "kind": "formula",
+  "text": "preview",
+  "printed": "preview"
+ },
+ {
+  "kind": "formula",
+  "text": "progress",
+  "printed": "progress"
+ },
+ {
+  "kind": "formula",
+  "text": "progressMark",
+  "printed": "progressMark"
+ },
+ {
+  "kind": "formula",
+  "text": "progressStatus",
+  "printed": "progressStatus"
+ },
+ {
+  "kind": "formula",
+  "text": "progressSummary",
+  "printed": "progressSummary"
+ },
+ {
+  "kind": "formula",
+  "text": "progressbar",
+  "printed": "progressbar"
+ },
+ {
+  "kind": "formula",
+  "text": "promise",
+  "printed": "promise"
+ },
+ {
+  "kind": "formula",
+  "text": "proof",
+  "printed": "proof"
+ },
+ {
+  "kind": "formula",
+  "text": "prova",
+  "printed": "prova"
+ },
+ {
+  "kind": "formula",
+  "text": "provado",
+  "printed": "provado"
+ },
+ {
+  "kind": "formula",
+  "text": "provar",
+  "printed": "provar"
+ },
+ {
+  "kind": "formula",
+  "text": "provas",
+  "printed": "provas"
+ },
+ {
+  "kind": "formula",
+  "text": "prove",
+  "printed": "prove"
+ },
+ {
+  "kind": "formula",
+  "text": "proved",
+  "printed": "proved"
+ },
+ {
+  "kind": "formula",
+  "text": "psi",
+  "printed": "psi"
+ },
+ {
+  "kind": "formula",
+  "text": "pt",
+  "printed": "pt"
+ },
+ {
+  "kind": "sequent",
+  "text": "p|-q",
+  "printed": "p ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "p|~q|-r",
+  "printed": "p ∨ ¬q ⊢ r"
+ },
+ {
+  "kind": "formula",
+  "text": "p₁",
+  "printed": "p₁"
+ },
+ {
+  "kind": "sequent",
+  "text": "p₁ ∧ ¬q → r ∨ F ⊢ s",
+  "printed": "p₁ ∧ ¬q → r ∨ F ⊢ s"
+ },
+ {
+  "kind": "formula",
+  "text": "p₁₁",
+  "printed": "p₁₁"
+ },
+ {
+  "kind": "formula",
+  "text": "p₁₂",
+  "printed": "p₁₂"
+ },
+ {
+  "kind": "sequent",
+  "text": "p⊢q",
+  "printed": "p ⊢ q"
+ },
+ {
+  "kind": "formula",
+  "text": "q",
+  "printed": "q"
+ },
+ {
+  "kind": "formula",
+  "text": "q -> r",
+  "printed": "q → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "q → p, q → ¬p ⊢ ¬q",
+  "printed": "q → p, q → ¬p ⊢ ¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "q ∧ r ⊢ r ∧ x",
+  "printed": "q ∧ r ⊢ r ∧ x"
+ },
+ {
+  "kind": "sequent",
+  "text": "q ⊢ q",
+  "printed": "q ⊢ q"
+ },
+ {
+  "kind": "formula",
+  "text": "q1",
+  "printed": "q₁"
+ },
+ {
+  "kind": "formula",
+  "text": "qquad",
+  "printed": "qquad"
+ },
+ {
+  "kind": "formula",
+  "text": "quad",
+  "printed": "quad"
+ },
+ {
+  "kind": "formula",
+  "text": "quando",
+  "printed": "quando"
+ },
+ {
+  "kind": "formula",
+  "text": "que",
+  "printed": "que"
+ },
+ {
+  "kind": "formula",
+  "text": "query",
+  "printed": "query"
+ },
+ {
+  "kind": "formula",
+  "text": "question",
+  "printed": "question"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz",
+  "printed": "quiz"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__actions",
+  "printed": "quiz__actions"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__best",
+  "printed": "quiz__best"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__card",
+  "printed": "quiz__card"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__count",
+  "printed": "quiz__count"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__head",
+  "printed": "quiz__head"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__kind",
+  "printed": "quiz__kind"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__label",
+  "printed": "quiz__label"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__math",
+  "printed": "quiz__math"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__metric",
+  "printed": "quiz__metric"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__metrics",
+  "printed": "quiz__metrics"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__options",
+  "printed": "quiz__options"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__prompt",
+  "printed": "quiz__prompt"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__score",
+  "printed": "quiz__score"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__set",
+  "printed": "quiz__set"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__tag",
+  "printed": "quiz__tag"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__track",
+  "printed": "quiz__track"
+ },
+ {
+  "kind": "formula",
+  "text": "quiz__why",
+  "printed": "quiz__why"
+ },
+ {
+  "kind": "formula",
+  "text": "r",
+  "printed": "r"
+ },
+ {
+  "kind": "sequent",
+  "text": "r → s, s → t, r ⊢ t ∧ r",
+  "printed": "r → s, s → t, r ⊢ t ∧ r"
+ },
+ {
+  "kind": "sequent",
+  "text": "r → t, ¬e → r, ¬t ⊢ e ∨ r ∨ (e ∧ r)",
+  "printed": "r → t, ¬e → r, ¬t ⊢ e ∨ r ∨ e ∧ r"
+ },
+ {
+  "kind": "formula",
+  "text": "raa",
+  "printed": "raa"
+ },
+ {
+  "kind": "formula",
+  "text": "radio",
+  "printed": "radio"
+ },
+ {
+  "kind": "formula",
+  "text": "radiogroup",
+  "printed": "radiogroup"
+ },
+ {
+  "kind": "formula",
+  "text": "range",
+  "printed": "range"
+ },
+ {
+  "kind": "formula",
+  "text": "rangeStartsAtHypothesis",
+  "printed": "rangeStartsAtHypothesis"
+ },
+ {
+  "kind": "formula",
+  "text": "ranges",
+  "printed": "ranges"
+ },
+ {
+  "kind": "formula",
+  "text": "reachContradiction",
+  "printed": "reachContradiction"
+ },
+ {
+  "kind": "formula",
+  "text": "reachTheGoalTwice",
+  "printed": "reachTheGoalTwice"
+ },
+ {
+  "kind": "formula",
+  "text": "reachable",
+  "printed": "reachable"
+ },
+ {
+  "kind": "formula",
+  "text": "read",
+  "printed": "read"
+ },
+ {
+  "kind": "formula",
+  "text": "ready",
+  "printed": "ready"
+ },
+ {
+  "kind": "formula",
+  "text": "reason",
+  "printed": "reason"
+ },
+ {
+  "kind": "formula",
+  "text": "reasonWrong",
+  "printed": "reasonWrong"
+ },
+ {
+  "kind": "formula",
+  "text": "rebentou",
+  "printed": "rebentou"
+ },
+ {
+  "kind": "formula",
+  "text": "recordMark",
+  "printed": "recordMark"
+ },
+ {
+  "kind": "formula",
+  "text": "recoverTheAntecedent",
+  "printed": "recoverTheAntecedent"
+ },
+ {
+  "kind": "formula",
+  "text": "redo",
+  "printed": "redo"
+ },
+ {
+  "kind": "formula",
+  "text": "refused",
+  "printed": "refused"
+ },
+ {
+  "kind": "formula",
+  "text": "refuteEachDisjunct",
+  "printed": "refuteEachDisjunct"
+ },
+ {
+  "kind": "formula",
+  "text": "regra",
+  "printed": "regra"
+ },
+ {
+  "kind": "formula",
+  "text": "regras",
+  "printed": "regras"
+ },
+ {
+  "kind": "formula",
+  "text": "rejected",
+  "printed": "rejected"
+ },
+ {
+  "kind": "formula",
+  "text": "reload",
+  "printed": "reload"
+ },
+ {
+  "kind": "formula",
+  "text": "remove",
+  "printed": "remove"
+ },
+ {
+  "kind": "formula",
+  "text": "removeDoubleNegation",
+  "printed": "removeDoubleNegation"
+ },
+ {
+  "kind": "formula",
+  "text": "render",
+  "printed": "render"
+ },
+ {
+  "kind": "formula",
+  "text": "renderQuiz",
+  "printed": "renderQuiz"
+ },
+ {
+  "kind": "formula",
+  "text": "renewcommand",
+  "printed": "renewcommand"
+ },
+ {
+  "kind": "formula",
+  "text": "repeat",
+  "printed": "repeat"
+ },
+ {
+  "kind": "formula",
+  "text": "repeatFact",
+  "printed": "repeatFact"
+ },
+ {
+  "kind": "formula",
+  "text": "repeatReordered",
+  "printed": "repeatReordered"
+ },
+ {
+  "kind": "formula",
+  "text": "replaceState",
+  "printed": "replaceState"
+ },
+ {
+  "kind": "formula",
+  "text": "replaced",
+  "printed": "replaced"
+ },
+ {
+  "kind": "formula",
+  "text": "replaces",
+  "printed": "replaces"
+ },
+ {
+  "kind": "formula",
+  "text": "reservedName",
+  "printed": "reservedName"
+ },
+ {
+  "kind": "formula",
+  "text": "resize",
+  "printed": "resize"
+ },
+ {
+  "kind": "formula",
+  "text": "resolvido",
+  "printed": "resolvido"
+ },
+ {
+  "kind": "formula",
+  "text": "restart",
+  "printed": "restart"
+ },
+ {
+  "kind": "formula",
+  "text": "restrito",
+  "printed": "restrito"
+ },
+ {
+  "kind": "formula",
+  "text": "result",
+  "printed": "result"
+ },
+ {
+  "kind": "formula",
+  "text": "results",
+  "printed": "results"
+ },
+ {
+  "kind": "formula",
+  "text": "revealed",
+  "printed": "revealed"
+ },
+ {
+  "kind": "formula",
+  "text": "review",
+  "printed": "review"
+ },
+ {
+  "kind": "formula",
+  "text": "root",
+  "printed": "root"
+ },
+ {
+  "kind": "formula",
+  "text": "round",
+  "printed": "round"
+ },
+ {
+  "kind": "formula",
+  "text": "rule",
+  "printed": "rule"
+ },
+ {
+  "kind": "formula",
+  "text": "ruleGoal",
+  "printed": "ruleGoal"
+ },
+ {
+  "kind": "formula",
+  "text": "ruleLabel",
+  "printed": "ruleLabel"
+ },
+ {
+  "kind": "formula",
+  "text": "ruleLabels",
+  "printed": "ruleLabels"
+ },
+ {
+  "kind": "formula",
+  "text": "ruleNotAllowed",
+  "printed": "ruleNotAllowed"
+ },
+ {
+  "kind": "formula",
+  "text": "ruleNotApplicable",
+  "printed": "ruleNotApplicable"
+ },
+ {
+  "kind": "formula",
+  "text": "ruleNotInSet",
+  "printed": "ruleNotInSet"
+ },
+ {
+  "kind": "formula",
+  "text": "ruleSet",
+  "printed": "ruleSet"
+ },
+ {
+  "kind": "formula",
+  "text": "rules",
+  "printed": "rules"
+ },
+ {
+  "kind": "formula",
+  "text": "rulesAdded",
+  "printed": "rulesAdded"
+ },
+ {
+  "kind": "formula",
+  "text": "rulesRejected",
+  "printed": "rulesRejected"
+ },
+ {
+  "kind": "formula",
+  "text": "rulesReplaced",
+  "printed": "rulesReplaced"
+ },
+ {
+  "kind": "formula",
+  "text": "s",
+  "printed": "s"
+ },
+ {
+  "kind": "sequent",
+  "text": "s → t ⊢ (t → u) → s ∧ w → u",
+  "printed": "s → t ⊢ (t → u) → s ∧ w → u"
+ },
+ {
+  "kind": "sequent",
+  "text": "s → t ⊢ ¬t → ¬s",
+  "printed": "s → t ⊢ ¬t → ¬s"
+ },
+ {
+  "kind": "sequent",
+  "text": "s ∧ t ⊢ t ∧ s",
+  "printed": "s ∧ t ⊢ t ∧ s"
+ },
+ {
+  "kind": "sequent",
+  "text": "s ∨ t ⊢ t ∨ s",
+  "printed": "s ∨ t ⊢ t ∨ s"
+ },
+ {
+  "kind": "formula",
+  "text": "saved",
+  "printed": "saved"
+ },
+ {
+  "kind": "formula",
+  "text": "schema",
+  "printed": "schema"
+ },
+ {
+  "kind": "formula",
+  "text": "schemaTooLarge",
+  "printed": "schemaTooLarge"
+ },
+ {
+  "kind": "formula",
+  "text": "scope",
+  "printed": "scope"
+ },
+ {
+  "kind": "formula",
+  "text": "scratch",
+  "printed": "scratch"
+ },
+ {
+  "kind": "formula",
+  "text": "script",
+  "printed": "script"
+ },
+ {
+  "kind": "formula",
+  "text": "scroll",
+  "printed": "scroll"
+ },
+ {
+  "kind": "formula",
+  "text": "searchExhausted",
+  "printed": "searchExhausted"
+ },
+ {
+  "kind": "formula",
+  "text": "searching",
+  "printed": "searching"
+ },
+ {
+  "kind": "formula",
+  "text": "second",
+  "printed": "second"
+ },
+ {
+  "kind": "formula",
+  "text": "secondary",
+  "printed": "secondary"
+ },
+ {
+  "kind": "formula",
+  "text": "section",
+  "printed": "section"
+ },
+ {
+  "kind": "formula",
+  "text": "seg",
+  "printed": "seg"
+ },
+ {
+  "kind": "formula",
+  "text": "seguinte",
+  "printed": "seguinte"
+ },
+ {
+  "kind": "formula",
+  "text": "select",
+  "printed": "select"
+ },
+ {
+  "kind": "formula",
+  "text": "selection",
+  "printed": "selection"
+ },
+ {
+  "kind": "formula",
+  "text": "self",
+  "printed": "self"
+ },
+ {
+  "kind": "formula",
+  "text": "sem",
+  "printed": "sem"
+ },
+ {
+  "kind": "formula",
+  "text": "semantics",
+  "printed": "semantics"
+ },
+ {
+  "kind": "formula",
+  "text": "sequent",
+  "printed": "sequent"
+ },
+ {
+  "kind": "formula",
+  "text": "sequentNotCanonical",
+  "printed": "sequentNotCanonical"
+ },
+ {
+  "kind": "formula",
+  "text": "sequente",
+  "printed": "sequente"
+ },
+ {
+  "kind": "formula",
+  "text": "sequentes",
+  "printed": "sequentes"
+ },
+ {
+  "kind": "formula",
+  "text": "serializeUserRules",
+  "printed": "serializeUserRules"
+ },
+ {
+  "kind": "formula",
+  "text": "session",
+  "printed": "session"
+ },
+ {
+  "kind": "formula",
+  "text": "share",
+  "printed": "share"
+ },
+ {
+  "kind": "formula",
+  "text": "sheet",
+  "printed": "sheet"
+ },
+ {
+  "kind": "formula",
+  "text": "short",
+  "printed": "short"
+ },
+ {
+  "kind": "formula",
+  "text": "shortRange",
+  "printed": "shortRange"
+ },
+ {
+  "kind": "formula",
+  "text": "showEmptyError",
+  "printed": "showEmptyError"
+ },
+ {
+  "kind": "formula",
+  "text": "shown",
+  "printed": "shown"
+ },
+ {
+  "kind": "formula",
+  "text": "slow",
+  "printed": "slow"
+ },
+ {
+  "kind": "formula",
+  "text": "sm",
+  "printed": "sm"
+ },
+ {
+  "kind": "formula",
+  "text": "solidez",
+  "printed": "solidez"
+ },
+ {
+  "kind": "formula",
+  "text": "solution",
+  "printed": "solution"
+ },
+ {
+  "kind": "formula",
+  "text": "solutionRejected",
+  "printed": "solutionRejected"
+ },
+ {
+  "kind": "formula",
+  "text": "solve",
+  "printed": "solve"
+ },
+ {
+  "kind": "formula",
+  "text": "solveOutcome",
+  "printed": "solveOutcome"
+ },
+ {
+  "kind": "formula",
+  "text": "solved",
+  "printed": "solved"
+ },
+ {
+  "kind": "formula",
+  "text": "solvedWithUserRules",
+  "printed": "solvedWithUserRules"
+ },
+ {
+  "kind": "formula",
+  "text": "sometimes",
+  "printed": "sometimes"
+ },
+ {
+  "kind": "formula",
+  "text": "source",
+  "printed": "source"
+ },
+ {
+  "kind": "formula",
+  "text": "space",
+  "printed": "space"
+ },
+ {
+  "kind": "formula",
+  "text": "speech",
+  "printed": "speech"
+ },
+ {
+  "kind": "formula",
+  "text": "speed",
+  "printed": "speed"
+ },
+ {
+  "kind": "formula",
+  "text": "splitOnTheAntecedent",
+  "printed": "splitOnTheAntecedent"
+ },
+ {
+  "kind": "formula",
+  "text": "start",
+  "printed": "start"
+ },
+ {
+  "kind": "formula",
+  "text": "started",
+  "printed": "started"
+ },
+ {
+  "kind": "formula",
+  "text": "status",
+  "printed": "status"
+ },
+ {
+  "kind": "formula",
+  "text": "step",
+  "printed": "step"
+ },
+ {
+  "kind": "formula",
+  "text": "stepLimit",
+  "printed": "stepLimit"
+ },
+ {
+  "kind": "formula",
+  "text": "stepped",
+  "printed": "stepped"
+ },
+ {
+  "kind": "formula",
+  "text": "storage",
+  "printed": "storage"
+ },
+ {
+  "kind": "formula",
+  "text": "store",
+  "printed": "store"
+ },
+ {
+  "kind": "formula",
+  "text": "strategy",
+  "printed": "strategy"
+ },
+ {
+  "kind": "formula",
+  "text": "strategyAbsurd",
+  "printed": "strategyAbsurd"
+ },
+ {
+  "kind": "formula",
+  "text": "strategyBackward",
+  "printed": "strategyBackward"
+ },
+ {
+  "kind": "formula",
+  "text": "strategyCases",
+  "printed": "strategyCases"
+ },
+ {
+  "kind": "formula",
+  "text": "string",
+  "printed": "string"
+ },
+ {
+  "kind": "formula",
+  "text": "stylesheet",
+  "printed": "stylesheet"
+ },
+ {
+  "kind": "formula",
+  "text": "subdeducoes",
+  "printed": "subdeducoes"
+ },
+ {
+  "kind": "formula",
+  "text": "submit",
+  "printed": "submit"
+ },
+ {
+  "kind": "formula",
+  "text": "subproof",
+  "printed": "subproof"
+ },
+ {
+  "kind": "formula",
+  "text": "subproofs",
+  "printed": "subproofs"
+ },
+ {
+  "kind": "formula",
+  "text": "substitution",
+  "printed": "substitution"
+ },
+ {
+  "kind": "formula",
+  "text": "summary",
+  "printed": "summary"
+ },
+ {
+  "kind": "formula",
+  "text": "suppose",
+  "printed": "suppose"
+ },
+ {
+  "kind": "formula",
+  "text": "survey",
+  "printed": "survey"
+ },
+ {
+  "kind": "formula",
+  "text": "swap",
+  "printed": "swap"
+ },
+ {
+  "kind": "formula",
+  "text": "symbol",
+  "printed": "symbol"
+ },
+ {
+  "kind": "formula",
+  "text": "symbols",
+  "printed": "symbols"
+ },
+ {
+  "kind": "formula",
+  "text": "t",
+  "printed": "t"
+ },
+ {
+  "kind": "sequent",
+  "text": "t ∧ u ⊢ u → t",
+  "printed": "t ∧ u ⊢ u → t"
+ },
+ {
+  "kind": "formula",
+  "text": "tabbar",
+  "printed": "tabbar"
+ },
+ {
+  "kind": "formula",
+  "text": "tabindex",
+  "printed": "tabindex"
+ },
+ {
+  "kind": "formula",
+  "text": "tabular",
+  "printed": "tabular"
+ },
+ {
+  "kind": "formula",
+  "text": "target",
+  "printed": "target"
+ },
+ {
+  "kind": "formula",
+  "text": "task",
+  "printed": "task"
+ },
+ {
+  "kind": "formula",
+  "text": "tem",
+  "printed": "tem"
+ },
+ {
+  "kind": "formula",
+  "text": "term",
+  "printed": "term"
+ },
+ {
+  "kind": "formula",
+  "text": "text",
+  "printed": "text"
+ },
+ {
+  "kind": "formula",
+  "text": "textarea",
+  "printed": "textarea"
+ },
+ {
+  "kind": "formula",
+  "text": "texto",
+  "printed": "texto"
+ },
+ {
+  "kind": "formula",
+  "text": "therefore",
+  "printed": "therefore"
+ },
+ {
+  "kind": "formula",
+  "text": "theta",
+  "printed": "theta"
+ },
+ {
+  "kind": "formula",
+  "text": "timeline",
+  "printed": "timeline"
+ },
+ {
+  "kind": "formula",
+  "text": "timeout",
+  "printed": "timeout"
+ },
+ {
+  "kind": "formula",
+  "text": "tip",
+  "printed": "tip"
+ },
+ {
+  "kind": "formula",
+  "text": "title",
+  "printed": "title"
+ },
+ {
+  "kind": "formula",
+  "text": "tl",
+  "printed": "tl"
+ },
+ {
+  "kind": "formula",
+  "text": "to",
+  "printed": "to"
+ },
+ {
+  "kind": "formula",
+  "text": "toString",
+  "printed": "toString"
+ },
+ {
+  "kind": "formula",
+  "text": "todas",
+  "printed": "todas"
+ },
+ {
+  "kind": "formula",
+  "text": "todo",
+  "printed": "todo"
+ },
+ {
+  "kind": "formula",
+  "text": "todos",
+  "printed": "todos"
+ },
+ {
+  "kind": "formula",
+  "text": "toggle",
+  "printed": "toggle"
+ },
+ {
+  "kind": "formula",
+  "text": "toggleSelection",
+  "printed": "toggleSelection"
+ },
+ {
+  "kind": "formula",
+  "text": "token",
+  "printed": "token"
+ },
+ {
+  "kind": "formula",
+  "text": "tooLarge",
+  "printed": "tooLarge"
+ },
+ {
+  "kind": "formula",
+  "text": "tooLong",
+  "printed": "tooLong"
+ },
+ {
+  "kind": "formula",
+  "text": "tooManyPremises",
+  "printed": "tooManyPremises"
+ },
+ {
+  "kind": "formula",
+  "text": "tooManyRules",
+  "printed": "tooManyRules"
+ },
+ {
+  "kind": "formula",
+  "text": "tooManyVariables",
+  "printed": "tooManyVariables"
+ },
+ {
+  "kind": "formula",
+  "text": "tree",
+  "printed": "tree"
+ },
+ {
+  "kind": "formula",
+  "text": "treeAt",
+  "printed": "treeAt"
+ },
+ {
+  "kind": "formula",
+  "text": "true",
+  "printed": "true"
+ },
+ {
+  "kind": "formula",
+  "text": "tudo",
+  "printed": "tudo"
+ },
+ {
+  "kind": "formula",
+  "text": "turnstile",
+  "printed": "turnstile"
+ },
+ {
+  "kind": "formula",
+  "text": "two",
+  "printed": "two"
+ },
+ {
+  "kind": "formula",
+  "text": "u",
+  "printed": "u"
+ },
+ {
+  "kind": "sequent",
+  "text": "u ⊢ ¬¬u",
+  "printed": "u ⊢ ¬¬u"
+ },
+ {
+  "kind": "formula",
+  "text": "u1",
+  "printed": "u₁"
+ },
+ {
+  "kind": "formula",
+  "text": "uma",
+  "printed": "uma"
+ },
+ {
+  "kind": "formula",
+  "text": "unbalanced",
+  "printed": "unbalanced"
+ },
+ {
+  "kind": "formula",
+  "text": "unboundMetavariable",
+  "printed": "unboundMetavariable"
+ },
+ {
+  "kind": "formula",
+  "text": "undefined",
+  "printed": "undefined"
+ },
+ {
+  "kind": "formula",
+  "text": "underline",
+  "printed": "underline"
+ },
+ {
+  "kind": "formula",
+  "text": "undo",
+  "printed": "undo"
+ },
+ {
+  "kind": "formula",
+  "text": "unexpectedChar",
+  "printed": "unexpectedChar"
+ },
+ {
+  "kind": "formula",
+  "text": "unexpectedCitation",
+  "printed": "unexpectedCitation"
+ },
+ {
+  "kind": "formula",
+  "text": "unfinished",
+  "printed": "unfinished"
+ },
+ {
+  "kind": "formula",
+  "text": "unfinishedProof",
+  "printed": "unfinishedProof"
+ },
+ {
+  "kind": "formula",
+  "text": "unknown",
+  "printed": "unknown"
+ },
+ {
+  "kind": "formula",
+  "text": "unknownRule",
+  "printed": "unknownRule"
+ },
+ {
+  "kind": "formula",
+  "text": "unknownVersion",
+  "printed": "unknownVersion"
+ },
+ {
+  "kind": "formula",
+  "text": "unnamed",
+  "printed": "unnamed"
+ },
+ {
+  "kind": "formula",
+  "text": "unsound",
+  "printed": "unsound"
+ },
+ {
+  "kind": "formula",
+  "text": "unverifiedProof",
+  "printed": "unverifiedProof"
+ },
+ {
+  "kind": "formula",
+  "text": "useConjunction",
+  "printed": "useConjunction"
+ },
+ {
+  "kind": "formula",
+  "text": "useImplication",
+  "printed": "useImplication"
+ },
+ {
+  "kind": "formula",
+  "text": "usepackage",
+  "printed": "usepackage"
+ },
+ {
+  "kind": "formula",
+  "text": "userRules",
+  "printed": "userRules"
+ },
+ {
+  "kind": "formula",
+  "text": "userRulesConflict",
+  "printed": "userRulesConflict"
+ },
+ {
+  "kind": "formula",
+  "text": "userRulesEnabled",
+  "printed": "userRulesEnabled"
+ },
+ {
+  "kind": "formula",
+  "text": "utf8",
+  "printed": "utf₈"
+ },
+ {
+  "kind": "formula",
+  "text": "v1 v vv",
+  "printed": "v₁ ∨ vv"
+ },
+ {
+  "kind": "formula",
+  "text": "valuationHtml",
+  "printed": "valuationHtml"
+ },
+ {
+  "kind": "formula",
+  "text": "variable",
+  "printed": "variable"
+ },
+ {
+  "kind": "formula",
+  "text": "vdash",
+  "printed": "vdash"
+ },
+ {
+  "kind": "formula",
+  "text": "vendor",
+  "printed": "vendor"
+ },
+ {
+  "kind": "formula",
+  "text": "ver",
+  "printed": "ver"
+ },
+ {
+  "kind": "formula",
+  "text": "verdade",
+  "printed": "verdade"
+ },
+ {
+  "kind": "formula",
+  "text": "verifyProof",
+  "printed": "verifyProof"
+ },
+ {
+  "kind": "formula",
+  "text": "vfill",
+  "printed": "vfill"
+ },
+ {
+  "kind": "formula",
+  "text": "viaRule",
+  "printed": "viaRule"
+ },
+ {
+  "kind": "formula",
+  "text": "view",
+  "printed": "view"
+ },
+ {
+  "kind": "formula",
+  "text": "visit",
+  "printed": "visit"
+ },
+ {
+  "kind": "formula",
+  "text": "voltar",
+  "printed": "voltar"
+ },
+ {
+  "kind": "formula",
+  "text": "v₁ ∨ vv",
+  "printed": "v₁ ∨ vv"
+ },
+ {
+  "kind": "formula",
+  "text": "w",
+  "printed": "w"
+ },
+ {
+  "kind": "sequent",
+  "text": "w ∨ z, ¬w ⊢ z",
+  "printed": "w ∨ z, ¬w ⊢ z"
+ },
+ {
+  "kind": "sequent",
+  "text": "w, ¬w ⊢ u",
+  "printed": "w, ¬w ⊢ u"
+ },
+ {
+  "kind": "formula",
+  "text": "warn",
+  "printed": "warn"
+ },
+ {
+  "kind": "formula",
+  "text": "whatThePremiseAsks",
+  "printed": "whatThePremiseAsks"
+ },
+ {
+  "kind": "formula",
+  "text": "witness",
+  "printed": "witness"
+ },
+ {
+  "kind": "formula",
+  "text": "wm",
+  "printed": "wm"
+ },
+ {
+  "kind": "formula",
+  "text": "words",
+  "printed": "words"
+ },
+ {
+  "kind": "formula",
+  "text": "work",
+  "printed": "work"
+ },
+ {
+  "kind": "formula",
+  "text": "workerFailed",
+  "printed": "workerFailed"
+ },
+ {
+  "kind": "formula",
+  "text": "write",
+  "printed": "write"
+ },
+ {
+  "kind": "formula",
+  "text": "writing",
+  "printed": "writing"
+ },
+ {
+  "kind": "formula",
+  "text": "wrongAnswer",
+  "printed": "wrongAnswer"
+ },
+ {
+  "kind": "formula",
+  "text": "wrongCitationKind",
+  "printed": "wrongCitationKind"
+ },
+ {
+  "kind": "formula",
+  "text": "wrongConclusion",
+  "printed": "wrongConclusion"
+ },
+ {
+  "kind": "formula",
+  "text": "wrongLine",
+  "printed": "wrongLine"
+ },
+ {
+  "kind": "formula",
+  "text": "x",
+  "printed": "x"
+ },
+ {
+  "kind": "sequent",
+  "text": "x → y ⊢ ¬y → ¬x",
+  "printed": "x → y ⊢ ¬y → ¬x"
+ },
+ {
+  "kind": "sequent",
+  "text": "x → y, y → z, ¬z ⊢ ¬x",
+  "printed": "x → y, y → z, ¬z ⊢ ¬x"
+ },
+ {
+  "kind": "sequent",
+  "text": "x ∧ (y ∨ z), ¬¬x ⊢ (x → y) → z",
+  "printed": "x ∧ (y ∨ z), ¬¬x ⊢ (x → y) → z"
+ },
+ {
+  "kind": "sequent",
+  "text": "x, w, z ∧ y ⊢ z",
+  "printed": "x, w, z ∧ y ⊢ z"
+ },
+ {
+  "kind": "sequent",
+  "text": "x, y ⊢ x",
+  "printed": "x, y ⊢ x"
+ },
+ {
+  "kind": "formula",
+  "text": "x1",
+  "printed": "x₁"
+ },
+ {
+  "kind": "formula",
+  "text": "x_2",
+  "printed": "x_₂"
+ },
+ {
+  "kind": "formula",
+  "text": "x_20",
+  "printed": "x_₂₀"
+ },
+ {
+  "kind": "formula",
+  "text": "x_v v y",
+  "printed": "x_v ∨ y"
+ },
+ {
+  "kind": "formula",
+  "text": "x_v ∨ y",
+  "printed": "x_v ∨ y"
+ },
+ {
+  "kind": "formula",
+  "text": "x_₂₀",
+  "printed": "x_₂₀"
+ },
+ {
+  "kind": "formula",
+  "text": "y",
+  "printed": "y"
+ },
+ {
+  "kind": "sequent",
+  "text": "y ∨ z, y → r, z → s ⊢ r",
+  "printed": "y ∨ z, y → r, z → s ⊢ r"
+ },
+ {
+  "kind": "formula",
+  "text": "yes",
+  "printed": "yes"
+ },
+ {
+  "kind": "formula",
+  "text": "z",
+  "printed": "z"
+ },
+ {
+  "kind": "sequent",
+  "text": "|- ((p -> q) -> p) -> p",
+  "printed": "⊢ ((p → q) → p) → p"
+ },
+ {
+  "kind": "sequent",
+  "text": "|- --p | !p",
+  "printed": "⊢ ¬¬p ∨ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "|- p | ~p",
+  "printed": "⊢ p ∨ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "~(p & q) |- ~p | ~q",
+  "printed": "¬(p ∧ q) ⊢ ¬p ∨ ¬q"
+ },
+ {
+  "kind": "formula",
+  "text": "~p",
+  "printed": "¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "~q -> ~p |- p -> ~~q",
+  "printed": "¬q → ¬p ⊢ p → ¬¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "~~p |- p",
+  "printed": "¬¬p ⊢ p"
+ },
+ {
+  "kind": "formula",
+  "text": "¬(a → b)",
+  "printed": "¬(a → b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(a → b) ⊢ a ∧ ¬b",
+  "printed": "¬(a → b) ⊢ a ∧ ¬b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(a ∧ b), a ∨ b ⊢ a ∧ ¬b ∨ b ∧ ¬a",
+  "printed": "¬(a ∧ b), a ∨ b ⊢ a ∧ ¬b ∨ b ∧ ¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(a ∧ b), a ⊢ ¬b",
+  "printed": "¬(a ∧ b), a ⊢ ¬b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(a ∧ ¬b) ⊢ a → b",
+  "printed": "¬(a ∧ ¬b) ⊢ a → b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(a ∨ b) ⊢ ¬a",
+  "printed": "¬(a ∨ b) ⊢ ¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(a ∨ b) ⊢ ¬a ∧ ¬b",
+  "printed": "¬(a ∨ b) ⊢ ¬a ∧ ¬b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(a ∨ b) ⊢ ¬b",
+  "printed": "¬(a ∨ b) ⊢ ¬b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(a ∨ b), c → a ⊢ ¬c ∧ ¬b",
+  "printed": "¬(a ∨ b), c → a ⊢ ¬c ∧ ¬b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(l ∧ m), l ⊢ ¬m",
+  "printed": "¬(l ∧ m), l ⊢ ¬m"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(l ∨ o) ⊢ ¬l ∧ ¬o",
+  "printed": "¬(l ∨ o) ⊢ ¬l ∧ ¬o"
+ },
+ {
+  "kind": "formula",
+  "text": "¬(p → F)",
+  "printed": "¬(p → F)"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(p → q) ⊢ p ∧ ¬q",
+  "printed": "¬(p → q) ⊢ p ∧ ¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(p ∧ q ∨ r → F), s ⊢ t",
+  "printed": "¬(p ∧ q ∨ r → F), s ⊢ t"
+ },
+ {
+  "kind": "formula",
+  "text": "¬(p ∧ q)",
+  "printed": "¬(p ∧ q)"
+ },
+ {
+  "kind": "formula",
+  "text": "¬(p ∧ q) → r ∨ F",
+  "printed": "¬(p ∧ q) → r ∨ F"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(p ∧ q) ⊢ ¬p ∨ ¬q",
+  "printed": "¬(p ∧ q) ⊢ ¬p ∨ ¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(p ∨ q) ⊢ ¬p ∧ ¬q",
+  "printed": "¬(p ∨ q) ⊢ ¬p ∧ ¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(p ∨ ¬q) ⊢ q",
+  "printed": "¬(p ∨ ¬q) ⊢ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(¬a ∧ b) ⊢ a ∧ b",
+  "printed": "¬(¬a ∧ b) ⊢ a ∧ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(¬a ∧ ¬b) ⊢ a ∨ b",
+  "printed": "¬(¬a ∧ ¬b) ⊢ a ∨ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(¬a ∨ b ∨ c) ⊢ a",
+  "printed": "¬(¬a ∨ b ∨ c) ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(¬a ∨ ¬b) ⊢ a ∧ b",
+  "printed": "¬(¬a ∨ ¬b) ⊢ a ∧ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(¬d ∨ f) ⊢ d",
+  "printed": "¬(¬d ∨ f) ⊢ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬(¬p ∨ q) ⊢ p",
+  "printed": "¬(¬p ∨ q) ⊢ p"
+ },
+ {
+  "kind": "formula",
+  "text": "¬E",
+  "printed": "¬E"
+ },
+ {
+  "kind": "formula",
+  "text": "¬F",
+  "printed": "¬F"
+ },
+ {
+  "kind": "formula",
+  "text": "¬I",
+  "printed": "¬I"
+ },
+ {
+  "kind": "formula",
+  "text": "¬a",
+  "printed": "¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a → a ⊢ a",
+  "printed": "¬a → a ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a → b, ¬b ⊢ a",
+  "printed": "¬a → b, ¬b ⊢ a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a ∧ b ⊢ a ∨ b",
+  "printed": "¬a ∧ b ⊢ a ∨ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a ∧ ¬b ⊢ a → b",
+  "printed": "¬a ∧ ¬b ⊢ a → b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a ∧ ¬b ⊢ ¬(a ∨ b)",
+  "printed": "¬a ∧ ¬b ⊢ ¬(a ∨ b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a ∨ b ⊢ a → b",
+  "printed": "¬a ∨ b ⊢ a → b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a ∨ ¬b ⊢ ¬(a ∧ b)",
+  "printed": "¬a ∨ ¬b ⊢ ¬(a ∧ b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a ⊢ a → F",
+  "printed": "¬a ⊢ a → F"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a ⊢ a → b",
+  "printed": "¬a ⊢ a → b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a ⊢ ¬(a ∧ b)",
+  "printed": "¬a ⊢ ¬(a ∧ b)"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬a, ¬b ⊢ ¬(a ∨ b) ∧ ¬(a ∧ b)",
+  "printed": "¬a, ¬b ⊢ ¬(a ∨ b) ∧ ¬(a ∧ b)"
+ },
+ {
+  "kind": "formula",
+  "text": "¬b",
+  "printed": "¬b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬b ⊢ ¬a",
+  "printed": "¬b ⊢ ¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬d → ¬g ⊢ ¬g → ¬d",
+  "printed": "¬d → ¬g ⊢ ¬g → ¬d"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬d, d ∨ f ⊢ f",
+  "printed": "¬d, d ∨ f ⊢ f"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬f → ¬d ⊢ d → f",
+  "printed": "¬f → ¬d ⊢ d → f"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬n → o, ¬o ⊢ n",
+  "printed": "¬n → o, ¬o ⊢ n"
+ },
+ {
+  "kind": "formula",
+  "text": "¬p",
+  "printed": "¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬p → F ⊢ p",
+  "printed": "¬p → F ⊢ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬p → ¬q ⊢ q → p",
+  "printed": "¬p → ¬q ⊢ q → p"
+ },
+ {
+  "kind": "formula",
+  "text": "¬p ∧ q",
+  "printed": "¬p ∧ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬p ∧ ¬q ⊢ ¬(p ∨ q)",
+  "printed": "¬p ∧ ¬q ⊢ ¬(p ∨ q)"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬p ∨ q ⊢ p → q",
+  "printed": "¬p ∨ q ⊢ p → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬p ∨ ¬q ⊢ ¬(p ∧ q)",
+  "printed": "¬p ∨ ¬q ⊢ ¬(p ∧ q)"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬q → ¬p ⊢ p → q",
+  "printed": "¬q → ¬p ⊢ p → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬q → ¬p ⊢ p → ¬¬q",
+  "printed": "¬q → ¬p ⊢ p → ¬¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬q, p → q ⊢ ¬p",
+  "printed": "¬q, p → q ⊢ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬r → (p ∨ q), r ∧ ¬q ⊢ r → q",
+  "printed": "¬r → p ∨ q, r ∧ ¬q ⊢ r → q"
+ },
+ {
+  "kind": "formula",
+  "text": "¬¬I",
+  "printed": "¬¬I"
+ },
+ {
+  "kind": "formula",
+  "text": "¬¬a",
+  "printed": "¬¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬¬a ∧ b ⊢ a ∧ b",
+  "printed": "¬¬a ∧ b ⊢ a ∧ b"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬¬c ∧ d ⊢ c",
+  "printed": "¬¬c ∧ d ⊢ c"
+ },
+ {
+  "kind": "formula",
+  "text": "¬¬p",
+  "printed": "¬¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬¬p ⊢ p",
+  "printed": "¬¬p ⊢ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬¬s ∧ t ⊢ t ∧ s",
+  "printed": "¬¬s ∧ t ⊢ t ∧ s"
+ },
+ {
+  "kind": "formula",
+  "text": "¬¬¬a",
+  "printed": "¬¬¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "¬¬¬a ⊢ ¬a",
+  "printed": "¬¬¬a ⊢ ¬a"
+ },
+ {
+  "kind": "formula",
+  "text": "¬¬¬¬¬φ",
+  "printed": "¬¬¬¬¬φ"
+ },
+ {
+  "kind": "formula",
+  "text": "¬¬φ",
+  "printed": "¬¬φ"
+ },
+ {
+  "kind": "formula",
+  "text": "¬φ",
+  "printed": "¬φ"
+ },
+ {
+  "kind": "formula",
+  "text": "¬ψ",
+  "printed": "¬ψ"
+ },
+ {
+  "kind": "formula",
+  "text": "¬ψ → ¬φ",
+  "printed": "¬ψ → ¬φ"
+ },
+ {
+  "kind": "formula",
+  "text": "θ",
+  "printed": "θ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ",
+  "printed": "φ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ -> θ",
+  "printed": "φ → θ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ -> ψ",
+  "printed": "φ → ψ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ → θ",
+  "printed": "φ → θ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ → φ",
+  "printed": "φ → φ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ → ψ",
+  "printed": "φ → ψ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ ∧ φ",
+  "printed": "φ ∧ φ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ ∧ ψ",
+  "printed": "φ ∧ ψ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ ∨ ¬φ",
+  "printed": "φ ∨ ¬φ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ ∨ φ",
+  "printed": "φ ∨ φ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ ∨ ψ",
+  "printed": "φ ∨ ψ"
+ },
+ {
+  "kind": "formula",
+  "text": "φ ∨ ψ → φ",
+  "printed": "φ ∨ ψ → φ"
+ },
+ {
+  "kind": "formula",
+  "text": "ψ",
+  "printed": "ψ"
+ },
+ {
+  "kind": "formula",
+  "text": "ψ => θ",
+  "printed": "ψ → θ"
+ },
+ {
+  "kind": "formula",
+  "text": "ψ ∧ φ",
+  "printed": "ψ ∧ φ"
+ },
+ {
+  "kind": "formula",
+  "text": "ψ ∨ φ",
+  "printed": "ψ ∨ φ"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (((p ∨ q) → r) ∧ p) → r",
+  "printed": "⊢ (p ∨ q → r) ∧ p → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ((a → b) → a) → a",
+  "printed": "⊢ ((a → b) → a) → a"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ((f → d) → d) → ((d → f) → f)",
+  "printed": "⊢ ((f → d) → d) → (d → f) → f"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ((f → d) ∧ (d → f)) → ((f ∨ d) → (f ∧ d))",
+  "printed": "⊢ (f → d) ∧ (d → f) → f ∨ d → f ∧ d"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ((p → q) → p) → p",
+  "printed": "⊢ ((p → q) → p) → p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ((p → q) ∧ (q → r)) → (p → r)",
+  "printed": "⊢ (p → q) ∧ (q → r) → p → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ((p → q) ∧ (q → r)) → ¬(¬r ∧ p)",
+  "printed": "⊢ (p → q) ∧ (q → r) → ¬(¬r ∧ p)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ((p → q) ∧ (¬p → q)) → q",
+  "printed": "⊢ (p → q) ∧ (¬p → q) → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ((p ∧ q) → ¬r) → (p → (q → ¬r))",
+  "printed": "⊢ (p ∧ q → ¬r) → p → q → ¬r"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (a → (b → c)) → ((a → b) → (a → c))",
+  "printed": "⊢ (a → b → c) → (a → b) → a → c"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (a → b) ∨ (b → a)",
+  "printed": "⊢ (a → b) ∨ (b → a)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (d → (f → g)) → (f → (d → g))",
+  "printed": "⊢ (d → f → g) → f → d → g"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (d → g) → ((¬d → ¬f) → (f → g))",
+  "printed": "⊢ (d → g) → (¬d → ¬f) → f → g"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (d ∧ f) → f",
+  "printed": "⊢ d ∧ f → f"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (f ∨ g) → (g ∨ f)",
+  "printed": "⊢ f ∨ g → g ∨ f"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (p → (q → r)) → ((p → q) → (p → r))",
+  "printed": "⊢ (p → q → r) → (p → q) → p → r"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (p → q) → ((¬p → q) → q)",
+  "printed": "⊢ (p → q) → (¬p → q) → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (p → q) → (¬q → ¬p)",
+  "printed": "⊢ (p → q) → ¬q → ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (p → q) ∨ (q → p)",
+  "printed": "⊢ (p → q) ∨ (q → p)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (p → q) ∨ (q → r)",
+  "printed": "⊢ (p → q) ∨ (q → r)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (p → ¬q) ∨ (¬p → q)",
+  "printed": "⊢ (p → ¬q) ∨ (¬p → q)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (p ∧ q) ∨ ¬p ∨ ¬q",
+  "printed": "⊢ p ∧ q ∨ ¬p ∨ ¬q"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r))",
+  "printed": "⊢ p ∨ q ∧ r → (p ∨ q) ∧ (p ∨ r)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (¬d → d) → d",
+  "printed": "⊢ (¬d → d) → d"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (¬p → q) → ((p → q) → q)",
+  "printed": "⊢ (¬p → q) → (p → q) → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ (¬q → ¬p) → ((¬q → p) → q)",
+  "printed": "⊢ (¬q → ¬p) → (¬q → p) → q"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ a → (b → a)",
+  "printed": "⊢ a → b → a"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ a → a",
+  "printed": "⊢ a → a"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ a ∨ ¬a",
+  "printed": "⊢ a ∨ ¬a"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ c ∨ ¬c",
+  "printed": "⊢ c ∨ ¬c"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ d → (d ∨ f)",
+  "printed": "⊢ d → d ∨ f"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ d → (¬f → ¬(d → f))",
+  "printed": "⊢ d → ¬f → ¬(d → f)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ k → (j → k)",
+  "printed": "⊢ k → j → k"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p",
+  "printed": "⊢ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p → (q → p)",
+  "printed": "⊢ p → q → p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p → p",
+  "printed": "⊢ p → p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p → p ∧ p",
+  "printed": "⊢ p → p ∧ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p → p ∨ q",
+  "printed": "⊢ p → p ∨ q"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p → ¬¬p",
+  "printed": "⊢ p → ¬¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p ∧ q → p",
+  "printed": "⊢ p ∧ q → p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p ∨ ¬(p ∧ q)",
+  "printed": "⊢ p ∨ ¬(p ∧ q)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ p ∨ ¬p",
+  "printed": "⊢ p ∨ ¬p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ q → (p → (q ∧ p))",
+  "printed": "⊢ q → p → q ∧ p"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ q → (¬p → ¬(q → p))",
+  "printed": "⊢ q → ¬p → ¬(q → p)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ s ∨ ¬s",
+  "printed": "⊢ s ∨ ¬s"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ¬((p ∨ q) ∧ (¬p ∧ ¬q))",
+  "printed": "⊢ ¬((p ∨ q) ∧ (¬p ∧ ¬q))"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ¬(a ∧ ¬a)",
+  "printed": "⊢ ¬(a ∧ ¬a)"
+ },
+ {
+  "kind": "sequent",
+  "text": "⊢ ¬(p ∧ ¬p)",
+  "printed": "⊢ ¬(p ∧ ¬p)"
+ },
+ {
+  "kind": "formula",
+  "text": "⊥",
+  "printed": "F"
+ },
+ {
+  "kind": "formula",
+  "text": "⊥ -> p1_2 -> q12",
+  "printed": "F → p1_₂ → q₁₂"
+ }
+]

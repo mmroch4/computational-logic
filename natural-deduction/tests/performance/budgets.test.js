@@ -7,8 +7,10 @@ import { createProof } from "../../js/core/proof.js";
 import { ruleSet } from "../../js/core/rules.js";
 import { parseSequent } from "../../js/core/sequent.js";
 import { solve } from "../../js/core/solver.js";
+import { COUNTERMODEL_LIMITS, findCountermodel } from "../../js/core/structures.js";
 import { SOLVER_TIMEOUT_MS } from "../../js/ui/solver-worker.js";
 import { HARD_SEQUENT, LONG_INVALID, PIGEONHOLE } from "./fixtures.js";
+import { INVALID_FIRST_ORDER, VALID_FIRST_ORDER } from "../fixtures/first-order-sequents.js";
 
 const goalOf = (text) => parseSequent(text).sequent;
 
@@ -67,4 +69,44 @@ test("os limites de passos acabam dentro do tempo limite do Worker, mesmo na pro
   const rules = ruleSet({ set: "base", exclude: ["¬E", "RA"] });
   const result = withinBudget(() => solve(goalOf(HARD_SEQUENT), { rules }), SOLVER_TIMEOUT_MS, 1);
   assert.equal(result.error.code, "stepLimit");
+});
+
+// Contramodelos de 1.ª ordem: COUNTERMODEL_LIMITS (domínio até 4, 2 milhões de passos) foi fixado aqui.
+// Esgotar o orçamento mede cerca de 150 ms; o pior caso é o de muitos quantificadores encaixados.
+const CLASSIC_INVALID = ["∃x P(x) ⊢ ∀x P(x)", "∀x∃y R(x, y) ⊢ ∃y∀x R(x, y)"];
+
+const NESTED = "∀x∀y∀z∀w∀u(R(x, y) ∧ R(y, z) ∧ R(z, w) ∧ R(w, u) → S(x, u))";
+const EXHAUSTING = [
+  "⊢ " + NESTED + " ∨ ¬" + NESTED,
+  "∀x∀y∀z(R(x, y) ∧ S(y, z) → R(x, z)), ∀x∃y S(x, y) ⊢ ∀x(∃y R(x, y) → ∃y R(x, y))",
+];
+
+test("contramodelos dos sequentes inválidos clássicos: até 50 ms", () => {
+  for (const text of CLASSIC_INVALID) {
+    const result = withinBudget(() => findCountermodel(goalOf(text)), 50);
+    assert.equal(result.status, "found", text);
+  }
+});
+
+// Solver de 1.ª ordem (M3): cada válido da lista fixa mede até cerca de 200 ms, quase tudo na procura do
+// contramodelo que vem antes; sem prova nem contramodelo, o solver gasta os MAX_STEPS em cerca de 900 ms.
+test("sequentes válidos de 1.ª ordem: prova até 1 s cada", () => {
+  for (const text of VALID_FIRST_ORDER) {
+    const result = withinBudget(() => solve(goalOf(text)), 1000, 1);
+    assert.ok(result.provable, text);
+  }
+});
+
+test("sequente de 1.ª ordem sem prova nem contramodelo: até 4 s, dentro do tempo do Worker", () => {
+  assert.ok(4000 < SOLVER_TIMEOUT_MS);
+  const result = withinBudget(() => solve(goalOf(INVALID_FIRST_ORDER.at(-1))), 4000, 1);
+  assert.equal(result.error.code, "undecided");
+});
+
+test("procura de contramodelo que esgota o orçamento: até 750 ms", () => {
+  for (const text of EXHAUSTING) {
+    const result = withinBudget(() => findCountermodel(goalOf(text)), 750);
+    assert.equal(result.status, "exhausted", text);
+    assert.ok(result.steps >= COUNTERMODEL_LIMITS.budget, text);
+  }
 });

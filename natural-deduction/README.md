@@ -1,8 +1,9 @@
 # Learn Natural Deduction
 
 A free, interactive website to learn **natural deduction** proofs in Fitch notation, for propositional
-logic. Write a sequent and prove it line by line, with every line checked as you go, or watch a
-generated proof step by step, with the strategy behind each step.
+and first-order logic with equality. Write a sequent and prove it line by line, with every line checked as
+you go, or watch a generated proof step by step, with the strategy behind each step. Invalid sequents get a
+counterexample: a valuation, or a finite structure when the sequent has quantifiers.
 
 **Live site:** [English](https://nd.computational-logic.miguelrocha.dev/en) ·
 [Português](https://nd.computational-logic.miguelrocha.dev)
@@ -16,38 +17,73 @@ Each page has its own URL in each language: Portuguese at the root, English unde
 | Home | `/` | `/en` | Introduction, a proof that writes itself and a quick way into the other pages. |
 | Prove | `/provar` | `/en/prove` | Free editor: type a proof or pick lines and a rule, with hints, automatic solutions, counterexamples, a Gentzen tree view, LaTeX and PDF export, shareable links and your own rules. |
 | Step by step | `/passo-a-passo` | `/en/step-by-step` | Replays a generated proof and explains each step, in Fitch or as a tree, with a timeline and keyboard controls. |
-| Learn | `/aprender` | `/en/learn` | A nine-section lesson: rules, subproofs, strategies, derived rules with their proofs, proof labs and a final quiz. |
-| Exercises | `/exercicios` | `/en/exercises` | Graded proofs and "find the wrong step" challenges. Progress stays in your browser. |
+| Learn | `/aprender` | `/en/learn` | A fourteen-section lesson: rules, subproofs, strategies, derived rules with their proofs, then terms and predicates, ∀, ∃, equality and the quantifier negations, with proof labs and a final quiz. |
+| Exercises | `/exercicios` | `/en/exercises` | Graded proofs and "find the wrong step" challenges, propositional first and then first-order. Progress stays in your browser. |
 
 State lives in the URL, so any proof can be shared with a link: `?s=…&p=…&r=…` on Prove (sequent, proof
-and the user rules it cites) and `?s=…&step=N&view=fitch|tree` on Step by step. Switching language keeps
+and the user rules it cites) and `?s=…&step=N&view=fitch|tree` on Step by step. Proofs with ∀I or ∃E boxes
+use the link format `p=2`; every other proof keeps `p=1`, and old links still open. Switching language keeps
 the query and the lesson section.
 
 ## Input
 
-Sequents are written as `p -> q, p |- q`, and the editor accepts the same formulas line by line.
+Sequents are written as `p -> q, p |- q` or `forall x (P(x) -> Q(x)), P(a) |- Q(a)`, and the editor accepts
+the same formulas line by line. There is no switch: a sequent with quantifiers, terms or `=` is first-order.
 
 Negation `¬ ~ - !` · conjunction `∧ & /\ ^` · disjunction `∨ | \/ v` · implication `→ -> =>` · falsum `F`
-or `⊥`, always shown as **F**. Variables match `[A-Za-z][A-Za-z0-9_]*`, and a numeric suffix renders as a
-subscript (`p11` → p₁₁). `v` and `F` are reserved, so they cannot be variables.
+or `⊥`, always shown as **F** · universal `∀x` or `forall x` · existential `∃x` or `exists x` · equality
+`t1 = t2`. Names match `[A-Za-z][A-Za-z0-9_]*`, and a numeric suffix renders as a subscript (`p11` → p₁₁).
+
+- **Atoms and predicates:** `p` is a propositional atom and `P(a, f(b))` a predicate applied to terms. `=`
+  binds tighter than every connective, so `¬a = b` reads as `¬(a = b)`.
+- **Terms:** a name, or a function applied to terms, `f(x, g(a))`. Names are not typed: a name is a
+  variable where a quantifier binds it, and a parameter where it is free.
+- **Quantifiers:** the bound variable is a letter with optional digits, and `∀xP(x)` also reads.
+- **Reserved:** `F`, `forall` and `exists`. `v` is disjunction between formulas, but a name in term
+  position (an argument, a quantified variable or a box label), so it cannot be a propositional atom.
 
 ## Proof conventions
 
-- **Base rules:** ∧I, ∧E, ∨I, ∨E, ¬I, ¬E, FI, FE, →I, →E, R. ¬E is only ¬¬φ ⊢ φ.
-- **Derived rules:** MT, ¬¬I, RAA, LEM, DM, HS, DS. Each one keeps a proof that uses base rules only,
-  checked by the tests and shown in the lesson. In Portuguese they are MT, ¬¬I, RA, TE, DM, SH, SD.
+- **Base rules:** ∧I, ∧E, ∨I, ∨E, ¬I, ¬E, FI, FE, →I, →E, R. ¬E is only ¬¬φ ⊢ φ. First-order rules:
+  ∀I, ∀E, ∃I, ∃E, =I, =E. ∀E and ∃I need x substitutable by t in φ, and =E rewrites some occurrences.
+- **Boxes:** the fresh variable of ∀I and ∃E is a label `[v]` in the margin of the first line of the box,
+  one box per line. In ∃E that line is the hypothesis; in ∀I it is any step, usually a ∀E. When a ∀I box
+  starts with a hypothesis, the `[v]` sits alone on an unnumbered label line. The variable is fresh if it
+  occurs in no line accessible before the box, and must not be free in the conclusion of the rule:
+
+  ```
+  1 | ∀x(P(x) → Q(x))    premise
+  2 | ∀x P(x)            premise
+  3 |  [v] P(v) → Q(v)   ∀E, 1
+  4 |      P(v)          ∀E, 2
+  5 |      Q(v)          →E, 3, 4
+  6 | ∀x Q(x)            ∀I, 3–5
+  ```
+
+- **Alpha-equivalence:** `∀y P(y)` and `∀x P(x)` count as the same formula in conclusions, premises and
+  citations. What you type is never rewritten.
+- **Derived rules:** MT, ¬¬I, RAA, LEM, DM, HS, DS, and the quantifier negations QN1 (¬∀x φ ⊢ ∃x ¬φ),
+  QN2 (∃x ¬φ ⊢ ¬∀x φ), QN3 (¬∃x φ ⊢ ∀x ¬φ) and QN4 (∀x ¬φ ⊢ ¬∃x φ). Each one keeps a proof that uses
+  base rules only, checked by the tests and shown in the lesson. In Portuguese they are MT, ¬¬I, RA, TE,
+  DM, SH, SD and NQ1, NQ2, NQ3, NQ4.
 - **Citations:** earlier accessible lines are cited directly, without R. R only repeats a formula. The
-  order of the cited lines is free, and a subproof is cited as a range, `2–4`.
+  order of the cited lines is free, and a subproof is cited as a range, `2–4`. ∃E cites the ∃ line and the
+  box, `∃E, 2, 3–9`.
 - **Rule sets:** the free editor uses every rule. Each exercise sets its own: `base`, `completo` (all
   rules), base plus a few, or `restrito` (only the listed ones). An exercise that asks you to prove a rule
   excludes that rule.
 - **User rules:** defined on Prove as a schema with metavariables φ, ψ, θ, where a premise can be a
   subproof `[φ] … ψ`. A rule is only accepted if it is sound: the schema, with `[φ] … ψ` read as φ → ψ,
-  must be a tautology. Otherwise the site shows a counterexample. A proof that uses them is marked as such
-  and counts apart from "solved" in the exercises.
-- **Solver:** a truth table decides validity first, so an invalid sequent gets a counterexample. The
-  search follows the usual heuristics (assume the antecedent, reductio, cases for ∨) and respects the active
-  rule set, and every generated proof goes through the verifier before it is shown.
+  must be a tautology. Otherwise the site shows a counterexample. User rules stay propositional (no
+  quantifiers, terms or `=`), but they can be used in first-order proofs, with φ, ψ, θ standing for any
+  formula. A proof that uses them is marked as such and counts apart from "solved" in the exercises.
+- **Solver:** in propositional logic, a truth table decides validity first, so an invalid sequent gets a
+  counterexample. The search follows the usual heuristics (assume the antecedent, reductio, cases for ∨) and
+  respects the active rule set, and every generated proof goes through the verifier before it is shown.
+- **First-order solver:** first-order validity is undecidable, so both searches have a budget. The site
+  looks for a countermodel among finite structures (domains of up to 4 elements), then for a proof with the
+  base rules. If neither is found, it says so instead of guessing. Hints in first-order proofs come from
+  heuristics.
 - Truth values are T/F in English and V/F in Portuguese.
 
 ## Running locally
@@ -118,7 +154,8 @@ folder. They start `scripts/serve.mjs` if the port is free; set `PORT` to choose
 en/                 English pages (generated)
 css/                app.css (compiled and committed); src/ is the source
 js/core/            pure logic with no DOM: parser, formulas, proofs, rules, verifier, solver, hints,
-                    Gentzen trees, exercises, lesson data, share links, LaTeX, routes
+                    first-order structures and proof search, Gentzen trees, exercises, lesson data,
+                    share links, LaTeX, routes
 js/ui/              reusable DOM components, i18n.js, locales/{pt,en}.js, storage.js
 js/pages/           one entry point per page
 js/vendor/          bundled third-party code (generated)

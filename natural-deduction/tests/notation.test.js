@@ -54,7 +54,51 @@ test("converter não muda o significado, nas duas direções", () => {
   }
 });
 
+test("quantificadores: forall e exists ↔ ∀ e ∃", () => {
+  assert.equal(convertNotation("forall x P(x) |- exists y P(y)", "symbols"), "∀x P(x) ⊢ ∃y P(y)");
+  assert.equal(convertNotation("forall  xP(x)", "symbols"), "∀xP(x)");
+  assert.equal(convertNotation("forall x forall y R(x, y)", "symbols"), "∀x∀y R(x, y)");
+  assert.equal(convertNotation("forall x(P(x) -> Q(x))", "symbols"), "∀x(P(x) → Q(x))");
+  assert.equal(convertNotation("∀x P(x) ⊢ ∃y P(y)", "ascii"), "forall x P(x) |- exists y P(y)");
+  assert.equal(convertNotation("∀xP(x)", "ascii"), "forall xP(x)");
+  assert.equal(convertNotation("∀x∀y R(x, y)", "ascii"), "forall x forall y R(x, y)");
+  assert.equal(convertNotation("¬∃x₁ x₁ = f(a)", "ascii"), "~exists x1 x1 = f(a)");
+  assert.equal(convertNotation("foralls ∧ exists1", "ascii"), "foralls & exists1");
+});
+
+test("em posição de termo o `v` é um nome; entre fórmulas, a disjunção", () => {
+  assert.equal(convertNotation("P(v) v Q(v, v)", "symbols"), "P(v) ∨ Q(v, v)");
+  assert.equal(convertNotation("forall v P(v) v q", "symbols"), "∀v P(v) ∨ q");
+  assert.equal(convertNotation("a = v v v = b", "symbols"), "a = v ∨ v = b");
+  assert.equal(convertNotation("∀x v = x", "symbols"), "∀x v = x");
+  assert.equal(convertNotation("P(f(v)) v p", "ascii"), "P(f(v)) | p");
+  assert.equal(convertNotation("∀v P(v)", "ascii"), "forall v P(v)");
+});
+
+test("converter sequentes de 1.ª ordem não muda o significado", () => {
+  const sequents = [
+    "forall x (P(x) -> Q(x)), forall x P(x) |- forall x Q(x)",
+    "∀x∀y R(x, y) ⊢ ∀y∀x R(x, y)",
+    "exists v P(v) v exists v Q(v) |- exists x (P(x) | Q(x))",
+    "a = b, P(a, f(b)) ⊢ P(b, f(a))",
+    "∀xP(x) ⊢ ¬∃x¬P(x)",
+    "|- forall v v = v",
+  ];
+  for (const text of sequents) {
+    const symbols = convertNotation(text, "symbols");
+    const ascii = convertNotation(text, "ascii");
+    assert.equal(read(symbols), read(text), text);
+    assert.equal(read(ascii), read(text), text);
+    assert.equal(read(convertNotation(ascii, "symbols")), read(text), text);
+    assert.equal(convertNotation(symbols, "symbols"), symbols, text);
+    assert.equal(convertNotation(ascii, "ascii"), ascii, text);
+  }
+});
+
 test("detectNotation", () => {
+  assert.equal(detectNotation("∀x P(x) ⊢ ∃x P(x)"), "symbols");
+  assert.equal(detectNotation("forall x P(x) |- exists x P(x)"), "ascii");
+  assert.equal(detectNotation("P(a, v), a = b"), null);
   assert.equal(detectNotation("p → q ⊢ r"), "symbols");
   assert.equal(detectNotation("p -> q |- r"), "ascii");
   assert.equal(detectNotation("p → q |- r"), "mixed");

@@ -161,6 +161,39 @@ async function scenario({ page, evaluate, tap }, origin, path, lang, width) {
   await sleep(100);
   await tap('[data-mode="guided"]');
   await writeScreenshot(page, `${lang}-${width}-guiado`);
+
+  await firstOrder({ page, evaluate, tap }, origin, path, tag, `${lang}-${width}`);
+}
+
+/**
+ * 1.ª ordem: numa linha vazia, o ∀E cita o ∀ e deixa escolher o termo entre os da prova, ou escrever
+ * outro; a escolha escreve a fórmula e a justificação.
+ */
+async function firstOrder({ page, evaluate, tap }, origin, path, tag, name) {
+  await page("Page.navigate", { url: `${origin}${path}` });
+  await waitFor(() => evaluate(`document.querySelector("#sequent") !== null && document.getElementById("start-proof") !== null`));
+  await sleep(100);
+  await evaluate(`document.querySelector("#sequent").focus()`);
+  await page("Input.insertText", { text: "∀x P(x), Q(c) ⊢ ∃x P(x)" });
+  await tap("#start-proof");
+  await waitFor(() => evaluate(`document.querySelector('[data-field="justification"]') !== null`), tag("1.ª ordem: o editor"));
+  const last = await evaluate(`[...document.querySelectorAll(".fitch-edit__line")].at(-1).dataset.line`);
+  const row = `.fitch-edit__line[data-line="${last}"]`;
+  await tap(`${row} [data-field="justification"]`);
+  await waitFor(() => evaluate(`document.querySelector('[data-pick-rule="∀E"]') !== null`), tag("1.ª ordem: a lista"));
+  await tap('[data-pick-rule="∀E"]');
+  await waitFor(() => evaluate(`document.querySelector("[data-pick-cite]") !== null`), tag("1.ª ordem: o pedido do ∀"));
+  await tap("[data-pick-cite]");
+  await waitFor(() => evaluate(`document.querySelector("[data-pick-result]") !== null`), tag("1.ª ordem: os termos"));
+  const results = await evaluate(`[...document.querySelectorAll("[data-pick-result]")].map((button) => button.textContent)`);
+  expect(results.length, 2, tag(`1.ª ordem: P(c) e outro termo, ${JSON.stringify(results)}`));
+  expect(results[0], "P(c)", tag("1.ª ordem: o termo da prova"));
+  await writeScreenshot(page, `${name}-termo`);
+  await tap('[data-pick-result="0"]');
+  await waitFor(() => evaluate(`document.querySelector(".rule-pick") === null`), tag("1.ª ordem: o fim do pedido"));
+  expect(await evaluate(`document.querySelector('${row} [data-field="formula"]').value`), "P(c)", tag("1.ª ordem: a fórmula escrita"));
+  expect(await evaluate(`document.querySelector('${row} [data-field="justification"]').value`), "∀E, 1", tag("1.ª ordem: a justificação"));
+  expect(await evaluate(`document.querySelector('${row}').dataset.state`), "ok", tag("1.ª ordem: linha certa"));
 }
 
 const server = spawn("node", [join(ROOT, "scripts/serve.mjs"), "0"], { stdio: ["ignore", "pipe", "ignore"] });

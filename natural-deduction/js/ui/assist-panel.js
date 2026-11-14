@@ -3,11 +3,9 @@
 //
 // `createAssist` trata dos pedidos, sem DOM; `assistBodyHtml` é puro; só mountAssistPanel() mexe no DOM.
 // `source` é o editor: { getProof(), getGoal(), getRules(), useProof(proof) }.
-import {
-  IDLE, canRevealMore, errorKey, panelFromResult, revealMore, searching,
-} from "../core/assist.js";
+import { IDLE, canRevealMore, errorKey, panelFromResult, revealMore, searching } from "../core/assist.js";
 import { format } from "../core/formula.js";
-import { valuationHtml } from "./counterexample.js";
+import { counterexampleHtml } from "./counterexample.js";
 import { fitchHtml, readAsHtml, spokenProse } from "./fitch-view.js";
 import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -39,8 +37,8 @@ function hintHtml({ target, levels, revealed, ...panel }) {
 }
 
 function invalidHtml(panel) {
-  const text = msgHtml("warn", escapeHtml(t(panel.hasPremises ? "assist.invalid" : "assist.invalidNoPremises")));
-  return text + valuationHtml(panel);
+  const key = `assist.${panel.structure ? "invalidStructure" : "invalid"}${panel.hasPremises ? "" : "NoPremises"}`;
+  return msgHtml("warn", escapeHtml(t(key))) + counterexampleHtml(panel);
 }
 
 function solutionHtml({ proof, start, reason }) {

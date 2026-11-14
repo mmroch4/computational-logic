@@ -60,7 +60,7 @@ test("README e CLAUDE.md têm as rotas todas", () => {
 test("o README nomeia todas as regras", () => {
   const text = read("README.md");
   for (const { id } of [...BASE_RULES, ...DERIVED_RULES]) assert.ok(text.includes(id), id);
-  for (const id of ["RAA", "LEM", "HS", "DS"]) assert.ok(text.includes(id), id);
+  for (const id of ["RAA", "LEM", "HS", "DS", "QN1", "QN2", "QN3", "QN4"]) assert.ok(text.includes(id), id);
 });
 
 test("os tokens citados no DESIGN.md estão no CSS", () => {

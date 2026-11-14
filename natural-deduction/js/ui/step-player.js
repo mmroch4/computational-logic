@@ -4,11 +4,12 @@
 //
 // As funções exportadas à parte são puras (testáveis em node); só mountStepPlayer() mexe no DOM.
 import { errorKey, panelFromResult } from "../core/assist.js";
-import { clampStep, proofAt, proofTrace, stepOfLine } from "../core/proof-trace.js";
+import { displayName, format } from "../core/formula.js";
+import { clampStep, proofAt, proofTrace, stepNotes, stepOfLine } from "../core/proof-trace.js";
 import { formatSequent } from "../core/sequent.js";
 import { STEP_VIEWS } from "../core/step-link.js";
 import { MAX_TREE_NODES, treeAt } from "../core/tree.js";
-import { valuationHtml } from "./counterexample.js";
+import { counterexampleHtml } from "./counterexample.js";
 import { fitchHtml, readAsHtml, spokenProse } from "./fitch-view.js";
 import { onLangChange, t } from "./i18n.js";
 import { escapeHtml } from "./layout.js";
@@ -24,7 +25,11 @@ const proseHtml = (text) => readAsHtml(escapeHtml(text), spokenProse(text));
 
 /** O que dizer em vez de reproduzir o resultado `result` de `solve`, ou null se houver prova. */
 export function solveOutcome(result) {
-  if (!result.ok) return { kind: "error", key: errorKey(result.error), params: result.error.params };
+  if (!result.ok) {
+    // Em 1.ª ordem, não decidir não é um erro: a validade é indecidível.
+    const kind = result.error.code === "undecided" ? "warn" : "error";
+    return { kind, key: errorKey(result.error), params: result.error.params };
+  }
   if (!result.valid) return { kind: "warn", key: "player.invalid", params: {} };
   if (!result.provable) return { kind: "warn", key: "solver.noProof", params: {} };
   return null;
@@ -36,9 +41,11 @@ export function outcomeHtml(result, goal) {
   if (!outcome) return "";
   const text = msgHtml(outcome.kind, escapeHtml(t(outcome.key, outcome.params)));
   if (!result.ok || result.valid) return text;
-  const panel = panelFromResult({ status: "invalid", counterexample: result.counterexample }, goal);
-  const lead = panel.valuation.length === 0 ? "" : `<p class="assist__note">${escapeHtml(t(panel.hasPremises ? "player.counterexample" : "player.counterexampleNoPremises"))}</p>`;
-  return `<div class="step-outcome">${text}${lead}${valuationHtml(panel)}</div>`;
+  const { counterexample, structure } = result;
+  const panel = panelFromResult({ status: "invalid", counterexample, structure }, goal);
+  const leadKey = `player.${structure ? "countermodel" : "counterexample"}${panel.hasPremises ? "" : "NoPremises"}`;
+  const lead = panel.valuation?.length === 0 ? "" : `<p class="assist__note">${escapeHtml(t(leadKey))}</p>`;
+  return `<div class="step-outcome">${text}${lead}${counterexampleHtml(panel)}</div>`;
 }
 
 /** As linhas a destacar no passo `index`: a dele e as que ele cita. */
@@ -64,27 +71,37 @@ export function treeAtStep(proof, trace, index) {
   return result.ok ? { status: "ready", tree: result.tree, size: result.size } : { status: "tooLarge", limit: MAX_TREE_NODES };
 }
 
-/** O título, a linha e a estratégia do passo, como texto. */
+/** As notas de 1.ª ordem do passo (caixa, variável nova, instanciação), como frases. */
+export function stepNoteTexts(proof, event) {
+  return stepNotes(proof, event).map(({ key, params }) => {
+    const shown = Object.fromEntries(Object.entries(params).map(([name, value]) => [name, typeof value === "string" ? displayName(value) : format(value)]));
+    return t(`player.firstOrder.${key}`, shown);
+  });
+}
+
+/** O título, a linha, a estratégia e as notas do passo, como texto. */
 function stepTexts(proof, trace, index) {
   const { type, line, strategy, premises } = trace[index];
   const title = t(`timeline.event.${type}`);
-  if (type === "start") return { title, detail: null, why: t(premises > 0 ? "player.start" : "player.startEmpty") };
-  return { title, detail: lineCaption(proof, line), why: t(`solver.strategies.${strategy}`) };
+  if (type === "start") return { title, detail: null, why: t(premises > 0 ? "player.start" : "player.startEmpty"), notes: [] };
+  return { title, detail: lineCaption(proof, line), why: t(`solver.strategies.${strategy}`), notes: stepNoteTexts(proof, trace[index]) };
 }
 
 /** O cartão do passo: o que aconteceu e porquê. */
 export function stepCardHtml(proof, trace, index) {
-  const { title, detail, why } = stepTexts(proof, trace, index);
+  const { title, detail, why, notes } = stepTexts(proof, trace, index);
   const line = detail === null ? "" : `<p class="step-card__line">${proseHtml(detail)}</p>`;
+  const extra = notes.map((note) => `<p class="step-card__why" data-note>${proseHtml(note)}</p>`).join("");
   const done = trace[index].type === "conclude" || trace.length === 1 ? msgHtml("ok", escapeHtml(t("player.done"))) : "";
-  return `<h2 class="step-card__title">${escapeHtml(title)}</h2>${line}<p class="step-card__why">${proseHtml(why)}</p>${done}`;
+  return `<h2 class="step-card__title">${escapeHtml(title)}</h2>${line}<p class="step-card__why">${proseHtml(why)}</p>${extra}${done}`;
 }
 
 /** O que um leitor de ecrã ouve ao mudar de passo. */
 export function stepAnnouncement(proof, trace, index) {
-  const { detail, why } = stepTexts(proof, trace, index);
+  const { detail, why, notes } = stepTexts(proof, trace, index);
   const counter = t("timeline.counter", { i: index, n: trace.length - 1 });
-  return spokenProse([counter, detail, why].filter(Boolean).join(". "));
+  // As notas já acabam em ponto: seguem a estratégia separadas por um espaço.
+  return spokenProse([counter, detail, [why, ...notes].join(" ")].filter(Boolean).join(". "));
 }
 
 export function viewSwitchHtml(view) {

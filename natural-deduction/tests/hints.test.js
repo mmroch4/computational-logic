@@ -10,6 +10,7 @@ import { parseFormula } from "../js/core/parser.js";
 import { RULES, ruleSet } from "../js/core/rules.js";
 import { parseSequent, sequent } from "../js/core/sequent.js";
 import { solve } from "../js/core/solver.js";
+import { isCountermodel } from "../js/core/structures.js";
 import { verifyLine, verifyProof } from "../js/core/verify.js";
 import pt from "../js/ui/locales/pt.js";
 import en from "../js/ui/locales/en.js";
@@ -423,4 +424,129 @@ test("todas as chaves das dicas têm texto em PT e em EN", () => {
     assert.equal(typeof lookup(pt, key), "string", key);
     assert.equal(typeof lookup(en, key), "string", key);
   }
+});
+
+// --- 1.ª ordem -------------------------------------------------------------------------------------
+
+/**
+ * Segue as dicas de 1.ª ordem. Cada linha escrita passa no verificador, exceto a que abre a caixa do ∀I,
+ * que fica por justificar (é o objetivo da caixa). Devolve a prova e as estratégias, por ordem.
+ */
+function followFirstOrder(goal, rules = RULES) {
+  let proof = premisesOf(goal);
+  const strategies = [];
+  for (let round = 0; round < 40; round += 1) {
+    const result = hint(proof, goal, { rules, known: RULES });
+    if (result.status === "done") return { proof, strategies };
+    // Sem templates com interpolação: o recolhedor do corpus (tests/helpers/corpus.js) perde-se neles.
+    assert.equal(result.status, "step", format(goal.conclusion) + ": " + JSON.stringify(result));
+    strategies.push(result.strategy);
+    const applied = applyHint(proof, result.step);
+    assert.ok(applied.ok, JSON.stringify(applied.error));
+    proof = applied.proof;
+    const opensBox = result.step.kind === "step" && result.step.rule === null;
+    if (!opensBox) {
+      const checked = verifyLine(proof, result.step.line, rules, RULES);
+      assert.ok(checked.ok, stepText(result) + ": " + JSON.stringify(checked.error));
+    }
+  }
+  return assert.fail("As dicas não acabaram: " + format(goal.conclusion));
+}
+
+const FIRST_ORDER_SEQUENTS = [
+  "∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)",
+  "∃x P(x), ∀x(P(x) → Q(x)) ⊢ ∃x Q(x)",
+  "∀x P(x) ⊢ ∃x P(x)",
+  "⊢ ∀x(P(x) → P(x))",
+  "a = b, P(a) ⊢ P(b)",
+  "⊢ a = a",
+  "∀x(P(x) ∧ Q(x)) ⊢ ∀x P(x)",
+  "∃x(P(x) ∧ Q(x)) ⊢ ∃x P(x) ∧ ∃x Q(x)",
+  "∀x P(x) ∧ ∀x Q(x) ⊢ ∀x(P(x) ∧ Q(x))",
+  "∀x∀y R(x, y) ⊢ ∀y∀x R(x, y)",
+  "∃x∀y R(x, y) ⊢ ∀y∃x R(x, y)",
+  "∀x(P(x) ∨ Q(x)), ∀x ¬P(x) ⊢ ∀x Q(x)",
+  "∀x(P(x) → Q(x)) ⊢ ∀x P(x) → ∀x Q(x)",
+  "∀x P(x), P(a) → q ⊢ q",
+];
+
+test("1.ª ordem: seguir as dicas acaba numa prova verificada", () => {
+  for (const text of FIRST_ORDER_SEQUENTS) {
+    const goal = goalOf(text);
+    const { proof } = followFirstOrder(goal);
+    assert.ok(verifyProof(proof, goal, RULES).ok, text);
+  }
+});
+
+test("1.ª ordem: objetivo ∀ abre a caixa, premissa ∃ abre o ∃E, e instancia-se com os termos da prova", () => {
+  const forall = followFirstOrder(goalOf("∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)"));
+  assert.deepEqual(forall.strategies, ["openForallBox", "instantiate", "instantiate", "useImplication", "concludeForall"]);
+  const exists = followFirstOrder(goalOf("∃x P(x), ∀x(P(x) → Q(x)) ⊢ ∃x Q(x)"));
+  assert.deepEqual(exists.strategies, ["assumeWitness", "instantiate", "useImplication", "showWitness", "concludeFromWitness"]);
+  const nested = followFirstOrder(goalOf("∀x∀y R(x, y) ⊢ ∀y∀x R(x, y)"));
+  assert.equal(nested.strategies[1], "separateBoxes");
+
+  const goal = goalOf("∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)");
+  const first = hint(proofOf("1 | ∀x(P(x) → Q(x))   premissa\n2 | ∀x P(x)   premissa\n3 | ?"), goal);
+  assert.equal(first.step.fresh, "v");
+  assert.equal(format(first.step.formula), "Q(v)");
+  assert.deepEqual(first.levels.map(({ key }) => key), [
+    "solver.strategies.openForallBox", "hints.rule.forallBox", "hints.exact.forallBox",
+  ]);
+  assert.deepEqual(first.levels[2].params, { line: 3, formula: "Q(v)", variable: "v" });
+
+  const witness = hint(premisesOf(goalOf("∃x P(x) ⊢ ∃y P(y) ∨ q")), goalOf("∃x P(x) ⊢ ∃y P(y) ∨ q"));
+  assert.notEqual(witness.strategy, "assumeWitness"); // R e ∨I chegam: um passo só ganha à caixa.
+  const box = hint(premisesOf(goalOf("∃x P(x) ⊢ ∃x(P(x) ∨ q)")), goalOf("∃x P(x) ⊢ ∃x(P(x) ∨ q)"));
+  assert.equal(box.strategy, "assumeWitness");
+  assert.deepEqual(box.levels.map(({ key }) => key).slice(1), ["hints.rule.existsBox", "hints.exact.existsBox"]);
+});
+
+test("1.ª ordem: a dica respeita a linha já escrita e entra na caixa que acaba antes dela", () => {
+  const goal = goalOf("∃x P(x), ∀x(P(x) → Q(x)) ⊢ ∃x Q(x)");
+  const proof = proofOf([
+    "1 | ∃x P(x)           premissa",
+    "2 | ∀x(P(x) → Q(x))   premissa",
+    "3 |  [v] P(v)         hipótese",
+    "4 | ∃x Q(x)",
+  ].join("\n"));
+  const inside = hint(proof, goal);
+  assert.equal(inside.step.depth, 1);
+  assert.equal(format(inside.step.formula), "P(v) → Q(v)");
+  let current = proof;
+  for (let round = 0; round < 10 && !verifyProof(current, goal, RULES).ok; round += 1) {
+    current = applyHint(current, hint(current, goal).step).proof;
+  }
+  assert.ok(verifyProof(current, goal, RULES).ok);
+  assert.equal(current.lines.length, 7);
+  assert.equal(current.lines[6].rule, "∃E");
+});
+
+// Desde a M2, «inválido» só sai com um contramodelo finito, reavaliado; sem ele nem passo, a dica diz
+// que não encontrou. O segundo sequente só tem modelos infinitos e esgota o orçamento dos contramodelos.
+test("1.ª ordem: sem passo conhecido, a dica diz que não encontrou; inválido só com contramodelo", () => {
+  const goal = goalOf("P(a) ⊢ ∀x P(x)");
+  const invalid = hint(premisesOf(goal), goal);
+  assert.equal(invalid.status, "invalid");
+  assert.equal(isCountermodel(goal, invalid.structure), true);
+  const infinite = goalOf("∀x ¬R(x, x), ∀x∀y∀z(R(x, y) ∧ R(y, z) → R(x, z)), ∀x∃y R(x, y), S(a, b) ⊢ F");
+  assert.deepEqual(hint(premisesOf(infinite), infinite), { status: "unknown", error: { code: "searchExhausted", params: {} } });
+  const finishedGoal = goalOf("∀x P(x) ⊢ P(a)");
+  assert.deepEqual(hint(proofOf("1 | ∀x P(x)   premissa\n2 | P(a)   ∀E, 1"), finishedGoal), { status: "done" });
+  const broken = hint(proofOf("1 | ∀x P(x)   premissa\n2 | P(a)   ∃I, 1\n3 | ?"), finishedGoal);
+  assert.equal(broken.status, "fixLine");
+});
+
+test("1.ª ordem: as estratégias novas têm texto em PT e EN e só se usam as regras ativas", () => {
+  const lookup = (locale, key) => key.split(".").reduce((node, part) => node?.[part], locale);
+  for (const key of ["forallBox", "existsBox"]) {
+    for (const locale of [pt, en]) {
+      assert.equal(typeof lookup(locale, "hints.rule." + key), "string");
+      assert.equal(typeof lookup(locale, "hints.exact." + key), "string");
+    }
+  }
+  const goal = goalOf("∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)");
+  const withoutForall = ruleSet({ set: "completo", exclude: ["∀I"] });
+  const result = hint(premisesOf(goal), goal, { rules: withoutForall, known: RULES });
+  assert.notEqual(result.strategy, "openForallBox");
 });

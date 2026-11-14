@@ -1,6 +1,7 @@
 # Learn Natural Deduction
 
-Site público para aprender provas no sistema DN em notação de Fitch. A especificação é o `SPEC.md`.
+Site público para aprender provas no sistema DN em notação de Fitch, na lógica proposicional e na de
+1.ª ordem com igualdade. A especificação é o `SPEC.md`.
 Em caso de conflito, a ordem é: `SPEC.md`, depois este ficheiro, depois `../sat`.
 O sistema visual está no `DESIGN.md`, e a documentação pública, em inglês, no `README.md`.
 
@@ -47,11 +48,26 @@ que têm gralhas. Toda a prova publicada no site passa pelo verificador nos test
 ## Convenções de DN
 
 - Mostra-se **F**; `⊥` é aceite na entrada. Valores de verdade: V/F em PT, T/F em EN.
-- Siglas PT: MT, ¬¬I, RA, TE, DM, SH, SD. Siglas EN: MT, ¬¬I, RAA, LEM, DM, HS, DS.
+- Siglas PT: MT, ¬¬I, RA, TE, DM, SH, SD, NQ1–NQ4. Siglas EN: MT, ¬¬I, RAA, LEM, DM, HS, DS,
+  QN1–QN4. ∀I, ∀E, ∃I, ∃E, =I e =E são iguais nos dois idiomas.
 - Citações como nos slides: linhas exteriores acessíveis citam-se sem R; R só repete uma fórmula; a
-  ordem das linhas citadas é livre; uma subdedução cita-se como intervalo `2–4`.
-- ¬E é só ¬¬φ ⊢ φ. Variáveis: `[A-Za-z][A-Za-z0-9_]*`; sufixo numérico em subscrito.
+  ordem das linhas citadas é livre; uma subdedução cita-se como intervalo `2–4`; o ∃E cita a linha do
+  ∃ e o intervalo, `∃E, 2, 3–9`.
+- ¬E é só ¬¬φ ⊢ φ. Nomes: `[A-Za-z][A-Za-z0-9_]*`; sufixo numérico em subscrito.
 - Negação `¬ ~ - !`, conjunção `∧ & /\ ^`, disjunção `∨ | \/ v`, implicação `→ -> =>`.
+- 1.ª ordem: `∀` ou `forall x`, `∃` ou `exists x`, igualdade `=`. `forall`, `exists` e `F` são
+  reservados. A variável de um quantificador é uma letra e dígitos opcionais (`∀xP(x)` lê-se).
+- O `v` é disjunção entre fórmulas e nome em posição de termo: argumento, variável de quantificador ou
+  etiqueta de caixa. Não pode ser átomo proposicional.
+- A variável nova do ∀I e do ∃E marca-se `[v]` à margem da primeira linha da caixa:
+  `3 |  [v] P(v) → Q(v)   ∀E, 1`. Uma caixa por linha. Se o ∀I começa por uma hipótese, o `[v]` fica
+  sozinho numa linha de etiqueta sem número (`  |  [v]`).
+- «x substituível por t em φ», pela ordem do livro. «v nova»: não ocorre em nenhuma linha acessível
+  antes da caixa; o ∀I e o ∃E exigem ainda v não livre na conclusão da regra.
+- Um sequente proposicional segue sempre o caminho proposicional (tabela de verdade, snapshots
+  inalterados). A 1.ª ordem usa `js/core/structures.js` (contramodelos finitos) e
+  `js/core/first-order-search.js` (provas), com orçamento: «não sei» é um resultado válido.
+- As regras do utilizador ficam proposicionais, mas servem em provas de 1.ª ordem.
 
 ## Comandos
 

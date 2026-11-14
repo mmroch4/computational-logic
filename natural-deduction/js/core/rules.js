@@ -2,15 +2,19 @@
 // Uma regra é { id, premises, conclusions }, mais `proof` nas derivadas:
 //   id: o que fica em `rule` numa linha da prova. É o nome PT e nunca muda com o idioma: a sigla
 //     mostrada sai de `ruleLabel`. Entradas com o mesmo id são formas alternativas da regra (DM, SD).
-//   premises: { kind: "formula", schema } | { kind: "subproof", hypothesis, conclusion }
+//   premises: { kind: "formula", schema } | { kind: "subproof", hypothesis, conclusion, fresh }
+//     `fresh` é null, ou a metavariável da variável nova de uma caixa `[v]` (∀I, ∃E); a caixa do ∀I
+//     tem `hypothesis` null.
 //   conclusions: esquemas alternativos, para as regras com mais do que uma forma (∧E, ∨I)
+//   conditions: condições declarativas (`condition.*`), vazias nas regras proposicionais
 //   proof: prova em texto (formato de `proof-text.js`) só com regras base, sobre os átomos p, q, r no
 //     lugar de φ, ψ, θ. Demonstra `ruleGoal(rule)` e vale para qualquer instância, porque o
-//     verificador nunca olha para dentro de um átomo.
+//     verificador nunca olha para dentro de um átomo. Nas derivadas de 1.ª ordem (NQ1–NQ4), φ é P(x)
+//     e a variável da caixa é v: a prova trata P(x) como um átomo, e vale para todo o φ sem v.
 // As premissas podem ser citadas por qualquer ordem. As metavariáveis são partilhadas entre as
 // premissas e a conclusão; a que só aparece na conclusão (o ψ do ∨I) fica com o que lá estiver.
 
-import { atom, implies } from "./formula.js";
+import { atom, implies, isPropositional, term } from "./formula.js";
 import { applySubstitution, parseSchema } from "./schema.js";
 import { sequent } from "./sequent.js";
 
@@ -20,29 +24,52 @@ function schema(text) {
   return result.formula;
 }
 
-/** Premissa que é uma subdedução `[hypothesis] … conclusion`. */
-export const subproof = (hypothesis, conclusion) => ({ hypothesis, conclusion });
+/**
+ * Premissa que é uma subdedução `[hypothesis] … conclusion`. Com `fresh` (uma metavariável de
+ * variável, `"v"`), é uma caixa com variável `[v]`: a do ∃E abre numa hipótese, e a do ∀I não tem
+ * hipótese própria (`hypothesis` null) e abre num passo.
+ */
+export const subproof = (hypothesis, conclusion, { fresh = null } = {}) => ({ hypothesis, conclusion, fresh });
 
 function premise(item) {
   if (typeof item === "string") return Object.freeze({ kind: "formula", schema: schema(item) });
   return Object.freeze({
     kind: "subproof",
-    hypothesis: schema(item.hypothesis),
+    hypothesis: item.hypothesis === null ? null : schema(item.hypothesis),
     conclusion: schema(item.conclusion),
+    fresh: item.fresh ?? null,
   });
 }
 
-/** Cria uma regra a partir de esquemas em texto. Uma regra tem sempre pelo menos uma conclusão. */
-export function defineRule(id, premises, ...conclusions) {
+/**
+ * Condições declarativas de uma regra (ver CONDITION_KINDS em `schema.js`). Os nomes são metavariáveis
+ * e as fórmulas, esquemas em texto. O verificador avalia-as depois de casar a regra.
+ */
+export const condition = Object.freeze({
+  fresh: (variable) => Object.freeze({ kind: "fresh", variable }),
+  notIn: (variable, formula) => Object.freeze({ kind: "notIn", variable, formula: schema(formula) }),
+  notFree: (variable, formula) => Object.freeze({ kind: "notFree", variable, formula: schema(formula) }),
+  substitutable: (variable, term, formula) => Object.freeze({
+    kind: "substitutable", variable, term, formula: schema(formula),
+  }),
+});
+
+/**
+ * Cria uma regra a partir de esquemas em texto. Uma regra tem sempre pelo menos uma conclusão. Um
+ * último argumento `{ conditions }` junta as condições; sem ele, `conditions` fica vazio.
+ */
+export function defineRule(id, premises, ...rest) {
+  const options = typeof rest.at(-1) === "object" ? rest.pop() : {};
   return Object.freeze({
     id,
     premises: Object.freeze(premises.map(premise)),
-    conclusions: Object.freeze(conclusions.map(schema)),
+    conclusions: Object.freeze(rest.map(schema)),
+    conditions: Object.freeze([...(options.conditions ?? [])]),
   });
 }
 
-/** Regras base do sistema DN. */
-export const BASE_RULES = Object.freeze([
+/** Regras base proposicionais. */
+export const PROPOSITIONAL_RULES = Object.freeze([
   defineRule("∧I", ["φ", "ψ"], "φ ∧ ψ"),
   defineRule("∧E", ["φ ∧ ψ"], "φ", "ψ"),
   defineRule("∨I", ["φ"], "φ ∨ ψ", "ψ ∨ φ"),
@@ -55,6 +82,44 @@ export const BASE_RULES = Object.freeze([
   defineRule("→E", ["φ", "φ → ψ"], "ψ"),
   defineRule("R", ["φ"], "φ"),
 ]);
+
+const { fresh, notFree, substitutable } = condition;
+
+/**
+ * Regras de 1.ª ordem (Fig. 2.1), declaradas como as outras; o verificador avalia as condições. No ∃I
+ * e no =E pode haver várias conclusões das mesmas linhas: o `φ[t/x]` adiado aceita qualquer φ que encaixe.
+ */
+export const FIRST_ORDER_RULES = Object.freeze([
+  defineRule("∀I", [subproof(null, "φ[v/x]", { fresh: "v" })], "∀x φ", {
+    conditions: [fresh("v"), notFree("v", "∀x φ")],
+  }),
+  defineRule("∀E", ["∀x φ"], "φ[t/x]", { conditions: [substitutable("x", "t", "φ")] }),
+  defineRule("∃I", ["φ[t/x]"], "∃x φ", { conditions: [substitutable("x", "t", "φ")] }),
+  defineRule("∃E", ["∃x φ", subproof("φ[v/x]", "ψ", { fresh: "v" })], "ψ", {
+    conditions: [fresh("v"), notFree("v", "ψ")],
+  }),
+  defineRule("=I", [], "t = t"),
+  defineRule("=E", ["t1 = t2", "φ[t1/x]"], "φ[t2/x]", {
+    conditions: [substitutable("x", "t1", "φ"), substitutable("x", "t2", "φ")],
+  }),
+]);
+
+/**
+ * Se a regra é de 1.ª ordem: tem condições, caixas [v] ou esquemas com quantificadores, termos ou `=`.
+ * O solver e os contramodelos, que são proposicionais, põem-na de parte: num sequente proposicional
+ * ela não prova nada de novo (com um domínio de um só elemento, ∀x φ e ∃x φ valem φ e t = t vale V).
+ */
+export function isFirstOrderRule({ premises, conclusions, conditions = [] }) {
+  if (conditions.length > 0) return true;
+  const schemas = premises.flatMap((item) => (
+    item.kind === "formula" ? [item.schema] : [item.hypothesis, item.conclusion]
+  ));
+  return premises.some((item) => item.kind === "subproof" && (item.fresh || item.hypothesis === null))
+    || [...schemas, ...conclusions].some((schema) => !isPropositional(schema));
+}
+
+/** Regras base do sistema DN: as proposicionais e as de 1.ª ordem. */
+export const BASE_RULES = Object.freeze([...PROPOSITIONAL_RULES, ...FIRST_ORDER_RULES]);
 
 function derived(id, premises, conclusion, proof) {
   return Object.freeze({ ...defineRule(id, premises, conclusion), proof });
@@ -165,6 +230,44 @@ export const DERIVED_RULES = Object.freeze([
     6 |   F     FI, 5, 2
     7 |   p     FE, 6
     8 | p       ∨E, 1, 3–4, 5–7`),
+  // Negação de quantificadores (Prop. 2.9), pela ordem do `SPEC.md`.
+  derived("NQ1", ["¬∀x φ"], "∃x ¬φ", `
+     1 | ¬∀x P(x)          premissa
+     2 |   ¬∃x ¬P(x)       hipótese
+       |    [v]
+     3 |       ¬P(v)       hipótese
+     4 |       ∃x ¬P(x)    ∃I, 3
+     5 |       F           FI, 4, 2
+     6 |     ¬¬P(v)        ¬I, 3–5
+     7 |     P(v)          ¬E, 6
+     8 |   ∀x P(x)         ∀I, 3–7
+     9 |   F               FI, 8, 1
+    10 | ¬¬∃x ¬P(x)        ¬I, 2–9
+    11 | ∃x ¬P(x)          ¬E, 10`),
+  derived("NQ2", ["∃x ¬φ"], "¬∀x φ", `
+    1 | ∃x ¬P(x)        premissa
+    2 |   ∀x P(x)       hipótese
+    3 |    [v] ¬P(v)    hipótese
+    4 |     P(v)        ∀E, 2
+    5 |     F           FI, 4, 3
+    6 |   F             ∃E, 1, 3–5
+    7 | ¬∀x P(x)        ¬I, 2–6`),
+  derived("NQ3", ["¬∃x φ"], "∀x ¬φ", `
+    1 | ¬∃x P(x)        premissa
+      |  [v]
+    2 |     P(v)        hipótese
+    3 |     ∃x P(x)     ∃I, 2
+    4 |     F           FI, 3, 1
+    5 |   ¬P(v)         ¬I, 2–4
+    6 | ∀x ¬P(x)        ∀I, 2–5`),
+  derived("NQ4", ["∀x ¬φ"], "¬∃x φ", `
+    1 | ∀x ¬P(x)        premissa
+    2 |   ∃x P(x)       hipótese
+    3 |    [v] P(v)     hipótese
+    4 |     ¬P(v)       ∀E, 1
+    5 |     F           FI, 3, 4
+    6 |   F             ∃E, 2, 3–5
+    7 | ¬∃x P(x)        ¬I, 2–6`),
 ]);
 
 /** Todas as regras do sistema: as formas de cada uma, com ids repetidos. */
@@ -172,13 +275,17 @@ export const RULES = Object.freeze([...BASE_RULES, ...DERIVED_RULES]);
 
 const PROOF_ATOMS = Object.freeze({ φ: atom("p"), ψ: atom("q"), θ: atom("r") });
 
-const instantiate = (schemaNode) => applySubstitution(schemaNode, PROOF_ATOMS).formula;
+/** Nas derivadas de 1.ª ordem, φ depende da variável ligada: P(x). */
+const FIRST_ORDER_PROOF_ATOMS = Object.freeze({ ...PROOF_ATOMS, φ: atom("P", [term("x")]), x: term("x") });
 
 /**
- * O sequente que a prova de uma derivada demonstra, com p, q, r no lugar de φ, ψ, θ.
- * Uma subdedução `[φ] … ψ` conta como a premissa φ → ψ.
+ * O sequente que a prova de uma derivada demonstra, com p, q, r no lugar de φ, ψ, θ (P(x) no lugar
+ * de φ, nas de 1.ª ordem). Uma subdedução `[φ] … ψ` conta como a premissa φ → ψ.
  */
-export function ruleGoal({ premises, conclusions }) {
+export function ruleGoal(rule) {
+  const { premises, conclusions } = rule;
+  const atoms = isFirstOrderRule(rule) ? FIRST_ORDER_PROOF_ATOMS : PROOF_ATOMS;
+  const instantiate = (schemaNode) => applySubstitution(schemaNode, atoms).formula;
   const asFormula = (item) => (
     item.kind === "formula" ? item.schema : implies(item.hypothesis, item.conclusion)
   );
@@ -189,7 +296,7 @@ const idsOf = (rules) => rules.map(({ id }) => id);
 
 /**
  * Conjunto de regras de um exercício: as formas permitidas, a passar a `verifyLine`/`verifyProof`.
- *   "base" | "completo"
+ *   "base" | "completo"                       "base" inclui as regras de 1.ª ordem
  *   { set: "base", plus: ["MT"] }             base + {…}
  *   { set: "restrito", only: ["∧I", "→E"] }   só as regras indicadas
  * `exclude`, em qualquer forma de objeto, tira regras: serve para os exercícios que pedem para provar

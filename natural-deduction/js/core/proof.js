@@ -6,12 +6,20 @@
 //   rule: identificador da regra (só em "step"; quem o interpreta é o verificador), ou null
 //   citations: { kind: "line", line } | { kind: "range", from, to }, pela ordem em que foram escritas
 //   strategy: só nas provas geradas, código de `solver.strategies.*`; não conta para o verificador
-// As subdeduções não se guardam: cada hipótese abre uma, que acaba antes da primeira linha menos
-// profunda ou de outra hipótese à mesma profundidade (duas subdeduções seguidas, como no ∨E).
-// Uma subdedução tem uma só hipótese e está fechada quando há alguma linha depois dela.
+//   fresh: variável nova da caixa que a linha abre (∀I num passo, ∃E numa hipótese), ou null
+//   label: só numa hipótese, a variável da linha de etiqueta logo antes dela, ou null. A linha de
+//     etiqueta (`  |  [v]`) abre a caixa do ∀I um nível acima da hipótese e não tem número: guarda-se
+//     na hipótese para `lines[n - 1]` continuar a ser a linha n.
+//   `strategy`, `fresh` e `label` só aparecem na linha quando não são null: lê-se `line.fresh ?? null`.
+// As subdeduções não se guardam: abre uma cada hipótese, cada passo com `fresh` (∀I, sem hipótese) e
+// cada linha de etiqueta. Acaba antes da primeira linha menos profunda ou de outra linha que abra uma
+// caixa à mesma profundidade (duas subdeduções seguidas, como no ∨E). Uma linha abre no máximo uma
+// caixa, além da da etiqueta. Uma subdedução está fechada quando há alguma linha depois dela.
 // Contrato: as operações sobre a prova devolvem { ok: true, proof }
 //                                             | { ok: false, error: { code, params } }
 // As mensagens estão em `proof.errors.*`.
+
+import { isTermName } from "./formula.js";
 
 /** Códigos de erro; todos têm o parâmetro { line }. */
 export const PROOF_ERROR_CODES = [
@@ -44,16 +52,38 @@ function isCitation(citation) {
   return false;
 }
 
-function isWellFormed({ kind, depth, rule = null, citations = [] }) {
+const isFresh = (name) => name === null || (typeof name === "string" && isTermName(name));
+
+function isWellFormed({ kind, depth, rule = null, citations = [], fresh = null, label = null }) {
   if (!KINDS.includes(kind) || !Number.isInteger(depth) || depth < 0) return false;
   if (!Array.isArray(citations) || !citations.every(isCitation)) return false;
+  if (!isFresh(fresh) || !isFresh(label)) return false;
+  if (label !== null && kind !== "hypothesis") return false;
+  if (kind === "premise" && fresh !== null) return false;
   if (kind === "step") return rule === null || typeof rule === "string";
   return rule === null && citations.length === 0;
 }
 
-function freezeLine({ kind, depth, formula = null, rule = null, citations = [], strategy = null }) {
+function freezeLine({
+  kind, depth, formula = null, rule = null, citations = [], strategy = null, fresh = null, label = null,
+}) {
   const line = { kind, depth, formula, rule, citations: Object.freeze([...citations]) };
-  return Object.freeze(strategy === null ? line : { ...line, strategy });
+  if (strategy !== null) line.strategy = strategy;
+  if (fresh !== null) line.fresh = fresh;
+  if (label !== null) line.label = label;
+  return Object.freeze(line);
+}
+
+/** Profundidades das caixas que a linha abre, da mais exterior para a mais interior. */
+function boxDepths({ kind, depth, fresh = null, label = null }) {
+  if (kind === "hypothesis") return label === null ? [depth] : [depth - 1, depth];
+  return kind === "step" && fresh !== null ? [depth] : [];
+}
+
+/** Quantas caixas continuam abertas na linha, antes de ela abrir as suas. */
+function reachable(line) {
+  const opened = boxDepths(line);
+  return opened.length > 0 ? opened[0] - 1 : line.depth;
 }
 
 /** Primeiro erro de estrutura da lista de linhas, ou null. */
@@ -68,8 +98,9 @@ function structureError(lines) {
       if (line.depth !== 0 || !onlyPremises) return failure("misplacedPremise", number);
     } else {
       onlyPremises = false;
-      const fits = line.kind === "hypothesis"
-        ? line.depth >= 1 && line.depth <= previousDepth + 1
+      const opened = boxDepths(line);
+      const fits = opened.length > 0
+        ? opened[0] >= 1 && opened[0] <= previousDepth + 1
         : line.depth <= previousDepth;
       if (!fits) return failure("invalidDepth", number);
     }
@@ -87,17 +118,26 @@ export function createProof(lines = []) {
 
 /**
  * Lê a estrutura da prova: as subdeduções por ordem de início, cada uma com o índice da que a
- * contém, e `owner[n]`, o índice da subdedução mais interior que contém a linha n (ou -1).
+ * contém, e `owner[n]`, o índice da subdedução mais interior que contém a linha n (ou -1). A caixa
+ * de uma linha de etiqueta começa na hipótese seguinte, como a da hipótese, e vem antes dela.
  */
 function scan(lines) {
   const found = [];
   const owner = [-1];
   const open = [];
   lines.forEach((line, index) => {
-    const reachable = line.kind === "hypothesis" ? line.depth - 1 : line.depth;
-    open.length = Math.min(open.length, reachable);
-    if (line.kind === "hypothesis") {
-      found.push({ from: index + 1, to: index + 1, depth: line.depth, parent: open.at(-1) ?? -1 });
+    open.length = Math.min(open.length, reachable(line));
+    const { fresh = null, label = null } = line;
+    for (const depth of boxDepths(line)) {
+      const isLabel = label !== null && depth < line.depth;
+      found.push({
+        from: index + 1,
+        to: index + 1,
+        depth,
+        parent: open.at(-1) ?? -1,
+        fresh: isLabel ? label : fresh,
+        label: isLabel,
+      });
       open.push(found.length - 1);
     }
     for (const subproof of open) found[subproof].to = index + 1;
@@ -106,10 +146,13 @@ function scan(lines) {
   return { found, owner };
 }
 
-/** Subdeduções por ordem de início: { from, to, depth, closed }. */
+/**
+ * Subdeduções por ordem de início: { from, to, depth, closed, fresh, label }. `fresh` é a variável da
+ * caixa, ou null; `label` diz se a caixa abre numa linha de etiqueta, logo antes da hipótese `from`.
+ */
 export function subproofs({ lines }) {
-  return scan(lines).found.map(({ from, to, depth }) => (
-    Object.freeze({ from, to, depth, closed: to < lines.length })
+  return scan(lines).found.map(({ from, to, depth, fresh, label }) => (
+    Object.freeze({ from, to, depth, closed: to < lines.length, fresh, label })
   ));
 }
 
@@ -167,7 +210,10 @@ function rebuild(proof, next, origin) {
   origin.forEach((old, index) => {
     if (old !== 0) renumber.set(old, index + 1);
   });
-  const oldSubproofs = new Set(scan(proof.lines).found.map(({ from, to }) => `${from}-${to}`));
+  const oldSubproofs = new Map();
+  for (const { from, to, label } of scan(proof.lines).found) {
+    if (!oldSubproofs.has(`${from}-${to}`)) oldSubproofs.set(`${from}-${to}`, label);
+  }
   const newSubproofs = scan(next).found;
 
   const edge = (line, step) => {
@@ -185,7 +231,8 @@ function rebuild(proof, next, origin) {
     }
     if (oldSubproofs.has(`${citation.from}-${citation.to}`)) {
       const from = renumber.get(citation.from);
-      const subproof = newSubproofs.find((candidate) => candidate.from === from);
+      const label = oldSubproofs.get(`${citation.from}-${citation.to}`);
+      const subproof = newSubproofs.find((candidate) => candidate.from === from && candidate.label === label);
       return subproof ? citeRange(subproof.from, subproof.to) : null;
     }
     const from = edge(citation.from, 1);
@@ -202,8 +249,9 @@ function rebuild(proof, next, origin) {
 
 /**
  * Insere uma linha depois da linha `after` (0 para o início). A profundidade é `line.depth` ou, sem
- * ela, a da linha `after`; indicar uma menor fecha subdeduções. Uma hipótese só pode entrar onde não
- * apanhe as linhas seguintes, que mudariam de escopo sem ninguém o pedir.
+ * ela, a da linha `after`; indicar uma menor fecha subdeduções. Uma linha que abre caixa (hipótese,
+ * passo com `fresh`) só pode entrar onde não apanhe as linhas seguintes, que mudariam de escopo sem
+ * ninguém o pedir.
  */
 export function insertLine(proof, after, line) {
   const { lines } = proof;
@@ -213,10 +261,9 @@ export function insertLine(proof, after, line) {
   if (!isWellFormed(inserted)) return failure("invalidLine", number);
 
   const following = lines[after];
-  if (inserted.kind === "hypothesis" && following) {
-    const staysOutside = following.depth < inserted.depth
-      || (following.depth === inserted.depth && following.kind === "hypothesis");
-    if (!staysOutside) return failure("capturesLines", number);
+  const opened = boxDepths(inserted);
+  if (opened.length > 0 && following && reachable(following) >= opened[0]) {
+    return failure("capturesLines", number);
   }
 
   const next = [...lines.slice(0, after), freezeLine(inserted), ...lines.slice(after)];
@@ -228,27 +275,62 @@ export function insertLine(proof, after, line) {
 }
 
 /**
- * Muda o conteúdo da linha n: `formula`, `rule` e `citations`, os que vierem em `changes`. O tipo e a
- * profundidade não mudam, por isso nenhuma outra linha é afetada. Perde-se a estratégia que a linha
- * trazia de uma prova gerada, porque deixa de a descrever.
+ * Insere `line` mesmo antes da linha n, um passo que abre a caixa do ∀I (`fresh`), e passa a caixa para
+ * a linha nova: um passo fica com a marca `[v]`, à mesma profundidade; uma hipótese fica com a linha de
+ * etiqueta (`label`), um nível mais dentro, e abre a sua caixa por dentro da do ∀I. A linha n perde a
+ * marca e continua na caixa. Os intervalos que começavam em n passam a começar na linha nova.
+ */
+export function insertAtBoxStart(proof, n, line) {
+  if (!isLine(proof, n)) return failure("noSuchLine", n);
+  const { lines } = proof;
+  const opener = lines[n - 1];
+  const variable = opener.fresh ?? null;
+  if (opener.kind !== "step" || variable === null) return failure("invalidLine", n);
+  const hypothesis = line.kind === "hypothesis";
+  const inserted = hypothesis
+    ? { ...line, depth: opener.depth + 1, label: variable }
+    : { ...line, kind: "step", depth: opener.depth, fresh: variable };
+  if (!isWellFormed(inserted) || (!hypothesis && (line.fresh ?? null) !== null)) return failure("invalidLine", n);
+
+  const shift = (number) => (number >= n && number <= lines.length ? number + 1 : number);
+  const moveCitation = (citation) => {
+    if (citation.kind === "line") return citeLine(shift(citation.line));
+    return citeRange(citation.from === n ? n : shift(citation.from), shift(citation.to));
+  };
+  const unmarked = { ...opener };
+  delete unmarked.fresh;
+  const moved = [...lines.slice(0, n - 1), unmarked, ...lines.slice(n)]
+    .map((old) => ({ ...old, citations: old.citations.map(moveCitation) }));
+  return createProof([...moved.slice(0, n - 1), inserted, ...moved.slice(n - 1)]);
+}
+
+/**
+ * Muda o conteúdo da linha n: `formula`, `rule`, `citations`, `fresh` e `label`, os que vierem em
+ * `changes`. O tipo, a profundidade e as caixas não mudam, por isso nenhuma outra linha é afetada: a
+ * variável de uma caixa pode mudar de nome e uma hipótese pode ganhar ou perder `fresh`, mas um passo
+ * não ganha nem perde a caixa do ∀I, nem uma hipótese a linha de etiqueta (`invalidLine`). Perde-se a
+ * estratégia que a linha trazia de uma prova gerada, porque deixa de a descrever.
  */
 export function editLine(proof, n, changes) {
   if (!isLine(proof, n)) return failure("noSuchLine", n);
-  const { kind, depth, formula, rule, citations } = proof.lines[n - 1];
-  const edited = { formula, rule, citations, ...changes, kind, depth };
+  const current = proof.lines[n - 1];
+  const { kind, depth, formula, rule, citations, fresh = null, label = null } = current;
+  const edited = { formula, rule, citations, fresh, label, ...changes, kind, depth };
   if (!isWellFormed(edited)) return failure("invalidLine", n);
+  if (boxDepths(edited).length !== boxDepths(current).length) return failure("invalidLine", n);
   const lines = proof.lines.with(n - 1, freezeLine(edited));
   return { ok: true, proof: Object.freeze({ lines: Object.freeze(lines) }) };
 }
 
 /**
- * Apaga a linha n. Apagar uma hipótese apaga a subdedução inteira, porque as linhas dela dependiam
- * dessa hipótese.
+ * Apaga a linha n. Apagar uma linha que abre caixa (hipótese, passo com `fresh`) apaga a caixa
+ * inteira, a da linha de etiqueta incluída, porque as linhas dela dependiam dessa hipótese ou dessa
+ * variável.
  */
 export function deleteLine(proof, n) {
   if (!isLine(proof, n)) return failure("noSuchLine", n);
   const { lines } = proof;
-  const to = lines[n - 1].kind === "hypothesis"
+  const to = boxDepths(lines[n - 1]).length > 0
     ? scan(lines).found.find(({ from }) => from === n).to
     : n;
   const kept = lines.map((_, index) => index + 1).filter((line) => line < n || line > to);
@@ -258,10 +340,26 @@ export function deleteLine(proof, n) {
 /**
  * Abre uma subdedução depois da linha `after`, com `formula` como hipótese. A profundidade por
  * omissão fica dentro do escopo de `after`; para uma subdedução seguida de outra, como no segundo
- * caso do ∨E, usa-se `depth` igual ao da primeira.
+ * caso do ∨E, usa-se `depth` igual ao da primeira. `depth` é a da caixa mais exterior que se abre.
+ * Opções, para as caixas com variável:
+ * - `fresh`: a variável nova da caixa, numa hipótese (∃E);
+ * - `step: true`, com `fresh`: a caixa do ∀I abre num passo com `formula`, sem hipótese;
+ * - `label`: a caixa do ∀I abre numa linha de etiqueta com essa variável, e a hipótese fica uma
+ *   profundidade mais dentro.
  */
-export function openSubproof(proof, after, formula = null, depth = (proof.lines[after - 1]?.depth ?? 0) + 1) {
-  return insertLine(proof, after, { kind: "hypothesis", depth, formula });
+export function openSubproof(
+  proof,
+  after,
+  formula = null,
+  depth = (proof.lines[after - 1]?.depth ?? 0) + 1,
+  { fresh = null, step = false, label = null } = {},
+) {
+  if (step) {
+    if (fresh === null || label !== null) return failure("invalidLine", after + 1);
+    return insertLine(proof, after, { kind: "step", depth, formula, fresh });
+  }
+  const hypothesisDepth = label === null ? depth : depth + 1;
+  return insertLine(proof, after, { kind: "hypothesis", depth: hypothesisDepth, formula, fresh, label });
 }
 
 /**

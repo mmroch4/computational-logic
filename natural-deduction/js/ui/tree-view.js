@@ -2,7 +2,7 @@
 // da prova ela veio, aqui e, por `onSelect`, no editor. A conversão está em core/tree.js.
 //
 // As funções exportadas à parte são puras (testáveis em node); só mountTreeView() mexe no DOM.
-import { format } from "../core/formula.js";
+import { displayName, format } from "../core/formula.js";
 import { ruleLabel } from "../core/rules.js";
 import { proofTree } from "../core/tree.js";
 import { formulaHtml, justificationText, spokenProse } from "./fitch-view.js";
@@ -41,7 +41,9 @@ function nodeHtml(node, proof, labels) {
     return `<div class="gt gt--leaf">${formulaButton(node, proof, `<span>${inner}</span>`)}</div>`;
   }
   const above = node.premises.map((premise) => nodeHtml(premise, proof, labels)).join("");
-  const rule = `${escapeHtml(ruleLabel(node.rule, labels))}${labelsHtml(node.discharges)}`;
+  // A variável da caixa [v] (∀I, ∃E) escreve-se como a marca da vista de Fitch.
+  const variable = node.variable ? ` [${escapeHtml(displayName(node.variable))}]` : "";
+  const rule = `${escapeHtml(ruleLabel(node.rule, labels))}${labelsHtml(node.discharges)}${variable}`;
   return `<div class="gt"><div class="gt__premises">${above}</div>`
     + `<div class="gt__bar"></div><span class="gt__rule">${rule}</span>`
     + `${formulaButton(node, proof, `<span>${formulaHtml(node.formula)}</span>`)}</div>`;

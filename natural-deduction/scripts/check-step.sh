@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Página Passo a passo no Chrome headless (via check-page.sh), em PT e em EN, a 1280px e a 390px. Cada caso
 # tem um EVAL que confirma o estado:
-#   1) escolher um exemplo no menu abre o player, e a escolha recolhe-se;
+#   1) escolher um exemplo no menu abre o player, e a escolha recolhe-se; um exemplo de 1.ª ordem explica
+#      as caixas, a variável nova e a instanciação;
 #   2) escrever um sequente com um erro e depois certo, e ver a explicação de todos os passos até ao fim;
 #   3) mudar de sequente com a prova aberta;
 #   4) sequente inválido: contraexemplo no lugar do player, sem teclas ativas, e voltar a uma prova;
@@ -105,6 +106,35 @@ language() {
     $fixed
     $EXAMPLE
     if (!\$('#step-change').textContent.includes(CHANGE)) throw new Error('rótulo: ' + \$('#step-change').textContent);"
+
+  # 1.ª ordem: um exemplo do menu com caixas do ∃E e do ∀I, e notas sobre a variável nova e a instanciação.
+  run "$lang-primeira-ordem" "$path" "$HELPERS
+    $fixed
+    $(cat <<'JS'
+    await until(() => $("#examples-menu summary"), "o menu");
+    $("#examples-menu summary").click();
+    await until(() => $("[data-example=swapQuantifiers]"), "o exemplo de 1.ª ordem");
+    $("[data-example=swapQuantifiers]").click();
+    await until(playing, "o player");
+    if (!/∃x∀y R\(x, y\) ⊢ ∀y∃x R\(x, y\)/.test($(".step-player__sequent").textContent)) throw new Error("sequente: " + $(".step-player__sequent").textContent);
+    const notes = new Set();
+    let boxes = 0;
+    const max = Number($(".tl-range").max);
+    for (let n = 1; n <= max; n++) {
+      $("[data-role=next]").click();
+      await until(() => location.search.includes("step=" + n), "o passo " + n);
+      for (const note of document.querySelectorAll(".step-card [data-note]")) {
+        if (/player\.|\{\w+\}/.test(note.textContent)) throw new Error("nota por traduzir: " + note.textContent);
+        notes.add(note.textContent.trim());
+      }
+      boxes = Math.max(boxes, document.querySelectorAll(".step-player__fitch .fitch__fresh").length);
+    }
+    if (notes.size < 4) throw new Error("poucas notas de 1.ª ordem: " + [...notes].join(" | "));
+    if (![...notes].some((note) => note.includes("∃E")) || ![...notes].some((note) => note.includes("∀I"))) throw new Error("faltam as caixas: " + [...notes].join(" | "));
+    if (boxes < 2) throw new Error("a Fitch devia mostrar as duas marcas [u] e [v]");
+    if (!$(".step-card .msg-ok")) throw new Error("o fim não diz que acabou");
+JS
+)"
 
   run "$lang-escrever" "$path" "$HELPERS
     $(cat <<'JS'

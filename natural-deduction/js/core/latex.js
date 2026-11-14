@@ -6,16 +6,21 @@
 // vêm de `ruleLabels` e as palavras premissa e hipótese de `labels`, como em `formatProof`.
 // Contrato:
 //   latexFormula(formula) → LaTeX de modo matemático, com os parênteses de `format`
-//   latexProof(proof, { labels, ruleLabels }) → o `tabular` da prova
+//   latexProof(proof, { labels, ruleLabels }) → o `tabular` da prova; a variável de uma caixa [v] vai
+//     numa caixa (`\boxed`) antes da fórmula, e a linha de etiqueta é uma linha sem número
 //   proofToLatex(goal, proof, { text, labels, ruleLabels, app }) → documento pronto para o pdflatex
 
-import { format } from "./formula.js";
+import { displayName, format } from "./formula.js";
 import { ruleLabel } from "./rules.js";
 
-const MATH_SYMBOLS = { "¬": "\\lnot ", "∧": "\\land", "∨": "\\lor", "→": "\\to" };
+const MATH_SYMBOLS = {
+  "¬": "\\lnot ", "∧": "\\land", "∨": "\\lor", "→": "\\to", "∀": "\\forall ", "∃": "\\exists ",
+};
 
-/** Na regra, os conectivos passam a matemática e o resto a texto. */
-const RULE_SYMBOLS = { "¬": "$\\lnot$", "∧": "$\\land$", "∨": "$\\lor$", "→": "$\\to$" };
+/** Na regra, os conectivos e os quantificadores passam a matemática e o resto a texto. */
+const RULE_SYMBOLS = {
+  "¬": "$\\lnot$", "∧": "$\\land$", "∨": "$\\lor$", "→": "$\\to$", "∀": "$\\forall$", "∃": "$\\exists$",
+};
 
 const TEXT_ESCAPES = {
   "\\": "\\textbackslash{}",
@@ -57,11 +62,15 @@ const TOKEN_RE = /[A-Za-z][A-Za-z0-9_]*[₀-₉]*|\S/g;
 
 /** Passa o texto de `format` para modo matemático. */
 function latexMath(written) {
-  return written.match(TOKEN_RE).map((token) => {
+  const tokens = written.match(TOKEN_RE);
+  const isName = (token) => /^[A-Za-z]/.test(token);
+  return tokens.map((token, index) => {
+    // Os argumentos de um predicado ou de uma função colam ao nome: `P(x)`, e não `P (x)`.
+    const glue = token === "(" && index > 0 && isName(tokens[index - 1]) ? "\u0000" : "";
     if (token === "F") return "\\mathrm{F}";
     if (token in MATH_SYMBOLS) return MATH_SYMBOLS[token];
-    return /^[A-Za-z]/.test(token) ? latexName(token) : token;
-  }).join(" ").replace(/ +/g, " ").replace(/\( /g, "(").replace(/ \)/g, ")").replace(/ ,/g, ",");
+    return glue + (isName(token) ? latexName(token) : token);
+  }).join(" ").replace(/ +/g, " ").replace(/ ?\u0000/g, "").replace(/\( /g, "(").replace(/ \)/g, ")").replace(/ ,/g, ",");
 }
 
 export const latexFormula = (formula) => latexMath(format(formula));
@@ -89,13 +98,20 @@ function underlined(lines, index) {
   return kind === "hypothesis" || (kind === "premise" && lines[index + 1]?.kind !== "premise");
 }
 
+/** A marca `[v]` de uma caixa com variável: o nome numa caixa, como nos slides. */
+const latexMark = (name) => `\\boxed{${latexMath(displayName(name))}}\\ `;
+
 /** A prova num `tabular`: número, barras e fórmula, justificação. */
 export function latexProof({ lines }, { labels, ruleLabels = {} }) {
-  const rows = lines.map((line, index) => {
+  const rows = lines.flatMap((line, index) => {
     const math = line.formula ? latexFormula(line.formula) : "?";
     const formula = underlined(lines, index) ? `\\underline{${math}}` : math;
+    const mark = line.fresh ? latexMark(line.fresh) : "";
     const bars = "\\fitchbar".repeat(line.depth + 1);
-    return `${index + 1} & ${bars} $${formula}$ & ${justification(line, labels, ruleLabels)} \\\\`;
+    const row = `${index + 1} & ${bars} $${mark}${formula}$ & ${justification(line, labels, ruleLabels)} \\\\`;
+    if (!line.label) return [row];
+    // A linha de etiqueta: sem número, abre a caixa do ∀I um nível acima da hipótese.
+    return [` & ${"\\fitchbar".repeat(line.depth)} $${latexMark(line.label)}$ &  \\\\`, row];
   });
   return `\\begin{tabular}{r@{\\quad}l@{\\qquad}l}\n${rows.join("\n")}\n\\end{tabular}`;
 }

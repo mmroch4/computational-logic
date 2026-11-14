@@ -9,15 +9,17 @@
 //     { status: "refused", conclusions }: a regra não conclui a fórmula da linha.
 //     { status: "select", premise: { kind, text }, step, total, candidates }: `candidates` são citações.
 //     { status: "done", citations, results }: `results` são fórmulas possíveis; [null] diz que a regra não
-//       a fixa, e quem escreve é o utilizador.
+//       a fixa, e quem escreve é o utilizador. Na 1.ª ordem, o ∀E, o ∃I, o =E e o ∀I dão a escolha
+//       entre as conclusões possíveis; com um termo à escolha (∀E, =I), o null no fim deixa escrever outro.
 //   applyPick(editor, line, { id, citations, formula }, ruleLabels) → estado seguinte
 // `cited` é uma lista de citações de `proof.js`.
 
 import { moveCursor, setText } from "./editor.js";
 import { format } from "./formula.js";
-import { assignments, citableFrom, instanceOf } from "./guided.js";
+import { assignments, citableFrom, instanceOf, possibleConclusions, premiseText } from "./guided.js";
 import { accessibleFrom, citeLine, citeRange } from "./proof.js";
 import { formatJustification } from "./proof-text.js";
+import { isFirstOrderRule } from "./rules.js";
 import { matchSchema } from "./schema.js";
 
 export const pickableRules = (rules) => [...new Set(rules.map(({ id }) => id))];
@@ -30,16 +32,27 @@ function startingPoints(forms, target) {
   }));
 }
 
-/** Troca as metavariáveis já conhecidas, para o pedido mostrar `a ∧ ψ` depois de se escolher `a`. */
+const META_KINDS = new Set(["meta", "metaTerm", "metaVariable"]);
+
+/**
+ * Troca as metavariáveis já conhecidas, para o pedido mostrar `a ∧ ψ` depois de se escolher `a`. Um
+ * `φ[t/x]` com tudo conhecido mostra a fórmula, e um quantificador do esquema, a variável ligada.
+ */
 function partly(schema, substitution) {
-  if (schema.kind === "meta") return substitution[schema.name] ?? schema;
-  return { ...schema, args: schema.args.map((arg) => partly(arg, substitution)) };
+  if (META_KINDS.has(schema.kind)) return substitution[schema.name] ?? schema;
+  if (schema.kind === "subst") {
+    const instance = instanceOf(schema, substitution);
+    if (instance) return instance;
+  }
+  const name = (schema.kind === "forall" || schema.kind === "exists") && substitution[schema.name]
+    ? substitution[schema.name].name
+    : schema.name;
+  return { ...schema, name, args: schema.args.map((arg) => partly(arg, substitution)) };
 }
 
 function premiseOf(premise, substitution) {
-  if (premise.kind === "formula") return { kind: "line", text: format(partly(premise.schema, substitution)) };
-  const hypothesis = format(partly(premise.hypothesis, substitution));
-  return { kind: "range", text: `[${hypothesis}] … ${format(partly(premise.conclusion, substitution))}` };
+  const text = premiseText(premise, (schema) => format(partly(schema, substitution)));
+  return { kind: premise.kind === "formula" ? "line" : "range", text };
 }
 
 const sameCitation = (a, b) => a.kind === b.kind && a.line === b.line && a.from === b.from && a.to === b.to;
@@ -48,12 +61,27 @@ const bindings = (start, cited, lines) => (
   [...assignments(start.form.premises, cited, lines, start.substitution)].map((found) => ({ ...start, ...found }))
 );
 
-function finished(complete) {
+/**
+ * As fórmulas possíveis. Numa regra de 1.ª ordem que não fixa a conclusão, escolhe-se entre as que as
+ * citações permitem (no ∃I e no =E, que ocorrências mudam); se ela leva um termo à escolha (∀E, =I), há
+ * ainda o null, para o utilizador escrever outro.
+ */
+function finished(complete, editor, line) {
   const byConclusion = new Map();
   for (const branch of complete) if (!byConclusion.has(branch.key)) byConclusion.set(branch.key, branch);
-  const formulas = [...byConclusion.values()].map(({ conclusion, substitution }) => instanceOf(conclusion, substitution));
-  if (formulas.includes(null)) return [null];
-  return [...new Map(formulas.map((formula) => [format(formula), formula])).values()];
+  const results = new Map();
+  let open = false;
+  for (const branch of byConclusion.values()) {
+    const formula = instanceOf(branch.conclusion, branch.substitution);
+    const options = formula ? [{ formula, asked: false }] : [];
+    if (!formula && isFirstOrderRule(branch.form)) options.push(...possibleConclusions(editor, line, branch));
+    if (options.length === 0) return [null];
+    for (const option of options) {
+      results.set(format(option.formula), option.formula);
+      open ||= option.asked;
+    }
+  }
+  return open ? [...results.values(), null] : [...results.values()];
 }
 
 /** Tentativas por pedido. Regras próprias têm até 6 premissas, e uma prova longa daria uma procura sem fim. */
@@ -84,7 +112,7 @@ export function pickState(editor, line, id, cited, { rules }) {
 
   const branches = starts.flatMap((start) => bindings(start, cited, lines));
   const complete = branches.filter(({ form, cited: used }) => used.size === form.premises.length);
-  if (complete.length > 0) return { status: "done", citations: cited, results: finished(complete) };
+  if (complete.length > 0) return { status: "done", citations: cited, results: finished(complete, editor, line) };
 
   const available = citableFrom(editor.proof, accessibleFrom(editor.proof, line));
   const items = [...available.lines.map(citeLine), ...available.ranges.map(({ from, to }) => citeRange(from, to))];

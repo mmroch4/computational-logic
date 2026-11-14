@@ -791,4 +791,423 @@ export const EXERCISES = Object.freeze([
 27 | ¬¬((a → b) ∨ (a → c))    ¬I, 2–26
 28 | (a → b) ∨ (a → c)        ¬E, 27`,
   },
+
+  // Nível 6: 1.ª ordem sem caixas, só a instanciar com ∀E e a juntar com ∃I.
+  {
+    id: "ex-down-the-chain",
+    level: 6,
+    sequent: "∀x(P(x) → Q(x)), ∀x(Q(x) → R(x)), P(c) ⊢ R(c)",
+    rules: { set: "restrito", only: ["∀E", "→E"] },
+    solution: `
+1 | ∀x(P(x) → Q(x))   premissa
+2 | ∀x(Q(x) → R(x))   premissa
+3 | P(c)              premissa
+4 | P(c) → Q(c)       ∀E, 1
+5 | Q(c)              →E, 3, 4
+6 | Q(c) → R(c)       ∀E, 2
+7 | R(c)              →E, 5, 6`,
+  },
+  {
+    id: "ex-name-the-witness",
+    level: 6,
+    sequent: "P(a), Q(a) ⊢ ∃x(Q(x) ∧ P(x))",
+    rules: { set: "restrito", only: ["∧I", "∃I"] },
+    solution: `
+1 | P(a)              premissa
+2 | Q(a)              premissa
+3 | Q(a) ∧ P(a)       ∧I, 2, 1
+4 | ∃x(Q(x) ∧ P(x))   ∃I, 3`,
+  },
+  {
+    id: "ex-turn-the-pair",
+    level: 6,
+    sequent: "∀x∀y(R(x, y) → R(y, x)), R(c, d) ⊢ ∃x R(x, c)",
+    rules: "base",
+    hints: ["oneQuantifierAtATime"],
+    solution: `
+1 | ∀x∀y(R(x, y) → R(y, x))   premissa
+2 | R(c, d)                   premissa
+3 | ∀y(R(c, y) → R(y, c))     ∀E, 1
+4 | R(c, d) → R(d, c)         ∀E, 3
+5 | R(d, c)                   →E, 2, 4
+6 | ∃x R(x, c)                ∃I, 5`,
+  },
+  {
+    id: "ex-both-then-one",
+    level: 6,
+    sequent: "∀x(P(x) ∧ Q(x)) ⊢ ∃y Q(y)",
+    rules: "base",
+    hints: ["anyNameWillDo"],
+    solution: `
+1 | ∀x(P(x) ∧ Q(x))   premissa
+2 | P(a) ∧ Q(a)       ∀E, 1
+3 | Q(a)              ∧E, 2
+4 | ∃y Q(y)           ∃I, 3`,
+  },
+  {
+    id: "ex-apply-twice",
+    level: 6,
+    sequent: "∀x(P(x) → P(f(x))), P(a) ⊢ P(f(f(a)))",
+    rules: { set: "restrito", only: ["∀E", "→E"] },
+    solution: `
+1 | ∀x(P(x) → P(f(x)))      premissa
+2 | P(a)                    premissa
+3 | P(a) → P(f(a))          ∀E, 1
+4 | P(f(a))                 →E, 2, 3
+5 | P(f(a)) → P(f(f(a)))    ∀E, 1
+6 | P(f(f(a)))              →E, 4, 5`,
+  },
+
+  // Nível 7: caixas do ∀I e do ∃E.
+  {
+    id: "ex-keep-the-second",
+    level: 7,
+    sequent: "∀x(P(x) → Q(x) ∧ R(x)) ⊢ ∀x(P(x) → R(x))",
+    rules: "base",
+    hints: ["openTheBoxWithForallE"],
+    solution: `
+1 | ∀x(P(x) → Q(x) ∧ R(x))     premissa
+2 |  [v] P(v) → Q(v) ∧ R(v)    ∀E, 1
+3 |     P(v)                   hipótese
+4 |     Q(v) ∧ R(v)            →E, 3, 2
+5 |     R(v)                   ∧E, 4
+6 |   P(v) → R(v)              →I, 3–5
+7 | ∀x(P(x) → R(x))            ∀I, 2–6`,
+  },
+  {
+    id: "ex-chain-for-all",
+    level: 7,
+    sequent: "∀x(P(x) → Q(x)), ∀x(Q(x) → R(x)) ⊢ ∀x(P(x) → R(x))",
+    rules: "base",
+    solution: `
+1 | ∀x(P(x) → Q(x))    premissa
+2 | ∀x(Q(x) → R(x))    premissa
+3 |  [v] P(v) → Q(v)   ∀E, 1
+4 |   Q(v) → R(v)      ∀E, 2
+5 |     P(v)           hipótese
+6 |     Q(v)           →E, 5, 3
+7 |     R(v)           →E, 6, 4
+8 |   P(v) → R(v)      →I, 5–7
+9 | ∀x(P(x) → R(x))    ∀I, 3–8`,
+  },
+  {
+    id: "ex-the-diagonal",
+    level: 7,
+    sequent: "∀x∀y R(x, y) ⊢ ∀x R(x, x)",
+    rules: { set: "restrito", only: ["∀E", "∀I"] },
+    solution: `
+1 | ∀x∀y R(x, y)       premissa
+2 |  [v] ∀y R(v, y)    ∀E, 1
+3 |   R(v, v)          ∀E, 2
+4 | ∀x R(x, x)         ∀I, 2–3`,
+  },
+  {
+    id: "ex-a-partner-for-each",
+    level: 7,
+    sequent: "∀x R(x, f(x)) ⊢ ∀x∃y R(x, y)",
+    rules: "base",
+    solution: `
+1 | ∀x R(x, f(x))      premissa
+2 |  [v] R(v, f(v))    ∀E, 1
+3 |   ∃y R(v, y)       ∃I, 2
+4 | ∀x∃y R(x, y)       ∀I, 2–3`,
+  },
+  {
+    id: "ex-loop-is-a-link",
+    level: 7,
+    sequent: "∃x R(x, x) ⊢ ∃x∃y R(x, y)",
+    rules: "base",
+    hints: ["witnessBox"],
+    solution: `
+1 | ∃x R(x, x)       premissa
+2 |  [v] R(v, v)     hipótese
+3 |   ∃y R(v, y)     ∃I, 2
+4 |   ∃x∃y R(x, y)   ∃I, 3
+5 | ∃x∃y R(x, y)     ∃E, 1, 2–4`,
+  },
+  {
+    id: "ex-some-escape",
+    level: 7,
+    sequent: "∃x(P(x) ∧ ¬Q(x)), ∀x(R(x) → Q(x)) ⊢ ∃x ¬R(x)",
+    rules: "base",
+    hints: ["witnessBox", "refuteInsideTheBox"],
+    solution: `
+ 1 | ∃x(P(x) ∧ ¬Q(x))    premissa
+ 2 | ∀x(R(x) → Q(x))     premissa
+ 3 |  [v] P(v) ∧ ¬Q(v)   hipótese
+ 4 |   ¬Q(v)             ∧E, 3
+ 5 |   R(v) → Q(v)       ∀E, 2
+ 6 |     R(v)            hipótese
+ 7 |     Q(v)            →E, 6, 5
+ 8 |     F               FI, 7, 4
+ 9 |   ¬R(v)             ¬I, 6–8
+10 |   ∃x ¬R(x)          ∃I, 9
+11 | ∃x ¬R(x)            ∃E, 1, 3–10`,
+  },
+  {
+    id: "ex-two-roads",
+    level: 7,
+    sequent: "∀x(P(x) ∨ Q(x)), ∀x(P(x) → R(x)), ∀x(Q(x) → R(x)) ⊢ ∀x R(x)",
+    rules: "base",
+    hints: ["casesInsideTheBox"],
+    solution: `
+ 1 | ∀x(P(x) ∨ Q(x))    premissa
+ 2 | ∀x(P(x) → R(x))    premissa
+ 3 | ∀x(Q(x) → R(x))    premissa
+ 4 |  [v] P(v) ∨ Q(v)   ∀E, 1
+ 5 |   P(v) → R(v)      ∀E, 2
+ 6 |   Q(v) → R(v)      ∀E, 3
+ 7 |     P(v)           hipótese
+ 8 |     R(v)           →E, 7, 5
+ 9 |     Q(v)           hipótese
+10 |     R(v)           →E, 9, 6
+11 |   R(v)             ∨E, 4, 7–8, 9–10
+12 | ∀x R(x)            ∀I, 4–11`,
+  },
+  {
+    id: "ex-rule-out-the-other",
+    level: 7,
+    sequent: "∃x(P(x) ∨ Q(x)), ∀x ¬Q(x) ⊢ ∃x P(x)",
+    rules: "base",
+    hints: ["witnessBox", "falseCaseGivesAnything"],
+    solution: `
+ 1 | ∃x(P(x) ∨ Q(x))    premissa
+ 2 | ∀x ¬Q(x)           premissa
+ 3 |  [v] P(v) ∨ Q(v)   hipótese
+ 4 |     P(v)           hipótese
+ 5 |     ∃x P(x)        ∃I, 4
+ 6 |     Q(v)           hipótese
+ 7 |     ¬Q(v)          ∀E, 2
+ 8 |     F              FI, 6, 7
+ 9 |     ∃x P(x)        FE, 8
+10 |   ∃x P(x)          ∨E, 3, 4–5, 6–9
+11 | ∃x P(x)            ∃E, 1, 3–10`,
+  },
+
+  // Nível 8: negações de quantificadores, a provar NQ1–NQ4 e a usá-las.
+  {
+    id: "ex-prove-nq1",
+    level: 8,
+    sequent: "¬∀x P(x) ⊢ ∃x ¬P(x)",
+    rules: { set: "base", exclude: ["NQ1"] },
+    hints: ["assumeTheOppositeExistential"],
+    solution: `
+ 1 | ¬∀x P(x)          premissa
+ 2 |   ¬∃x ¬P(x)       hipótese
+   |    [u]
+ 3 |       ¬P(u)       hipótese
+ 4 |       ∃x ¬P(x)    ∃I, 3
+ 5 |       F           FI, 4, 2
+ 6 |     ¬¬P(u)        ¬I, 3–5
+ 7 |     P(u)          ¬E, 6
+ 8 |   ∀x P(x)         ∀I, 3–7
+ 9 |   F               FI, 8, 1
+10 | ¬¬∃x ¬P(x)        ¬I, 2–9
+11 | ∃x ¬P(x)          ¬E, 10`,
+  },
+  {
+    id: "ex-prove-nq2",
+    level: 8,
+    sequent: "∃x ¬P(x) ⊢ ¬∀x P(x)",
+    rules: { set: "base", exclude: ["NQ2"] },
+    solution: `
+1 | ∃x ¬P(x)        premissa
+2 |   ∀x P(x)       hipótese
+3 |    [u] ¬P(u)    hipótese
+4 |     P(u)        ∀E, 2
+5 |     F           FI, 4, 3
+6 |   F             ∃E, 1, 3–5
+7 | ¬∀x P(x)        ¬I, 2–6`,
+  },
+  {
+    id: "ex-prove-nq3",
+    level: 8,
+    sequent: "¬∃x P(x) ⊢ ∀x ¬P(x)",
+    rules: { set: "base", exclude: ["NQ3"] },
+    hints: ["labelBeforeHypothesis"],
+    solution: `
+1 | ¬∃x P(x)        premissa
+  |  [u]
+2 |     P(u)        hipótese
+3 |     ∃x P(x)     ∃I, 2
+4 |     F           FI, 3, 1
+5 |   ¬P(u)         ¬I, 2–4
+6 | ∀x ¬P(x)        ∀I, 2–5`,
+  },
+  {
+    id: "ex-prove-nq4",
+    level: 8,
+    sequent: "∀x ¬P(x) ⊢ ¬∃x P(x)",
+    rules: { set: "base", exclude: ["NQ4"] },
+    solution: `
+1 | ∀x ¬P(x)        premissa
+2 |   ∃x P(x)       hipótese
+3 |    [u] P(u)     hipótese
+4 |     ¬P(u)       ∀E, 1
+5 |     F           FI, 3, 4
+6 |   F             ∃E, 2, 3–5
+7 | ¬∃x P(x)        ¬I, 2–6`,
+  },
+  {
+    id: "ex-nobody-is-both",
+    level: 8,
+    sequent: "¬∃x(P(x) ∧ Q(x)), P(a) ⊢ ¬Q(a)",
+    rules: "base",
+    solution: `
+1 | ¬∃x(P(x) ∧ Q(x))    premissa
+2 | P(a)                premissa
+3 |   Q(a)              hipótese
+4 |   P(a) ∧ Q(a)       ∧I, 2, 3
+5 |   ∃x(P(x) ∧ Q(x))   ∃I, 4
+6 |   F                 FI, 5, 1
+7 | ¬Q(a)               ¬I, 3–6`,
+  },
+  {
+    id: "ex-not-all-pass",
+    level: 8,
+    sequent: "∀x(P(x) → Q(x)), ¬∀x Q(x) ⊢ ¬∀x P(x)",
+    rules: "base",
+    hints: ["assumeTheUniversal"],
+    solution: `
+1 | ∀x(P(x) → Q(x))     premissa
+2 | ¬∀x Q(x)            premissa
+3 |   ∀x P(x)           hipótese
+4 |    [u] P(u)         ∀E, 3
+5 |     P(u) → Q(u)     ∀E, 1
+6 |     Q(u)            →E, 4, 5
+7 |   ∀x Q(x)           ∀I, 4–6
+8 |   F                 FI, 7, 2
+9 | ¬∀x P(x)            ¬I, 3–8`,
+  },
+  {
+    id: "ex-no-counterexample",
+    level: 8,
+    sequent: "¬∃x ¬P(x) ⊢ ∀x P(x)",
+    rules: "completo",
+    hints: ["pushTheNegationIn"],
+    solution: `
+1 | ¬∃x ¬P(x)       premissa
+2 | ∀x ¬¬P(x)       NQ3, 1
+3 |  [u] ¬¬P(u)     ∀E, 2
+4 |   P(u)          ¬E, 3
+5 | ∀x P(x)         ∀I, 3–4`,
+  },
+  {
+    id: "ex-some-fails-both",
+    level: 8,
+    sequent: "¬∀x(P(x) ∨ Q(x)) ⊢ ∃x ¬P(x)",
+    rules: "completo",
+    hints: ["pushTheNegationIn", "deMorganInsideTheBox"],
+    solution: `
+1 | ¬∀x(P(x) ∨ Q(x))       premissa
+2 | ∃x ¬(P(x) ∨ Q(x))      NQ1, 1
+3 |  [u] ¬(P(u) ∨ Q(u))    hipótese
+4 |   ¬P(u) ∧ ¬Q(u)        DM, 3
+5 |   ¬P(u)                ∧E, 4
+6 |   ∃x ¬P(x)             ∃I, 5
+7 | ∃x ¬P(x)               ∃E, 2, 3–6`,
+  },
+
+  // Nível 9: igualdade e quantificadores encaixados.
+  {
+    id: "ex-equal-neighbours",
+    level: 9,
+    sequent: "a = b, R(a, a) ⊢ R(a, b)",
+    rules: { set: "restrito", only: ["=E"] },
+    hints: ["replaceSomeOccurrences"],
+    solution: `
+1 | a = b     premissa
+2 | R(a, a)   premissa
+3 | R(a, b)   =E, 1, 2`,
+  },
+  {
+    id: "ex-back-to-the-source",
+    level: 9,
+    sequent: "f(a) = b, P(b) ⊢ P(f(a))",
+    rules: "base",
+    hints: ["turnTheEquation"],
+    solution: `
+1 | f(a) = b      premissa
+2 | P(b)          premissa
+3 | f(a) = f(a)   =I
+4 | b = f(a)      =E, 1, 3
+5 | P(f(a))       =E, 4, 2`,
+  },
+  {
+    id: "ex-only-a-qualifies",
+    level: 9,
+    sequent: "∀x(P(x) → x = a), P(b), Q(b) ⊢ Q(a)",
+    rules: "base",
+    solution: `
+1 | ∀x(P(x) → x = a)   premissa
+2 | P(b)               premissa
+3 | Q(b)               premissa
+4 | P(b) → b = a       ∀E, 1
+5 | b = a              →E, 2, 4
+6 | Q(a)               =E, 5, 3`,
+  },
+  {
+    id: "ex-swap-the-arguments",
+    level: 9,
+    sequent: "a = b ⊢ g(a, b) = g(b, a)",
+    rules: "base",
+    hints: ["startFromReflexivity"],
+    solution: `
+1 | a = b               premissa
+2 | g(a, a) = g(a, a)   =I
+3 | g(a, b) = g(b, a)   =E, 1, 2`,
+  },
+  {
+    id: "ex-a-common-bound",
+    level: 9,
+    sequent: "∃y∀x R(x, y) ⊢ ∀x∃y R(x, y)",
+    rules: "base",
+    hints: ["existsBoxFirst"],
+    solution: `
+1 | ∃y∀x R(x, y)       premissa
+2 |  [w] ∀x R(x, w)    hipótese
+3 |    [u] R(u, w)     ∀E, 2
+4 |     ∃y R(u, y)     ∃I, 3
+5 |   ∀x∃y R(x, y)     ∀I, 3–4
+6 | ∀x∃y R(x, y)       ∃E, 1, 2–5`,
+  },
+  {
+    id: "ex-pointing-back",
+    level: 9,
+    sequent: "∀x∃y R(x, y), ∀x∀y(R(x, y) → R(y, x)) ⊢ ∀x∃y R(y, x)",
+    rules: "base",
+    hints: ["boxInsideBox"],
+    solution: `
+ 1 | ∀x∃y R(x, y)               premissa
+ 2 | ∀x∀y(R(x, y) → R(y, x))    premissa
+ 3 |  [u] ∃y R(u, y)            ∀E, 1
+ 4 |    [w] R(u, w)             hipótese
+ 5 |     ∀y(R(u, y) → R(y, u))  ∀E, 2
+ 6 |     R(u, w) → R(w, u)      ∀E, 5
+ 7 |     R(w, u)                →E, 4, 6
+ 8 |     ∃y R(y, u)             ∃I, 7
+ 9 |   ∃y R(y, u)               ∃E, 3, 4–8
+10 | ∀x∃y R(y, x)               ∀I, 3–9`,
+  },
+  {
+    id: "ex-at-most-one",
+    level: 9,
+    sequent: "∃x(P(x) ∧ ∀y(P(y) → y = x)), P(a), P(b) ⊢ a = b",
+    rules: "base",
+    hints: ["witnessBox", "equalToTheWitness"],
+    solution: `
+ 1 | ∃x(P(x) ∧ ∀y(P(y) → y = x))    premissa
+ 2 | P(a)                           premissa
+ 3 | P(b)                           premissa
+ 4 |  [u] P(u) ∧ ∀y(P(y) → y = u)   hipótese
+ 5 |   ∀y(P(y) → y = u)             ∧E, 4
+ 6 |   P(a) → a = u                 ∀E, 5
+ 7 |   a = u                        →E, 2, 6
+ 8 |   P(b) → b = u                 ∀E, 5
+ 9 |   b = u                        →E, 3, 8
+10 |   b = b                        =I
+11 |   u = b                        =E, 9, 10
+12 |   a = b                        =E, 11, 7
+13 | a = b                          ∃E, 1, 4–12`,
+  },
 ]);

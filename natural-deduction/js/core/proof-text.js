@@ -10,6 +10,16 @@
 // Cada linha tem o número, uma barra, a fórmula e a justificação. A profundidade é a indentação
 // depois da barra: um espaço, mais dois por escopo. `?` é uma fórmula por preencher. As linhas
 // em branco ignoram-se.
+//
+// Na 1.ª ordem, a variável nova de uma caixa marca-se à margem, onde começa a caixa:
+//
+//   3 |  [v] P(v) → Q(v)   ∀E, 1        passo que abre a caixa do ∀I, à profundidade 1
+//     |  [u]                           linha de etiqueta: caixa do ∀I que começa por uma hipótese
+//   4 |     P(u)          hipótese
+//
+// A marca `[v]` fica a 2·profundidade espaços da barra, onde ficaria a barra da caixa, e a fórmula vem
+// depois dela. A linha de etiqueta não tem número e abre a caixa da hipótese seguinte, um nível mais
+// dentro; no modelo é o campo `label` dessa hipótese.
 // Contrato:
 //   parseProof(text) → { ok: true, proof } | { ok: false, error: { code, params, start, end } }
 //   formatProof(proof, labels, ruleLabels) → texto que `parseProof` volta a ler
@@ -17,7 +27,7 @@
 // `PROOF_TEXT_ERROR_CODES` (`proofText.errors.*`), do parser (`parser.errors.*`) e da estrutura da
 // prova (`proof.errors.*`).
 
-import { format } from "./formula.js";
+import { format, isTermName } from "./formula.js";
 import { parseFormula } from "./parser.js";
 import { citeLine, citeRange, createProof } from "./proof.js";
 import { ruleLabel } from "./rules.js";
@@ -30,6 +40,8 @@ export const PROOF_TEXT_ERROR_CODES = [
   "missingRuleName", // há citações, mas não há regra
   "badCitation", // { token }: citação que não é um número nem um intervalo crescente
   "unexpectedCitation", // premissas e hipóteses não citam linhas
+  "badFresh", // { name }: a marca `[…]` não tem um nome que possa ser variável, ou está numa premissa
+  "orphanLabel", // a linha de etiqueta não vem antes de uma hipótese um nível mais dentro
 ];
 
 /** Marcador de uma fórmula por preencher. */
@@ -71,9 +83,15 @@ export const RULE_ALIASES = new Map([
   ["LEM", "TE"],
   ["HS", "SH"],
   ["DS", "SD"],
+  ["QN1", "NQ1"],
+  ["QN2", "NQ2"],
+  ["QN3", "NQ3"],
+  ["QN4", "NQ4"],
 ]);
 
 const LINE_RE = /^\s*(\d+)\s*\|(.*)$/;
+const LABEL_LINE_RE = /^\s*\|([ \t]*)\[([^\]]*)\]\s*$/;
+const MARK_RE = /^\[([^\]]*)\][ \t]*/;
 const CITATION_RE = /^(\d+)(?:\s*[-–—]\s*(\d+))?$/;
 
 const failure = (code, start, end, params) => ({ ok: false, error: { code, params, start, end } });
@@ -172,14 +190,22 @@ function parseLine(raw, lineStart, number) {
 
   const restStart = raw.length - rest.length;
   const indent = /^[ \t]*/.exec(rest)[0];
-  const bodyStart = restStart + indent.length;
-  if (indent.includes("\t") || (indent.length > 0 && indent.length % 2 === 0)) {
-    return fail("badIndent", restStart, bodyStart);
-  }
-  const depth = Math.max(indent.length - 1, 0) / 2;
+  let bodyStart = restStart + indent.length;
+  const mark = MARK_RE.exec(rest.slice(indent.length));
+  if (!indentFits(indent, Boolean(mark))) return fail("badIndent", restStart, bodyStart);
+  const depth = mark ? indent.length / 2 : Math.max(indent.length - 1, 0) / 2;
 
-  const body = rest.slice(indent.length).trimEnd();
-  const comma = body.indexOf(",");
+  let fresh = null;
+  if (mark) {
+    fresh = mark[1].trim();
+    if (!isTermName(fresh)) {
+      return fail("badFresh", bodyStart, bodyStart + mark[0].trimEnd().length, { name: fresh });
+    }
+    bodyStart += mark[0].length;
+  }
+
+  const body = raw.slice(bodyStart).trimEnd();
+  const comma = topLevelComma(body);
   const hasCitations = comma !== -1;
   const head = (hasCitations ? body.slice(0, comma) : body).trimEnd();
   const split = ruleStart(head, hasCitations);
@@ -199,6 +225,10 @@ function parseLine(raw, lineStart, number) {
   }
 
   const kind = LINE_KINDS.get(ruleText.toLowerCase()) ?? "step";
+  if (fresh !== null && kind === "premise") {
+    const markStart = restStart + indent.length;
+    return fail("badFresh", markStart, markStart + mark[0].trimEnd().length, { name: fresh });
+  }
   if (hasCitations && kind !== "step") {
     return fail("unexpectedCitation", bodyStart + comma, bodyStart + body.length);
   }
@@ -208,24 +238,81 @@ function parseLine(raw, lineStart, number) {
   if (failed) return failed;
 
   const rule = kind === "step" && ruleText ? ruleId(ruleText) : null;
-  return { ok: true, line: { kind, depth, formula, rule, citations } };
+  return { ok: true, line: { kind, depth, formula, rule, citations, fresh } };
+}
+
+/**
+ * Indica se a indentação serve: um espaço mais dois por escopo, ou, antes de uma marca `[v]`, dois
+ * por escopo (a marca fica onde estaria a barra da caixa que abre).
+ */
+function indentFits(indent, marked) {
+  if (indent.includes("\t")) return false;
+  if (marked) return indent.length > 0 && indent.length % 2 === 0;
+  return indent.length === 0 || indent.length % 2 === 1;
+}
+
+/** A primeira vírgula fora de parênteses, que separa a regra das citações, ou -1. */
+function topLevelComma(body) {
+  let level = 0;
+  for (let index = 0; index < body.length; index += 1) {
+    const char = body[index];
+    if (char === "(") level += 1;
+    else if (char === ")") level = Math.max(level - 1, 0);
+    else if (char === "," && level === 0) return index;
+  }
+  return -1;
+}
+
+/** Lê uma linha de etiqueta (`  |  [v]`), ou devolve null se `raw` não tiver essa forma. */
+function parseLabelLine(raw, lineStart, number) {
+  const match = LABEL_LINE_RE.exec(raw);
+  if (!match) return null;
+  const [, indent, written] = match;
+  const indentStart = raw.indexOf("|") + 1;
+  const markStart = indentStart + indent.length;
+  const fail = (code, start, end, params = {}) => (
+    failure(code, lineStart + start, lineStart + end, { line: number, ...params })
+  );
+  if (!indentFits(indent, true)) return fail("badIndent", indentStart, markStart);
+  const name = written.trim();
+  if (!isTermName(name)) return fail("badFresh", markStart, raw.trimEnd().length, { name });
+  return { ok: true, label: { name, depth: indent.length / 2 } };
 }
 
 /** Lê uma prova; as regras não se validam aqui, porque isso é com o verificador. */
 export function parseProof(text) {
   const lines = [];
   const spans = [];
+  let pending = null; // a linha de etiqueta à espera da hipótese: { name, depth, start, end }
+  const orphan = () => (
+    failure("orphanLabel", pending.start, pending.end, { line: lines.length + 1 })
+  );
   let offset = 0;
   for (const written of text.split("\n")) {
     const raw = written.replace(/\r$/, "");
     if (raw.trim() !== "") {
-      const result = parseLine(raw, offset, lines.length + 1);
-      if (!result.ok) return result;
-      lines.push(result.line);
-      spans.push({ start: offset, end: offset + raw.length });
+      const number = lines.length + 1;
+      const labelLine = parseLabelLine(raw, offset, number);
+      if (labelLine && !labelLine.ok) return labelLine;
+      if (labelLine) {
+        if (pending) return orphan();
+        pending = { ...labelLine.label, start: offset, end: offset + raw.length };
+      } else {
+        const result = parseLine(raw, offset, number);
+        if (!result.ok) return result;
+        const { line } = result;
+        if (pending) {
+          if (line.kind !== "hypothesis" || line.depth !== pending.depth + 1) return orphan();
+          line.label = pending.name;
+          pending = null;
+        }
+        lines.push(line);
+        spans.push({ start: offset, end: offset + raw.length });
+      }
     }
     offset += written.length + 1;
   }
+  if (pending) return orphan();
 
   const result = createProof(lines);
   if (result.ok) return result;
@@ -248,6 +335,9 @@ function justification({ kind, rule, citations }, labels, ruleLabels) {
   return formatJustification(rule, citations, ruleLabels);
 }
 
+/** A marca da variável de uma caixa à profundidade `depth`, com a indentação antes dela. */
+const mark = (depth, name) => `${" ".repeat(2 * depth)}[${name}]`;
+
 /**
  * Imprime a prova com as justificações em coluna. `labels` tem as palavras { premise, hypothesis }
  * do idioma da página (`proofText.premise` e `proofText.hypothesis`), todas lidas por `parseProof`.
@@ -255,14 +345,17 @@ function justification({ kind, rule, citations }, labels, ruleLabels) {
  */
 export function formatProof({ lines }, labels = DEFAULT_LABELS, ruleLabels = {}) {
   const numberWidth = String(lines.length).length;
-  const bodies = lines.map(({ depth, formula }) => (
-    "  ".repeat(depth) + (formula ? format(formula) : EMPTY_FORMULA)
-  ));
+  const bodies = lines.map(({ depth, formula, fresh = null }) => {
+    const written = formula ? format(formula) : EMPTY_FORMULA;
+    return fresh === null ? ` ${"  ".repeat(depth)}${written}` : `${mark(depth, fresh)} ${written}`;
+  });
   const column = bodies.reduce((widest, body) => Math.max(widest, body.length), 0);
-  return lines.map((line, index) => {
+  return lines.flatMap((line, index) => {
     const number = String(index + 1).padStart(numberWidth);
     const written = justification(line, labels, ruleLabels);
     const body = written ? `${bodies[index].padEnd(column)}   ${written}` : bodies[index];
-    return `${number} | ${body}`;
+    const numbered = `${number} |${body}`;
+    const { label = null } = line;
+    return label === null ? [numbered] : [`${" ".repeat(numberWidth)} |${mark(line.depth - 1, label)}`, numbered];
   }).join("\n");
 }
