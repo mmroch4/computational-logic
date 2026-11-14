@@ -205,7 +205,7 @@ variável que escapa, v não nova, captura, ∃E com v na conclusão, =E mal apl
 
 ## Bloco P — Publicação
 
-### [ ] P1 · Documentação e SEO
+### [x] P1 · Documentação e SEO
 - `README.md` (não só proposicional, regras e notação novas), `DESIGN.md` se houver componentes novos,
   e `CLAUDE.md`.
 - Descrições SEO e `build:pages`. Imagens de partilha, se o texto delas mudar.
