@@ -23,6 +23,8 @@ import {
 } from "../js/core/find-error.js";
 import { RULES, ruleSet } from "../js/core/rules.js";
 import { checkSequent } from "../js/core/semantics.js";
+import { isPropositionalSequent } from "../js/core/sequent.js";
+import { findCountermodel } from "../js/core/structures.js";
 import { VERIFY_ERROR_CODES, verifyLine, verifyProof } from "../js/core/verify.js";
 import { LOCALES, initI18n, setLang } from "../js/ui/i18n.js";
 import { findErrorHtml } from "../js/ui/find-error.js";
@@ -30,8 +32,8 @@ import { findErrorHtml } from "../js/ui/find-error.js";
 const [FIRST] = FIND_ERROR_PUZZLES;
 const puzzleWith = (changes) => ({ ...FIRST, ...changes });
 
-test("há cerca de 10 desafios, com ids próprios", () => {
-  assert.ok(FIND_ERROR_PUZZLES.length >= 10 && FIND_ERROR_PUZZLES.length <= 12);
+test("há cerca de 15 desafios, com ids próprios", () => {
+  assert.ok(FIND_ERROR_PUZZLES.length >= 15 && FIND_ERROR_PUZZLES.length <= 18);
   assert.deepEqual(validatePuzzles(FIND_ERROR_PUZZLES), {});
   for (const { id } of FIND_ERROR_PUZZLES) assert.ok(isExerciseId(id), id);
 });
@@ -73,9 +75,40 @@ test("com sequente válido há prova correta; sem ela, o sequente é mesmo invá
   for (const puzzle of FIND_ERROR_PUZZLES) {
     const goal = puzzleGoal(puzzle);
     const solution = puzzleSolution(puzzle);
-    assert.equal(checkSequent(goal).valid, solution !== null, puzzle.id);
+    if (isPropositionalSequent(goal)) assert.equal(checkSequent(goal).valid, solution !== null, puzzle.id);
+    else assert.equal(findCountermodel(goal).status === "found", solution === null, puzzle.id);
     if (solution) assert.ok(verifyProof(solution, goal, ruleSet(puzzle.rules), RULES).ok, puzzle.id);
   }
+});
+
+// Os erros típicos da 1.ª ordem, cada um com o código do verificador e a regra da linha errada.
+const FIRST_ORDER_ERRORS = [
+  ["ex-err-captured-variable", "notSubstitutable", "∀E"],
+  ["ex-err-escaped-variable", "variableEscapes", "∀I"],
+  ["ex-err-witness-escapes", "variableEscapes", "∃E"],
+  ["ex-err-reused-witness", "notFresh", "∃E"],
+  ["ex-err-equality-backwards", "formulaMismatch", "=E"],
+];
+
+test("há desafios de 1.ª ordem para cada erro típico, depois dos proposicionais", () => {
+  const firstOrder = FIND_ERROR_PUZZLES.filter((puzzle) => !isPropositionalSequent(puzzleGoal(puzzle)));
+  assert.deepEqual(firstOrder.map(({ id }) => id), FIRST_ORDER_ERRORS.map(([id]) => id));
+  assert.deepEqual(FIND_ERROR_PUZZLES.slice(-firstOrder.length), firstOrder);
+  for (const [id, code, rule] of FIRST_ORDER_ERRORS) {
+    const puzzle = FIND_ERROR_PUZZLES.find((item) => item.id === id);
+    assert.deepEqual(puzzleFindings(puzzle), [{ line: puzzle.line, code }], id);
+    assert.equal(puzzleProof(puzzle).lines[puzzle.line - 1].rule, rule, id);
+    assert.ok(puzzle.level >= 6, id);
+  }
+});
+
+test("sem solução, um sequente de 1.ª ordem precisa de um contramodelo finito", () => {
+  const reused = FIND_ERROR_PUZZLES.find(({ id }) => id === "ex-err-reused-witness");
+  assert.deepEqual(validatePuzzle(reused), []);
+  const valid = { ...reused, sequent: "∃x P(x), ∃x Q(x) ⊢ ∃x P(x)" };
+  assert.ok(validatePuzzle(valid).includes("missingSolution"));
+  const escaped = FIND_ERROR_PUZZLES.find(({ id }) => id === "ex-err-escaped-variable");
+  assert.ok(validatePuzzle({ ...escaped, solution: undefined }).includes("missingSolution"));
 });
 
 test("os desafios cobrem erros de tipos diferentes, com e sem subdeduções", () => {

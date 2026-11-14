@@ -237,4 +237,103 @@ export const FIND_ERROR_PUZZLES = Object.freeze([
 4 | ¬¬l        ¬¬I, 2
 5 | ¬m         SD, 3, 4`,
   },
+  {
+    id: "ex-err-captured-variable",
+    level: 6,
+    sequent: "∀x∃y L(x, y) ⊢ ∃x L(x, x)",
+    rules: "base",
+    proof: `
+1 | ∀x∃y L(x, y)   premissa
+2 | ∃y L(y, y)     ∀E, 1
+3 |  [v] L(v, v)   hipótese
+4 |   ∃x L(x, x)   ∃I, 3
+5 | ∃x L(x, x)     ∃E, 2, 3–4`,
+    line: 2,
+    answer: "capturedTerm",
+    distractors: ["variableNotFresh", "laterLine", "equalityDirection"],
+    explanation: "capturedVariable",
+  },
+  {
+    id: "ex-err-escaped-variable",
+    level: 7,
+    sequent: "∀x R(x, x) ⊢ ∀x∃y R(x, y)",
+    rules: "base",
+    proof: `
+1 | ∀x R(x, x)     premissa
+2 |  [v] R(v, v)   ∀E, 1
+3 | ∀x R(x, v)     ∀I, 2–2
+4 |  [w] R(w, v)   ∀E, 3
+5 |   ∃y R(w, y)   ∃I, 4
+6 | ∀x∃y R(x, y)   ∀I, 4–5`,
+    line: 3,
+    answer: "forallVariableFree",
+    distractors: ["variableNotFresh", "closedSubproofLine", "capturedTerm"],
+    explanation: "escapedVariable",
+    solution: `
+1 | ∀x R(x, x)     premissa
+2 |  [v] R(v, v)   ∀E, 1
+3 |   ∃y R(v, y)   ∃I, 2
+4 | ∀x∃y R(x, y)   ∀I, 2–3`,
+  },
+  {
+    id: "ex-err-witness-escapes",
+    level: 7,
+    sequent: "∃x(P(x) ∧ Q(x)) ⊢ ∃x P(x)",
+    rules: "base",
+    proof: `
+1 | ∃x(P(x) ∧ Q(x))   premissa
+2 |  [v] P(v) ∧ Q(v)  hipótese
+3 |   P(v)            ∧E, 2
+4 | P(v)              ∃E, 1, 2–3
+5 | ∃x P(x)           ∃I, 4`,
+    line: 4,
+    answer: "witnessInConclusion",
+    distractors: ["closedSubproofLine", "variableNotFresh", "capturedTerm"],
+    explanation: "witnessEscapes",
+    solution: `
+1 | ∃x(P(x) ∧ Q(x))   premissa
+2 |  [v] P(v) ∧ Q(v)  hipótese
+3 |   P(v)            ∧E, 2
+4 |   ∃x P(x)         ∃I, 3
+5 | ∃x P(x)           ∃E, 1, 2–4`,
+  },
+  {
+    id: "ex-err-reused-witness",
+    level: 7,
+    sequent: "∃x P(x), ∃x Q(x) ⊢ ∃x(P(x) ∧ Q(x))",
+    rules: "base",
+    proof: `
+1 | ∃x P(x)              premissa
+2 | ∃x Q(x)              premissa
+3 |  [v] P(v)            hipótese
+4 |    [v] Q(v)          hipótese
+5 |     P(v) ∧ Q(v)      ∧I, 3, 4
+6 |     ∃x(P(x) ∧ Q(x))  ∃I, 5
+7 |   ∃x(P(x) ∧ Q(x))    ∃E, 2, 4–6
+8 | ∃x(P(x) ∧ Q(x))      ∃E, 1, 3–7`,
+    line: 7,
+    answer: "variableNotFresh",
+    distractors: ["witnessInConclusion", "citesOpenSubproof", "capturedTerm"],
+    explanation: "reusedWitness",
+  },
+  {
+    id: "ex-err-equality-backwards",
+    level: 9,
+    sequent: "a = b, P(b) ⊢ P(a)",
+    rules: "base",
+    proof: `
+1 | a = b   premissa
+2 | P(b)    premissa
+3 | P(a)    =E, 1, 2`,
+    line: 3,
+    answer: "equalityDirection",
+    distractors: ["affirmedConsequent", "capturedTerm", "ruleNotInSet"],
+    explanation: "equalityBackwards",
+    solution: `
+1 | a = b   premissa
+2 | P(b)    premissa
+3 | a = a   =I
+4 | b = a   =E, 1, 3
+5 | P(a)    =E, 4, 2`,
+  },
 ]);

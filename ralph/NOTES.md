@@ -231,3 +231,9 @@ Decisões e armadilhas que afetam tarefas futuras. Uma linha por nota, numa sec�
   exceto o Ex. 2.13 (simetria/transitividade de =): a pergunta `equalityLine` do quiz da C2 coincide com
   ele. Rever na pausa se o quiz deve mudar.
 - Os enunciados de 1.ª ordem usam predicados com uma maiúscula e átomos 0-ários com uma minúscula sem v.
+
+## C4
+
+- 5 desafios de 1.ª ordem no fim do catálogo (níveis 6, 7 e 9), com 5 explicações novas em `REASONS`
+  (duas com `variableEscapes`: ∀I e ∃E). O `notFresh` da caixa repetida aponta o ∃E que a fecha, não a
+  hipótese. Sem solução, um sequente de 1.ª ordem precisa de contramodelo do `findCountermodel`.

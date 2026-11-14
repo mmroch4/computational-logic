@@ -11,7 +11,8 @@
 //   answer      chave de `REASONS`: a explicação certa, em `exercises.findError.reasons.*`
 //   distractors chaves de `REASONS`, com outro código do verificador: por isso são mesmo falsas
 //   explanation chave de `exercises.findError.explanations.*`: o erro desta prova, em concreto
-//   solution    prova correta do mesmo sequente. Sem ela, o sequente tem de ser inválido
+//   solution    prova correta do mesmo sequente. Sem ela, o sequente tem de ser inválido: pela
+//               tabela de verdade ou, em 1.ª ordem, por um contramodelo finito de `structures.js`
 //
 // Contrato:
 //   puzzleGoal(puzzle), puzzleProof(puzzle), puzzleSolution(puzzle) → sequente, prova, prova ou null
@@ -33,7 +34,8 @@ import { FIND_ERROR_PUZZLES } from "./find-error-catalog.js";
 import { parseProof } from "./proof-text.js";
 import { RULES, ruleSet } from "./rules.js";
 import { checkSequent } from "./semantics.js";
-import { parseSequent } from "./sequent.js";
+import { isPropositionalSequent, parseSequent } from "./sequent.js";
+import { findCountermodel } from "./structures.js";
 import { verifyProof } from "./verify.js";
 
 export { FIND_ERROR_PUZZLES };
@@ -53,6 +55,11 @@ export const REASONS = Object.freeze({
   missingCase: "missingCitation",
   ruleNotInSet: "ruleNotAllowed",
   assumedPremise: "extraPremise",
+  forallVariableFree: "variableEscapes",
+  witnessInConclusion: "variableEscapes",
+  variableNotFresh: "notFresh",
+  capturedTerm: "notSubstitutable",
+  equalityDirection: "formulaMismatch",
 });
 
 const ID_PATTERN = /^ex-err-[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -90,8 +97,10 @@ function proofProblems(puzzle) {
 
 function solutionProblems(puzzle) {
   if (puzzle.solution === undefined) {
-    // Sem solução, só um sequente que a tabela prova inválido; em 1.ª ordem a tabela não decide.
-    const decided = checkSequent(puzzleGoal(puzzle));
+    // Sem solução, só um sequente inválido: pela tabela ou, em 1.ª ordem, com um contramodelo finito.
+    const goal = puzzleGoal(puzzle);
+    if (!isPropositionalSequent(goal)) return findCountermodel(goal).status === "found" ? [] : ["missingSolution"];
+    const decided = checkSequent(goal);
     return decided.ok && !decided.valid ? [] : ["missingSolution"];
   }
   if (typeof puzzle.solution !== "string" || !parseProof(puzzle.solution.trim()).ok) return ["badSolution"];
