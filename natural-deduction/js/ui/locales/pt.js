@@ -847,12 +847,12 @@ export default {
           },
         },
         equalityLine: {
-          prompt: "Queres juntar as duas igualdades. Qual destas linhas é a 3?",
+          prompt: "Queres usar a igualdade da linha 1 na linha 2. Qual destas linhas é a 3?",
           why: {
-            right: "Em a = b, troca-se b por c com a linha 2, b = c. O =E dá a = c, e as duas linhas citam-se por qualquer ordem.",
-            reflexive: "O =I só dá um termo igual a si próprio, como a = a. a = c precisa das premissas.",
-            flipped: "Trocar b por c em a = b dá a = c, não c = a. Para virar a igualdade, era precisa mais uma linha, como na prova da simetria.",
-            wrongRule: "Nenhuma das linhas é uma implicação. Para usar uma igualdade, a regra é o =E.",
+            right: "Com a = b, o =E troca a por b na linha 2. Não precisa de trocar todas as ocorrências: trocar só a de P(a) dá P(b) ∧ Q(a), e o Q(a) fica como estava.",
+            otherTerm: "A linha 1 só diz que a e b são o mesmo objeto. Não diz nada sobre c, por isso o =E não pode pôr c no lugar de a.",
+            onlyEquality: "O =E cita duas linhas: a igualdade e a fórmula onde se faz a troca. Sem a linha 2, a regra não tem onde trocar a por b.",
+            reflexive: "O =I não cita nada e só dá um termo igual a si próprio, como a = a. Para usar a = b, a regra é o =E.",
           },
         },
         quantifierNegation: {

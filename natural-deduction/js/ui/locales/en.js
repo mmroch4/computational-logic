@@ -846,12 +846,12 @@ export default {
           },
         },
         equalityLine: {
-          prompt: "You want to combine the two equalities. Which of these lines is line 3?",
+          prompt: "You want to use the equality in line 1 on line 2. Which of these lines is line 3?",
           why: {
-            right: "In a = b, b is replaced with c using line 2, b = c. =E gives a = c, and the two lines can be cited in any order.",
-            reflexive: "=I only gives a term equal to itself, like a = a. a = c needs the premises.",
-            flipped: "Replacing b with c in a = b gives a = c, not c = a. Turning the equality around would take one more line, as in the symmetry proof.",
-            wrongRule: "Neither line is an implication. To use an equality, the rule is =E.",
+            right: "With a = b, =E replaces a with b in line 2. It does not have to replace every occurrence: replacing only the one in P(a) gives P(b) ∧ Q(a), and Q(a) stays as it was.",
+            otherTerm: "Line 1 only says that a and b are the same object. It says nothing about c, so =E cannot put c in place of a.",
+            onlyEquality: "=E cites two lines: the equality and the formula where the replacement happens. Without line 2, the rule has nothing to replace a in.",
+            reflexive: "=I cites nothing and only gives a term equal to itself, like a = a. To use a = b, the rule is =E.",
           },
         },
         quantifierNegation: {

@@ -129,8 +129,9 @@ export const COURSE_SEQUENTS = Object.freeze([
   "⊢ (¬p → q) → ((p → q) → q)",
   "⊢ ((p → q) → p) → p",
   // 1.ª ordem: exercícios 2.13–2.22 e Proposições 2.6 e 2.9 do LPLPO-2 (iguais no nlc-4), com φ e ψ
-  // trocadas por P(x) e Q(x), ou por um átomo q quando x não pode ocorrer livre. Fica de fora o 2.13
-  // (simetria e transitividade de =): são propriedades-padrão, e a lição e o quiz da C2 usam-nas.
+  // trocadas por P(x) e Q(x), ou por um átomo q quando x não pode ocorrer livre. A simetria do 2.13 fica
+  // de fora: é uma propriedade-padrão de =, e a lição prova-a na secção da igualdade.
+  "t = s, s = r ⊢ t = r",
   "∀x(P(x) → Q(x)), ∀x P(x) ⊢ ∀x Q(x)",
   "P(t), ∀x(P(x) → ¬Q(x)) ⊢ ¬Q(t)",
   "⊢ ∀x(P(x) → Q(x)) → (∀x P(x) → ∀x Q(x))",

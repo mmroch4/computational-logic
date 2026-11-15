@@ -194,11 +194,11 @@ export function quizQuestions() {
       options: escapeOptions,
       answer: answerByFinding(escapeOptions, ESCAPE_PROOF, ESCAPE_SEQUENT),
     },
-    lineQuestion("equalityLine", "a = b, b = c ⊢ a = c", "1 | a = b   premissa\n2 | b = c   premissa", [
-      ["right", "3 | a = c   =E, 1, 2"],
-      ["reflexive", "3 | a = c   =I"],
-      ["flipped", "3 | c = a   =E, 1, 2"],
-      ["wrongRule", "3 | a = c   →E, 1, 2"],
+    lineQuestion("equalityLine", "a = b, P(a) ∧ Q(a) ⊢ P(b) ∧ Q(a)", "1 | a = b         premissa\n2 | P(a) ∧ Q(a)   premissa", [
+      ["right", "3 | P(b) ∧ Q(a)   =E, 1, 2"],
+      ["otherTerm", "3 | P(b) ∧ Q(c)   =E, 1, 2"],
+      ["onlyEquality", "3 | P(b) ∧ Q(a)   =E, 1"],
+      ["reflexive", "3 | P(b) ∧ Q(a)   =I"],
     ]),
     {
       id: "quantifierNegation",
